@@ -15,12 +15,23 @@ using namespace node;
 //static Persistent<String> connect_symbol;
 //static Persistent<String> close_symbol;
 //static Persistent<String> escape_symbol;
-//static Persistent<String> fetch_result_symbol;
+//static Persistent<String> fetchResult_symbol;
+//static Persistent<String> getInfo_symbol;
 //static Persistent<String> query_symbol;
 
 class MysqlDbSync : public EventEmitter
 {
   public:
+    struct MysqlDbSyncInfo
+    {
+        unsigned long client_version;
+        const char *client_info;
+        unsigned long server_version;
+        const char *server_info;
+        const char *host_info;
+        unsigned int proto_info;
+    };
+    
     static void Init(v8::Handle<v8::Object> target) 
     {
         HandleScope scope;
@@ -33,13 +44,15 @@ class MysqlDbSync : public EventEmitter
         //connect_symbol = NODE_PSYMBOL("connect");
         //close_symbol = NODE_PSYMBOL("close");
         //escape_symbol = NODE_PSYMBOL("escape");
-        //fetch_result_symbol = NODE_PSYMBOL("fetch_result");
+        //fetchResult_symbol = NODE_PSYMBOL("fetchResult");
+        //getInfo_symbol = NODE_PSYMBOL("getInfo");
         //query_symbol = NODE_PSYMBOL("query");
 
         NODE_SET_PROTOTYPE_METHOD(t, "connect", Connect);
         NODE_SET_PROTOTYPE_METHOD(t, "close", Close);
         NODE_SET_PROTOTYPE_METHOD(t, "escape", Escape);
-        NODE_SET_PROTOTYPE_METHOD(t, "fetch_result", FetchResult);
+        NODE_SET_PROTOTYPE_METHOD(t, "fetchResult", FetchResult);
+        NODE_SET_PROTOTYPE_METHOD(t, "getInfo", GetInfo);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
 
         target->Set(v8::String::NewSymbol("MysqlDbSync"), t->GetFunction());
@@ -76,6 +89,11 @@ class MysqlDbSync : public EventEmitter
         }
     }
     
+    const char* ErrorMessage ( )
+    {
+        return mysql_error(_connection);
+    }
+    
     bool Escape(const char* query, int length)
     {
         //TODO: Implement this
@@ -88,9 +106,18 @@ class MysqlDbSync : public EventEmitter
         //TODO: Implement this
     }
     
-    const char* ErrorMessage ( )
+    MysqlDbSyncInfo GetInfo ()
     {
-        return mysql_error(_connection);
+        MysqlDbSyncInfo info;
+        
+        info.client_version = mysql_get_client_version();
+        info.client_info = mysql_get_client_info();
+        info.server_version = mysql_get_server_version(_connection);
+        info.server_info = mysql_get_server_info(_connection);
+        info.host_info = mysql_get_host_info(_connection);
+        info.proto_info = mysql_get_proto_info(_connection);
+        
+        return info;
     }
     
     bool Query(const char* query, int length)
@@ -189,6 +216,26 @@ class MysqlDbSync : public EventEmitter
         //TODO: Implement this
         
         return Undefined();
+    }
+    
+    static Handle<Value> GetInfo (const Arguments& args)
+    {
+        HandleScope scope;
+        
+        MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        
+        MysqlDbSyncInfo info = connection->GetInfo();
+        
+        Local<Object> result = Object::New();
+        
+        result->Set(String::New("client_version"), Integer::New(info.client_version));
+        result->Set(String::New("client_info"), String::New(info.client_info));
+        result->Set(String::New("server_version"), Integer::New(info.server_version));
+        result->Set(String::New("server_info"), String::New(info.server_info));
+        result->Set(String::New("host_info"), String::New(info.host_info));
+        result->Set(String::New("proto_info"), Integer::New(info.proto_info));
+               
+        return scope.Close(result); 
     }
 
     static Handle<Value> Query (const Arguments& args)

@@ -57,12 +57,20 @@ c.connect(host, user, password, database);
 sys.print("OK\n");
 
 sys.print("Reconnect to database " + reconnect_count + " times: ");
-for( i = 1; i <= reconnect_count; i++ )
+for( var i = 1; i <= reconnect_count; i++ )
 {
     c.close();
     c.connect(host, user, password, database);
 }
 sys.print("OK\n");
+
+sys.print("Get connection information: ");
+var info = c.getInfo();
+sys.print("OK\n");
+for( var i in info )
+{
+    sys.puts("info['" + i + "'] = " + info[i]);
+}
 
 //sys.print("Show tables query: ");
 //c.query("SHOW TABLES;");
