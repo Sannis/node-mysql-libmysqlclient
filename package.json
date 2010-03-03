@@ -1,0 +1,6 @@
+{
+    "name" : "node-mysql",
+    "description" : "MySQL synchronous binding for Node.js",
+    "version" : "0.0.1",
+    "author" : "Oleg Efimov <efimovov@gmail.com>"
+}
