@@ -46,6 +46,7 @@ class MysqlDbSync : public EventEmitter
         //escape_symbol = NODE_PSYMBOL("escape");
         //fetchResult_symbol = NODE_PSYMBOL("fetchResult");
         //getInfo_symbol = NODE_PSYMBOL("getInfo");
+        //getResult_symbol = NODE_PSYMBOL("getResult");
         //query_symbol = NODE_PSYMBOL("query");
 
         NODE_SET_PROTOTYPE_METHOD(t, "connect", Connect);
@@ -202,20 +203,108 @@ class MysqlDbSync : public EventEmitter
         
         MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
         
-        //TODO: Implement this
+        if(!connection->_connection)
+        {
+            return ThrowException(String::New("Not connected"));
+        }
+       
+        if (args.Length() == 0 || !args[0]->IsString()) {
+            return ThrowException(String::New("Nothing to escape"));
+        }
+
+        String::Utf8Value str(args[0]);
         
-        return Undefined();
+        int len = args[0]->ToString()->Utf8Length();
+        char *result = new char[2*len + 1];
+        if(!result)
+        {
+            return ThrowException(String::New("Not enough memory"));
+        }
+
+        int length = mysql_real_escape_string(connection->_connection, result, *str, len);
+        Local<Value> js_result = String::New(result, length);
+        
+        delete[] result;
+        return js_result;
     }
     
     static Handle<Value> FetchResult (const Arguments& args)
     {
         HandleScope scope;
-        
+   
         MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+
+        MYSQL_RES *result = mysql_use_result(connection->_connection);
+     
+        if(!result)
+        {
+            return scope.Close(False()); 
+        }
+
+        MYSQL_FIELD *fields = mysql_fetch_fields(result);
+        unsigned int num_fields = mysql_num_fields(result);
+        MYSQL_ROW result_row;
+        //my_ulonglong num_rows = mysql_num_rows(result); // Only use this with mysql_store_result() instead of mysql_use_result()
+        int i = 0, j = 0;
+
+        Local<Array> js_result = Array::New();
+        Local<Object> js_result_row;
+        Local<Value> js_field;
         
-        //TODO: Implement this
-        
-        return Undefined();
+        i = 0;
+        while( result_row = mysql_fetch_row(result) )
+        {
+            js_result_row = Object::New();
+            
+            for( j = 0; j < num_fields; j++ )
+            {
+                switch(fields[j].type)
+                {
+                  MYSQL_TYPE_BIT:
+                  
+                  MYSQL_TYPE_TINY:
+                  MYSQL_TYPE_SHORT:
+                  MYSQL_TYPE_LONG:
+                    
+                  MYSQL_TYPE_LONGLONG:
+                  MYSQL_TYPE_INT24:
+                    js_field = String::New(result_row[j])->ToInteger();
+                    break;
+                  MYSQL_TYPE_DECIMAL:
+                  MYSQL_TYPE_FLOAT:
+                  MYSQL_TYPE_DOUBLE:
+                    js_field = String::New(result_row[j])->ToNumber();
+                    break;
+                  //TODO: Handle other types, dates in first order
+                  /*  MYSQL_TYPE_NULL,   MYSQL_TYPE_TIMESTAMP,
+                    MYSQL_TYPE_DATE,   MYSQL_TYPE_TIME,
+                    MYSQL_TYPE_DATETIME, MYSQL_TYPE_YEAR,
+                    MYSQL_TYPE_NEWDATE, MYSQL_TYPE_VARCHAR,*/
+                    /*MYSQL_TYPE_NEWDECIMAL=246,
+                    MYSQL_TYPE_ENUM=247,
+                    MYSQL_TYPE_SET=248,
+                    MYSQL_TYPE_TINY_BLOB=249,
+                    MYSQL_TYPE_MEDIUM_BLOB=250,
+                    MYSQL_TYPE_LONG_BLOB=251,
+                    MYSQL_TYPE_BLOB=252,*/
+                  MYSQL_TYPE_VAR_STRING:
+                  MYSQL_TYPE_STRING:
+                    js_field = String::New(result_row[j]);
+                    break;
+                    /*MYSQL_TYPE_GEOMETRY=255*/
+                  default:
+                    js_field = String::New(result_row[j]);
+                }
+                
+                js_result_row->Set(String::New(fields[j].name), js_field);
+            }
+            
+            js_result->Set(Integer::New(i), js_result_row);
+            
+            i++;
+        }
+ 
+        return scope.Close(js_result); 
     }
     
     static Handle<Value> GetInfo (const Arguments& args)
