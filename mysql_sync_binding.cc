@@ -14,6 +14,9 @@ using namespace node;
 
 //static Persistent<String> connect_symbol;
 //static Persistent<String> close_symbol;
+//static Persistent<String> escape_symbol;
+//static Persistent<String> fetch_result_symbol;
+//static Persistent<String> query_symbol;
 
 class MysqlDbSync : public EventEmitter
 {
@@ -29,16 +32,25 @@ class MysqlDbSync : public EventEmitter
         
         //connect_symbol = NODE_PSYMBOL("connect");
         //close_symbol = NODE_PSYMBOL("close");
+        //escape_symbol = NODE_PSYMBOL("escape");
+        //fetch_result_symbol = NODE_PSYMBOL("fetch_result");
+        //query_symbol = NODE_PSYMBOL("query");
 
         NODE_SET_PROTOTYPE_METHOD(t, "connect", Connect);
         NODE_SET_PROTOTYPE_METHOD(t, "close", Close);
+        NODE_SET_PROTOTYPE_METHOD(t, "escape", Escape);
+        NODE_SET_PROTOTYPE_METHOD(t, "fetch_result", FetchResult);
+        NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
 
         target->Set(v8::String::NewSymbol("MysqlDbSync"), t->GetFunction());
     }
     
     bool Connect(const char* servername, const char* user, const char* password, const char* database, unsigned int port, const char* socket)
-    {printf("bool Connect()\n");
-        if (_connection) return false;
+    {
+        if(_connection)
+        {
+            return false;
+        }
 
         _connection = mysql_init(NULL);
         
@@ -56,12 +68,45 @@ class MysqlDbSync : public EventEmitter
     }
     
     void Close()
-    {printf("void Close()\n");
+    {
         if (_connection)
-        {printf("Inside if (_connection)\n");
+        {
             mysql_close(_connection);
             _connection = NULL;
         }
+    }
+    
+    bool Escape(const char* query, int length)
+    {
+        //TODO: Implement this
+        
+        return false;
+    }
+    
+    void FetchResult()
+    {
+        //TODO: Implement this
+    }
+    
+    const char* ErrorMessage ( )
+    {
+        return mysql_error(_connection);
+    }
+    
+    bool Query(const char* query, int length)
+    {
+        if(!_connection)
+        {
+            return false;
+        }
+        
+        int r = mysql_real_query(_connection, query, length);
+        
+        if (r == 0) {
+            return true;
+        }
+        
+        return false;
     }
 
   protected:
@@ -78,7 +123,7 @@ class MysqlDbSync : public EventEmitter
     }
     
     static Handle<Value> New (const Arguments& args)
-    {printf("static Handle<Value> New\n");
+    {
         HandleScope scope;
         
         MysqlDbSync *connection = new MysqlDbSync();
@@ -88,36 +133,33 @@ class MysqlDbSync : public EventEmitter
     }
     
     static Handle<Value> Connect (const Arguments& args)
-    {printf("static Handle<Value> Connect\n");
+    {
         HandleScope scope;
         
         MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
 
-        //TODO: Check arguments
-        /*if (args.Length() == 0 || !args[0]->IsString()) {
-            return ThrowException(String::New("Must give conninfo string as argument"));
-        }*/
+        if (args.Length() < 3 || !args[0]->IsString() || !args[1]->IsString() || !args[2]->IsString()) {
+            return ThrowException(String::New("Must give servername, user and password strings as argument"));
+        }
 
-        //TODO: Learn v8 types conversions
         String::Utf8Value servername(args[0]->ToString());
         String::Utf8Value user(args[1]->ToString());
         String::Utf8Value password(args[2]->ToString());
         String::Utf8Value database(args[3]->ToString());
-        //Local<Integer> port(args[4]->ToInteger()); port.Value()
+        unsigned int port = args[4]->IntegerValue();
         String::Utf8Value socket(args[5]->ToString());
 
-        bool r = connection->Connect(*servername, *user, *password, *database, 3306, *socket);
+        bool r = connection->Connect(*servername, *user, *password, *database, port, (args[5]->IsString() ? *socket : NULL) );
 
-        //TODO:
-        /*if (!r) {
+        if (!r) {
             return ThrowException(Exception::Error(String::New(connection->ErrorMessage())));
-        }*/
+        }
 
         return Undefined();
     }
     
     static Handle<Value> Close (const Arguments& args)
-    {printf("static Handle<Value> Close\n");
+    {
         HandleScope scope;
         
         MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
@@ -126,7 +168,49 @@ class MysqlDbSync : public EventEmitter
         
         return Undefined();
     }
+    
+    static Handle<Value> Escape (const Arguments& args)
+    {
+        HandleScope scope;
+        
+        MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        
+        //TODO: Implement this
+        
+        return Undefined();
+    }
+    
+    static Handle<Value> FetchResult (const Arguments& args)
+    {
+        HandleScope scope;
+        
+        MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        
+        //TODO: Implement this
+        
+        return Undefined();
+    }
 
+    static Handle<Value> Query (const Arguments& args)
+    {
+        HandleScope scope;
+        
+        MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+
+        if (args.Length() == 0 || !args[0]->IsString()) {
+            return ThrowException(Exception::TypeError(String::New("First argument of MysqlDbSync->Query() must be a string")));
+        }
+
+        String::Utf8Value query(args[0]->ToString());
+
+        bool r = connection->Query(*query, query.length());
+
+        if (!r) {
+            return ThrowException(Exception::Error(String::New(connection->ErrorMessage())));
+        }
+
+        return Undefined();
+    }
 };
 
 extern "C" void init (v8::Handle<Object> target)
