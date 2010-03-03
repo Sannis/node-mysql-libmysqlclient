@@ -1,0 +1,19 @@
+MySQL syncronous binding for Node.js
+====================================
+
+Documentation isn't exists now.
+The code lives at http://github.com/sannis/node-mysql/
+
+The two files required to use these bindings are mysql-sync.js and
+build/default/mysql_sync_bindings.node. Put this directory in your
+NODE_PATH or copy those two files where you need them.
+
+Tested with Node version v0.1.30-15-g4e16e38
+
+== License & Copyright
+ 
+MIT License. See license text in file LICENSE.
+ 
+Copyright (C) 2010 Oleg Efimov
+E-mail: <efimovov@gmail.com>
+Site: http://sannis.ru>
