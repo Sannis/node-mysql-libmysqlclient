@@ -11,6 +11,6 @@ def configure(conf):
 
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
-  obj.target = "mysql_sync_binding"
-  obj.source = "mysql_sync_binding.cc"
+  obj.target = "mysql_sync_bindings"
+  obj.source = "mysql_sync_bindings.cc"
   obj.lib = "mysqlclient"
