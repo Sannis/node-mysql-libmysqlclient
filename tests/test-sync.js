@@ -17,7 +17,7 @@ var reconnect_count = 10000;
 var insert_rows_count = 10000;
 
 var sys = require("sys");
-var mysql_sync = require("./mysql-sync");
+var mysql_sync = require("../mysql-sync");
 
 var conn;
 var flag;
@@ -127,6 +127,17 @@ for( var i = 0; i < insert_rows_count; i++ )
     conn.query("INSERT INTO " + test_table + " (random_number, random_boolean) VALUES ('" + random_number + "', '" + random_boolean + "');");
 }
 sys.print("OK\n");
+
+sys.print("Test conn.lastInsertId(): ");
+var insert_id = conn.lastInsertId();
+if( insert_id == insert_rows_count )
+{
+    sys.print(" OK\n");
+}
+else
+{
+    sys.print(" FAILED [" + insert_id + " != " + insert_rows_count + "]\n");
+}
 
 sys.print("Run end get results of query 'SELECT * FROM " + test_table + " ORDER BY RAND() LIMIT 10': ");
 conn.query("SELECT * FROM " + test_table + " ORDER BY RAND() LIMIT 10;");

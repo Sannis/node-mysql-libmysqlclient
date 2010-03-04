@@ -12,11 +12,13 @@ See license text in LICENSE file
 using namespace v8;
 using namespace node;
 
+//static Persistent<String> affectedRows_symbol;
 //static Persistent<String> connect_symbol;
 //static Persistent<String> close_symbol;
 //static Persistent<String> escape_symbol;
 //static Persistent<String> fetchResult_symbol;
 //static Persistent<String> getInfo_symbol;
+//static Persistent<String> lastInsertId_symbol;
 //static Persistent<String> query_symbol;
 
 class MysqlDbSync : public EventEmitter
@@ -41,19 +43,22 @@ class MysqlDbSync : public EventEmitter
         t->Inherit(EventEmitter::constructor_template);
         t->InstanceTemplate()->SetInternalFieldCount(1);
         
+        //connect_symbol = NODE_PSYMBOL("affectedRows");
         //connect_symbol = NODE_PSYMBOL("connect");
         //close_symbol = NODE_PSYMBOL("close");
         //escape_symbol = NODE_PSYMBOL("escape");
         //fetchResult_symbol = NODE_PSYMBOL("fetchResult");
         //getInfo_symbol = NODE_PSYMBOL("getInfo");
-        //getResult_symbol = NODE_PSYMBOL("getResult");
+        //lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
         //query_symbol = NODE_PSYMBOL("query");
 
+        NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
         NODE_SET_PROTOTYPE_METHOD(t, "connect", Connect);
         NODE_SET_PROTOTYPE_METHOD(t, "close", Close);
         NODE_SET_PROTOTYPE_METHOD(t, "escape", Escape);
         NODE_SET_PROTOTYPE_METHOD(t, "fetchResult", FetchResult);
         NODE_SET_PROTOTYPE_METHOD(t, "getInfo", GetInfo);
+        NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
 
         target->Set(v8::String::NewSymbol("MysqlDbSync"), t->GetFunction());
@@ -93,18 +98,6 @@ class MysqlDbSync : public EventEmitter
     const char* ErrorMessage ( )
     {
         return mysql_error(_connection);
-    }
-    
-    bool Escape(const char* query, int length)
-    {
-        //TODO: Implement this
-        
-        return false;
-    }
-    
-    void FetchResult()
-    {
-        //TODO: Implement this
     }
     
     MysqlDbSyncInfo GetInfo ()
@@ -158,6 +151,29 @@ class MysqlDbSync : public EventEmitter
         connection->Wrap(args.This());
 
         return args.This();
+    }
+    
+    static Handle<Value> AffectedRows (const Arguments& args)
+    {
+        HandleScope scope;
+        
+        MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+
+        if(!connection->_connection)
+        {
+            return ThrowException(String::New("Not connected"));
+        }
+
+        my_ulonglong affected_rows = mysql_affected_rows(connection->_connection);
+
+        if(affected_rows == -1)
+        {
+            return ThrowException(String::New("Error occured in mysql_affected_rows()"));
+        }
+
+        Local<Value> js_result = Integer::New(affected_rows);
+        
+        return scope.Close(js_result);
     }
     
     static Handle<Value> Connect (const Arguments& args)
@@ -225,7 +241,7 @@ class MysqlDbSync : public EventEmitter
         Local<Value> js_result = String::New(result, length);
         
         delete[] result;
-        return js_result;
+        return scope.Close(js_result);
     }
     
     static Handle<Value> FetchResult (const Arguments& args)
@@ -325,6 +341,32 @@ class MysqlDbSync : public EventEmitter
         result->Set(String::New("proto_info"), Integer::New(info.proto_info));
                
         return scope.Close(result); 
+    }
+
+    static Handle<Value> LastInsertId (const Arguments& args)
+    {
+        HandleScope scope;
+        
+        MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+
+        if(!connection->_connection)
+        {
+            return ThrowException(String::New("Not connected"));
+        }
+
+        MYSQL_RES *result;
+        my_ulonglong insert_id = 0;
+        
+        if( (result = mysql_store_result(connection->_connection)) == 0 &&
+             mysql_field_count(connection->_connection) == 0 &&
+             mysql_insert_id(connection->_connection) != 0)
+        {
+            insert_id = mysql_insert_id(connection->_connection);
+        }
+
+        Local<Value> js_result = Integer::New(insert_id);
+        
+        return scope.Close(js_result);
     }
 
     static Handle<Value> Query (const Arguments& args)
