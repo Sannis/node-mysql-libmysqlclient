@@ -15,6 +15,8 @@ using namespace node;
 //static Persistent<String> affectedRows_symbol;
 //static Persistent<String> connect_symbol;
 //static Persistent<String> close_symbol;
+//static Persistent<String> errno_symbol;
+//static Persistent<String> error_symbol;
 //static Persistent<String> escape_symbol;
 //static Persistent<String> fetchResult_symbol;
 //static Persistent<String> getInfo_symbol;
@@ -46,6 +48,8 @@ class MysqlDbSync : public EventEmitter
         //connect_symbol = NODE_PSYMBOL("affectedRows");
         //connect_symbol = NODE_PSYMBOL("connect");
         //close_symbol = NODE_PSYMBOL("close");
+        //errno_symbol = NODE_PSYMBOL("errno");
+        //error_symbol = NODE_PSYMBOL("error");
         //escape_symbol = NODE_PSYMBOL("escape");
         //fetchResult_symbol = NODE_PSYMBOL("fetchResult");
         //getInfo_symbol = NODE_PSYMBOL("getInfo");
@@ -55,6 +59,8 @@ class MysqlDbSync : public EventEmitter
         NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
         NODE_SET_PROTOTYPE_METHOD(t, "connect", Connect);
         NODE_SET_PROTOTYPE_METHOD(t, "close", Close);
+        NODE_SET_PROTOTYPE_METHOD(t, "errno", Errno);
+        NODE_SET_PROTOTYPE_METHOD(t, "error", Error);
         NODE_SET_PROTOTYPE_METHOD(t, "escape", Escape);
         NODE_SET_PROTOTYPE_METHOD(t, "fetchResult", FetchResult);
         NODE_SET_PROTOTYPE_METHOD(t, "getInfo", GetInfo);
@@ -93,11 +99,6 @@ class MysqlDbSync : public EventEmitter
             mysql_close(_connection);
             _connection = NULL;
         }
-    }
-    
-    const char* ErrorMessage ( )
-    {
-        return mysql_error(_connection);
     }
     
     MysqlDbSyncInfo GetInfo ()
@@ -196,10 +197,10 @@ class MysqlDbSync : public EventEmitter
         bool r = connection->Connect(*servername, *user, *password, *database, port, (args[5]->IsString() ? *socket : NULL) );
 
         if (!r) {
-            return ThrowException(Exception::Error(String::New(connection->ErrorMessage())));
+            return scope.Close(False());
         }
 
-        return Undefined();
+        return scope.Close(True());
     }
     
     static Handle<Value> Close (const Arguments& args)
@@ -213,6 +214,42 @@ class MysqlDbSync : public EventEmitter
         return Undefined();
     }
     
+    static Handle<Value> Errno (const Arguments& args)
+    {
+        HandleScope scope;
+        
+        MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        
+        if(!connection->_connection)
+        {
+            return ThrowException(String::New("Not connected"));
+        }
+        
+        unsigned int errno = mysql_errno(connection->_connection);
+        
+        Local<Value> js_result = Integer::New(errno);
+        
+        return scope.Close(js_result);
+    }
+    
+    static Handle<Value> Error (const Arguments& args)
+    {
+        HandleScope scope;
+        
+        MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        
+        if(!connection->_connection)
+        {
+            return ThrowException(String::New("Not connected"));
+        }
+        
+        const char *error = mysql_error(connection->_connection);
+        
+        Local<Value> js_result = String::New(error);
+        
+        return scope.Close(js_result);
+    }
+
     static Handle<Value> Escape (const Arguments& args)
     {
         HandleScope scope;
@@ -331,16 +368,16 @@ class MysqlDbSync : public EventEmitter
         
         MysqlDbSyncInfo info = connection->GetInfo();
         
-        Local<Object> result = Object::New();
+        Local<Object> js_result = Object::New();
         
-        result->Set(String::New("client_version"), Integer::New(info.client_version));
-        result->Set(String::New("client_info"), String::New(info.client_info));
-        result->Set(String::New("server_version"), Integer::New(info.server_version));
-        result->Set(String::New("server_info"), String::New(info.server_info));
-        result->Set(String::New("host_info"), String::New(info.host_info));
-        result->Set(String::New("proto_info"), Integer::New(info.proto_info));
+        js_result->Set(String::New("client_version"), Integer::New(info.client_version));
+        js_result->Set(String::New("client_info"), String::New(info.client_info));
+        js_result->Set(String::New("server_version"), Integer::New(info.server_version));
+        js_result->Set(String::New("server_info"), String::New(info.server_info));
+        js_result->Set(String::New("host_info"), String::New(info.host_info));
+        js_result->Set(String::New("proto_info"), Integer::New(info.proto_info));
                
-        return scope.Close(result); 
+        return scope.Close(js_result); 
     }
 
     static Handle<Value> LastInsertId (const Arguments& args)
@@ -384,10 +421,10 @@ class MysqlDbSync : public EventEmitter
         bool r = connection->Query(*query, query.length());
 
         if (!r) {
-            return ThrowException(Exception::Error(String::New(connection->ErrorMessage())));
+            return scope.Close(False());
         }
 
-        return Undefined();
+        return scope.Close(True());
     }
 };
 
