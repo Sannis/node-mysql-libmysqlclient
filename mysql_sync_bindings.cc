@@ -22,6 +22,7 @@ using namespace node;
 //static Persistent<String> getInfo_symbol;
 //static Persistent<String> lastInsertId_symbol;
 //static Persistent<String> query_symbol;
+//static Persistent<String> warningCount_symbol;
 
 class MysqlDbSync : public EventEmitter
 {
@@ -55,6 +56,7 @@ class MysqlDbSync : public EventEmitter
         //getInfo_symbol = NODE_PSYMBOL("getInfo");
         //lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
         //query_symbol = NODE_PSYMBOL("query");
+        //warningCount_symbol = NODE_PSYMBOL("warningCount");
 
         NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
         NODE_SET_PROTOTYPE_METHOD(t, "connect", Connect);
@@ -66,6 +68,7 @@ class MysqlDbSync : public EventEmitter
         NODE_SET_PROTOTYPE_METHOD(t, "getInfo", GetInfo);
         NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
+        NODE_SET_PROTOTYPE_METHOD(t, "warningCount", WarningCount);
 
         target->Set(v8::String::NewSymbol("MysqlDbSync"), t->GetFunction());
     }
@@ -425,6 +428,24 @@ class MysqlDbSync : public EventEmitter
         }
 
         return scope.Close(True());
+    }
+    
+    static Handle<Value> WarningCount (const Arguments& args)
+    {
+        HandleScope scope;
+        
+        MysqlDbSync *connection = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        
+        if(!connection->_connection)
+        {
+            return ThrowException(String::New("Not connected"));
+        }
+        
+        unsigned int warning_count = mysql_warning_count(connection->_connection);
+        
+        Local<Value> js_result = Integer::New(warning_count);
+        
+        return scope.Close(js_result);
     }
 };
 

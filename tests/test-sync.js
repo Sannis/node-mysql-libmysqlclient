@@ -33,21 +33,14 @@ conn.close();
 sys.print("OK\n");
 
 sys.print("Connect to denied database using mysql_sync.connect(): ");
-flag = false;
-try{
-    conn.connect(host, user, password, database_denied);
-}
-catch(exception)
+if(conn.connect(host, user, password, database_denied))
 {
-    flag = true;
-}
-if(flag)
-{
-    sys.print("OK\n");
+    sys.print("FAILED\n");
 }
 else
 {
-    sys.print("FAILED\n");
+    sys.print("OK\n");
+    sys.puts("Error: [" + conn.errno() + "] " + conn.error());
 }
 
 conn.close();
@@ -147,6 +140,10 @@ for( var i in select_limit_result )
 {
     sys.puts(i + ": " + JSON.stringify(select_limit_result[i]));
 }
+
+sys.print("conn.warningCount() test: ");
+sys.print(conn.warningCount());
+sys.print(" OK\n"); //TODO: new test for conn.warningCount()
 
 sys.print("Close connection: ");
 conn.close();
