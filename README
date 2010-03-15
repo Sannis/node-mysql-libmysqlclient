@@ -1,14 +1,21 @@
 MySQL synchronous bindings for Node.js
 ======================================
 
-Documentation lives at http://wiki.github.com/Sannis/node-mysql/.
-The code lives at http://github.com/Sannis/node-mysql/.
+Documentation lives at http://wiki.github.com/Sannis/node-mysql-sync/.
+The code lives at http://github.com/Sannis/node-mysql-sync/.
 
 The two files required to use these bindings are mysql-sync.js and
 build/default/mysql_sync_bindings.node. Put this directory in your
 NODE_PATH or copy those two files where you need them.
 
 Tested with Node version v0.1.30-36-g6670154
+
+== Node.js
+
+Node is the evented I/O for V8 javascript.
+Node's goal is to provide an easy way to build scalable network programs,
+it is similar in design to and influenced by systems like Ruby's Event Machine or Python's Twisted.
+Website: http://nodejs.org
 
 == License & Copyright
  

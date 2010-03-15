@@ -1,7 +1,7 @@
 #/usr/bin/sh
 
 echo "NodeJS synchronouse MySQL bindings benchmark:"
-./benchmark-sync.js
+./benchmark.js
 echo
 
 echo "PHP MySQL bindings benchmark:"
