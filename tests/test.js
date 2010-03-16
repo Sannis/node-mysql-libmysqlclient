@@ -5,6 +5,7 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 See license text in LICENSE file
 */
 
+// Database connection parameters
 var host = "localhost";
 var user = "test";
 var password = "";
@@ -12,86 +13,96 @@ var database = "test";
 var database_denied = "mysql";
 var test_table = "test_table";
 
-
+// Operations count for continuous tests
 var reconnect_count = 10000;
 var insert_rows_count = 10000;
 
+// Require modules
 var sys = require("sys");
 var mysql_sync = require("../mysql-sync");
+var unittest = require("./unittest").unittest;
 
 var conn;
 var flag;
 
 sys.print("Running tests for NodeJS syncronous MySQL binding...\n");
 
-sys.print("Connect to database using mysql_synconn.createConnection(): ");
-conn = mysql_sync.createConnection(host, user, password, database);
-sys.print("OK\n");
-
-sys.print("Close connection: ");
-conn.close();
-sys.print("OK\n");
-
-sys.print("Connect to denied database using mysql_sync.connect(): ");
-if(conn.connect(host, user, password, database_denied))
-{
-    sys.print("FAILED\n");
-}
-else
-{
-    sys.print("OK\n");
-    sys.puts("Error: [" + conn.errno() + "] " + conn.error());
-}
-
-conn.close();
-
-sys.print("Connect to allowed database using mysql_synconn.connect(): ");
-conn.connect(host, user, password, database);
-sys.print("OK\n");
-
-sys.print("Reconnect to database " + reconnect_count + " times: ");
-for( var i = 1; i <= reconnect_count; i++ )
-{
+unittest.test('mysql_sync.createConnection()', function() {
+    var conn = mysql_sync.createConnection(host, user, password, database);
+    
+    unittest.assert(conn);
+    
     conn.close();
-    conn.connect(host, user, password, database);
-}
-sys.print("OK\n");
+});
 
-sys.print("Get connection information: ");
-var info = conn.getInfo();
-sys.print("OK\n");
-for( var i in info )
-{
-    sys.puts("info['" + i + "'] = " + info[i]);
-}
+/*
+// TODO: how to write this test?
+unittest.test('conn.close()', function() {
+    var conn = mysql_sync.createConnection(host, user, password, database);
+    conn.close();
+    unittest.assert(conn);
+});
+*/
 
-var strings_to_escape = [
-    ["test string", "test string"],
-    ["test\\string", "test\\\\string"],
-    ["test\nstring", "test\\nstring"],
-    ["test\rstring", "test\\rstring"],
-    ["test\"string", "test\\\"string"],
-    ["test\'string", "test\\'string"],
-    ["test \x00", "test \\0"],
-];
-for( var i in strings_to_escape )
-{
-    var str = strings_to_escape[i][0];
-    var str_esc_theor = strings_to_escape[i][1];
-    var str_esc_real = conn.escape(strings_to_escape[i][0]);
+unittest.test('conn.connect() for allowed database', function() {
+    var conn = mysql_sync.createConnection(host, user, password, database);
     
-    sys.print("Test conn.escape(): " + str + " -> " + str_esc_real);
+    conn.close();
+    unittest.assert(conn.connect(host, user, password, database));
     
-    if( str_esc_real == str_esc_theor )
-    {
-        sys.print(" OK\n");
-    }
-    else
-    {
-        sys.print(" FAILED [Right string: " +  str_esc_theor + "]\n");
-    }
-}
+    conn.close();
+});
 
+unittest.test('conn.connect() for denied database', function() {
+    var conn = mysql_sync.createConnection(host, user, password, database);
+    
+    conn.close();
+    
+    unittest.assert(!conn.connect(host, user, password, database_denied));
+});
+
+unittest.test('conn.getInfo()', function() {
+    var conn = mysql_sync.createConnection(host, user, password, database);
+    
+    var info = conn.getInfo();
+    unittest.assert(info);
+    for( var i in info )
+    {
+        sys.puts("info['" + i + "'] = " + info[i]);
+    }
+    
+    conn.close();
+});
+
+unittest.test('conn.escape()', function() {
+    var conn = mysql_sync.createConnection(host, user, password, database);
+    
+    var strings_to_escape = [
+        ["test string", "test string"],
+        ["test\\string", "test\\\\string"],
+        ["test\nstring", "test\\nstring"],
+        ["test\rstring", "test\\rstring"],
+        ["test\"string", "test\\\"string"],
+        ["test\'string", "test\\'string"],
+        ["test \x00", "test \\0"],
+    ];
+    
+    for( var i in strings_to_escape )
+    {
+        var str = strings_to_escape[i][0];
+        var str_esc_theor = strings_to_escape[i][1];
+        var str_esc_real = conn.escape(strings_to_escape[i][0]);
+        
+        unittest.assertEqual(str_esc_theor, str_esc_real);
+    }
+    
+    conn.close();
+});
+
+unittest.showResults();
+
+/*
+// TODO: Rewrite this tests
 sys.print("Run 'SHOW TABLES' query: ");
 conn.query("SHOW TABLES;");
 sys.print("OK\n");
@@ -143,9 +154,16 @@ for( var i in select_limit_result )
 
 sys.print("conn.warningCount() test: ");
 sys.print(conn.warningCount());
-sys.print(" OK\n"); //TODO: new test for conn.warningCount()
+sys.print(" OK\n");
+*/
 
-sys.print("Close connection: ");
-conn.close();
+/*
+// Deprecated code
+sys.print("Reconnect to database " + reconnect_count + " times: ");
+for( var i = 1; i <= reconnect_count; i++ )
+{
+    conn.close();
+    conn.connect(host, user, password, database);
+}
 sys.print("OK\n");
-
+*/
