@@ -1,3 +1,4 @@
 *~
-.lock-wscript
 build/
+.lock-wscript
+mysql_sync_bindings.node
