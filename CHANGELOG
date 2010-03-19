@@ -1,0 +1,5 @@
+= [Futured] Version 0.0.2
+  * Split MysqlDbSync into several classes: MysqlDbSyncConnection, MysqlDbSyncResult, MysqlDbSyncStmt.
+
+= Version 0.0.1
+  * Basic functionality: connect/close/query/fenchAll/getInfo/etc.
