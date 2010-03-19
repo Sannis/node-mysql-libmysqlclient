@@ -22,21 +22,32 @@ using namespace node;
 // [whitespace/line_length] [4]
 #define THREXC(str) ThrowException(String::New(str))
 
+#define OBJUNWRAP ObjectWrap::Unwrap
+
+#define REQ_EXT_ARG(I, VAR) \
+if (args.Length() <= (I) || !args[I]->IsExternal()) \
+return ThrowException(Exception::TypeError( \
+String::New("Argument " #I " invalid"))); \
+Local<External> VAR = Local<External>::Cast(args[I]);
+
+// For MysqlSyncConn
 // static Persistent<String> affectedRows_symbol;
 // static Persistent<String> connect_symbol;
 // static Persistent<String> close_symbol;
 // static Persistent<String> errno_symbol;
 // static Persistent<String> error_symbol;
 // static Persistent<String> escape_symbol;
-// static Persistent<String> fetchResult_symbol;
 // static Persistent<String> getInfo_symbol;
 // static Persistent<String> lastInsertId_symbol;
 // static Persistent<String> query_symbol;
 // static Persistent<String> warningCount_symbol;
 
-class MysqlDbSync : public EventEmitter {
+// For MysqlSyncRes
+// static Persistent<String> fetchResult_symbol;
+
+class MysqlSyncConn : public EventEmitter {
   public:
-    struct MysqlDbSyncInfo {
+    struct MysqlSyncConnInfo {
         uint64_t client_version;
         const char *client_info;
         uint64_t server_version;
@@ -59,7 +70,6 @@ class MysqlDbSync : public EventEmitter {
         // errno_symbol = NODE_PSYMBOL("errno");
         // error_symbol = NODE_PSYMBOL("error");
         // escape_symbol = NODE_PSYMBOL("escape");
-        // fetchResult_symbol = NODE_PSYMBOL("fetchResult");
         // getInfo_symbol = NODE_PSYMBOL("getInfo");
         // lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
         // query_symbol = NODE_PSYMBOL("query");
@@ -71,13 +81,14 @@ class MysqlDbSync : public EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "errno", Errno);
         NODE_SET_PROTOTYPE_METHOD(t, "error", Error);
         NODE_SET_PROTOTYPE_METHOD(t, "escape", Escape);
-        NODE_SET_PROTOTYPE_METHOD(t, "fetchResult", FetchResult);
         NODE_SET_PROTOTYPE_METHOD(t, "getInfo", GetInfo);
         NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
         NODE_SET_PROTOTYPE_METHOD(t, "warningCount", WarningCount);
 
-        target->Set(String::NewSymbol("MysqlDbSync"), t->GetFunction());
+        target->Set(String::NewSymbol("MysqlSyncConn"), t->GetFunction());
+
+        MysqlSyncRes::Init(target);
     }
 
     bool Connect(const char* hostname,
@@ -117,8 +128,8 @@ class MysqlDbSync : public EventEmitter {
         }
     }
 
-    MysqlDbSyncInfo GetInfo() {
-        MysqlDbSyncInfo info;
+    MysqlSyncConnInfo GetInfo() {
+        MysqlSyncConnInfo info;
 
         info.client_version = mysql_get_client_version();
         info.client_info = mysql_get_client_info();
@@ -130,35 +141,21 @@ class MysqlDbSync : public EventEmitter {
         return info;
     }
 
-    bool Query(const char* query, int length) {
-        if (!_conn) {
-            return false;
-        }
-
-        int r = mysql_real_query(_conn, query, length);
-
-        if (r == 0) {
-            return true;
-        }
-
-        return false;
-    }
-
   protected:
     MYSQL *_conn;
 
-    MysqlDbSync() {
+    MysqlSyncConn(): EventEmitter() {
         _conn = NULL;
     }
 
-    ~MysqlDbSync() {
+    ~MysqlSyncConn() {
         if (_conn) mysql_close(_conn);
     }
 
     static Handle<Value> New(const Arguments& args) {
         HandleScope scope;
 
-        MysqlDbSync *conn = new MysqlDbSync();
+        MysqlSyncConn *conn = new MysqlSyncConn();
         conn->Wrap(args.This());
 
         return args.This();
@@ -167,7 +164,7 @@ class MysqlDbSync : public EventEmitter {
     static Handle<Value> AffectedRows(const Arguments& args) {
         HandleScope scope;
 
-        MysqlDbSync *conn = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
         if (!conn->_conn) {
             return THREXC("Not connected");
@@ -187,8 +184,7 @@ class MysqlDbSync : public EventEmitter {
     static Handle<Value> Connect(const Arguments& args) {
         HandleScope scope;
 
-        MysqlDbSync *conn =
-                    ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
         if ( (args.Length() < 3 || !args[0]->IsString()) ||
              (!args[1]->IsString() || !args[2]->IsString()) ) {
@@ -219,7 +215,7 @@ class MysqlDbSync : public EventEmitter {
     static Handle<Value> Close(const Arguments& args) {
         HandleScope scope;
 
-        MysqlDbSync *conn = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
         conn->Close();
 
@@ -229,7 +225,7 @@ class MysqlDbSync : public EventEmitter {
     static Handle<Value> Errno(const Arguments& args) {
         HandleScope scope;
 
-        MysqlDbSync *conn = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
         if (!conn->_conn) {
             return THREXC("Not connected");
@@ -245,7 +241,7 @@ class MysqlDbSync : public EventEmitter {
     static Handle<Value> Error(const Arguments& args) {
         HandleScope scope;
 
-        MysqlDbSync *conn = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
         if (!conn->_conn) {
             return THREXC("Not connected");
@@ -261,7 +257,7 @@ class MysqlDbSync : public EventEmitter {
     static Handle<Value> Escape(const Arguments& args) {
         HandleScope scope;
 
-        MysqlDbSync *conn = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
         if (!conn->_conn) {
             return THREXC("Not connected");
@@ -287,88 +283,12 @@ class MysqlDbSync : public EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> FetchResult(const Arguments& args) {
-        HandleScope scope;
-
-        MysqlDbSync *conn = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
-
-        MYSQL_RES *result = mysql_use_result(conn->_conn);
-
-        if (!result) {
-            return scope.Close(False());
-        }
-
-        MYSQL_FIELD *fields = mysql_fetch_fields(result);
-        uint32_t num_fields = mysql_num_fields(result);
-        MYSQL_ROW result_row;
-        // Only use this with
-        // mysql_store_result() instead of mysql_use_result()
-        // my_ulonglong num_rows = mysql_num_rows(result);
-        int i = 0, j = 0;
-
-        Local<Array> js_result = Array::New();
-        Local<Object> js_result_row;
-        Local<Value> js_field;
-
-        i = 0;
-        while ( result_row = mysql_fetch_row(result) ) {
-            js_result_row = Object::New();
-
-            for ( j = 0; j < num_fields; j++ ) {
-                switch (fields[j].type) {
-                  MYSQL_TYPE_BIT:
-
-                  MYSQL_TYPE_TINY:
-                  MYSQL_TYPE_SHORT:
-                  MYSQL_TYPE_LONG:
-
-                  MYSQL_TYPE_LONGLONG:
-                  MYSQL_TYPE_INT24:
-                    js_field = String::New(result_row[j])->ToInteger();
-                    break;
-                  MYSQL_TYPE_DECIMAL:
-                  MYSQL_TYPE_FLOAT:
-                  MYSQL_TYPE_DOUBLE:
-                    js_field = String::New(result_row[j])->ToNumber();
-                    break;
-                  // TODO(Sannis): Handle other types, dates in first order
-                  /*  MYSQL_TYPE_NULL,   MYSQL_TYPE_TIMESTAMP,
-                    MYSQL_TYPE_DATE,   MYSQL_TYPE_TIME,
-                    MYSQL_TYPE_DATETIME, MYSQL_TYPE_YEAR,
-                    MYSQL_TYPE_NEWDATE, MYSQL_TYPE_VARCHAR,*/
-                    /*MYSQL_TYPE_NEWDECIMAL=246,
-                    MYSQL_TYPE_ENUM=247,
-                    MYSQL_TYPE_SET=248,
-                    MYSQL_TYPE_TINY_BLOB=249,
-                    MYSQL_TYPE_MEDIUM_BLOB=250,
-                    MYSQL_TYPE_LONG_BLOB=251,
-                    MYSQL_TYPE_BLOB=252,*/
-                  MYSQL_TYPE_VAR_STRING:
-                  MYSQL_TYPE_STRING:
-                    js_field = String::New(result_row[j]);
-                    break;
-                    /*MYSQL_TYPE_GEOMETRY=255*/
-                  default:
-                    js_field = String::New(result_row[j]);
-                }
-
-                js_result_row->Set(String::New(fields[j].name), js_field);
-            }
-
-            js_result->Set(Integer::New(i), js_result_row);
-
-            i++;
-        }
-
-        return scope.Close(js_result);
-    }
-
     static Handle<Value> GetInfo(const Arguments& args) {
         HandleScope scope;
 
-        MysqlDbSync *conn = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
-        MysqlDbSyncInfo info = conn->GetInfo();
+        MysqlSyncConnInfo info = conn->GetInfo();
 
         Local<Object> js_result = Object::New();
 
@@ -396,7 +316,7 @@ class MysqlDbSync : public EventEmitter {
     static Handle<Value> LastInsertId(const Arguments& args) {
         HandleScope scope;
 
-        MysqlDbSync *conn = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
         if (!conn->_conn) {
             return THREXC("Not connected");
@@ -419,27 +339,47 @@ class MysqlDbSync : public EventEmitter {
     static Handle<Value> Query(const Arguments& args) {
         HandleScope scope;
 
-        MysqlDbSync *conn = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
         if (args.Length() == 0 || !args[0]->IsString()) {
-            return THREXC("First arg of MysqlDbSync.query() must be a string");
+            return THREXC("First arg of conn.query() must be a string");
         }
 
         String::Utf8Value query(args[0]->ToString());
 
-        bool r = conn->Query(*query, query.length());
-
-        if (!r) {
+        if (!conn->_conn) {
             return scope.Close(False());
         }
 
-        return scope.Close(True());
+        int r = mysql_real_query(conn->_conn, *query, query.length());
+
+        if (r != 0) {
+            return scope.Close(False());
+        }
+
+        if (!mysql_field_count(conn->_conn)) {
+            /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
+            return scope.Close(True());
+        }
+
+        // TODO(Sannis): Write support for mysql_use_result()
+        MYSQL_RES *my_result = mysql_store_result(conn->_conn);
+
+        if (!my_result) {
+            return scope.Close(False());
+        }
+
+        Local<Value> arg = External::New(my_result);
+        Persistent<Object> js_result(MysqlSyncRes::constructor_template->
+                                 GetFunction()->NewInstance(1, &arg));
+
+        return scope.Close(js_result);
     }
 
     static Handle<Value> WarningCount(const Arguments& args) {
         HandleScope scope;
 
-        MysqlDbSync *conn = ObjectWrap::Unwrap<MysqlDbSync>(args.This());
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
         if (!conn->_conn) {
             return THREXC("Not connected");
@@ -451,9 +391,125 @@ class MysqlDbSync : public EventEmitter {
 
         return scope.Close(js_result);
     }
+
+    class MysqlSyncRes : public EventEmitter {
+      public:
+        static Persistent<FunctionTemplate> constructor_template;
+
+        static void Init(Handle<Object> target) {
+            HandleScope scope;
+
+            Local<FunctionTemplate> t = FunctionTemplate::New(New);
+            constructor_template = Persistent<FunctionTemplate>::New(t);
+
+            t->Inherit(EventEmitter::constructor_template);
+            t->InstanceTemplate()->SetInternalFieldCount(1);
+
+            // fetchResult_symbol = NODE_PSYMBOL("fetchResult");
+
+            NODE_SET_PROTOTYPE_METHOD(t, "fetchResult", FetchResult);
+        }
+
+      protected:
+        MYSQL_RES *_res;
+
+        MysqlSyncRes(): EventEmitter() {}
+
+        explicit MysqlSyncRes(MYSQL_RES *my_result):
+                                        _res(my_result), EventEmitter() {}
+
+        ~MysqlSyncRes() {}
+
+        static Handle<Value> New(const Arguments& args) {
+            HandleScope scope;
+
+            REQ_EXT_ARG(0, js_res);
+            MYSQL_RES *res = static_cast<MYSQL_RES*>(js_res->Value());
+            MysqlSyncRes *my_res = new MysqlSyncRes(res);
+            my_res->Wrap(args.This());
+
+            return args.This();
+        }
+
+        static Handle<Value> FetchResult(const Arguments& args) {
+            HandleScope scope;
+
+            MysqlSyncRes *res = OBJUNWRAP<MysqlSyncRes>(args.This());
+
+            if (!res->_res) {
+                return scope.Close(False());
+            }
+
+            MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
+            uint32_t num_fields = mysql_num_fields(res->_res);
+            MYSQL_ROW result_row;
+            // Only use this with
+            // mysql_store_result() instead of mysql_use_result()
+            // my_ulonglong num_rows = mysql_num_rows(result);
+            int i = 0, j = 0;
+
+            Local<Array> js_result = Array::New();
+            Local<Object> js_result_row;
+            Local<Value> js_field;
+
+            i = 0;
+            while ( result_row = mysql_fetch_row(res->_res) ) {
+                js_result_row = Object::New();
+
+                for ( j = 0; j < num_fields; j++ ) {
+                    switch (fields[j].type) {
+                      MYSQL_TYPE_BIT:
+
+                      MYSQL_TYPE_TINY:
+                      MYSQL_TYPE_SHORT:
+                      MYSQL_TYPE_LONG:
+
+                      MYSQL_TYPE_LONGLONG:
+                      MYSQL_TYPE_INT24:
+                        js_field = String::New(result_row[j])->ToInteger();
+                        break;
+                      MYSQL_TYPE_DECIMAL:
+                      MYSQL_TYPE_FLOAT:
+                      MYSQL_TYPE_DOUBLE:
+                        js_field = String::New(result_row[j])->ToNumber();
+                        break;
+                      // TODO(Sannis): Handle other types, dates in first order
+                      /*  MYSQL_TYPE_NULL,   MYSQL_TYPE_TIMESTAMP,
+                        MYSQL_TYPE_DATE,   MYSQL_TYPE_TIME,
+                        MYSQL_TYPE_DATETIME, MYSQL_TYPE_YEAR,
+                        MYSQL_TYPE_NEWDATE, MYSQL_TYPE_VARCHAR,*/
+                        /*MYSQL_TYPE_NEWDECIMAL=246,
+                        MYSQL_TYPE_ENUM=247,
+                        MYSQL_TYPE_SET=248,
+                        MYSQL_TYPE_TINY_BLOB=249,
+                        MYSQL_TYPE_MEDIUM_BLOB=250,
+                        MYSQL_TYPE_LONG_BLOB=251,
+                        MYSQL_TYPE_BLOB=252,*/
+                      MYSQL_TYPE_VAR_STRING:
+                      MYSQL_TYPE_STRING:
+                        js_field = String::New(result_row[j]);
+                        break;
+                        /*MYSQL_TYPE_GEOMETRY=255*/
+                      default:
+                        js_field = String::New(result_row[j]);
+                    }
+
+                    js_result_row->Set(String::New(fields[j].name), js_field);
+                }
+
+                js_result->Set(Integer::New(i), js_result_row);
+
+                i++;
+            }
+
+            return scope.Close(js_result);
+        }
+    };
 };
 
+Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncRes::constructor_template;
+
 extern "C" void init(Handle<Object> target) {
-    MysqlDbSync::Init(target);
+    MysqlSyncConn::Init(target);
 }
 

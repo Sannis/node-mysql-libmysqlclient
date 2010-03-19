@@ -5,12 +5,12 @@ See license text in LICENSE file
 */
 
 var binding = require("./mysql_sync_bindings");
-var MysqlDbSync = binding.MysqlDbSync;
+var MysqlSyncConn = binding.MysqlSyncConn;
 var sys = require("sys");
 
 function createConnection(servername, user, password, database, port, socket)
 {
-  var db = new MysqlDbSync();
+  var db = new MysqlSyncConn();
   db.connect(servername, user, password, database, port, socket);
   
   return db;

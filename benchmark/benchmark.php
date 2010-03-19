@@ -16,7 +16,7 @@ $test_table = "test_table";
 $reconnects_count = 100000;
 $escapes_count = 10000000;
 $inserts_count = 200000;
-$selects_count = 200;
+$selects_count = 100;
 $rows_to_select = 10;
 
 

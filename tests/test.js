@@ -105,38 +105,108 @@ unittest.test('conn.escape()', function () {
   conn.close();
 });
 
+unittest.test('conn.query("SHOW TABLES;")', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    res;
+  
+  res = conn.query("SHOW TABLES;");
+  unittest.assert(res);
+  
+  conn.close();
+});
+
+unittest.test('conn.query("SHOW TABLES;").fetchResult()', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    res,
+    tables;
+  
+  res = conn.query("SHOW TABLES;");
+  tables = res.fetchResult();
+  
+  unittest.assert(tables);
+  
+  conn.close();
+});
+
+unittest.test('Drop table ' + test_table, function () {
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    res;
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+
+  unittest.assertEqual(res, true);
+  
+  conn.close();
+});
+
+unittest.test('Create table ' + test_table, function () {
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    res;
+  
+  res = conn.query("CREATE TABLE " + test_table +
+    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
+    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
+    " PRIMARY KEY (autoincrement_id));");
+
+  unittest.assertEqual(res, true);
+  
+  conn.close();
+});
+
+unittest.test('Insert ' + insert_rows_count + ' rows into table ' + test_table, function () {
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    res = true,
+    random_number,
+    random_boolean,
+    i;
+  
+  for (i = 0; i < insert_rows_count; i += 1)
+  {
+    random_number = Math.round(Math.random() * 1000000);
+    random_boolean = (Math.random() > 0.5) ? 1 : 0;
+    res = conn.query("INSERT INTO " + test_table +
+      " (random_number, random_boolean) VALUES ('" + random_number +
+      "', '" + random_boolean + "');") && res;
+  }
+
+  unittest.assertEqual(res, true);
+  
+  conn.close();
+});
+
+unittest.test('conn.lastInsertId()', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    res = true,
+    random_number,
+    random_boolean,
+    last_insert_id,
+    i;
+  
+  for (i = 0; i < insert_rows_count; i += 1)
+  {
+    random_number = Math.round(Math.random() * 1000000);
+    random_boolean = (Math.random() > 0.5) ? 1 : 0;
+    res = conn.query("INSERT INTO " + test_table +
+      " (random_number, random_boolean) VALUES ('" + random_number +
+      "', '" + random_boolean + "');") && res;
+  }
+
+  last_insert_id = conn.lastInsertId();
+  
+  unittest.assertEqual(last_insert_id, 2 * insert_rows_count);
+  
+  conn.close();
+});
+
 unittest.showResults();
 
 /*
 // TODO: Rewrite this tests
-sys.print("Run 'SHOW TABLES' query: ");
-conn.query("SHOW TABLES;");
-sys.print("OK\n");
 
-sys.print("Get 'SHOW TABLES' query result: ");
-var show_tables_result = conn.fetchResult();
-sys.print("OK\n");
 for( var i in show_tables_result )
 {
   sys.puts(i + ": " + JSON.stringify(show_tables_result[i]));
 }
-
-sys.print("Drop table " + test_table + ": ");
-conn.query("DROP TABLE IF EXISTS " + test_table + ";");
-sys.print("OK\n");
-
-sys.print("Create table " + test_table + ": ");
-conn.query("CREATE TABLE " + test_table + " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT, random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL, PRIMARY KEY (autoincrement_id));");
-sys.print("OK\n");
-
-sys.print("Insert " + insert_rows_count + " rows into table " + test_table + ": ");
-for( var i = 0; i < insert_rows_count; i++ )
-{
-  var random_number = Math.round(Math.random()*1000000);
-  var random_boolean = (Math.random() > 0.5) ? 1 : 0;
-  conn.query("INSERT INTO " + test_table + " (random_number, random_boolean) VALUES ('" + random_number + "', '" + random_boolean + "');");
-}
-sys.print("OK\n");
 
 sys.print("Test conn.lastInsertId(): ");
 var insert_id = conn.lastInsertId();

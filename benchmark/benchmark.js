@@ -15,7 +15,7 @@ var host = "localhost",
   reconnects_count = 100000,
   escapes_count = 10000000,
   inserts_count = 200000,
-  selects_count = 200,
+  selects_count = 100,
   rows_to_select = 10,
 
   sys = require("sys"),
@@ -33,7 +33,7 @@ function round2(number) {
   return Math.round(number * 100) / 100;
 }
 
-function do_benchmark(title, prepare_function, execute_function) {
+function doBenchmark(title, prepare_function, execute_function) {
   var start,
     finish,
     data;
@@ -65,7 +65,7 @@ start = new Date();
 
 // Benchmark 1: connect and disconnect
 
-do_benchmark("Connect and disconnect(" + reconnects_count + ")", 0, function () {
+doBenchmark("Connect and disconnect(" + reconnects_count + ")", 0, function () {
   var i;
   for (i = 0; i < reconnects_count; i += 1) {
     conn.close();
@@ -76,7 +76,7 @@ do_benchmark("Connect and disconnect(" + reconnects_count + ")", 0, function () 
 
 // Benchmark 2: escape string
 
-do_benchmark("Escape string(" + escapes_count + ")", 0, function () {
+doBenchmark("Escape string(" + escapes_count + ")", 0, function () {
   // A bit utility code
   var string_to_escape = "test\\string\nwith\rmany\"symbols'and\x00nulls",
     escaped_string,
@@ -90,7 +90,7 @@ do_benchmark("Escape string(" + escapes_count + ")", 0, function () {
 
 // Benchmark 3: inserts
 
-do_benchmark("Inserts(" + inserts_count + ")", function () {
+doBenchmark("Inserts(" + inserts_count + ")", function () {
   conn.query("DROP TABLE IF EXISTS " + test_table + ";");
   conn.query("CREATE TABLE " + test_table + " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT, random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL, PRIMARY KEY (autoincrement_id));");
 
@@ -115,7 +115,7 @@ do_benchmark("Inserts(" + inserts_count + ")", function () {
 
 // Benchmark 3: selects
 
-do_benchmark("Selects(" + selects_count + ", " + rows_to_select + ")", function () {
+doBenchmark("Selects(" + selects_count + ", " + rows_to_select + ")", function () {
   var limits = [],
     i;
 
@@ -126,11 +126,12 @@ do_benchmark("Selects(" + selects_count + ", " + rows_to_select + ")", function 
   return limits;
 }, function (limits) {
   var rows = new Array(selects_count),
+    res,
     i;
     
   for (i = 0; i < selects_count; i += 1) {
-    conn.query("SELECT * FROM " + test_table + " ORDER BY RAND() LIMIT " + limits[i] + ", " + rows_to_select + ";");
-    rows[i] = conn.fetchResult();
+    res = conn.query("SELECT * FROM " + test_table + " ORDER BY RAND() LIMIT " + limits[i] + ", " + rows_to_select + ";");
+    rows[i] = res.fetchResult();
   }
 });
 

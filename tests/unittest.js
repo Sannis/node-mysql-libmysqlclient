@@ -93,7 +93,7 @@ exports.unittest = {
   },
 
   showResults: function () {
-    sys.puts("" + this.passed + " passed, " + this.failed + " failed");
+    sys.puts("Tests: " + this.passed + " passed, " + this.failed + " failed");
   }
 };
 
