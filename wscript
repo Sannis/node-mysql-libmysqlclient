@@ -31,6 +31,7 @@ def lint(lnt):
   execlp('cpplint', '', 'mysql_sync_bindings.cc')
   execlp('nodelint', '', 'mysql-sync.js')
   execlp('nodelint', '', './tests/test.js')
+  execlp('nodelint', '', './tests/debug.js')
   execlp('nodelint', '', './benchmark/benchmark.js')
   
 
