@@ -1,5 +1,5 @@
 import Options
-from os import unlink, symlink
+from os import unlink, symlink, chdir, execl
 from os.path import exists
 
 srcdir = "."
@@ -24,10 +24,13 @@ def build(bld):
   #obj.uselib = "MYSQL"
   obj.lib = "mysqlclient"
 
-t = 'mysql_sync_bindings.node'
+def test(tst):
+  execl('./tests/test.js')
+
 def shutdown():
   # HACK to get bindings.node out of build directory.
   # better way to do this?
+  t = 'mysql_sync_bindings.node'
   if Options.commands['clean']:
     if exists(t): unlink(t)
   else:
