@@ -1,5 +1,7 @@
-= [Futured] Version 0.0.2
-  * Split MysqlDbSync into several classes: MysqlDbSyncConnection, MysqlDbSyncResult, MysqlDbSyncStmt.
+= Version 0.0.2
+  * Split MysqlDbSync into MysqlSyncConn and MysqlSyncRes
+  * Add unit tests suite
+  * Query() API is more clear to PHP MySQLi
 
 = Version 0.0.1
-  * Basic functionality: connect/close/query/fenchAll/getInfo/etc.
+  * Basic functionality: connect/close/query/fenchAll/getInfo/error/etc.
