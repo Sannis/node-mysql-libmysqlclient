@@ -1,5 +1,5 @@
 import Options
-from os import unlink, symlink, chdir, execl
+from os import unlink, symlink, chdir, execl, execlp
 from os.path import exists
 
 srcdir = "."
@@ -26,6 +26,13 @@ def build(bld):
 
 def test(tst):
   execl('./tests/test.js')
+
+def lint(lnt):
+  execlp('cpplint', '', 'mysql_sync_bindings.cc')
+  execlp('nodelint', '', 'mysql-sync.js')
+  execlp('nodelint', '', './tests/test.js')
+  execlp('nodelint', '', './benchmark/benchmark.js')
+  
 
 def shutdown():
   # HACK to get bindings.node out of build directory.
