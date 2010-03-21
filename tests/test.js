@@ -61,6 +61,26 @@ unittest.test('conn.connect() for denied database', function () {
   unittest.assert(!conn.connect(host, user, password, database_denied));
 });
 
+unittest.test('conn.connectErrno()', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database);
+  
+  conn.close();
+  
+  conn.connect(host, user, password, database_denied);
+  
+  unittest.assertEqual(1044, conn.connectErrno());
+});
+
+unittest.test('conn.connectError()', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database);
+  
+  conn.close();
+  
+  conn.connect(host, user, password, database_denied);
+  
+  unittest.assertEqual("Access denied for user ''@'" + host + "' to database '" + database_denied + "'", conn.connectError());
+});
+
 unittest.test('conn.getInfo()', function () {
   var conn = mysql_sync.createConnection(host, user, password, database),
     info = conn.getInfo(),

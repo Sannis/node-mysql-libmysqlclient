@@ -33,6 +33,8 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // For MysqlSyncConn
 // static Persistent<String> affectedRows_symbol;
 // static Persistent<String> connect_symbol;
+// static Persistent<String> connectErrno_symbol;
+// static Persistent<String> connectError_symbol;
 // static Persistent<String> close_symbol;
 // static Persistent<String> errno_symbol;
 // static Persistent<String> error_symbol;
@@ -64,8 +66,10 @@ class MysqlSyncConn : public EventEmitter {
         t->Inherit(EventEmitter::constructor_template);
         t->InstanceTemplate()->SetInternalFieldCount(1);
 
-        // connect_symbol = NODE_PSYMBOL("affectedRows");
+        // affectedRows_symbol = NODE_PSYMBOL("affectedRows");
         // connect_symbol = NODE_PSYMBOL("connect");
+        // connectErrno_symbol = NODE_PSYMBOL("connectErrno");
+        // connectError_symbol = NODE_PSYMBOL("connectError");
         // close_symbol = NODE_PSYMBOL("close");
         // errno_symbol = NODE_PSYMBOL("errno");
         // error_symbol = NODE_PSYMBOL("error");
@@ -77,6 +81,8 @@ class MysqlSyncConn : public EventEmitter {
 
         NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
         NODE_SET_PROTOTYPE_METHOD(t, "connect", Connect);
+        NODE_SET_PROTOTYPE_METHOD(t, "connectErrno", ConnectErrno);
+        NODE_SET_PROTOTYPE_METHOD(t, "connectError", ConnectError);;
         NODE_SET_PROTOTYPE_METHOD(t, "close", Close);
         NODE_SET_PROTOTYPE_METHOD(t, "errno", Errno);
         NODE_SET_PROTOTYPE_METHOD(t, "error", Error);
@@ -107,14 +113,19 @@ class MysqlSyncConn : public EventEmitter {
             return false;
         }
 
-        if (!mysql_real_connect(_conn,
+        bool unsuccessful = !mysql_real_connect(_conn,
                                 hostname,
                                 user,
                                 password,
                                 database,
                                 port,
                                 socket,
-                                0)) {
+                                0);
+                                
+        connect_errno = mysql_errno(_conn);
+        connect_error = mysql_error(_conn);
+        
+        if (unsuccessful) {
             return false;
         }
 
@@ -143,6 +154,9 @@ class MysqlSyncConn : public EventEmitter {
 
   protected:
     MYSQL *_conn;
+    
+    unsigned int connect_errno;
+    const char *connect_error;
 
     MysqlSyncConn(): EventEmitter() {
         _conn = NULL;
@@ -210,6 +224,26 @@ class MysqlSyncConn : public EventEmitter {
         }
 
         return scope.Close(True());
+    }
+    
+    static Handle<Value> ConnectErrno(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        Local<Value> js_result = Integer::New(conn->connect_errno);
+
+        return scope.Close(js_result);
+    }
+    
+    static Handle<Value> ConnectError(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        Local<Value> js_result = String::New(conn->connect_error);
+
+        return scope.Close(js_result);
     }
 
     static Handle<Value> Close(const Arguments& args) {
