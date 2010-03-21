@@ -42,6 +42,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> escape_symbol;
 // static Persistent<String> getInfo_symbol;
 // static Persistent<String> lastInsertId_symbol;
+// static Persistent<String> ping_symbol;
 // static Persistent<String> query_symbol;
 // static Persistent<String> warningCount_symbol;
 
@@ -78,6 +79,7 @@ class MysqlSyncConn : public EventEmitter {
         // escape_symbol = NODE_PSYMBOL("escape");
         // getInfo_symbol = NODE_PSYMBOL("getInfo");
         // lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
+        // ping_symbol = NODE_PSYMBOL("ping");
         // query_symbol = NODE_PSYMBOL("query");
         // warningCount_symbol = NODE_PSYMBOL("warningCount");
 
@@ -92,6 +94,7 @@ class MysqlSyncConn : public EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "escape", Escape);
         NODE_SET_PROTOTYPE_METHOD(t, "getInfo", GetInfo);
         NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
+        NODE_SET_PROTOTYPE_METHOD(t, "ping", Ping);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
         NODE_SET_PROTOTYPE_METHOD(t, "warningCount", WarningCount);
 
@@ -203,6 +206,10 @@ class MysqlSyncConn : public EventEmitter {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected yet");
+        }
 
         if ( (args.Length() < 3 || !args[0]->IsString()) ||
              (!args[1]->IsString() || !args[2]->IsString()) ) {
@@ -395,6 +402,25 @@ class MysqlSyncConn : public EventEmitter {
         Local<Value> js_result = Integer::New(insert_id);
 
         return scope.Close(js_result);
+    }
+
+    // TODO(Sannis): Write test for this method
+    static Handle<Value> Ping(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected yet");
+        }
+
+        bool r = mysql_ping(conn->_conn);
+
+        if (r) {
+            return scope.Close(False());
+        }
+
+        return scope.Close(True());
     }
 
     static Handle<Value> Query(const Arguments& args) {

@@ -105,9 +105,11 @@ Connection, options, errors and information
     bool real_connect ([ string $host [, string $username [, string $passwd [, string $dbname [, int $port [, string $socket [, int $flags ]]]]]]]);
     bool select_db (string $dbname);
     bool ssl_set (string $key , string $cert , string $ca , string $capath , string $cipher);
+    
     string character_set_name (void);
     object get_charset (void);
     bool set_charset (string $charset);
+
 
 ### Options ###
 
@@ -160,6 +162,7 @@ Query
     mysqli_stmt stmt_init (void);
     mysqli_result store_result (void);
     mysqli_result use_result (void);
+
 
 Transactions
 ------------
