@@ -82,7 +82,7 @@ class MysqlSyncConn : public EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
         NODE_SET_PROTOTYPE_METHOD(t, "connect", Connect);
         NODE_SET_PROTOTYPE_METHOD(t, "connectErrno", ConnectErrno);
-        NODE_SET_PROTOTYPE_METHOD(t, "connectError", ConnectError);;
+        NODE_SET_PROTOTYPE_METHOD(t, "connectError", ConnectError);
         NODE_SET_PROTOTYPE_METHOD(t, "close", Close);
         NODE_SET_PROTOTYPE_METHOD(t, "errno", Errno);
         NODE_SET_PROTOTYPE_METHOD(t, "error", Error);
@@ -121,10 +121,10 @@ class MysqlSyncConn : public EventEmitter {
                                 port,
                                 socket,
                                 0);
-                                
+
         connect_errno = mysql_errno(_conn);
         connect_error = mysql_error(_conn);
-        
+
         if (unsuccessful) {
             return false;
         }
@@ -154,7 +154,7 @@ class MysqlSyncConn : public EventEmitter {
 
   protected:
     MYSQL *_conn;
-    
+
     unsigned int connect_errno;
     const char *connect_error;
 
@@ -225,7 +225,7 @@ class MysqlSyncConn : public EventEmitter {
 
         return scope.Close(True());
     }
-    
+
     static Handle<Value> ConnectErrno(const Arguments& args) {
         HandleScope scope;
 
@@ -235,7 +235,7 @@ class MysqlSyncConn : public EventEmitter {
 
         return scope.Close(js_result);
     }
-    
+
     static Handle<Value> ConnectError(const Arguments& args) {
         HandleScope scope;
 
