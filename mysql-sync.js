@@ -8,10 +8,10 @@ var binding = require("./mysql_sync_bindings");
 var MysqlSyncConn = binding.MysqlSyncConn;
 var sys = require("sys");
 
-function createConnection(servername, user, password, database, port, socket)
+function createConnection(servername, user, password, dbname, port, socket)
 {
   var db = new MysqlSyncConn();
-  db.connect(servername, user, password, database, port, socket);
+  db.connect(servername, user, password, dbname, port, socket);
   
   return db;
 }

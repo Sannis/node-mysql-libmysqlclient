@@ -82,13 +82,10 @@ MySQLi class
 
 
 Connection, options, errors and information
-------------------------------------------
+-------------------------------------------
 
 ### Connection ###
 
-    string $connect_errno;
-    string $connect_error;
-    
     __construct (
         [ string $host [,
         string $username [,
@@ -97,6 +94,9 @@ Connection, options, errors and information
         int $port [,
         string $socket ]]]]]]
     );
+    
+    string $connect_errno;
+    string $connect_error;
     
     bool change_user (string $user , string $password , string $database);
     bool close (void);
