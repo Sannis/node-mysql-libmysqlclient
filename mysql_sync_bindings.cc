@@ -32,6 +32,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 
 // For MysqlSyncConn
 // static Persistent<String> affectedRows_symbol;
+// static Persistent<String> changeUser_symbol;
 // static Persistent<String> connect_symbol;
 // static Persistent<String> connectErrno_symbol;
 // static Persistent<String> connectError_symbol;
@@ -67,6 +68,7 @@ class MysqlSyncConn : public EventEmitter {
         t->InstanceTemplate()->SetInternalFieldCount(1);
 
         // affectedRows_symbol = NODE_PSYMBOL("affectedRows");
+        // changeUser_symbol = NODE_PSYMBOL("changeUser");
         // connect_symbol = NODE_PSYMBOL("connect");
         // connectErrno_symbol = NODE_PSYMBOL("connectErrno");
         // connectError_symbol = NODE_PSYMBOL("connectError");
@@ -80,6 +82,7 @@ class MysqlSyncConn : public EventEmitter {
         // warningCount_symbol = NODE_PSYMBOL("warningCount");
 
         NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
+        NODE_SET_PROTOTYPE_METHOD(t, "changeUser", ChangeUser);
         NODE_SET_PROTOTYPE_METHOD(t, "connect", Connect);
         NODE_SET_PROTOTYPE_METHOD(t, "connectErrno", ConnectErrno);
         NODE_SET_PROTOTYPE_METHOD(t, "connectError", ConnectError);
@@ -100,7 +103,7 @@ class MysqlSyncConn : public EventEmitter {
     bool Connect(const char* hostname,
                  const char* user,
                  const char* password,
-                 const char* database,
+                 const char* dbname,
                  uint32_t port,
                  const char* socket) {
         if (_conn) {
@@ -117,7 +120,7 @@ class MysqlSyncConn : public EventEmitter {
                                 hostname,
                                 user,
                                 password,
-                                database,
+                                dbname,
                                 port,
                                 socket,
                                 0);
@@ -195,6 +198,30 @@ class MysqlSyncConn : public EventEmitter {
         return scope.Close(js_result);
     }
 
+    // TODO(Sannis): Write test for this method
+    static Handle<Value> ChangeUser(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if ( (args.Length() < 3 || !args[0]->IsString()) ||
+             (!args[1]->IsString() || !args[2]->IsString()) ) {
+            return THREXC("Must give user, password and database as arguments");
+        }
+
+        String::Utf8Value user(args[0]->ToString());
+        String::Utf8Value password(args[1]->ToString());
+        String::Utf8Value dbname(args[2]->ToString());
+
+        bool r = mysql_change_user(conn->_conn, *user, *password, *dbname);
+
+        if (r) {
+            return scope.Close(False());
+        }
+
+        return scope.Close(True());
+    }
+
     static Handle<Value> Connect(const Arguments& args) {
         HandleScope scope;
 
@@ -208,14 +235,14 @@ class MysqlSyncConn : public EventEmitter {
         String::Utf8Value hostname(args[0]->ToString());
         String::Utf8Value user(args[1]->ToString());
         String::Utf8Value password(args[2]->ToString());
-        String::Utf8Value database(args[3]->ToString());
+        String::Utf8Value dbname(args[3]->ToString());
         uint32_t port = args[4]->IntegerValue();
         String::Utf8Value socket(args[5]->ToString());
 
         bool r = conn->Connect(*hostname,
                                *user,
                                *password,
-                               *database,
+                               *dbname,
                                port,
                                (args[5]->IsString() ? *socket : NULL));
 
