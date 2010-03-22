@@ -49,6 +49,7 @@ Connection, options, errors and information
     Boolean ping();
     Boolean selectDb (dbname);
     Boolean setCharset (charset);
+    Undefined setSsl(key, cert, ca, capath, cipher);
     
 
 ### Options ###
