@@ -1,3 +1,20 @@
+= Version 0.0.3
+  * Add 'lint' target for node-waf
+  * Add docs dir, docs/examples.md,
+    docs/api_php_mysqli.md and docs/api_node_mysql_sync.md
+  * Add tests/debug.js for inspecting bindings 'classes' from javascript
+  * Implement all methods in 'connection' category:
+  * * MysqlSyncConn::ChangeUser()
+  * * MysqlSyncConn::СonnectErrno()
+  * * MysqlSyncConn::СonnectError()
+  * * MysqlSyncConn::GetCharset()
+  * * MysqlSyncConn::GetCharsetName()
+  * * MysqlSyncConn::Ping()
+  * * MysqlSyncConn::SelectDb()
+  * * MysqlSyncConn::SetCharset()
+  * * MysqlSyncConn::SetSsl()
+  * Improve MysqlSyncConn::Connect() functionality, see d2d9ae207daa704618e205fc18d464220de7879b
+
 = Version 0.0.2
   * Split MysqlDbSync into MysqlSyncConn and MysqlSyncRes
   * Add unit tests suite

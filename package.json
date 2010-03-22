@@ -1,6 +1,6 @@
 {
     "name" : "node-mysql-sync",
     "description" : "MySQL synchronous binding for Node.js",
-    "version" : "0.0.2",
+    "version" : "0.0.3",
     "author" : "Oleg Efimov <efimovov@gmail.com>"
 }
