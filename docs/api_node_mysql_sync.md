@@ -45,6 +45,7 @@ Connection, options, errors and information
     String connectError();
     Boolean close();
     Boolean ping();
+    Boolean selectDb (dbname);
     
 
 ### Options ###

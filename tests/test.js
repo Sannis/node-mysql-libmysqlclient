@@ -44,6 +44,15 @@ unittest.test('conn.close()', function() {
 });
 */
 
+unittest.test('conn.connect() without database selection', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database);
+  
+  conn.close();
+  unittest.assert(conn.connect(host, user, password));
+  
+  conn.close();
+});
+
 unittest.test('conn.connect() for allowed database', function () {
   var conn = mysql_sync.createConnection(host, user, password, database);
   
@@ -55,10 +64,25 @@ unittest.test('conn.connect() for allowed database', function () {
 
 unittest.test('conn.connect() for denied database', function () {
   var conn = mysql_sync.createConnection(host, user, password, database);
-  
   conn.close();
   
   unittest.assert(!conn.connect(host, user, password, database_denied));
+});
+
+unittest.test('conn.selectDb() for allowed database', function () {
+  var conn = mysql_sync.createConnection(host, user, password);
+  
+  unittest.assert(conn.selectDb(database));
+  
+  conn.close();
+});
+
+unittest.test('conn.selectDb() for denied database', function () {
+  var conn = mysql_sync.createConnection(host, user, password);
+  
+  unittest.assert(!conn.selectDb(database_denied));
+  
+  conn.close();
 });
 
 unittest.test('conn.connectErrno()', function () {

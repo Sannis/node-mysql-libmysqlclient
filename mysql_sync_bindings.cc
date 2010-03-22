@@ -9,11 +9,10 @@ See license text in LICENSE file
 #include <node.h>
 #include <node_events.h>
 
-// This 2 lines caused
+// This line caused
 // "Do not use namespace using-directives. Use using-declarations instead."
 // [build/namespaces] [5] error in cpplint.py
 using namespace v8;
-using namespace node;
 
 // Only for fixing some cpplint.py errors:
 // Lines should be <= 80 characters long
@@ -44,12 +43,13 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> lastInsertId_symbol;
 // static Persistent<String> ping_symbol;
 // static Persistent<String> query_symbol;
+// static Persistent<String> selectDb_symbol;
 // static Persistent<String> warningCount_symbol;
 
 // For MysqlSyncRes
 // static Persistent<String> fetchResult_symbol;
 
-class MysqlSyncConn : public EventEmitter {
+class MysqlSyncConn : public node::EventEmitter {
   public:
     struct MysqlSyncConnInfo {
         uint64_t client_version;
@@ -81,6 +81,7 @@ class MysqlSyncConn : public EventEmitter {
         // lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
         // ping_symbol = NODE_PSYMBOL("ping");
         // query_symbol = NODE_PSYMBOL("query");
+        // selectDb_symbol = NODE_PSYMBOL("selectDb");
         // warningCount_symbol = NODE_PSYMBOL("warningCount");
 
         NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
@@ -96,6 +97,7 @@ class MysqlSyncConn : public EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
         NODE_SET_PROTOTYPE_METHOD(t, "ping", Ping);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
+        NODE_SET_PROTOTYPE_METHOD(t, "selectDb", SelectDb);
         NODE_SET_PROTOTYPE_METHOD(t, "warningCount", WarningCount);
 
         target->Set(String::NewSymbol("MysqlSyncConn"), t->GetFunction());
@@ -246,12 +248,33 @@ class MysqlSyncConn : public EventEmitter {
         uint32_t port = args[4]->IntegerValue();
         String::Utf8Value socket(args[5]->ToString());
 
-        bool r = conn->Connect(*hostname,
-                               *user,
-                               *password,
-                               *dbname,
-                               port,
-                               (args[5]->IsString() ? *socket : NULL));
+        bool r = conn->Connect(
+                        *hostname,
+                        (
+                            args[1]->IsString() ?
+                            *user : NULL),
+                        (
+                            args[1]->IsString() &&
+                            args[2]->IsString() ?
+                            *password : NULL),
+                        (
+                            args[1]->IsString() &&
+                            args[2]->IsString() &&
+                            args[3]->IsString() ?
+                            *dbname : NULL),
+                        (
+                            args[1]->IsString() &&
+                            args[2]->IsString() &&
+                            args[3]->IsString() &&
+                            args[4]->IsString() ?
+                            port : 0),
+                        (
+                            args[1]->IsString() &&
+                            args[2]->IsString() &&
+                            args[3]->IsString() &&
+                            args[4]->IsString() &&
+                            args[5]->IsString() ?
+                            *socket : NULL));
 
         if (!r) {
             return scope.Close(False());
@@ -461,6 +484,30 @@ class MysqlSyncConn : public EventEmitter {
                                  GetFunction()->NewInstance(1, &arg));
 
         return scope.Close(js_result);
+    }
+
+    static Handle<Value> SelectDb(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if (args.Length() == 0 || !args[0]->IsString()) {
+            return THREXC("Must give database name as argument");
+        }
+
+        String::Utf8Value dbname(args[0]);
+
+        bool r = mysql_select_db(conn->_conn, *dbname);
+
+        if (r) {
+            return scope.Close(False());
+        }
+
+        return scope.Close(True());
     }
 
     static Handle<Value> WarningCount(const Arguments& args) {
