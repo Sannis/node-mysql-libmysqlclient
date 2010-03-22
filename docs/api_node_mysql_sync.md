@@ -46,6 +46,7 @@ Connection, options, errors and information
     Boolean close();
     Boolean ping();
     Boolean selectDb (dbname);
+    Boolean setCharset (charset);
     
 
 ### Options ###

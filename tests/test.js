@@ -12,6 +12,7 @@ var host = "localhost",
   database = "test",
   database_denied = "mysql",
   test_table = "test_table",
+  charset = "utf8",
 
   // Operations count for continuous tests
   reconnect_count = 10000,
@@ -81,6 +82,14 @@ unittest.test('conn.selectDb() for denied database', function () {
   var conn = mysql_sync.createConnection(host, user, password);
   
   unittest.assert(!conn.selectDb(database_denied));
+  
+  conn.close();
+});
+
+unittest.test('conn.setCharset()', function () {
+  var conn = mysql_sync.createConnection(host, user, password);
+  
+  unittest.assert(conn.setCharset(charset));
   
   conn.close();
 });

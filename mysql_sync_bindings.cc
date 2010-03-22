@@ -44,6 +44,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> ping_symbol;
 // static Persistent<String> query_symbol;
 // static Persistent<String> selectDb_symbol;
+// static Persistent<String> setCharset_symbol;
 // static Persistent<String> warningCount_symbol;
 
 // For MysqlSyncRes
@@ -82,6 +83,7 @@ class MysqlSyncConn : public node::EventEmitter {
         // ping_symbol = NODE_PSYMBOL("ping");
         // query_symbol = NODE_PSYMBOL("query");
         // selectDb_symbol = NODE_PSYMBOL("selectDb");
+        // setCharset_symbol = NODE_PSYMBOL("setCharset");
         // warningCount_symbol = NODE_PSYMBOL("warningCount");
 
         NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
@@ -98,6 +100,7 @@ class MysqlSyncConn : public node::EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "ping", Ping);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
         NODE_SET_PROTOTYPE_METHOD(t, "selectDb", SelectDb);
+        NODE_SET_PROTOTYPE_METHOD(t, "setCharset", SetCharset);
         NODE_SET_PROTOTYPE_METHOD(t, "warningCount", WarningCount);
 
         target->Set(String::NewSymbol("MysqlSyncConn"), t->GetFunction());
@@ -502,6 +505,30 @@ class MysqlSyncConn : public node::EventEmitter {
         String::Utf8Value dbname(args[0]);
 
         bool r = mysql_select_db(conn->_conn, *dbname);
+
+        if (r) {
+            return scope.Close(False());
+        }
+
+        return scope.Close(True());
+    }
+
+    static Handle<Value> SetCharset(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if (args.Length() == 0 || !args[0]->IsString()) {
+            return THREXC("Must give charset name as argument");
+        }
+
+        String::Utf8Value charset(args[0]);
+
+        bool r = mysql_set_character_set(conn->_conn, *charset);
 
         if (r) {
             return scope.Close(False());
