@@ -44,6 +44,7 @@ Connection, options, errors and information
     Integer connectErrno();
     String connectError();
     Boolean close();
+    String getCharsetName();
     Boolean ping();
     Boolean selectDb (dbname);
     Boolean setCharset (charset);

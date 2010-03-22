@@ -39,6 +39,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> errno_symbol;
 // static Persistent<String> error_symbol;
 // static Persistent<String> escape_symbol;
+// static Persistent<String> getCharsetName_symbol;
 // static Persistent<String> getInfo_symbol;
 // static Persistent<String> lastInsertId_symbol;
 // static Persistent<String> ping_symbol;
@@ -78,6 +79,7 @@ class MysqlSyncConn : public node::EventEmitter {
         // errno_symbol = NODE_PSYMBOL("errno");
         // error_symbol = NODE_PSYMBOL("error");
         // escape_symbol = NODE_PSYMBOL("escape");
+        // getCharsetName_symbol = NODE_PSYMBOL("getCharsetName");
         // getInfo_symbol = NODE_PSYMBOL("getInfo");
         // lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
         // ping_symbol = NODE_PSYMBOL("ping");
@@ -95,6 +97,7 @@ class MysqlSyncConn : public node::EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "errno", Errno);
         NODE_SET_PROTOTYPE_METHOD(t, "error", Error);
         NODE_SET_PROTOTYPE_METHOD(t, "escape", Escape);
+        NODE_SET_PROTOTYPE_METHOD(t, "getCharsetName", GetCharsetName);
         NODE_SET_PROTOTYPE_METHOD(t, "getInfo", GetInfo);
         NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
         NODE_SET_PROTOTYPE_METHOD(t, "ping", Ping);
@@ -373,6 +376,21 @@ class MysqlSyncConn : public node::EventEmitter {
         Local<Value> js_result = String::New(result, length);
 
         delete[] result;
+
+        return scope.Close(js_result);
+    }
+
+    static Handle<Value> GetCharsetName(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        Local<Value> js_result = String::New(
+                                        mysql_character_set_name(conn->_conn));
 
         return scope.Close(js_result);
     }
