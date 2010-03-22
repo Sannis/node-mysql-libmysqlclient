@@ -94,6 +94,19 @@ unittest.test('conn.setCharset()', function () {
   conn.close();
 });
 
+unittest.test('conn.getCharset()', function () {
+  var conn = mysql_sync.createConnection(host, user, password);
+  
+  conn.setCharset(charset)
+  
+  charset_obj = conn.getCharset();
+  
+  unittest.assertEqual(charset, charset_obj.charset);
+  unittest.assertEqual(0, charset_obj.collation.indexOf(charset));
+  
+  conn.close();
+});
+
 unittest.test('conn.getCharsetName()', function () {
   var conn = mysql_sync.createConnection(host, user, password);
   

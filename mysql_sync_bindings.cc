@@ -39,6 +39,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> errno_symbol;
 // static Persistent<String> error_symbol;
 // static Persistent<String> escape_symbol;
+// static Persistent<String> getCharset_symbol;
 // static Persistent<String> getCharsetName_symbol;
 // static Persistent<String> getInfo_symbol;
 // static Persistent<String> lastInsertId_symbol;
@@ -79,6 +80,7 @@ class MysqlSyncConn : public node::EventEmitter {
         // errno_symbol = NODE_PSYMBOL("errno");
         // error_symbol = NODE_PSYMBOL("error");
         // escape_symbol = NODE_PSYMBOL("escape");
+        // getCharset_symbol = NODE_PSYMBOL("getCharset");
         // getCharsetName_symbol = NODE_PSYMBOL("getCharsetName");
         // getInfo_symbol = NODE_PSYMBOL("getInfo");
         // lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
@@ -97,6 +99,7 @@ class MysqlSyncConn : public node::EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "errno", Errno);
         NODE_SET_PROTOTYPE_METHOD(t, "error", Error);
         NODE_SET_PROTOTYPE_METHOD(t, "escape", Escape);
+        NODE_SET_PROTOTYPE_METHOD(t, "getCharset", GetCharset);
         NODE_SET_PROTOTYPE_METHOD(t, "getCharsetName", GetCharsetName);
         NODE_SET_PROTOTYPE_METHOD(t, "getInfo", GetInfo);
         NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
@@ -376,6 +379,48 @@ class MysqlSyncConn : public node::EventEmitter {
         Local<Value> js_result = String::New(result, length);
 
         delete[] result;
+
+        return scope.Close(js_result);
+    }
+
+    static Handle<Value> GetCharset(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        MY_CHARSET_INFO cs;
+
+        mysql_get_character_set_info(conn->_conn, &cs);
+
+        Local<Object> js_result = Object::New();
+
+        js_result->Set(String::New("charset"),
+                       String::New(cs.csname ? cs.csname : ""));
+
+        js_result->Set(String::New("collation"),
+                       String::New(cs.name ? cs.name : ""));
+
+        js_result->Set(String::New("dir"),
+                       String::New(cs.dir ? cs.dir : ""));
+
+        js_result->Set(String::New("min_length"),
+                       Integer::New(cs.mbminlen));
+
+        js_result->Set(String::New("max_length"),
+                       Integer::New(cs.mbmaxlen));
+
+        js_result->Set(String::New("number"),
+                       Integer::New(cs.number));
+
+        js_result->Set(String::New("state"),
+                       Integer::New(cs.state));
+
+        js_result->Set(String::New("comment"),
+                       String::New(cs.comment ? cs.comment : ""));
 
         return scope.Close(js_result);
     }
