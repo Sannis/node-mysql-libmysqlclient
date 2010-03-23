@@ -68,6 +68,7 @@ Nothing yet.
 
     Object getInfo();
     String getInfoString();
+    Array getWarnings (void);
     Integer warningCount();
 
 

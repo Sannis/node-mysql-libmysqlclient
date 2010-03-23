@@ -43,6 +43,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> getCharsetName_symbol;
 // static Persistent<String> getInfo_symbol;
 // static Persistent<String> getInfoString_symbol;
+// static Persistent<String> getWarnings_symbol;
 // static Persistent<String> lastInsertId_symbol;
 // static Persistent<String> ping_symbol;
 // static Persistent<String> query_symbol;
@@ -87,6 +88,7 @@ class MysqlSyncConn : public node::EventEmitter {
         // getCharsetName_symbol = NODE_PSYMBOL("getCharsetName");
         // getInfo_symbol = NODE_PSYMBOL("getInfo");
         // getInfoString_symbol = NODE_PSYMBOL("getInfoString");
+        // getWarnings_symbol = NODE_PSYMBOL("getWarnings");
         // lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
         // ping_symbol = NODE_PSYMBOL("ping");
         // query_symbol = NODE_PSYMBOL("query");
@@ -109,6 +111,7 @@ class MysqlSyncConn : public node::EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "getCharsetName", GetCharsetName);
         NODE_SET_PROTOTYPE_METHOD(t, "getInfo", GetInfo);
         NODE_SET_PROTOTYPE_METHOD(t, "getInfoString", GetInfoString);
+        NODE_SET_PROTOTYPE_METHOD(t, "getWarnings", GetWarnings);
         NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
         NODE_SET_PROTOTYPE_METHOD(t, "ping", Ping);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
@@ -495,6 +498,45 @@ class MysqlSyncConn : public node::EventEmitter {
         const char *info = mysql_info(conn->_conn);
 
         Local<Value> js_result = String::New(info ? info : "");
+
+        return scope.Close(js_result);
+    }
+
+    static Handle<Value> GetWarnings(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        MYSQL_RES *result;
+        MYSQL_ROW row;
+        int i = 0;
+
+        Local<Object> js_warning = Object::New();
+        Local<Array> js_result = Array::New();
+
+        if (mysql_warning_count(conn->_conn)) {
+            if (mysql_real_query(conn->_conn, "SHOW WARNINGS", 13) == 0) {
+                result = mysql_store_result(conn->_conn);
+
+                while ((row = mysql_fetch_row(result))) {
+                    js_warning->Set(String::New("errno"),
+                                    String::New(row[1])->ToInteger());
+
+                    js_warning->Set(String::New("reason"),
+                                    String::New(row[2]));
+
+                    js_result->Set(Integer::New(i), js_warning);
+
+                    i++;
+                }
+
+                mysql_free_result(result);
+            }
+        }
 
         return scope.Close(js_result);
     }

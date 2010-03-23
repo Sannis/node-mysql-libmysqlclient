@@ -308,6 +308,23 @@ unittest.test('conn.getInfoString()', function () {
   conn.close();
 });
 
+unittest.test('conn.getWarnings()', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    res;
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+
+  unittest.assertInspectEqual([], conn.getWarnings());
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+
+  unittest.assertInspectEqual([{errno: 1051
+                               , reason: "Unknown table '" + test_table + "'"
+                               }], conn.getWarnings());
+  
+  conn.close();
+});
+
 unittest.showResults();
 
 /*

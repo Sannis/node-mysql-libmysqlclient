@@ -71,6 +71,16 @@ exports.unittest = {
       sys.inspect(expect) + " == " + sys.inspect(is)
     );
   },
+  
+  // This fumction comes from node/lib/assert.js
+  // Originally from narwhal.js (http://narwhaljs.org)
+  // Copyright (c) 2009 Thomas Robinson <280north.com>
+  assertInspectEqual: function (expect, is) {
+    this.assert(
+      sys.inspect(expect) === sys.inspect(is),
+      sys.inspect(expect) + " == " + sys.inspect(is)
+    )
+  },
 
   assertBoom: function (message, block) {
     var error = null;
