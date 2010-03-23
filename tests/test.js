@@ -137,16 +137,6 @@ unittest.test('conn.connectError()', function () {
   unittest.assertEqual("Access denied for user ''@'" + host + "' to database '" + database_denied + "'", conn.connectError());
 });
 
-unittest.test('conn.getInfo()', function () {
-  var conn = mysql_sync.createConnection(host, user, password, database),
-    info = conn.getInfo(),
-    i;
-  
-  unittest.assert(info);
-  
-  conn.close();
-});
-
 unittest.test('conn.sqlState()', function () {
   var conn = mysql_sync.createConnection(host, user, password, database_denied);
   
@@ -281,6 +271,39 @@ unittest.test('conn.lastInsertId()', function () {
   last_insert_id = conn.lastInsertId();
   
   unittest.assertEqual(last_insert_id, 2 * insert_rows_count);
+  
+  conn.close();
+});
+
+unittest.test('conn.getInfo()', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    info = conn.getInfo();
+  
+  unittest.assert(info);
+  
+  conn.close();
+});
+
+unittest.test('conn.getInfoString()', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    res;
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+
+  unittest.assertEqual(res, true);
+  
+  res = conn.query("CREATE TABLE " + test_table +
+    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
+    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
+    " PRIMARY KEY (autoincrement_id));");
+
+  unittest.assertEqual(res, true);
+  
+  res = conn.query("ALTER TABLE " + test_table + " ADD INDEX (random_number)");
+
+  unittest.assertEqual(res, true);
+  
+  unittest.assertEqual("Records: 0  Duplicates: 0  Warnings: 0", conn.getInfoString());
   
   conn.close();
 });

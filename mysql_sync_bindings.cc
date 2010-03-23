@@ -42,6 +42,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> getCharset_symbol;
 // static Persistent<String> getCharsetName_symbol;
 // static Persistent<String> getInfo_symbol;
+// static Persistent<String> getInfoString_symbol;
 // static Persistent<String> lastInsertId_symbol;
 // static Persistent<String> ping_symbol;
 // static Persistent<String> query_symbol;
@@ -85,6 +86,7 @@ class MysqlSyncConn : public node::EventEmitter {
         // getCharset_symbol = NODE_PSYMBOL("getCharset");
         // getCharsetName_symbol = NODE_PSYMBOL("getCharsetName");
         // getInfo_symbol = NODE_PSYMBOL("getInfo");
+        // getInfoString_symbol = NODE_PSYMBOL("getInfoString");
         // lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
         // ping_symbol = NODE_PSYMBOL("ping");
         // query_symbol = NODE_PSYMBOL("query");
@@ -106,6 +108,7 @@ class MysqlSyncConn : public node::EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "getCharset", GetCharset);
         NODE_SET_PROTOTYPE_METHOD(t, "getCharsetName", GetCharsetName);
         NODE_SET_PROTOTYPE_METHOD(t, "getInfo", GetInfo);
+        NODE_SET_PROTOTYPE_METHOD(t, "getInfoString", GetInfoString);
         NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
         NODE_SET_PROTOTYPE_METHOD(t, "ping", Ping);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
@@ -451,6 +454,10 @@ class MysqlSyncConn : public node::EventEmitter {
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
         MysqlSyncConnInfo info = conn->GetInfo();
 
         Local<Object> js_result = Object::New();
@@ -472,6 +479,22 @@ class MysqlSyncConn : public node::EventEmitter {
 
         js_result->Set(String::New("proto_info"),
                        Integer::New(info.proto_info));
+
+        return scope.Close(js_result);
+    }
+
+    static Handle<Value> GetInfoString(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        const char *info = mysql_info(conn->_conn);
+
+        Local<Value> js_result = String::New(info ? info : "");
 
         return scope.Close(js_result);
     }

@@ -67,6 +67,7 @@ Nothing yet.
 ### Information ###
 
     Object getInfo();
+    String getInfoString();
     Integer warningCount();
 
 
