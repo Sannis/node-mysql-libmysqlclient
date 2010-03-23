@@ -143,11 +143,22 @@ unittest.test('conn.getInfo()', function () {
     i;
   
   unittest.assert(info);
-  for (i in info) {
-    if (typeof i === 'string') {
-      sys.puts("info['" + i + "'] = " + info[i]);
-    }
-  }
+  
+  conn.close();
+});
+
+unittest.test('conn.sqlState()', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database_denied);
+  
+  unittest.assertEqual("42000", conn.sqlState());
+  
+  conn.close();
+});
+
+unittest.test('conn.sqlState()', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database);
+  
+  unittest.assertEqual("00000", conn.sqlState());
   
   conn.close();
 });

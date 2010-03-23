@@ -61,6 +61,7 @@ Nothing yet.
 
     Integer errno();
     String error();
+    String sqlState;
 
 
 ### Information ###

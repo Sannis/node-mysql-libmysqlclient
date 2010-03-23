@@ -48,6 +48,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> selectDb_symbol;
 // static Persistent<String> setCharset_symbol;
 // static Persistent<String> setSsl_symbol;
+// static Persistent<String> sqlState_symbol;
 // static Persistent<String> warningCount_symbol;
 
 // For MysqlSyncRes
@@ -90,6 +91,7 @@ class MysqlSyncConn : public node::EventEmitter {
         // selectDb_symbol = NODE_PSYMBOL("selectDb");
         // setCharset_symbol = NODE_PSYMBOL("setCharset");
         // setSsl_symbol = NODE_PSYMBOL("setSsl");
+        // sqlState_symbol = NODE_PSYMBOL("sqlState");
         // warningCount_symbol = NODE_PSYMBOL("warningCount");
 
         NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
@@ -110,6 +112,7 @@ class MysqlSyncConn : public node::EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "selectDb", SelectDb);
         NODE_SET_PROTOTYPE_METHOD(t, "setCharset", SetCharset);
         NODE_SET_PROTOTYPE_METHOD(t, "setSsl", SetSsl);
+        NODE_SET_PROTOTYPE_METHOD(t, "sqlState", SqlState);
         NODE_SET_PROTOTYPE_METHOD(t, "warningCount", WarningCount);
 
         target->Set(String::NewSymbol("MysqlSyncConn"), t->GetFunction());
@@ -631,6 +634,20 @@ class MysqlSyncConn : public node::EventEmitter {
         mysql_ssl_set(conn->_conn, *key, *cert, *ca, *capath, *cipher);
 
         return scope.Close(Undefined());
+    }
+
+    static Handle<Value> SqlState(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        Local<Value> js_result = String::New(mysql_sqlstate(conn->_conn));
+
+        return scope.Close(js_result);
     }
 
     static Handle<Value> WarningCount(const Arguments& args) {
