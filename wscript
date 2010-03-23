@@ -1,5 +1,5 @@
-import Options
-from os import unlink, symlink, chdir, execl, execlp
+import Options, Utils
+from os import unlink, symlink, chdir
 from os.path import exists
 
 srcdir = "."
@@ -25,15 +25,14 @@ def build(bld):
   obj.lib = "mysqlclient"
 
 def test(tst):
-  execl('./tests/test.js')
+  Utils.exec_command('./tests/test.js')
 
 def lint(lnt):
-  execlp('cpplint', '', 'mysql_sync_bindings.cc')
-  execlp('nodelint', '', 'mysql-sync.js')
-  execlp('nodelint', '', './tests/test.js')
-  execlp('nodelint', '', './tests/debug.js')
-  execlp('nodelint', '', './benchmark/benchmark.js')
-  
+  Utils.exec_command('cpplint ./mysql_sync_bindings.cc')
+  Utils.exec_command('nodelint ./mysql-sync.js')
+  Utils.exec_command('nodelint ./tests/test.js')
+  Utils.exec_command('nodelint ./tests/debug.js')
+  Utils.exec_command('nodelint ./benchmark/benchmark.js')
 
 def shutdown():
   # HACK to get bindings.node out of build directory.

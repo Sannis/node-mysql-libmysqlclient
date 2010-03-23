@@ -95,9 +95,10 @@ unittest.test('conn.setCharset()', function () {
 });
 
 unittest.test('conn.getCharset()', function () {
-  var conn = mysql_sync.createConnection(host, user, password);
+  var conn = mysql_sync.createConnection(host, user, password),
+    charset_obj;
   
-  conn.setCharset(charset)
+  conn.setCharset(charset);
   
   charset_obj = conn.getCharset();
   
@@ -110,7 +111,7 @@ unittest.test('conn.getCharset()', function () {
 unittest.test('conn.getCharsetName()', function () {
   var conn = mysql_sync.createConnection(host, user, password);
   
-  conn.setCharset(charset)
+  conn.setCharset(charset);
   
   unittest.assertEqual(charset, conn.getCharsetName());
   
@@ -318,14 +319,16 @@ unittest.test('conn.getWarnings()', function () {
   
   res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
 
-  unittest.assertInspectEqual([{errno: 1051
-                               , reason: "Unknown table '" + test_table + "'"
+  unittest.assertInspectEqual([{errno: 1051,
+                                reason: "Unknown table '" + test_table + "'"
                                }], conn.getWarnings());
   
   conn.close();
 });
 
 unittest.showResults();
+
+unittest.exitWithReturnCode();
 
 /*
 // TODO: Rewrite this tests

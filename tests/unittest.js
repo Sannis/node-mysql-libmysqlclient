@@ -104,6 +104,10 @@ exports.unittest = {
 
   showResults: function () {
     sys.puts("Tests: " + this.passed + " passed, " + this.failed + " failed");
+  },
+  
+  exitWithReturnCode: function () {
+    process.exit(this.failed);
   }
 };
 
