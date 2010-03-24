@@ -156,7 +156,6 @@ Query
     mysqli_stmt prepare (string $query);
     mixed query (string $query [, int $resultmode ]);
     string escape_string (string $escapestr);
-    string real_escape_string (string $escapestr);
     bool real_query (string $query);
     mysqli_stmt stmt_init (void);
     mysqli_result store_result (void);
@@ -176,9 +175,4 @@ Other
 
     int $thread_id;
     bool kill (int $processid);
-    bool thread_safe (void);    
-
-
-    int poll (array &$read , array &$error , array &$reject , int $sec [, int $usec ]);
-    mysqli_result reap_async_query (void);
-
+    bool thread_safe (void);
