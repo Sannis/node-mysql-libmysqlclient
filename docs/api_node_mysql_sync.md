@@ -81,6 +81,7 @@ Query
 
     Integer affectedRows();
     String escape(escapestr);
+    Integer fieldCount();
     Integer lastInsertId();
     MysqlSyncRes query(query);
     Boolean realQuery(query);
