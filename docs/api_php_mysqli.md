@@ -140,7 +140,6 @@ Connection, options, errors and information
     
     bool debug (string $message);
     bool dump_debug_info (void);
-    bool get_connection_stats (void);
     string stat (void);
 
 
