@@ -29,6 +29,16 @@ return ThrowException(Exception::TypeError( \
 String::New("Argument " #I " invalid"))); \
 Local<External> VAR = Local<External>::Cast(args[I]);
 
+#define MYSQLSYNC_DISABLE_MQ if (conn->multi_query) { \
+    mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_OFF); \
+    conn->multi_query = false; \
+}
+
+#define MYSQLSYNC_ENABLE_MQ if (!conn->multi_query) { \
+    mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_ON); \
+    conn->multi_query = true; \
+}
+
 // For MysqlSyncConn
 // static Persistent<String> affectedRows_symbol;
 // static Persistent<String> changeUser_symbol;
@@ -48,6 +58,9 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> getInfoString_symbol;
 // static Persistent<String> getWarnings_symbol;
 // static Persistent<String> lastInsertId_symbol;
+// static Persistent<String> multiMoreResults_symbol;
+// static Persistent<String> multiNextResult_symbol;
+// static Persistent<String> multiRealQuery_symbol;
 // static Persistent<String> ping_symbol;
 // static Persistent<String> query_symbol;
 // static Persistent<String> realQuery_symbol;
@@ -100,6 +113,9 @@ class MysqlSyncConn : public node::EventEmitter {
         // getInfoString_symbol = NODE_PSYMBOL("getInfoString");
         // getWarnings_symbol = NODE_PSYMBOL("getWarnings");
         // lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
+        // multiMoreResults_symbol = NODE_PSYMBOL("multiMoreResults");
+        // multiNextResult_symbol = NODE_PSYMBOL("multiNextResult");
+        // multiRealQuery_symbol = NODE_PSYMBOL("multiRealQuery");
         // ping_symbol = NODE_PSYMBOL("ping");
         // query_symbol = NODE_PSYMBOL("query");
         // realQuery_symbol = NODE_PSYMBOL("realQuery");
@@ -130,6 +146,9 @@ class MysqlSyncConn : public node::EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "getInfoString", GetInfoString);
         NODE_SET_PROTOTYPE_METHOD(t, "getWarnings", GetWarnings);
         NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
+        NODE_SET_PROTOTYPE_METHOD(t, "multiMoreResults", MultiMoreResults);
+        NODE_SET_PROTOTYPE_METHOD(t, "multiNextResult", MultiNextResult);
+        NODE_SET_PROTOTYPE_METHOD(t, "multiRealQuery", MultiRealQuery);
         NODE_SET_PROTOTYPE_METHOD(t, "ping", Ping);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
         NODE_SET_PROTOTYPE_METHOD(t, "realQuery", RealQuery);
@@ -205,11 +224,14 @@ class MysqlSyncConn : public node::EventEmitter {
   protected:
     MYSQL *_conn;
 
+    bool multi_query;
+
     unsigned int connect_errno;
     const char *connect_error;
 
     MysqlSyncConn(): EventEmitter() {
         _conn = NULL;
+        multi_query = false;
     }
 
     ~MysqlSyncConn() {
@@ -633,6 +655,75 @@ class MysqlSyncConn : public node::EventEmitter {
     }
 
     // TODO(Sannis): Write test for this method
+    static Handle<Value> MultiMoreResults(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if (mysql_more_results(conn->_conn)) {
+            return scope.Close(True());
+        }
+
+        return scope.Close(False());
+    }
+
+    // TODO(Sannis): Write test for this method
+    static Handle<Value> MultiNextResult(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if (!mysql_more_results(conn->_conn)) {
+            return THREXC("There is no next result set."
+                            "Please, call MultiMoreResults() to check "
+                            "whether to call this function/method");
+        }
+
+        if (!mysql_next_result(conn->_conn)) {
+            return scope.Close(True());
+        }
+
+        return scope.Close(False());
+    }
+
+    // TODO(Sannis): Write test for this method
+    static Handle<Value> MultiRealQuery(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (args.Length() == 0 || !args[0]->IsString()) {
+            return THREXC("First arg of conn.multiRealQuery() must be a string");
+        }
+
+        String::Utf8Value query(args[0]->ToString());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        MYSQLSYNC_ENABLE_MQ;
+
+        int r = mysql_real_query(conn->_conn, *query, query.length());
+
+        if (r != 0) {
+            MYSQLSYNC_DISABLE_MQ;
+
+            return scope.Close(False());
+        }
+
+        return scope.Close(True());
+    }
+
+    // TODO(Sannis): Write test for this method
     static Handle<Value> Ping(const Arguments& args) {
         HandleScope scope;
 
@@ -663,8 +754,10 @@ class MysqlSyncConn : public node::EventEmitter {
         String::Utf8Value query(args[0]->ToString());
 
         if (!conn->_conn) {
-            return scope.Close(False());
+            return THREXC("Not connected");
         }
+
+        MYSQLSYNC_DISABLE_MQ;
 
         int r = mysql_real_query(conn->_conn, *query, query.length());
 
@@ -703,8 +796,10 @@ class MysqlSyncConn : public node::EventEmitter {
         String::Utf8Value query(args[0]->ToString());
 
         if (!conn->_conn) {
-            return scope.Close(False());
+            return THREXC("Not connected");
         }
+
+        MYSQLSYNC_DISABLE_MQ;
 
         int r = mysql_real_query(conn->_conn, *query, query.length());
 

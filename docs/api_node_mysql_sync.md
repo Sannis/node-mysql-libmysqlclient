@@ -83,10 +83,14 @@ Query
     String escape(escapestr);
     Integer fieldCount();
     Integer lastInsertId();
+    Boolean multiMoreResults();
+    Boolean multiNextResult()
+    Boolean multiRealQuery(query);
     MysqlSyncRes query(query);
     Boolean realQuery(query);
     MysqlSyncRes storeResult();
     MysqlSyncRes useResult();
+;
 
 
 Transactions
