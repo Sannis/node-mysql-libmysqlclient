@@ -380,7 +380,9 @@ class MysqlSyncConn : public node::EventEmitter {
             return THREXC("Not connected");
         }
 
-        return scope.Close(!mysql_dump_debug_info(conn->_conn)? True() : False());
+        bool r = !mysql_dump_debug_info(conn->_conn);
+
+        return scope.Close(r ? True() : False());
     }
 
     static Handle<Value> Errno(const Arguments& args) {
