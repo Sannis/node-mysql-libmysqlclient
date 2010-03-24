@@ -29,6 +29,9 @@ return ThrowException(Exception::TypeError( \
 String::New("Argument " #I " invalid"))); \
 Local<External> VAR = Local<External>::Cast(args[I]);
 
+#define MYSQLSYNC_STORE_RESULT 0
+#define MYSQLSYNC_USE_RESULT   1
+
 #define MYSQLSYNC_DISABLE_MQ if (conn->multi_query) { \
     mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_OFF); \
     conn->multi_query = false; \
@@ -701,7 +704,8 @@ class MysqlSyncConn : public node::EventEmitter {
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
         if (args.Length() == 0 || !args[0]->IsString()) {
-            return THREXC("First arg of conn.multiRealQuery() must be a string");
+            return THREXC("First arg of conn.multiRealQuery() "
+                            "must be a string");
         }
 
         String::Utf8Value query(args[0]->ToString());
@@ -751,6 +755,12 @@ class MysqlSyncConn : public node::EventEmitter {
             return THREXC("First arg of conn.query() must be a string");
         }
 
+        int result_mode = MYSQLSYNC_STORE_RESULT;
+
+        if (args.Length() == 1) {
+            result_mode = MYSQLSYNC_USE_RESULT;
+        }
+
         String::Utf8Value query(args[0]->ToString());
 
         if (!conn->_conn) {
@@ -771,7 +781,16 @@ class MysqlSyncConn : public node::EventEmitter {
         }
 
         // TODO(Sannis): Write support for mysql_use_result()
-        MYSQL_RES *my_result = mysql_store_result(conn->_conn);
+        MYSQL_RES *my_result;
+
+        switch (result_mode) {
+            case MYSQLSYNC_STORE_RESULT:
+                my_result = mysql_store_result(conn->_conn);
+                break;
+            case MYSQLSYNC_USE_RESULT:
+                my_result = mysql_use_result(conn->_conn);
+                break;
+        }
 
         if (!my_result) {
             return scope.Close(False());
