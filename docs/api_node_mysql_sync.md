@@ -68,8 +68,10 @@ Nothing yet.
 
     Object getInfo();
     String getInfoString();
-    Array getWarnings (void);
+    Array getWarnings();
     Integer warningCount();
+
+	String stat();
 
 
 Query
