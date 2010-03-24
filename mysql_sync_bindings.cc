@@ -372,7 +372,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return Undefined();
     }
 
-    static Handle<Value> dumpDebugInfo(const Arguments& args) {
+    static Handle<Value> DumpDebugInfo(const Arguments& args) {
         HandleScope scope;
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
@@ -799,7 +799,7 @@ class MysqlSyncConn : public node::EventEmitter {
             return THREXC("Not connected");
         }
 
-        const char *stat = mysql_stat(mysql->mysql);
+        const char *stat = mysql_stat(conn->_conn);
 
         if (stat) {
             Local<Value> js_result = String::New(stat);
