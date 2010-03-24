@@ -83,6 +83,9 @@ Query
     String escape(escapestr);
     Integer lastInsertId();
     MysqlSyncRes query(query);
+    Boolean realQuery(query);
+    MysqlSyncRes storeResult();
+    MysqlSyncRes useResult();
 
 
 Transactions

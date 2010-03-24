@@ -49,11 +49,14 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> lastInsertId_symbol;
 // static Persistent<String> ping_symbol;
 // static Persistent<String> query_symbol;
+// static Persistent<String> realQuery_symbol;
 // static Persistent<String> selectDb_symbol;
 // static Persistent<String> setCharset_symbol;
 // static Persistent<String> setSsl_symbol;
 // static Persistent<String> sqlState_symbol;
 // static Persistent<String> stat_symbol;
+// static Persistent<String> storeResult_symbol;
+// static Persistent<String> useResult_symbol;
 // static Persistent<String> warningCount_symbol;
 
 // For MysqlSyncRes
@@ -97,11 +100,14 @@ class MysqlSyncConn : public node::EventEmitter {
         // lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
         // ping_symbol = NODE_PSYMBOL("ping");
         // query_symbol = NODE_PSYMBOL("query");
+        // realQuery_symbol = NODE_PSYMBOL("realQuery");
         // selectDb_symbol = NODE_PSYMBOL("selectDb");
         // setCharset_symbol = NODE_PSYMBOL("setCharset");
         // setSsl_symbol = NODE_PSYMBOL("setSsl");
         // sqlState_symbol = NODE_PSYMBOL("sqlState");
         // stat_symbol = NODE_PSYMBOL("stat");
+        // storeResult_symbol = NODE_PSYMBOL("storeResult");
+        // useResult_symbol = NODE_PSYMBOL("useResult");
         // warningCount_symbol = NODE_PSYMBOL("warningCount");
 
         NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
@@ -123,11 +129,14 @@ class MysqlSyncConn : public node::EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
         NODE_SET_PROTOTYPE_METHOD(t, "ping", Ping);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
+        NODE_SET_PROTOTYPE_METHOD(t, "realQuery", RealQuery);
         NODE_SET_PROTOTYPE_METHOD(t, "selectDb", SelectDb);
         NODE_SET_PROTOTYPE_METHOD(t, "setCharset", SetCharset);
         NODE_SET_PROTOTYPE_METHOD(t, "setSsl", SetSsl);
         NODE_SET_PROTOTYPE_METHOD(t, "sqlState", SqlState);
         NODE_SET_PROTOTYPE_METHOD(t, "stat", Stat);
+        NODE_SET_PROTOTYPE_METHOD(t, "storeResult", StoreResult);
+        NODE_SET_PROTOTYPE_METHOD(t, "useResult", UseResult);
         NODE_SET_PROTOTYPE_METHOD(t, "warningCount", WarningCount);
 
         target->Set(String::NewSymbol("MysqlSyncConn"), t->GetFunction());
@@ -663,6 +672,30 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
+    static Handle<Value> RealQuery(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (args.Length() == 0 || !args[0]->IsString()) {
+            return THREXC("First arg of conn.realQuery() must be a string");
+        }
+
+        String::Utf8Value query(args[0]->ToString());
+
+        if (!conn->_conn) {
+            return scope.Close(False());
+        }
+
+        int r = mysql_real_query(conn->_conn, *query, query.length());
+
+        if (r != 0) {
+            return scope.Close(False());
+        }
+
+        return scope.Close(True());
+    }
+
     static Handle<Value> SelectDb(const Arguments& args) {
         HandleScope scope;
 
@@ -773,6 +806,52 @@ class MysqlSyncConn : public node::EventEmitter {
         } else {
             return scope.Close(False());
         }
+    }
+
+    static Handle<Value> StoreResult(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!mysql_field_count(conn->_conn)) {
+            /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
+            return scope.Close(True());
+        }
+
+        MYSQL_RES *my_result = mysql_store_result(conn->_conn);
+
+        if (!my_result) {
+            return scope.Close(False());
+        }
+
+        Local<Value> arg = External::New(my_result);
+        Persistent<Object> js_result(MysqlSyncRes::constructor_template->
+                                 GetFunction()->NewInstance(1, &arg));
+
+        return scope.Close(js_result);
+    }
+
+    static Handle<Value> UseResult(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!mysql_field_count(conn->_conn)) {
+            /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
+            return scope.Close(True());
+        }
+
+        MYSQL_RES *my_result = mysql_use_result(conn->_conn);
+
+        if (!my_result) {
+            return scope.Close(False());
+        }
+
+        Local<Value> arg = External::New(my_result);
+        Persistent<Object> js_result(MysqlSyncRes::constructor_template->
+                                 GetFunction()->NewInstance(1, &arg));
+
+        return scope.Close(js_result);
     }
 
     static Handle<Value> WarningCount(const Arguments& args) {
