@@ -36,6 +36,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> connectErrno_symbol;
 // static Persistent<String> connectError_symbol;
 // static Persistent<String> close_symbol;
+// static Persistent<String> debug_symbol;
 // static Persistent<String> dumpDebugInfo_symbol;
 // static Persistent<String> errno_symbol;
 // static Persistent<String> error_symbol;
@@ -83,7 +84,8 @@ class MysqlSyncConn : public node::EventEmitter {
         // connectErrno_symbol = NODE_PSYMBOL("connectErrno");
         // connectError_symbol = NODE_PSYMBOL("connectError");
         // close_symbol = NODE_PSYMBOL("close");
-		// dumpDebugInfo_symbol = NODE_PSYMBOL("dumpDebugInfo");
+        // debug_symbol = NODE_PSYMBOL("debug");
+        // dumpDebugInfo_symbol = NODE_PSYMBOL("dumpDebugInfo");
         // errno_symbol = NODE_PSYMBOL("errno");
         // error_symbol = NODE_PSYMBOL("error");
         // escape_symbol = NODE_PSYMBOL("escape");
@@ -108,7 +110,8 @@ class MysqlSyncConn : public node::EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "connectErrno", ConnectErrno);
         NODE_SET_PROTOTYPE_METHOD(t, "connectError", ConnectError);
         NODE_SET_PROTOTYPE_METHOD(t, "close", Close);
-		NODE_SET_PROTOTYPE_METHOD(t, "dumpDebugInfo", DumpDebugInfo);
+        NODE_SET_PROTOTYPE_METHOD(t, "debug", Debug);
+        NODE_SET_PROTOTYPE_METHOD(t, "dumpDebugInfo", DumpDebugInfo);
         NODE_SET_PROTOTYPE_METHOD(t, "errno", Errno);
         NODE_SET_PROTOTYPE_METHOD(t, "error", Error);
         NODE_SET_PROTOTYPE_METHOD(t, "escape", Escape);
@@ -340,11 +343,31 @@ class MysqlSyncConn : public node::EventEmitter {
         return Undefined();
     }
 
+    static Handle<Value> Debug(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if (args.Length() == 0 || !args[0]->IsString()) {
+            return THREXC("First arg of conn.debug() must be a string");
+        }
+
+        String::Utf8Value debug(args[0]);
+
+        mysql_debug(*debug);
+
+        return Undefined();
+    }
+
     static Handle<Value> dumpDebugInfo(const Arguments& args) {
         HandleScope scope;
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
-		if (!conn->_conn) {
+        if (!conn->_conn) {
             return THREXC("Not connected");
         }
 

@@ -71,6 +71,8 @@ Nothing yet.
     Array getWarnings();
     Integer warningCount();
 
+	Undefined debug(message);
+	Boolean dumpDebugInfo();
 	String stat();
 
 
