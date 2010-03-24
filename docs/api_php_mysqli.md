@@ -153,13 +153,18 @@ Query
     bool more_results (void);
     bool multi_query (string $query);
     bool next_result (void);
-    mysqli_stmt prepare (string $query);
     mixed query (string $query [, int $resultmode ]);
     string escape_string (string $escapestr);
     bool real_query (string $query);
-    mysqli_stmt stmt_init (void);
     mysqli_result store_result (void);
     mysqli_result use_result (void);
+
+
+Statements
+----------
+
+    mysqli_stmt prepare (string $query);
+    mysqli_stmt stmt_init (void);
 
 
 Transactions

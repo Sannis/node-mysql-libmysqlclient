@@ -90,7 +90,12 @@ Query
     Boolean realQuery(query);
     MysqlSyncRes storeResult();
     MysqlSyncRes useResult();
-;
+
+
+Statements
+----------
+
+Nothing yet.
 
 
 Transactions
