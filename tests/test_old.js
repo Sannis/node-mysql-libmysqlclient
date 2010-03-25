@@ -6,7 +6,7 @@ See license text in LICENSE file
 */
 
 /*
-// TODO: Rewrite this tests
+// TODO: Rewrite these tests
 
 for( var i in show_tables_result )
 {
@@ -37,6 +37,4 @@ sys.print("conn.warningCount() test: ");
 sys.print(conn.warningCount());
 sys.print(" OK\n");
 */
-
-
 
