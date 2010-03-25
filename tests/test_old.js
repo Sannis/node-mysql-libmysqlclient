@@ -5,27 +5,6 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 See license text in LICENSE file
 */
 
-// Database connection parameters
-var host = "localhost",
-  user = "test",
-  password = "",
-  database = "test",
-  database_denied = "mysql",
-  test_table = "test_table",
-  charset = "utf8",
-
-  // Operations count for continuous tests
-  reconnect_count = 10000,
-  insert_rows_count = 10000,
-
-  // Require modules
-  sys = require("sys"),
-  mysql_sync = require("../mysql-sync"),
-  unittest = require("./unittest").unittest,
-
-  conn,
-  flag;
-
 unittest.test('conn.escape()', function () {
   var conn = mysql_sync.createConnection(host, user, password, database),
     strings_to_escape = [

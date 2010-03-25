@@ -5,24 +5,12 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 See license text in LICENSE file
 */
 
-// Database connection parameters
-var host = "localhost",
-  user = "test",
-  password = "",
-  database = "test",
-  database_denied = "mysql",
-  test_table = "test_table",
-  charset = "utf8",
+// Mixin settings
+process.mixin(require("./settings"));
 
-  // Operations count for continuous tests
-  reconnect_count = 10000,
-  insert_rows_count = 10000,
-
-  // Require modules
-  sys = require("sys"),
-  mysql_sync = require("../mysql-sync"),
-
-  conn;
+// Require modules
+var sys = require("sys"),
+  mysql_sync = require("../mysql-sync");
 
 exports.createConnection = function(test){
   test.expect(1);
