@@ -6,13 +6,14 @@ See license text in LICENSE file
 */
 
 // Mixin settings
+/*global host, user, password, database, database_denied, charset, reconnect_count */
 process.mixin(require("./settings"));
 
 // Require modules
 var sys = require("sys"),
   mysql_sync = require("../mysql-sync");
 
-exports.mysql_sync_createConnection = function(test){
+exports.mysql_sync_createConnection = function (test) {
   test.expect(1);
   
   var conn = mysql_sync.createConnection(host, user, password, database);
@@ -22,7 +23,7 @@ exports.mysql_sync_createConnection = function(test){
   test.done();
 };
 
-exports.connect_WithoutDb = function(test){
+exports.connect_WithoutDb = function (test) {
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password, database);
@@ -34,13 +35,13 @@ exports.connect_WithoutDb = function(test){
   test.done();
 };
 
-exports.connect_ManyTimes = function(test){
+exports.connect_ManyTimes = function (test) {
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password, database), i;
   test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
   conn.close();
-  for (i = 1; i <= reconnect_count; i++) {
+  for (i = 1; i <= reconnect_count; i += 1) {
     conn.connect(host, user, password);
     conn.close();
   }
@@ -52,14 +53,14 @@ exports.connect_ManyTimes = function(test){
 
 /*
 // TODO: how to write this test?
-unittest.test('conn.close()', function() {
+unittest.test('conn.close()', function () {
   var conn = mysql_sync.createConnection(host, user, password, database);
   conn.close();
   unittest.assert(conn);
 });
 */
 
-exports.connect_AllowedDb = function(test){
+exports.connect_AllowedDb = function (test) {
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password, database);
@@ -71,7 +72,7 @@ exports.connect_AllowedDb = function(test){
   test.done();
 };
 
-exports.connect_DeniedDb = function(test){
+exports.connect_DeniedDb = function (test) {
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password, database);
@@ -82,7 +83,7 @@ exports.connect_DeniedDb = function(test){
   test.done();
 };
 
-exports.selectDb_AllowedDb = function(test){
+exports.selectDb_AllowedDb = function (test) {
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password);
@@ -93,7 +94,7 @@ exports.selectDb_AllowedDb = function(test){
   test.done();
 };
 
-exports.selectDb_DeniedDb = function(test){
+exports.selectDb_DeniedDb = function (test) {
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password);
@@ -104,7 +105,7 @@ exports.selectDb_DeniedDb = function(test){
   test.done();
 };
 
-exports.setCharset = function(test){
+exports.setCharset = function (test) {
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password);
@@ -115,7 +116,7 @@ exports.setCharset = function(test){
   test.done();
 };
 
-exports.getCharset = function(test){
+exports.getCharset = function (test) {
   test.expect(4);
   
   var conn = mysql_sync.createConnection(host, user, password),
@@ -130,7 +131,7 @@ exports.getCharset = function(test){
   test.done();
 };
 
-exports.getCharsetName = function(test){
+exports.getCharsetName = function (test) {
   test.expect(3);
   
   var conn = mysql_sync.createConnection(host, user, password);
@@ -142,7 +143,7 @@ exports.getCharsetName = function(test){
   test.done();
 };
 
-exports.connectErrno = function(test){
+exports.connectErrno = function (test) {
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password);
@@ -154,7 +155,7 @@ exports.connectErrno = function(test){
   test.done();
 };
 
-exports.connectError = function(test){
+exports.connectError = function (test) {
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password);

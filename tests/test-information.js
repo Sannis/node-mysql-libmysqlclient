@@ -6,13 +6,14 @@ See license text in LICENSE file
 */
 
 // Mixin settings
+/*global host, user, password, database, database_denied */
 process.mixin(require("./settings"));
 
 // Require modules
 var sys = require("sys"),
   mysql_sync = require("../mysql-sync");
 
-exports.sqlState_AllowedDb = function(test){
+exports.sqlState_AllowedDb = function (test) {
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password, database);
@@ -23,7 +24,7 @@ exports.sqlState_AllowedDb = function(test){
   test.done();
 };
 
-exports.sqlState_DeniedDb = function(test){
+exports.sqlState_DeniedDb = function (test) {
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password, database_denied);

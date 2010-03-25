@@ -6,13 +6,14 @@ See license text in LICENSE file
 */
 
 // Mixin settings
+/*global host, user, password, database, database_denied */
 process.mixin(require("./settings"));
 
 // Require modules
 var sys = require("sys"),
   mysql_sync = require("../mysql-sync");
 
-exports.escape = function(test){
+exports.escape = function (test) {
   var conn = mysql_sync.createConnection(host, user, password, database),
     strings_to_escape = [
     ["test string", "test string"],
