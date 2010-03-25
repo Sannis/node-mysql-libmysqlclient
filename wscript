@@ -25,13 +25,14 @@ def build(bld):
   obj.lib = "mysqlclient"
 
 def test(tst):
-  Utils.exec_command('./tests/test.js')
+  Utils.exec_command('./tests/run-tests.sh')
 
 def lint(lnt):
   Utils.exec_command('cpplint ./mysql_sync_bindings.cc')
   Utils.exec_command('nodelint ./mysql-sync.js')
-  Utils.exec_command('nodelint ./tests/test.js')
-  Utils.exec_command('nodelint ./tests/debug.js')
+  Utils.exec_command('nodelint ./tests/settings.js')
+  Utils.exec_command('nodelint ./tests/test-*.js')
+  Utils.exec_command('nodelint ./tests/run-debug.js')
   Utils.exec_command('nodelint ./benchmark/benchmark.js')
 
 def shutdown():
