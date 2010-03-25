@@ -26,118 +26,6 @@ var host = "localhost",
   conn,
   flag;
 
-sys.print("Running tests for NodeJS syncronous MySQL binding...\n");
-
-unittest.test('mysql_sync.createConnection()', function () {
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  
-  unittest.assert(conn);
-  
-  conn.close();
-});
-
-/*
-// TODO: how to write this test?
-unittest.test('conn.close()', function() {
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  conn.close();
-  unittest.assert(conn);
-});
-*/
-
-unittest.test('conn.connect() without database selection', function () {
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  
-  conn.close();
-  unittest.assert(conn.connect(host, user, password));
-  
-  conn.close();
-});
-
-unittest.test('conn.connect() for allowed database', function () {
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  
-  conn.close();
-  unittest.assert(conn.connect(host, user, password, database));
-  
-  conn.close();
-});
-
-unittest.test('conn.connect() for denied database', function () {
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  conn.close();
-  
-  unittest.assert(!conn.connect(host, user, password, database_denied));
-});
-
-unittest.test('conn.selectDb() for allowed database', function () {
-  var conn = mysql_sync.createConnection(host, user, password);
-  
-  unittest.assert(conn.selectDb(database));
-  
-  conn.close();
-});
-
-unittest.test('conn.selectDb() for denied database', function () {
-  var conn = mysql_sync.createConnection(host, user, password);
-  
-  unittest.assert(!conn.selectDb(database_denied));
-  
-  conn.close();
-});
-
-unittest.test('conn.setCharset()', function () {
-  var conn = mysql_sync.createConnection(host, user, password);
-  
-  unittest.assert(conn.setCharset(charset));
-  
-  conn.close();
-});
-
-unittest.test('conn.getCharset()', function () {
-  var conn = mysql_sync.createConnection(host, user, password),
-    charset_obj;
-  
-  conn.setCharset(charset);
-  
-  charset_obj = conn.getCharset();
-  
-  unittest.assertEqual(charset, charset_obj.charset);
-  unittest.assertEqual(0, charset_obj.collation.indexOf(charset));
-  
-  conn.close();
-});
-
-unittest.test('conn.getCharsetName()', function () {
-  var conn = mysql_sync.createConnection(host, user, password);
-  
-  conn.setCharset(charset);
-  
-  unittest.assertEqual(charset, conn.getCharsetName());
-  
-  conn.close();
-});
-
-unittest.test('conn.connectErrno()', function () {
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  
-  conn.close();
-  
-  conn.connect(host, user, password, database_denied);
-  
-  unittest.assertEqual(1044, conn.connectErrno());
-});
-
-unittest.test('conn.connectError()', function () {
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  
-  conn.close();
-  
-  conn.connect(host, user, password, database_denied);
-  
-  unittest.assertEqual("Access denied for user ''@'" + host + "' to database '" + database_denied + "'", conn.connectError());
-});
-
 unittest.test('conn.sqlState()', function () {
   var conn = mysql_sync.createConnection(host, user, password, database_denied);
   
@@ -326,9 +214,6 @@ unittest.test('conn.getWarnings()', function () {
   conn.close();
 });
 
-unittest.showResults();
-
-unittest.exitWithReturnCode();
 
 /*
 // TODO: Rewrite this tests

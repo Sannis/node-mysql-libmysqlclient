@@ -25,7 +25,7 @@ def build(bld):
   obj.lib = "mysqlclient"
 
 def test(tst):
-  Utils.exec_command('./tests/test.js')
+  Utils.exec_command('./tests/run-tests.sh')
 
 def lint(lnt):
   Utils.exec_command('cpplint ./mysql_sync_bindings.cc')
