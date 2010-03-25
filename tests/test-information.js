@@ -12,7 +12,7 @@ process.mixin(require("./settings"));
 var sys = require("sys"),
   mysql_sync = require("../mysql-sync");
 
-exports.sqlStateAllowed = function(test){
+exports.sqlState_AllowedDb = function(test){
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password, database);
@@ -23,7 +23,7 @@ exports.sqlStateAllowed = function(test){
   test.done();
 };
 
-exports.sqlStateDenied = function(test){
+exports.sqlState_DeniedDb = function(test){
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password, database_denied);
@@ -33,4 +33,55 @@ exports.sqlStateDenied = function(test){
   test.done();
 };
 
+/*
+unittest.test('conn.getInfo()', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    info = conn.getInfo();
+  
+  unittest.assert(info);
+  
+  conn.close();
+});
+
+unittest.test('conn.getInfoString()', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    res;
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+
+  unittest.assertEqual(res, true);
+  
+  res = conn.query("CREATE TABLE " + test_table +
+    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
+    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
+    " PRIMARY KEY (autoincrement_id));");
+
+  unittest.assertEqual(res, true);
+  
+  res = conn.query("ALTER TABLE " + test_table + " ADD INDEX (random_number)");
+
+  unittest.assertEqual(res, true);
+  
+  unittest.assertEqual("Records: 0  Duplicates: 0  Warnings: 0", conn.getInfoString());
+  
+  conn.close();
+});
+
+unittest.test('conn.getWarnings()', function () {
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    res;
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+
+  unittest.assertInspectEqual([], conn.getWarnings());
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+
+  unittest.assertInspectEqual([{errno: 1051,
+                                reason: "Unknown table '" + test_table + "'"
+                               }], conn.getWarnings());
+  
+  conn.close();
+});
+*/
 

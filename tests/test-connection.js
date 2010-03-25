@@ -12,7 +12,7 @@ process.mixin(require("./settings"));
 var sys = require("sys"),
   mysql_sync = require("../mysql-sync");
 
-exports.createConnection = function(test){
+exports.mysql_sync_createConnection = function(test){
   test.expect(1);
   
   var conn = mysql_sync.createConnection(host, user, password, database);
@@ -22,13 +22,29 @@ exports.createConnection = function(test){
   test.done();
 };
 
-exports.connectWithoutSelectDb = function(test){
+exports.connect_WithoutDb = function(test){
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password, database);
   test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
   conn.close();
   test.ok(conn.connect(host, user, password), "conn.connect() without database selection");
+  conn.close();
+  
+  test.done();
+};
+
+exports.connect_ManyTimes = function(test){
+  test.expect(2);
+  
+  var conn = mysql_sync.createConnection(host, user, password, database), i;
+  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  conn.close();
+  for (i = 1; i <= reconnect_count; i++) {
+    conn.connect(host, user, password);
+    conn.close();
+  }
+  test.ok(conn.connect(host, user, password), "conn.connect() aftre many times connect");
   conn.close();
   
   test.done();
@@ -43,7 +59,7 @@ unittest.test('conn.close()', function() {
 });
 */
 
-exports.connectSelectAllowedDb = function(test){
+exports.connect_AllowedDb = function(test){
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password, database);
@@ -55,7 +71,7 @@ exports.connectSelectAllowedDb = function(test){
   test.done();
 };
 
-exports.connectSelectDeniedDb = function(test){
+exports.connect_DeniedDb = function(test){
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password, database);
@@ -66,7 +82,7 @@ exports.connectSelectDeniedDb = function(test){
   test.done();
 };
 
-exports.selectDbAllowed = function(test){
+exports.selectDb_AllowedDb = function(test){
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password);
@@ -77,7 +93,7 @@ exports.selectDbAllowed = function(test){
   test.done();
 };
 
-exports.selectDbDenied = function(test){
+exports.selectDb_DeniedDb = function(test){
   test.expect(2);
   
   var conn = mysql_sync.createConnection(host, user, password);
