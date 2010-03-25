@@ -60,6 +60,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> getInfo_symbol;
 // static Persistent<String> getInfoString_symbol;
 // static Persistent<String> getWarnings_symbol;
+// static Persistent<String> initStatement_symbol;
 // static Persistent<String> lastInsertId_symbol;
 // static Persistent<String> multiMoreResults_symbol;
 // static Persistent<String> multiNextResult_symbol;
@@ -115,6 +116,7 @@ class MysqlSyncConn : public node::EventEmitter {
         // getInfo_symbol = NODE_PSYMBOL("getInfo");
         // getInfoString_symbol = NODE_PSYMBOL("getInfoString");
         // getWarnings_symbol = NODE_PSYMBOL("getWarnings");
+        // initStatement_symbol = NODE_PSYMBOL("initStatement");
         // lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
         // multiMoreResults_symbol = NODE_PSYMBOL("multiMoreResults");
         // multiNextResult_symbol = NODE_PSYMBOL("multiNextResult");
@@ -148,6 +150,7 @@ class MysqlSyncConn : public node::EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "getInfo", GetInfo);
         NODE_SET_PROTOTYPE_METHOD(t, "getInfoString", GetInfoString);
         NODE_SET_PROTOTYPE_METHOD(t, "getWarnings", GetWarnings);
+        NODE_SET_PROTOTYPE_METHOD(t, "initStatement", InitStatement);
         NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
         NODE_SET_PROTOTYPE_METHOD(t, "multiMoreResults", MultiMoreResults);
         NODE_SET_PROTOTYPE_METHOD(t, "multiNextResult", MultiNextResult);
@@ -167,6 +170,7 @@ class MysqlSyncConn : public node::EventEmitter {
         target->Set(String::NewSymbol("MysqlSyncConn"), t->GetFunction());
 
         MysqlSyncRes::Init(target);
+        MysqlSyncStmt::Init(target);
     }
 
     bool Connect(const char* hostname,
@@ -634,6 +638,29 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
+    static Handle<Value> InitStatement(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!mysql_field_count(conn->_conn)) {
+            /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
+            return scope.Close(True());
+        }
+
+        MYSQL_STMT *my_statement = mysql_stmt_init(conn->_conn);
+
+        if (!my_statement) {
+            return scope.Close(False());
+        }
+
+        Local<Value> arg = External::New(my_statement);
+        Persistent<Object> js_result(MysqlSyncStmt::constructor_template->
+                                 GetFunction()->NewInstance(1, &arg));
+
+        return scope.Close(js_result);
+    }
+
     static Handle<Value> LastInsertId(const Arguments& args) {
         HandleScope scope;
 
@@ -780,7 +807,6 @@ class MysqlSyncConn : public node::EventEmitter {
             return scope.Close(True());
         }
 
-        // TODO(Sannis): Write support for mysql_use_result()
         MYSQL_RES *my_result;
 
         switch (result_mode) {
@@ -1114,6 +1140,42 @@ class MysqlSyncConn : public node::EventEmitter {
             }
 
             return scope.Close(js_result);
+        }
+    };
+
+    class MysqlSyncStmt : public EventEmitter {
+      public:
+        static Persistent<FunctionTemplate> constructor_template;
+
+        static void Init(Handle<Object> target) {
+            HandleScope scope;
+
+            Local<FunctionTemplate> t = FunctionTemplate::New(New);
+            constructor_template = Persistent<FunctionTemplate>::New(t);
+
+            t->Inherit(EventEmitter::constructor_template);
+            t->InstanceTemplate()->SetInternalFieldCount(1);
+        }
+
+      protected:
+        MYSQL_STMT *_stmt;
+
+        MysqlSyncStmt(): EventEmitter() {}
+
+        explicit MysqlSyncStmt(MYSQL_STMT *my_stmt):
+                                        _stmt(my_stmt), EventEmitter() {}
+
+        ~MysqlSyncStmt() {}
+
+        static Handle<Value> New(const Arguments& args) {
+            HandleScope scope;
+
+            REQ_EXT_ARG(0, js_stmt);
+            MYSQL_STMT *stmt = static_cast<MYSQL_STMT*>(js_stmt->Value());
+            MysqlSyncStmt *my_stmt = new MysqlSyncStmt(stmt);
+            my_stmt->Wrap(args.This());
+
+            return args.This();
         }
     };
 };
