@@ -26,22 +26,6 @@ var host = "localhost",
   conn,
   flag;
 
-unittest.test('conn.sqlState()', function () {
-  var conn = mysql_sync.createConnection(host, user, password, database_denied);
-  
-  unittest.assertEqual("42000", conn.sqlState());
-  
-  conn.close();
-});
-
-unittest.test('conn.sqlState()', function () {
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  
-  unittest.assertEqual("00000", conn.sqlState());
-  
-  conn.close();
-});
-
 unittest.test('conn.escape()', function () {
   var conn = mysql_sync.createConnection(host, user, password, database),
     strings_to_escape = [
