@@ -17,6 +17,13 @@ Node's goal is to provide an easy way to build scalable network programs,
 it is similar in design to and influenced by systems like Ruby's Event Machine or Python's Twisted.
 Website: http://nodejs.org
 
+== Contributing
+
+To contribute any patches, simply fork this repository using GitHub
+and send a pull request to me (http://github.com/Sannis). Thanks!
+You can find other information at
+http://wiki.github.com/Sannis/node-mysql-sync/contributing
+
 == License & Copyright
  
 MIT License. See license text in file LICENSE.
