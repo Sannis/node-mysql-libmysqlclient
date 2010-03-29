@@ -80,6 +80,9 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // For MysqlSyncRes
 // static Persistent<String> fetchResult_symbol;
 
+// For MysqlSyncStmt
+// static Persistent<String> prepare_symbol;
+
 class MysqlSyncConn : public node::EventEmitter {
   public:
     struct MysqlSyncConnInfo {
@@ -242,7 +245,9 @@ class MysqlSyncConn : public node::EventEmitter {
     }
 
     ~MysqlSyncConn() {
-        if (_conn) mysql_close(_conn);
+        if (_conn) {
+            mysql_close(_conn);
+        }
     }
 
     static Handle<Value> New(const Arguments& args) {
@@ -643,11 +648,6 @@ class MysqlSyncConn : public node::EventEmitter {
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
-        if (!mysql_field_count(conn->_conn)) {
-            /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
-            return scope.Close(True());
-        }
-
         MYSQL_STMT *my_statement = mysql_stmt_init(conn->_conn);
 
         if (!my_statement) {
@@ -919,7 +919,7 @@ class MysqlSyncConn : public node::EventEmitter {
             !args[2]->IsString() ||
             !args[3]->IsString() ||
             !args[4]->IsString()) {
-            return THREXC("Must give charset name as argument");
+            return THREXC("Must give 5 arguments");
         }
 
         String::Utf8Value key(args[0]->ToString());
@@ -1155,17 +1155,27 @@ class MysqlSyncConn : public node::EventEmitter {
 
             t->Inherit(EventEmitter::constructor_template);
             t->InstanceTemplate()->SetInternalFieldCount(1);
+
+            // prepare_symbol = NODE_PSYMBOL("prepare");
+
+            NODE_SET_PROTOTYPE_METHOD(t, "prepare", Prepare);
         }
 
       protected:
         MYSQL_STMT *_stmt;
 
-        MysqlSyncStmt(): EventEmitter() {}
+        MysqlSyncStmt(): EventEmitter() {
+            _stmt = NULL;
+        }
 
         explicit MysqlSyncStmt(MYSQL_STMT *my_stmt):
                                         _stmt(my_stmt), EventEmitter() {}
 
-        ~MysqlSyncStmt() {}
+        ~MysqlSyncStmt() {
+            if (_stmt) {
+                mysql_stmt_close(_stmt);
+            }
+        }
 
         static Handle<Value> New(const Arguments& args) {
             HandleScope scope;
@@ -1176,6 +1186,26 @@ class MysqlSyncConn : public node::EventEmitter {
             my_stmt->Wrap(args.This());
 
             return args.This();
+        }
+
+        static Handle<Value> Prepare(const Arguments& args) {
+            HandleScope scope;
+
+            MysqlSyncStmt *stmt = OBJUNWRAP<MysqlSyncStmt>(args.This());
+
+            if (args.Length() == 0 || !args[0]->IsString()) {
+                return THREXC("First arg of stmt.prepare() must be a string");
+            }
+
+            String::Utf8Value query(args[0]);
+
+            int query_len = args[0]->ToString()->Utf8Length();
+
+            if (mysql_stmt_prepare(stmt->_stmt, *query, query_len)) {
+                return scope.Close(False());
+            }
+
+            return scope.Close(True());
         }
     };
 };

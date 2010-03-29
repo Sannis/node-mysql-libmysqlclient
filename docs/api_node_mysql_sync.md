@@ -95,7 +95,7 @@ Query
 Statements
 ----------
 
-Nothing yet.
+    MysqlSyncStmt initStmt (void);
 
 
 Transactions
@@ -108,4 +108,15 @@ Other
 -----
 
 Nothing yet.
+
+
+MysqlSyncStmt class
+-------------------
+
+    class MysqlSyncStmt {
+        /* Methods */
+        Boolean prepare(query);
+    }
+
+
 
