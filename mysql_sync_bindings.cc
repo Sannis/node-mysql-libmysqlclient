@@ -1211,6 +1211,7 @@ class MysqlSyncConn : public node::EventEmitter {
 };
 
 Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncRes::constructor_template;
+Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncStmt::constructor_template;
 
 extern "C" void init(Handle<Object> target) {
     MysqlSyncConn::Init(target);
