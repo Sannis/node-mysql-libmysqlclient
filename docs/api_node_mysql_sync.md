@@ -1,5 +1,5 @@
-NodeJS mysql-sync bindings API
-==============================
+NodeJS MySQL/libmysqlclient bindings API
+========================================
 
 Introduction
 ------------

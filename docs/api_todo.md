@@ -1,5 +1,5 @@
-TODO: NodeJS mysql-sync bindings API
-====================================
+TODO: NodeJS MySQL/libmysqlclient bindings API
+==============================================
 
 Connection, options, errors and information
 -------------------------------------------
