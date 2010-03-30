@@ -29,6 +29,7 @@ def test(tst):
 
 def lint(lnt):
   Utils.exec_command('cpplint ./mysql_sync_bindings.cc')
+  Utils.exec_command('cpplint ./mysql_sync_bindings.h')
   Utils.exec_command('nodelint ./mysql-sync.js')
   Utils.exec_command('nodelint ./tests/settings.js')
   Utils.exec_command('nodelint ./tests/test-*.js')

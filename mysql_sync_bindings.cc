@@ -3,16 +3,8 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 
 See license text in LICENSE file
 */
-#include <mysql/mysql.h>
 
-#include <v8.h>
-#include <node.h>
-#include <node_events.h>
-
-// This line caused
-// "Do not use namespace using-directives. Use using-declarations instead."
-// [build/namespaces] [5] error in cpplint.py
-using namespace v8;
+#include "./mysql_sync_bindings.h"
 
 // Only for fixing some cpplint.py errors:
 // Lines should be <= 80 characters long
@@ -42,59 +34,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
     conn->multi_query = true; \
 }
 
-// For MysqlSyncConn
-// static Persistent<String> affectedRows_symbol;
-// static Persistent<String> changeUser_symbol;
-// static Persistent<String> connect_symbol;
-// static Persistent<String> connectErrno_symbol;
-// static Persistent<String> connectError_symbol;
-// static Persistent<String> close_symbol;
-// static Persistent<String> debug_symbol;
-// static Persistent<String> dumpDebugInfo_symbol;
-// static Persistent<String> errno_symbol;
-// static Persistent<String> error_symbol;
-// static Persistent<String> escape_symbol;
-// static Persistent<String> fieldCount_symbol;
-// static Persistent<String> getCharset_symbol;
-// static Persistent<String> getCharsetName_symbol;
-// static Persistent<String> getInfo_symbol;
-// static Persistent<String> getInfoString_symbol;
-// static Persistent<String> getWarnings_symbol;
-// static Persistent<String> initStatement_symbol;
-// static Persistent<String> lastInsertId_symbol;
-// static Persistent<String> multiMoreResults_symbol;
-// static Persistent<String> multiNextResult_symbol;
-// static Persistent<String> multiRealQuery_symbol;
-// static Persistent<String> ping_symbol;
-// static Persistent<String> query_symbol;
-// static Persistent<String> realQuery_symbol;
-// static Persistent<String> selectDb_symbol;
-// static Persistent<String> setCharset_symbol;
-// static Persistent<String> setSsl_symbol;
-// static Persistent<String> sqlState_symbol;
-// static Persistent<String> stat_symbol;
-// static Persistent<String> storeResult_symbol;
-// static Persistent<String> useResult_symbol;
-// static Persistent<String> warningCount_symbol;
-
-// For MysqlSyncRes
-// static Persistent<String> fetchResult_symbol;
-
-// For MysqlSyncStmt
-// static Persistent<String> prepare_symbol;
-
-class MysqlSyncConn : public node::EventEmitter {
-  public:
-    struct MysqlSyncConnInfo {
-        uint64_t client_version;
-        const char *client_info;
-        uint64_t server_version;
-        const char *server_info;
-        const char *host_info;
-        uint32_t proto_info;
-    };
-
-    static void Init(Handle<Object> target) {
+    void MysqlSyncConn::Init(Handle<Object> target) {
         HandleScope scope;
 
         Local<FunctionTemplate> t = FunctionTemplate::New(New);
@@ -176,7 +116,7 @@ class MysqlSyncConn : public node::EventEmitter {
         MysqlSyncStmt::Init(target);
     }
 
-    bool Connect(const char* hostname,
+    bool MysqlSyncConn::Connect(const char* hostname,
                  const char* user,
                  const char* password,
                  const char* dbname,
@@ -211,14 +151,14 @@ class MysqlSyncConn : public node::EventEmitter {
         return true;
     }
 
-    void Close() {
+    void MysqlSyncConn::Close() {
         if (_conn) {
             mysql_close(_conn);
             _conn = NULL;
         }
     }
 
-    MysqlSyncConnInfo GetInfo() {
+    MysqlSyncConn::MysqlSyncConnInfo MysqlSyncConn::GetInfo() {
         MysqlSyncConnInfo info;
 
         info.client_version = mysql_get_client_version();
@@ -231,26 +171,18 @@ class MysqlSyncConn : public node::EventEmitter {
         return info;
     }
 
-  protected:
-    MYSQL *_conn;
-
-    bool multi_query;
-
-    unsigned int connect_errno;
-    const char *connect_error;
-
-    MysqlSyncConn(): EventEmitter() {
+    MysqlSyncConn::MysqlSyncConn(): EventEmitter() {
         _conn = NULL;
         multi_query = false;
     }
 
-    ~MysqlSyncConn() {
+    MysqlSyncConn::~MysqlSyncConn() {
         if (_conn) {
             mysql_close(_conn);
         }
     }
 
-    static Handle<Value> New(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::New(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = new MysqlSyncConn();
@@ -259,7 +191,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return args.This();
     }
 
-    static Handle<Value> AffectedRows(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::AffectedRows(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -280,7 +212,7 @@ class MysqlSyncConn : public node::EventEmitter {
     }
 
     // TODO(Sannis): Write test for this method
-    static Handle<Value> ChangeUser(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::ChangeUser(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -307,7 +239,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(True());
     }
 
-    static Handle<Value> Connect(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::Connect(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -359,7 +291,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(True());
     }
 
-    static Handle<Value> ConnectErrno(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::ConnectErrno(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -369,7 +301,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> ConnectError(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::ConnectError(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -379,7 +311,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> Close(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::Close(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -389,7 +321,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return Undefined();
     }
 
-    static Handle<Value> Debug(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::Debug(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -409,7 +341,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return Undefined();
     }
 
-    static Handle<Value> DumpDebugInfo(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::DumpDebugInfo(const Arguments& args) {
         HandleScope scope;
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
 
@@ -422,7 +354,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(r ? True() : False());
     }
 
-    static Handle<Value> Errno(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::Errno(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -438,7 +370,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> Error(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::Error(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -454,7 +386,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> Escape(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::Escape(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -483,7 +415,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> FieldCount(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::FieldCount(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -497,7 +429,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> GetCharset(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::GetCharset(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -539,7 +471,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> GetCharsetName(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::GetCharsetName(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -554,7 +486,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> GetInfo(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::GetInfo(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -588,7 +520,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> GetInfoString(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::GetInfoString(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -604,7 +536,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> GetWarnings(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::GetWarnings(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -643,7 +575,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> InitStatement(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::InitStatement(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -661,7 +593,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> LastInsertId(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::LastInsertId(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -685,7 +617,7 @@ class MysqlSyncConn : public node::EventEmitter {
     }
 
     // TODO(Sannis): Write test for this method
-    static Handle<Value> MultiMoreResults(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::MultiMoreResults(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -702,7 +634,7 @@ class MysqlSyncConn : public node::EventEmitter {
     }
 
     // TODO(Sannis): Write test for this method
-    static Handle<Value> MultiNextResult(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::MultiNextResult(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -725,7 +657,7 @@ class MysqlSyncConn : public node::EventEmitter {
     }
 
     // TODO(Sannis): Write test for this method
-    static Handle<Value> MultiRealQuery(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::MultiRealQuery(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -755,7 +687,7 @@ class MysqlSyncConn : public node::EventEmitter {
     }
 
     // TODO(Sannis): Write test for this method
-    static Handle<Value> Ping(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::Ping(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -773,7 +705,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(True());
     }
 
-    static Handle<Value> Query(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::Query(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -829,7 +761,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> RealQuery(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::RealQuery(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -855,7 +787,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(True());
     }
 
-    static Handle<Value> SelectDb(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::SelectDb(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -879,7 +811,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(True());
     }
 
-    static Handle<Value> SetCharset(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::SetCharset(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -904,7 +836,7 @@ class MysqlSyncConn : public node::EventEmitter {
     }
 
     // TODO(Sannis): How to write a test for this function?
-    static Handle<Value> SetSsl(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::SetSsl(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -933,7 +865,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(Undefined());
     }
 
-    static Handle<Value> SqlState(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::SqlState(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -947,7 +879,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> Stat(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::Stat(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -967,7 +899,7 @@ class MysqlSyncConn : public node::EventEmitter {
         }
     }
 
-    static Handle<Value> StoreResult(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::StoreResult(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -990,7 +922,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> UseResult(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::UseResult(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -1013,7 +945,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    static Handle<Value> WarningCount(const Arguments& args) {
+    Handle<Value> MysqlSyncConn::WarningCount(const Arguments& args) {
         HandleScope scope;
 
         MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
@@ -1029,11 +961,7 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    class MysqlSyncRes : public EventEmitter {
-      public:
-        static Persistent<FunctionTemplate> constructor_template;
-
-        static void Init(Handle<Object> target) {
+        void MysqlSyncConn::MysqlSyncRes::Init(Handle<Object> target) {
             HandleScope scope;
 
             Local<FunctionTemplate> t = FunctionTemplate::New(New);
@@ -1047,17 +975,11 @@ class MysqlSyncConn : public node::EventEmitter {
             NODE_SET_PROTOTYPE_METHOD(t, "fetchResult", FetchResult);
         }
 
-      protected:
-        MYSQL_RES *_res;
+        MysqlSyncConn::MysqlSyncRes::MysqlSyncRes(): EventEmitter() {}
 
-        MysqlSyncRes(): EventEmitter() {}
+        MysqlSyncConn::MysqlSyncRes::~MysqlSyncRes() {}
 
-        explicit MysqlSyncRes(MYSQL_RES *my_result):
-                                        _res(my_result), EventEmitter() {}
-
-        ~MysqlSyncRes() {}
-
-        static Handle<Value> New(const Arguments& args) {
+        Handle<Value> MysqlSyncConn::MysqlSyncRes::New(const Arguments& args) {
             HandleScope scope;
 
             REQ_EXT_ARG(0, js_res);
@@ -1068,7 +990,7 @@ class MysqlSyncConn : public node::EventEmitter {
             return args.This();
         }
 
-        static Handle<Value> FetchResult(const Arguments& args) {
+        Handle<Value> MysqlSyncConn::MysqlSyncRes::FetchResult(const Arguments& args) {
             HandleScope scope;
 
             MysqlSyncRes *res = OBJUNWRAP<MysqlSyncRes>(args.This());
@@ -1141,13 +1063,8 @@ class MysqlSyncConn : public node::EventEmitter {
 
             return scope.Close(js_result);
         }
-    };
 
-    class MysqlSyncStmt : public EventEmitter {
-      public:
-        static Persistent<FunctionTemplate> constructor_template;
-
-        static void Init(Handle<Object> target) {
+        void MysqlSyncConn::MysqlSyncStmt::Init(Handle<Object> target) {
             HandleScope scope;
 
             Local<FunctionTemplate> t = FunctionTemplate::New(New);
@@ -1161,23 +1078,17 @@ class MysqlSyncConn : public node::EventEmitter {
             NODE_SET_PROTOTYPE_METHOD(t, "prepare", Prepare);
         }
 
-      protected:
-        MYSQL_STMT *_stmt;
-
-        MysqlSyncStmt(): EventEmitter() {
+        MysqlSyncConn::MysqlSyncStmt::MysqlSyncStmt(): EventEmitter() {
             _stmt = NULL;
         }
 
-        explicit MysqlSyncStmt(MYSQL_STMT *my_stmt):
-                                        _stmt(my_stmt), EventEmitter() {}
-
-        ~MysqlSyncStmt() {
+        MysqlSyncConn::MysqlSyncStmt::~MysqlSyncStmt() {
             if (_stmt) {
                 mysql_stmt_close(_stmt);
             }
         }
 
-        static Handle<Value> New(const Arguments& args) {
+        Handle<Value> MysqlSyncConn::MysqlSyncStmt::New(const Arguments& args) {
             HandleScope scope;
 
             REQ_EXT_ARG(0, js_stmt);
@@ -1188,7 +1099,7 @@ class MysqlSyncConn : public node::EventEmitter {
             return args.This();
         }
 
-        static Handle<Value> Prepare(const Arguments& args) {
+        Handle<Value> MysqlSyncConn::MysqlSyncStmt::Prepare(const Arguments& args) {
             HandleScope scope;
 
             MysqlSyncStmt *stmt = OBJUNWRAP<MysqlSyncStmt>(args.This());
@@ -1207,11 +1118,6 @@ class MysqlSyncConn : public node::EventEmitter {
 
             return scope.Close(True());
         }
-    };
-};
-
-Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncRes::constructor_template;
-Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncStmt::constructor_template;
 
 extern "C" void init(Handle<Object> target) {
     MysqlSyncConn::Init(target);
