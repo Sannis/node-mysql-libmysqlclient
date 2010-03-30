@@ -101,13 +101,17 @@ Statements
 Transactions
 ------------
 
-Nothing yet.
+    Boolean autoCommit(mode);
+    Boolean commit();
+    Boolean rollback();
 
 
 Other
 -----
 
-Nothing yet.
+    Integer threadId();
+    Boolean threadKill(pid);
+    Boolean threadSafe();
 
 
 MysqlSyncStmt class

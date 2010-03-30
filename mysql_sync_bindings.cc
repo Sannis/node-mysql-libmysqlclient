@@ -78,6 +78,9 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> sqlState_symbol;
 // static Persistent<String> stat_symbol;
 // static Persistent<String> storeResult_symbol;
+// static Persistent<String> threadId_symbol;
+// static Persistent<String> threadKill_symbol;
+// static Persistent<String> threadSafe_symbol;
 // static Persistent<String> useResult_symbol;
 // static Persistent<String> warningCount_symbol;
 
@@ -140,6 +143,9 @@ class MysqlSyncConn : public node::EventEmitter {
         // sqlState_symbol = NODE_PSYMBOL("sqlState");
         // stat_symbol = NODE_PSYMBOL("stat");
         // storeResult_symbol = NODE_PSYMBOL("storeResult");
+        // threadId_symbol = NODE_PSYMBOL("threadId");
+        // threadKill_symbol = NODE_PSYMBOL("threadKill");
+        // threadSafe_symbol = NODE_PSYMBOL("threadSafe");
         // useResult_symbol = NODE_PSYMBOL("useResult");
         // warningCount_symbol = NODE_PSYMBOL("warningCount");
 
@@ -177,6 +183,9 @@ class MysqlSyncConn : public node::EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "sqlState", SqlState);
         NODE_SET_PROTOTYPE_METHOD(t, "stat", Stat);
         NODE_SET_PROTOTYPE_METHOD(t, "storeResult", StoreResult);
+        NODE_SET_PROTOTYPE_METHOD(t, "threadId", ThreadId);
+        NODE_SET_PROTOTYPE_METHOD(t, "threadSafe", ThreadSafe);
+        NODE_SET_PROTOTYPE_METHOD(t, "threadKill", ThreadKill);
         NODE_SET_PROTOTYPE_METHOD(t, "useResult", UseResult);
         NODE_SET_PROTOTYPE_METHOD(t, "warningCount", WarningCount);
 
@@ -1053,6 +1062,52 @@ class MysqlSyncConn : public node::EventEmitter {
                                  GetFunction()->NewInstance(1, &arg));
 
         return scope.Close(js_result);
+    }
+
+    static Handle<Value> ThreadId(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        unsigned long thread_id = mysql_thread_id(conn->_conn);
+
+        Local<Value> js_result = Integer::New(thread_id);
+
+        return scope.Close(js_resul);
+    }
+
+    static Handle<Value> ThreadKill(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if (args.Length() == 0 || !args[0]->IsNumber()) {
+            return THREXC("First arg of conn.threadKill() must be a thread pid");
+        }
+
+        if (mysql_kill(conn->_conn, args[0]->toInteger())) {
+            return scope.Close(False());
+        } else {
+            return scope.Close(True());
+        }
+    }
+
+    static Handle<Value> ThreadSafe(const Arguments& args) {
+        HandleScope scope;
+
+        if (mysql_thread_safe()) {
+            return scope.Close(True());
+        } else {
+            return scope.Close(False());
+        }
     }
 
     static Handle<Value> UseResult(const Arguments& args) {
