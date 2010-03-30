@@ -4,7 +4,9 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 See license text in LICENSE file
 */
 
-#include "./mysql_sync_bindings.h"
+#include "./mysql_bindings_connection.h"
+#include "./mysql_bindings_result.h"
+#include "./mysql_bindings_statement.h"
 
 // Only for fixing some cpplint.py errors:
 // Lines should be <= 80 characters long

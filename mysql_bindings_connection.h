@@ -4,8 +4,8 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 See license text in LICENSE file
 */
 
-#ifndef NODE_MYSQL_BINDINGS_H
-#define NODE_MYSQL_BINDINGS_H
+#ifndef NODE_MYSQL_CONNECTION_H
+#define NODE_MYSQL_CONNECTION_H
 
 #include <mysql/mysql.h>
 
@@ -18,7 +18,6 @@ See license text in LICENSE file
 // [build/namespaces] [5] error in cpplint.py
 using namespace v8;
 
-// For MysqlSyncConn
 // static Persistent<String> affectedRows_symbol;
 // static Persistent<String> autoCommit_symbol;
 // static Persistent<String> changeUser_symbol;
@@ -59,12 +58,6 @@ using namespace v8;
 // static Persistent<String> useResult_symbol;
 // static Persistent<String> warningCount_symbol;
 
-// For MysqlSyncRes
-// static Persistent<String> fetchResult_symbol;
-
-// For MysqlSyncStmt
-// static Persistent<String> prepare_symbol;
-
 class MysqlSyncConn : public node::EventEmitter {
   public:
     struct MysqlSyncConnInfo {
@@ -75,6 +68,10 @@ class MysqlSyncConn : public node::EventEmitter {
         const char *host_info;
         uint32_t proto_info;
     };
+    
+    class MysqlSyncRes;
+    
+    class MysqlSyncStmt;
 
     static void Init(Handle<Object> target);
 
@@ -180,54 +177,12 @@ class MysqlSyncConn : public node::EventEmitter {
     static Handle<Value> UseResult(const Arguments& args);
 
     static Handle<Value> WarningCount(const Arguments& args);
-
-    class MysqlSyncRes : public EventEmitter {
-      public:
-        static Persistent<FunctionTemplate> constructor_template;
-
-        static void Init(Handle<Object> target);
-
-      protected:
-        MYSQL_RES *_res;
-
-        MysqlSyncRes();
-
-        explicit MysqlSyncRes(MYSQL_RES *my_result):
-                                        _res(my_result), EventEmitter() {}
-
-        ~MysqlSyncRes();
-
-        static Handle<Value> New(const Arguments& args);
-
-        static Handle<Value> FetchResult(const Arguments& args);
-    };
-
-    class MysqlSyncStmt : public EventEmitter {
-      public:
-        static Persistent<FunctionTemplate> constructor_template;
-
-        static void Init(Handle<Object> target);
-
-      protected:
-        MYSQL_STMT *_stmt;
-
-        MysqlSyncStmt();
-
-        explicit MysqlSyncStmt(MYSQL_STMT *my_stmt):
-                                        _stmt(my_stmt), EventEmitter() {}
-
-        ~MysqlSyncStmt();
-
-        static Handle<Value> New(const Arguments& args);
-
-        static Handle<Value> Prepare(const Arguments& args);
-    };
 };
 
-Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncRes::constructor_template;
-Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncStmt::constructor_template;
+//Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncRes::constructor_template;
+//Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncStmt::constructor_template;
 
 extern "C" void init(Handle<Object> target);
 
-#endif  // NODE_MYSQL_BINDINGS_H
+#endif  // NODE_MYSQL_CONNECTION_H
 

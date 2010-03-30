@@ -4,7 +4,7 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 See license text in LICENSE file
 */
 
-var binding = require("./mysql_sync_bindings");
+var binding = require("./mysql_bindings");
 var MysqlSyncConn = binding.MysqlSyncConn;
 var sys = require("sys");
 
