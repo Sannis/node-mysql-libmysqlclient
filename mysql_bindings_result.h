@@ -41,7 +41,5 @@ class MysqlSyncConn::MysqlSyncRes : public EventEmitter {
     static Handle<Value> FetchResult(const Arguments& args);
 };
 
-Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncRes::constructor_template;
-
 #endif  // NODE_MYSQL_RESULT_H
 

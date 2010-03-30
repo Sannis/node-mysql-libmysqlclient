@@ -19,7 +19,7 @@ def configure(conf):
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
   obj.target = "mysql_bindings"
-  obj.source = "mysql_bindings_connection.cc"
+  obj.source = "mysql_bindings_connection.cc mysql_bindings_result.cc mysql_bindings_statement.cc"
   # This doesn't working in my OpenSUSE 11.1 because *.pc file for MySQL doesn't exists
   #obj.uselib = "MYSQL"
   obj.lib = "mysqlclient"

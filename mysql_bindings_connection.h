@@ -13,6 +13,34 @@ See license text in LICENSE file
 #include <node.h>
 #include <node_events.h>
 
+// Only for fixing some cpplint.py errors:
+// Lines should be <= 80 characters long
+// [whitespace/line_length] [2]
+// Lines should very rarely be longer than 100 characters
+// [whitespace/line_length] [4]
+#define THREXC(str) ThrowException(String::New(str))
+
+#define OBJUNWRAP ObjectWrap::Unwrap
+
+#define REQ_EXT_ARG(I, VAR) \
+if (args.Length() <= (I) || !args[I]->IsExternal()) \
+return ThrowException(Exception::TypeError( \
+String::New("Argument " #I " invalid"))); \
+Local<External> VAR = Local<External>::Cast(args[I]);
+
+#define MYSQLSYNC_STORE_RESULT 0
+#define MYSQLSYNC_USE_RESULT   1
+
+#define MYSQLSYNC_DISABLE_MQ if (conn->multi_query) { \
+    mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_OFF); \
+    conn->multi_query = false; \
+}
+
+#define MYSQLSYNC_ENABLE_MQ if (!conn->multi_query) { \
+    mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_ON); \
+    conn->multi_query = true; \
+}
+
 // This line caused
 // "Do not use namespace using-directives. Use using-declarations instead."
 // [build/namespaces] [5] error in cpplint.py

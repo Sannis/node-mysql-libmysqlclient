@@ -41,7 +41,5 @@ class MysqlSyncConn::MysqlSyncStmt : public EventEmitter {
     static Handle<Value> Prepare(const Arguments& args);
 };
 
-Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncStmt::constructor_template;
-
 #endif  // NODE_MYSQL_STATEMENT_H
 
