@@ -314,7 +314,7 @@ class MysqlSyncConn : public node::EventEmitter {
         if (mysql_autocommit(conn->_conn, args[0]->BooleanValue())) {
             return scope.Close(False());
         }
-        
+
         return scope.Close(True());
     }
 
@@ -357,7 +357,7 @@ class MysqlSyncConn : public node::EventEmitter {
         if (mysql_commit(conn->_conn)) {
             return scope.Close(False());
         }
-        
+
         return scope.Close(True());
     }
 
@@ -891,7 +891,7 @@ class MysqlSyncConn : public node::EventEmitter {
         if (mysql_rollback(conn->_conn)) {
             return scope.Close(False());
         }
-        
+
         return scope.Close(True());
     }
 
@@ -1064,11 +1064,11 @@ class MysqlSyncConn : public node::EventEmitter {
             return THREXC("Not connected");
         }
 
-        unsigned long thread_id = mysql_thread_id(conn->_conn);
+        uint64_t thread_id = mysql_thread_id(conn->_conn);
 
         Local<Value> js_result = Integer::New(thread_id);
 
-        return scope.Close(js_resul);
+        return scope.Close(js_result);
     }
 
     static Handle<Value> ThreadKill(const Arguments& args) {
@@ -1081,10 +1081,10 @@ class MysqlSyncConn : public node::EventEmitter {
         }
 
         if (args.Length() == 0 || !args[0]->IsNumber()) {
-            return THREXC("First arg of conn.threadKill() must be a thread pid");
+            return THREXC("First arg of conn.threadKill() must be a pid");
         }
 
-        if (mysql_kill(conn->_conn, args[0]->toInteger())) {
+        if (mysql_kill(conn->_conn, args[0]->IntegerValue())) {
             return scope.Close(False());
         } else {
             return scope.Close(True());
