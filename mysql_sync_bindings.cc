@@ -3,6 +3,7 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 
 See license text in LICENSE file
 */
+
 #include <mysql/mysql.h>
 
 #include <v8.h>
@@ -44,7 +45,9 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 
 // For MysqlSyncConn
 // static Persistent<String> affectedRows_symbol;
+// static Persistent<String> autoCommit_symbol;
 // static Persistent<String> changeUser_symbol;
+// static Persistent<String> commit_symbol;
 // static Persistent<String> connect_symbol;
 // static Persistent<String> connectErrno_symbol;
 // static Persistent<String> connectError_symbol;
@@ -68,6 +71,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 // static Persistent<String> ping_symbol;
 // static Persistent<String> query_symbol;
 // static Persistent<String> realQuery_symbol;
+// static Persistent<String> rollback_symbol;
 // static Persistent<String> selectDb_symbol;
 // static Persistent<String> setCharset_symbol;
 // static Persistent<String> setSsl_symbol;
@@ -103,7 +107,9 @@ class MysqlSyncConn : public node::EventEmitter {
         t->InstanceTemplate()->SetInternalFieldCount(1);
 
         // affectedRows_symbol = NODE_PSYMBOL("affectedRows");
+        // autoCommit_symbol = NODE_PSYMBOL("autoCommit");
         // changeUser_symbol = NODE_PSYMBOL("changeUser");
+        // commit_symbol = NODE_PSYMBOL("commit");
         // connect_symbol = NODE_PSYMBOL("connect");
         // connectErrno_symbol = NODE_PSYMBOL("connectErrno");
         // connectError_symbol = NODE_PSYMBOL("connectError");
@@ -127,6 +133,7 @@ class MysqlSyncConn : public node::EventEmitter {
         // ping_symbol = NODE_PSYMBOL("ping");
         // query_symbol = NODE_PSYMBOL("query");
         // realQuery_symbol = NODE_PSYMBOL("realQuery");
+        // rollback_symbol = NODE_PSYMBOL("rollback");
         // selectDb_symbol = NODE_PSYMBOL("selectDb");
         // setCharset_symbol = NODE_PSYMBOL("setCharset");
         // setSsl_symbol = NODE_PSYMBOL("setSsl");
@@ -137,7 +144,9 @@ class MysqlSyncConn : public node::EventEmitter {
         // warningCount_symbol = NODE_PSYMBOL("warningCount");
 
         NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
+        NODE_SET_PROTOTYPE_METHOD(t, "autoCommit", AutoCommit);
         NODE_SET_PROTOTYPE_METHOD(t, "changeUser", ChangeUser);
+        NODE_SET_PROTOTYPE_METHOD(t, "commit", Commit);
         NODE_SET_PROTOTYPE_METHOD(t, "connect", Connect);
         NODE_SET_PROTOTYPE_METHOD(t, "connectErrno", ConnectErrno);
         NODE_SET_PROTOTYPE_METHOD(t, "connectError", ConnectError);
@@ -161,6 +170,7 @@ class MysqlSyncConn : public node::EventEmitter {
         NODE_SET_PROTOTYPE_METHOD(t, "ping", Ping);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
         NODE_SET_PROTOTYPE_METHOD(t, "realQuery", RealQuery);
+        NODE_SET_PROTOTYPE_METHOD(t, "rollback", Rollback);
         NODE_SET_PROTOTYPE_METHOD(t, "selectDb", SelectDb);
         NODE_SET_PROTOTYPE_METHOD(t, "setCharset", SetCharset);
         NODE_SET_PROTOTYPE_METHOD(t, "setSsl", SetSsl);
@@ -280,6 +290,27 @@ class MysqlSyncConn : public node::EventEmitter {
     }
 
     // TODO(Sannis): Write test for this method
+    static Handle<Value> AutoCommit(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if ( args.Length() < 1 ) {
+            return THREXC("Must give boolean automode flag as argument");
+        }
+
+        if (mysql_autocommit(conn->_conn, args[0]->BooleanValue())) {
+            return scope.Close(False());
+        }
+        
+        return scope.Close(True());
+    }
+
+    // TODO(Sannis): Write test for this method
     static Handle<Value> ChangeUser(const Arguments& args) {
         HandleScope scope;
 
@@ -304,6 +335,23 @@ class MysqlSyncConn : public node::EventEmitter {
             return scope.Close(False());
         }
 
+        return scope.Close(True());
+    }
+
+    // TODO(Sannis): Write test for this method
+    static Handle<Value> Commit(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if (mysql_commit(conn->_conn)) {
+            return scope.Close(False());
+        }
+        
         return scope.Close(True());
     }
 
@@ -827,6 +875,23 @@ class MysqlSyncConn : public node::EventEmitter {
                                  GetFunction()->NewInstance(1, &arg));
 
         return scope.Close(js_result);
+    }
+
+    // TODO(Sannis): Write test for this method
+    static Handle<Value> Rollback(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if (mysql_rollback(conn->_conn)) {
+            return scope.Close(False());
+        }
+        
+        return scope.Close(True());
     }
 
     static Handle<Value> RealQuery(const Arguments& args) {
