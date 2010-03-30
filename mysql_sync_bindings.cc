@@ -298,7 +298,6 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    // TODO(Sannis): Write test for this method
     static Handle<Value> AutoCommit(const Arguments& args) {
         HandleScope scope;
 
@@ -319,7 +318,6 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(True());
     }
 
-    // TODO(Sannis): Write test for this method
     static Handle<Value> ChangeUser(const Arguments& args) {
         HandleScope scope;
 
@@ -347,7 +345,6 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(True());
     }
 
-    // TODO(Sannis): Write test for this method
     static Handle<Value> Commit(const Arguments& args) {
         HandleScope scope;
 
@@ -741,7 +738,6 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    // TODO(Sannis): Write test for this method
     static Handle<Value> MultiMoreResults(const Arguments& args) {
         HandleScope scope;
 
@@ -758,7 +754,6 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(False());
     }
 
-    // TODO(Sannis): Write test for this method
     static Handle<Value> MultiNextResult(const Arguments& args) {
         HandleScope scope;
 
@@ -781,7 +776,6 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(False());
     }
 
-    // TODO(Sannis): Write test for this method
     static Handle<Value> MultiRealQuery(const Arguments& args) {
         HandleScope scope;
 
@@ -811,7 +805,6 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(True());
     }
 
-    // TODO(Sannis): Write test for this method
     static Handle<Value> Ping(const Arguments& args) {
         HandleScope scope;
 
@@ -886,7 +879,6 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(js_result);
     }
 
-    // TODO(Sannis): Write test for this method
     static Handle<Value> Rollback(const Arguments& args) {
         HandleScope scope;
 
@@ -977,7 +969,6 @@ class MysqlSyncConn : public node::EventEmitter {
         return scope.Close(True());
     }
 
-    // TODO(Sannis): How to write a test for this function?
     static Handle<Value> SetSsl(const Arguments& args) {
         HandleScope scope;
 
