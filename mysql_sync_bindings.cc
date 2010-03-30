@@ -43,7 +43,9 @@ Local<External> VAR = Local<External>::Cast(args[I]);
         t->InstanceTemplate()->SetInternalFieldCount(1);
 
         // affectedRows_symbol = NODE_PSYMBOL("affectedRows");
+        // autoCommit_symbol = NODE_PSYMBOL("autoCommit");
         // changeUser_symbol = NODE_PSYMBOL("changeUser");
+        // commit_symbol = NODE_PSYMBOL("commit");
         // connect_symbol = NODE_PSYMBOL("connect");
         // connectErrno_symbol = NODE_PSYMBOL("connectErrno");
         // connectError_symbol = NODE_PSYMBOL("connectError");
@@ -67,17 +69,23 @@ Local<External> VAR = Local<External>::Cast(args[I]);
         // ping_symbol = NODE_PSYMBOL("ping");
         // query_symbol = NODE_PSYMBOL("query");
         // realQuery_symbol = NODE_PSYMBOL("realQuery");
+        // rollback_symbol = NODE_PSYMBOL("rollback");
         // selectDb_symbol = NODE_PSYMBOL("selectDb");
         // setCharset_symbol = NODE_PSYMBOL("setCharset");
         // setSsl_symbol = NODE_PSYMBOL("setSsl");
         // sqlState_symbol = NODE_PSYMBOL("sqlState");
         // stat_symbol = NODE_PSYMBOL("stat");
         // storeResult_symbol = NODE_PSYMBOL("storeResult");
+        // threadId_symbol = NODE_PSYMBOL("threadId");
+        // threadKill_symbol = NODE_PSYMBOL("threadKill");
+        // threadSafe_symbol = NODE_PSYMBOL("threadSafe");
         // useResult_symbol = NODE_PSYMBOL("useResult");
         // warningCount_symbol = NODE_PSYMBOL("warningCount");
 
         NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
+        NODE_SET_PROTOTYPE_METHOD(t, "autoCommit", AutoCommit);
         NODE_SET_PROTOTYPE_METHOD(t, "changeUser", ChangeUser);
+        NODE_SET_PROTOTYPE_METHOD(t, "commit", Commit);
         NODE_SET_PROTOTYPE_METHOD(t, "connect", Connect);
         NODE_SET_PROTOTYPE_METHOD(t, "connectErrno", ConnectErrno);
         NODE_SET_PROTOTYPE_METHOD(t, "connectError", ConnectError);
@@ -101,12 +109,16 @@ Local<External> VAR = Local<External>::Cast(args[I]);
         NODE_SET_PROTOTYPE_METHOD(t, "ping", Ping);
         NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
         NODE_SET_PROTOTYPE_METHOD(t, "realQuery", RealQuery);
+        NODE_SET_PROTOTYPE_METHOD(t, "rollback", Rollback);
         NODE_SET_PROTOTYPE_METHOD(t, "selectDb", SelectDb);
         NODE_SET_PROTOTYPE_METHOD(t, "setCharset", SetCharset);
         NODE_SET_PROTOTYPE_METHOD(t, "setSsl", SetSsl);
         NODE_SET_PROTOTYPE_METHOD(t, "sqlState", SqlState);
         NODE_SET_PROTOTYPE_METHOD(t, "stat", Stat);
         NODE_SET_PROTOTYPE_METHOD(t, "storeResult", StoreResult);
+        NODE_SET_PROTOTYPE_METHOD(t, "threadId", ThreadId);
+        NODE_SET_PROTOTYPE_METHOD(t, "threadSafe", ThreadSafe);
+        NODE_SET_PROTOTYPE_METHOD(t, "threadKill", ThreadKill);
         NODE_SET_PROTOTYPE_METHOD(t, "useResult", UseResult);
         NODE_SET_PROTOTYPE_METHOD(t, "warningCount", WarningCount);
 
@@ -211,7 +223,26 @@ Local<External> VAR = Local<External>::Cast(args[I]);
         return scope.Close(js_result);
     }
 
-    // TODO(Sannis): Write test for this method
+    Handle<Value> MysqlSyncConn::AutoCommit(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if ( args.Length() < 1 ) {
+            return THREXC("Must give boolean automode flag as argument");
+        }
+
+        if (mysql_autocommit(conn->_conn, args[0]->BooleanValue())) {
+            return scope.Close(False());
+        }
+
+        return scope.Close(True());
+    }
+
     Handle<Value> MysqlSyncConn::ChangeUser(const Arguments& args) {
         HandleScope scope;
 
@@ -233,6 +264,22 @@ Local<External> VAR = Local<External>::Cast(args[I]);
         bool r = mysql_change_user(conn->_conn, *user, *password, *dbname);
 
         if (r) {
+            return scope.Close(False());
+        }
+
+        return scope.Close(True());
+    }
+
+    Handle<Value> MysqlSyncConn::Commit(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if (mysql_commit(conn->_conn)) {
             return scope.Close(False());
         }
 
@@ -616,7 +663,6 @@ Local<External> VAR = Local<External>::Cast(args[I]);
         return scope.Close(js_result);
     }
 
-    // TODO(Sannis): Write test for this method
     Handle<Value> MysqlSyncConn::MultiMoreResults(const Arguments& args) {
         HandleScope scope;
 
@@ -633,7 +679,6 @@ Local<External> VAR = Local<External>::Cast(args[I]);
         return scope.Close(False());
     }
 
-    // TODO(Sannis): Write test for this method
     Handle<Value> MysqlSyncConn::MultiNextResult(const Arguments& args) {
         HandleScope scope;
 
@@ -656,7 +701,6 @@ Local<External> VAR = Local<External>::Cast(args[I]);
         return scope.Close(False());
     }
 
-    // TODO(Sannis): Write test for this method
     Handle<Value> MysqlSyncConn::MultiRealQuery(const Arguments& args) {
         HandleScope scope;
 
@@ -686,7 +730,6 @@ Local<External> VAR = Local<External>::Cast(args[I]);
         return scope.Close(True());
     }
 
-    // TODO(Sannis): Write test for this method
     Handle<Value> MysqlSyncConn::Ping(const Arguments& args) {
         HandleScope scope;
 
@@ -759,6 +802,22 @@ Local<External> VAR = Local<External>::Cast(args[I]);
                                  GetFunction()->NewInstance(1, &arg));
 
         return scope.Close(js_result);
+    }
+
+    Handle<Value> MysqlSyncConn::Rollback(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if (mysql_rollback(conn->_conn)) {
+            return scope.Close(False());
+        }
+
+        return scope.Close(True());
     }
 
     Handle<Value> MysqlSyncConn::RealQuery(const Arguments& args) {
@@ -835,7 +894,6 @@ Local<External> VAR = Local<External>::Cast(args[I]);
         return scope.Close(True());
     }
 
-    // TODO(Sannis): How to write a test for this function?
     Handle<Value> MysqlSyncConn::SetSsl(const Arguments& args) {
         HandleScope scope;
 
@@ -920,6 +978,52 @@ Local<External> VAR = Local<External>::Cast(args[I]);
                                  GetFunction()->NewInstance(1, &arg));
 
         return scope.Close(js_result);
+    }
+
+    Handle<Value> MysqlSyncConn::ThreadId(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        uint64_t thread_id = mysql_thread_id(conn->_conn);
+
+        Local<Value> js_result = Integer::New(thread_id);
+
+        return scope.Close(js_result);
+    }
+
+    Handle<Value> MysqlSyncConn::ThreadKill(const Arguments& args) {
+        HandleScope scope;
+
+        MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+        if (!conn->_conn) {
+            return THREXC("Not connected");
+        }
+
+        if (args.Length() == 0 || !args[0]->IsNumber()) {
+            return THREXC("First arg of conn.threadKill() must be a pid");
+        }
+
+        if (mysql_kill(conn->_conn, args[0]->IntegerValue())) {
+            return scope.Close(False());
+        } else {
+            return scope.Close(True());
+        }
+    }
+
+    Handle<Value> MysqlSyncConn::ThreadSafe(const Arguments& args) {
+        HandleScope scope;
+
+        if (mysql_thread_safe()) {
+            return scope.Close(True());
+        } else {
+            return scope.Close(False());
+        }
     }
 
     Handle<Value> MysqlSyncConn::UseResult(const Arguments& args) {

@@ -20,7 +20,9 @@ using namespace v8;
 
 // For MysqlSyncConn
 // static Persistent<String> affectedRows_symbol;
+// static Persistent<String> autoCommit_symbol;
 // static Persistent<String> changeUser_symbol;
+// static Persistent<String> commit_symbol;
 // static Persistent<String> connect_symbol;
 // static Persistent<String> connectErrno_symbol;
 // static Persistent<String> connectError_symbol;
@@ -44,12 +46,16 @@ using namespace v8;
 // static Persistent<String> ping_symbol;
 // static Persistent<String> query_symbol;
 // static Persistent<String> realQuery_symbol;
+// static Persistent<String> rollback_symbol;
 // static Persistent<String> selectDb_symbol;
 // static Persistent<String> setCharset_symbol;
 // static Persistent<String> setSsl_symbol;
 // static Persistent<String> sqlState_symbol;
 // static Persistent<String> stat_symbol;
 // static Persistent<String> storeResult_symbol;
+// static Persistent<String> threadId_symbol;
+// static Persistent<String> threadKill_symbol;
+// static Persistent<String> threadSafe_symbol;
 // static Persistent<String> useResult_symbol;
 // static Persistent<String> warningCount_symbol;
 
@@ -99,8 +105,11 @@ class MysqlSyncConn : public node::EventEmitter {
 
     static Handle<Value> AffectedRows(const Arguments& args);
 
-    // TODO(Sannis): Write test for this method
+    static Handle<Value> AutoCommit(const Arguments& args);
+
     static Handle<Value> ChangeUser(const Arguments& args);
+
+    static Handle<Value> Commit(const Arguments& args);
 
     static Handle<Value> Connect(const Arguments& args);
 
@@ -136,27 +145,24 @@ class MysqlSyncConn : public node::EventEmitter {
 
     static Handle<Value> LastInsertId(const Arguments& args);
 
-    // TODO(Sannis): Write test for this method
     static Handle<Value> MultiMoreResults(const Arguments& args);
 
-    // TODO(Sannis): Write test for this method
     static Handle<Value> MultiNextResult(const Arguments& args);
 
-    // TODO(Sannis): Write test for this method
     static Handle<Value> MultiRealQuery(const Arguments& args);
 
-    // TODO(Sannis): Write test for this method
     static Handle<Value> Ping(const Arguments& args);
 
     static Handle<Value> Query(const Arguments& args);
 
     static Handle<Value> RealQuery(const Arguments& args);
 
+    static Handle<Value> Rollback(const Arguments& args);
+
     static Handle<Value> SelectDb(const Arguments& args);
 
     static Handle<Value> SetCharset(const Arguments& args);
 
-    // TODO(Sannis): How to write a test for this function?
     static Handle<Value> SetSsl(const Arguments& args);
 
     static Handle<Value> SqlState(const Arguments& args);
@@ -164,6 +170,12 @@ class MysqlSyncConn : public node::EventEmitter {
     static Handle<Value> Stat(const Arguments& args);
 
     static Handle<Value> StoreResult(const Arguments& args);
+
+    static Handle<Value> ThreadId(const Arguments& args);
+
+    static Handle<Value> ThreadKill(const Arguments& args);
+
+    static Handle<Value> ThreadSafe(const Arguments& args);
 
     static Handle<Value> UseResult(const Arguments& args);
 
@@ -217,5 +229,5 @@ Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncStmt::constructor_template;
 
 extern "C" void init(Handle<Object> target);
 
-#endif // NODE_MYSQL_BINDINGS_H
+#endif  // NODE_MYSQL_BINDINGS_H
 
