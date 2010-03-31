@@ -15,7 +15,6 @@ Synchronouse bindings
 Testing
 -------
   * Write unittests for each function
-  * Write a script to verify the existence of unittests for each function
 
 
 Documentation
