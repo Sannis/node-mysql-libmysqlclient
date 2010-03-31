@@ -5,7 +5,7 @@ See license text in LICENSE file
 */
 
 // Mixin settings
-/*global host, user, password, database, database_denied, charset, reconnect_count */
+/*global host, user, password, database, test_table, insert_rows_count */
 process.mixin(require("./settings"));
 
 // Require modules

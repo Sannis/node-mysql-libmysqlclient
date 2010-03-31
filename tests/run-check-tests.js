@@ -14,7 +14,7 @@ var
 
 var
   regex_class_name =
-    /class .*?([a-z]*) :.*{/i,
+    /class .*?([a-z]*) :.*\{/i,
   regex_class_methods =
     /static Handle<Value> ([a-z]*)\(const Arguments& args\);/ig;
 
@@ -33,13 +33,9 @@ function getBindingsClasses() {
 
   for (i = 0; i < source_files.length; i += 1) {
     if (source_files[i].match(/\.h$/)) {
-      sys.puts(source_files[i]);
-      
       file_content = fs.readFileSync(source_dir + "/" + source_files[i]);
       
       class_name = file_content.match(regex_class_name)[1];
-      
-      sys.puts(sys.inspect(class_name));
       
       class_methods = [];
       
@@ -56,15 +52,19 @@ function getBindingsClasses() {
   return classes;
 }
 
-var red   = function(str){return "\033[31m" + str + "\033[39m"};
-var green = function(str){return "\033[32m" + str + "\033[39m"};
-var bold  = function(str){return "\033[1m" + str + "\033[22m"};
+var red   = function (str) {
+  return "\033[31m" + str + "\033[39m";
+};
 
-var bindings_classes = getBindingsClasses();
+var green = function (str) {
+  return "\033[32m" + str + "\033[39m";
+};
 
-var
-  i,
-  j;
+var bold  = function (str) {
+  return "\033[1m" + str + "\033[22m";
+};
+
+var bindings_classes = getBindingsClasses(), i, j, test_file_name, test_require;
 
 for (i = 0; i < bindings_classes.length; i += 1) {
   sys.puts(bindings_classes[i].name + ": test-class-" + bindings_classes[i].name.toLowerCase() + ".js");
@@ -74,12 +74,12 @@ for (i = 0; i < bindings_classes.length; i += 1) {
   try {
     test_require = require(test_file_name.replace(/\.js$/, ''));
   }
-  catch(e) {
+  catch (e) {
     test_require = false;
   }
   
   for (j = 0; j < bindings_classes[i].methods.length; j += 1) {
-    if (test_require && (typeof test_require[bindings_classes[i].methods[j]] != 'undefined')) {
+    if (test_require && (typeof test_require[bindings_classes[i].methods[j]] !== 'undefined')) {
       sys.puts('✔ ' + bindings_classes[i].methods[j]);
     } else {
       sys.puts(red('✖ ' + bindings_classes[i].methods[j]));
