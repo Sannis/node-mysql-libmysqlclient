@@ -9,7 +9,8 @@ See license text in LICENSE file
 var
   assert = require("assert"),
   sys = require("sys"),
-  fs = require("fs");
+  fs = require("fs"),
+  path = require("path");
 
 var
   regex_class_name =
@@ -70,10 +71,15 @@ for (i = 0; i < bindings_classes.length; i += 1) {
   
   test_file_name = tests_dir + "/test-class-" + bindings_classes[i].name.toLowerCase() + ".js";
   
-  test_require = require(test_file_name.replace(/\.js$/, ''));
+  try {
+    test_require = require(test_file_name.replace(/\.js$/, ''));
+  }
+  catch(e) {
+    test_require = false;
+  }
   
   for (j = 0; j < bindings_classes[i].methods.length; j += 1) {
-    if ((typeof test_require != 'undefined') && (typeof test_require[bindings_classes[i].methods[j]] != 'undefined')) {
+    if (test_require && (typeof test_require[bindings_classes[i].methods[j]] != 'undefined')) {
       sys.puts('✔ ' + bindings_classes[i].methods[j]);
     } else {
       sys.puts(red('✖ ' + bindings_classes[i].methods[j]));
