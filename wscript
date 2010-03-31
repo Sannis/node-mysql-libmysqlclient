@@ -22,7 +22,7 @@ def configure(conf):
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
   obj.target = "mysql_bindings"
-  obj.source = "mysql_bindings_connection.cc mysql_bindings_result.cc mysql_bindings_statement.cc"
+  obj.source = "./src/mysql_bindings_connection.cc ./src/mysql_bindings_result.cc ./src/mysql_bindings_statement.cc"
   obj.uselib = "MYSQLCLIENT"
 
 def test(tst):
@@ -30,7 +30,7 @@ def test(tst):
 
 def lint(lnt):
   # Bindings C++ source code
-  Utils.exec_command('cpplint ./*.h ./*.cc')
+  Utils.exec_command('cpplint ./src/*.h ./src/*.cc')
   # Bindings javascript code
   Utils.exec_command('nodelint ./mysql-sync.js')
   # Bindings tests
