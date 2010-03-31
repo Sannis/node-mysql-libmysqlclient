@@ -5,7 +5,7 @@ See license text in LICENSE file
 */
 
 // Mixin settings
-/*global host, user, password, database, database_denied, charset, reconnect_count */
+/*global host, user, password, database, database_denied, charset, test_table, insert_rows_count */
 process.mixin(require("./settings"));
 
 // Require modules
@@ -19,6 +19,48 @@ exports.New = function (test) {
   
   var db = new mysql_bindings.MysqlSyncConn();
   test.ok(db, "var db = new MysqlSyncConn()");
+  
+  test.done();
+};
+
+exports.AffectedRows = function (test) {
+  test.expect(5);
+
+  var conn = mysql_sync.createConnection(host, user, password, database),
+    res = true,
+    random_number,
+    random_boolean,
+    affected_rows,
+    i;
+  
+  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+  res = conn.query("CREATE TABLE " + test_table +
+    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
+    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
+    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
+  
+  res = conn.query("DELETE FROM " + test_table + ";");
+  test.ok(res, "conn.query('DELETE FROM test_table')");
+  
+  for (i = 0; i < insert_rows_count; i += 1)
+  {
+    random_number = Math.round(Math.random() * 1000000);
+    random_boolean = (Math.random() > 0.5) ? 1 : 0;
+    res = conn.query("INSERT INTO " + test_table +
+      " (random_number, random_boolean) VALUES ('" + random_number +
+      "', '" + random_boolean + "');") && res;
+  }
+  test.equals(res, true, "Insert " + insert_rows_count + " rows into table " + test_table);
+
+  res = conn.query("UPDATE " + test_table + " SET random_number=1;");
+  test.equals(res, true, "Update " + insert_rows_count + " rows in table " + test_table);
+  
+  affected_rows = conn.affectedRows();
+  test.equals(affected_rows, insert_rows_count, "conn.affectedRows()");
+  
+  conn.close();
   
   test.done();
 };
@@ -200,7 +242,7 @@ exports.LastInsertId = function (test) {
 
   test.equals(res, true, "Insert " + insert_rows_count + " rows into table " + test_table);
   last_insert_id = conn.lastInsertId();
-  test.equals(last_insert_id, insert_rows_count, "conn.lastInsertId() " + last_insert_id + " " + insert_rows_count);
+  test.equals(last_insert_id, insert_rows_count, "conn.lastInsertId()");
   conn.close();
   
   test.done();
@@ -245,13 +287,25 @@ exports.SetCharset = function (test) {
 exports.SqlState = function (test) {
   test.expect(4);
   
-  var conn = mysql_sync.createConnection(host, user, password, database);
+  var conn = mysql_sync.createConnection(host, user, password, database), res;
   test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
   test.equals(conn.sqlState(), "00000", "conn.sqlState() after connection to allowed database");
   conn.close();
   res = conn.connect(host, user, password, database_denied);
   test.ok(!res, "conn.connect(host, user, password, database_denied)");
   test.equals(conn.sqlState(), "42000", "conn.sqlState() after connection to denied database");
+  
+  test.done();
+};
+
+exports.WarningCount = function (test) {
+  test.expect(1);
+  
+  var conn = mysql_sync.createConnection(host, user, password, database), res;  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+  test.equals(conn.warningCount(), 1, "conn.getWarnings() after double DROP TABLE IF EXISTS");
+  conn.close();
   
   test.done();
 };
