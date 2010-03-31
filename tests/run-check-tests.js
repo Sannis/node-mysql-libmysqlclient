@@ -64,7 +64,12 @@ var bold  = function (str) {
   return "\033[1m" + str + "\033[22m";
 };
 
-var bindings_classes = getBindingsClasses(), i, j, test_file_name, test_require;
+var
+  bindings_classes = getBindingsClasses(),
+  i, j,
+  test_file_name,
+  test_require,
+  notexist_tests = 0;
 
 for (i = 0; i < bindings_classes.length; i += 1) {
   sys.puts(bindings_classes[i].name + ": test-class-" + bindings_classes[i].name.toLowerCase() + ".js");
@@ -83,7 +88,15 @@ for (i = 0; i < bindings_classes.length; i += 1) {
       sys.puts('✔ ' + bindings_classes[i].methods[j]);
     } else {
       sys.puts(red('✖ ' + bindings_classes[i].methods[j]));
+      notexist_tests += 1;
     }
   }
 }
+
+if (notexist_tests) {
+  sys.puts('\n' + bold(red('NONEXISTENT METHODS TESTS: ')) + notexist_tests);
+} else {
+  sys.puts('\n' + bold(green('OK')));
+}
+
 
