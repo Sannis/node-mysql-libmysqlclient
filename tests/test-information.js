@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
 Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 
@@ -53,7 +52,7 @@ exports.getInfoString = function (test) {
   res = conn.query("CREATE TABLE " + test_table +
     " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
     " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id));");
+    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
   test.equals(res, true);
   res = conn.query("ALTER TABLE " + test_table + " ADD INDEX (random_number)");
   test.equals(res, true);

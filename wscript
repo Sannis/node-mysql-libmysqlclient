@@ -29,16 +29,18 @@ def test(tst):
   Utils.exec_command('./tests/run-tests.sh')
 
 def lint(lnt):
+  # Bindings C++ source code
   Utils.exec_command('cpplint ./mysql_bindings_connection.cc')
   Utils.exec_command('cpplint ./mysql_bindings_connection.h')
   Utils.exec_command('cpplint ./mysql_bindings_result.cc')
   Utils.exec_command('cpplint ./mysql_bindings_result.h')
   Utils.exec_command('cpplint ./mysql_bindings_statement.cc')
   Utils.exec_command('cpplint ./mysql_bindings_statement.h')
+  # Bindings javascript code
   Utils.exec_command('nodelint ./mysql-sync.js')
-  Utils.exec_command('nodelint ./tests/settings.js')
-  Utils.exec_command('nodelint ./tests/test-*.js')
-  Utils.exec_command('nodelint ./tests/run-debug.js')
+  # Bindings tests
+  Utils.exec_command('nodelint ./tests/*.js')
+  # Bindings benchmarks
   Utils.exec_command('nodelint ./benchmark/benchmark.js')
 
 def shutdown():

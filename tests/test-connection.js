@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
 Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 
