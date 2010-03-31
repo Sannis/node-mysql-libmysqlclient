@@ -1,0 +1,32 @@
+Things to do or at least think about doing in the future.
+
+
+Synchronouse bindings
+---------------------
+  * Implement all methods of 'result' and 'statement' classes
+  * Think over the names of methods, not much different
+    from the original MySQL API functions, but with grouping,
+    like multiquery methods:
+     * MultiMoreResults()
+     * MultiNextResult()
+     * MultiRealQuery()
+
+
+Testing
+-------
+  * Write unittests for each function
+  * Write a script to verify the existence of unittests for each function
+
+
+Documentation
+-------------
+  * Write doxygen comments for all source code
+  * Write API documentation with descriptions for all public methods
+  * Write some usable examples
+
+
+Asynchrony
+----------
+  * Make a list of methods to be implemented in non-blocking version
+  * Implement them to version 0.2.0
+
