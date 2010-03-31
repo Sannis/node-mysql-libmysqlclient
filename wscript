@@ -12,17 +12,18 @@ def set_options(opt):
 def configure(conf):
   conf.check_tool("compiler_cxx")
   conf.check_tool("node_addon")
-  # This doesn't working in my OpenSUSE 11.1 because *.pc file for MySQL doesn't exists
-  #if not conf.check_cfg(package='mysqlclient', args='--cflags --libs', uselib_store='MYSQL'):
-  #  conf.fatal('Missing mysqlclient');
+  # http://gist.github.com/349794
+  if not conf.check_cfg(package="mysqlclient", args="--cflags --libs", uselib_store="MYSQLCLIENT"):
+    if not conf.check_cxx(lib="mysqlclient", uselib_store="MYSQLCLIENT"):
+      conf.fatal("Missing libmysqlclient");
+  if not conf.check_cxx(header_name='mysql/mysql.h'):
+    conf.fatal("Missing libmysqlclient-devel");
 
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
   obj.target = "mysql_bindings"
   obj.source = "mysql_bindings_connection.cc mysql_bindings_result.cc mysql_bindings_statement.cc"
-  # This doesn't working in my OpenSUSE 11.1 because *.pc file for MySQL doesn't exists
-  #obj.uselib = "MYSQL"
-  obj.lib = "mysqlclient"
+  obj.uselib = "MYSQLCLIENT"
 
 def test(tst):
   Utils.exec_command('./tests/run-tests.sh')
