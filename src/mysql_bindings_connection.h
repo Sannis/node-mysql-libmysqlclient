@@ -13,14 +13,28 @@ See license text in LICENSE file
 #include <node.h>
 #include <node_events.h>
 
+#include <cstdlib>
+
 // Only for fixing some cpplint.py errors:
 // Lines should be <= 80 characters long
 // [whitespace/line_length] [2]
 // Lines should very rarely be longer than 100 characters
 // [whitespace/line_length] [4]
-#define THREXC(str) ThrowException(String::New(str))
+#define THREXC(str) ThrowException(Exception::Error(String::New(str)))
 
 #define OBJUNWRAP ObjectWrap::Unwrap
+
+#define REQ_STR_ARG(I, VAR) \
+if (args.Length() <= (I) || !args[I]->IsString()) \
+return ThrowException(Exception::TypeError( \
+String::New("Argument " #I " must be a string"))); \
+String::Utf8Value VAR(args[I]->ToString());
+
+#define REQ_FUN_ARG(I, VAR) \
+if (args.Length() <= (I) || !args[I]->IsFunction()) \
+return ThrowException(Exception::TypeError( \
+String::New("Argument " #I " must be a function"))); \
+Local<Function> VAR = Local<Function>::Cast(args[I]);
 
 #define REQ_EXT_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsExternal()) \
@@ -176,6 +190,18 @@ class MysqlSyncConn : public node::EventEmitter {
     static Handle<Value> Ping(const Arguments& args);
 
     static Handle<Value> Query(const Arguments& args);
+
+    struct query_request {
+        Handle<Value> js_result;
+        Persistent<Function> callback;
+        MysqlSyncConn *conn;
+        int result_mode;
+        int query_length;
+        char query[1];
+    };
+    static int EIO_After_Query(eio_req *req);
+    static int EIO_Query(eio_req *req);
+    static Handle<Value> QueryAsync(const Arguments& args);
 
     static Handle<Value> RealQuery(const Arguments& args);
 

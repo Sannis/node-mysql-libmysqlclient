@@ -778,6 +778,138 @@ Handle<Value> MysqlSyncConn::Query(const Arguments& args) {
     return scope.Close(js_result);
 }
 
+int MysqlSyncConn::EIO_After_Query(eio_req *req) {
+    ev_unref(EV_DEFAULT_UC);
+    struct query_request *query_req = (struct query_request *)(req->data);
+
+    HandleScope scope;
+
+    Local<Value> argv[2];
+    int argc = 0;
+
+    if (req->result) {
+        argv[0] = Exception::Error(String::New("Error on query execution"));
+        argc = 1;
+    } else {
+        argv[0] = Local<Value>::New(Undefined());
+        argv[1] = Local<Value>::New(query_req->js_result);
+        argc = 2;
+    }
+
+    TryCatch try_catch;
+
+    query_req->conn->Unref();
+    query_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
+
+    if (try_catch.HasCaught()) {
+        node::FatalException(try_catch);
+    }
+
+    query_req->callback.Dispose();
+
+    free(query_req);
+    // ???
+    return 0;
+}
+
+int MysqlSyncConn::EIO_Query(eio_req *req) {
+    struct query_request *query_req = (struct query_request *)(req->data);
+    MysqlSyncConn *conn = query_req->conn;
+
+    if (!conn->_conn) {
+        req->result = 1;
+        return 0;
+    }
+
+    MYSQLSYNC_DISABLE_MQ;
+
+    int r = mysql_real_query(
+                    conn->_conn,
+                    query_req->query,
+                    query_req->query_length);
+
+    if (r) {
+        req->result = 1;
+        return 0;
+    }
+
+    if (!mysql_field_count(conn->_conn)) {
+        /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
+        query_req->js_result = True();
+        req->result = 0;
+        return 0;
+    }
+
+    MYSQL_RES *my_result;
+
+    switch (query_req->result_mode) {
+        case MYSQLSYNC_STORE_RESULT:
+            my_result = mysql_store_result(conn->_conn);
+            break;
+        case MYSQLSYNC_USE_RESULT:
+            my_result = mysql_use_result(conn->_conn);
+            break;
+    }
+
+    if (!my_result) {
+        req->result = 1;
+        return 0;
+    }
+
+    Local<Value> arg = External::New(my_result);
+    Persistent<Object> js_result(MysqlSyncRes::constructor_template->
+                             GetFunction()->NewInstance(1, &arg));
+
+    query_req->js_result = js_result;
+    req->result = 0;
+    return 0;
+}
+
+Handle<Value> MysqlSyncConn::QueryAsync(const Arguments& args) {
+    HandleScope scope;
+
+    REQ_STR_ARG(0, query);
+    REQ_FUN_ARG(1, callback);
+
+    MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+
+    if (!conn->_conn) {
+        return THREXC("Not connected");
+    }
+
+    struct query_request *query_req = (struct query_request *)
+        calloc(1, sizeof(struct query_request) + query.length());
+
+    if (!query_req) {
+      V8::LowMemoryNotification();
+      return THREXC("Could not allocate enough memory");
+    }
+
+    query_req->result_mode = MYSQLSYNC_STORE_RESULT;
+
+    if (args.Length() == 2) {
+        query_req->result_mode = MYSQLSYNC_USE_RESULT;
+    }
+
+    query_req->query_length = query.length();
+
+    if (snprintf(query_req->query, query_req->query_length, "%s", *query) !=
+                                                      query_req->query_length) {
+      return THREXC("Snprintf() error");
+    }
+
+    query_req->callback = Persistent<Function>::New(callback);
+    query_req->conn = conn;
+
+    eio_custom(EIO_Query, EIO_PRI_DEFAULT, EIO_After_Query, query_req);
+
+    ev_ref(EV_DEFAULT_UC);
+    // assert() here?
+    conn->Ref();  // what is it?
+
+    return Undefined();
+}
+
 Handle<Value> MysqlSyncConn::Rollback(const Arguments& args) {
     HandleScope scope;
 
