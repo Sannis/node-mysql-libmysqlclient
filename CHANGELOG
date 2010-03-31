@@ -1,3 +1,30 @@
+= Version 0.0.4
+  * Split source code into separate files for database connection,
+    query result and prepared statements
+  * Add nodeunit as the test framework for project
+  * Implemented methods:
+  * * MysqlSyncConn::autoCommit()
+  * * MysqlSyncConn::commit()
+  * * MysqlSyncConn::debug()
+  * * MysqlSyncConn::dumpDebugInfo()
+  * * MysqlSyncConn::fieldCount()
+  * * MysqlSyncConn::getInfoString()
+  * * MysqlSyncConn::getWarnings()
+  * * MysqlSyncConn::initStmt()
+  * * MysqlSyncConn::multiMoreResults()
+  * * MysqlSyncConn::multiNextResult()
+  * * MysqlSyncConn::multiRealQuery()
+  * * MysqlSyncConn::realQuery()
+  * * MysqlSyncConn::rollback()
+  * * MysqlSyncConn::stat()
+  * * MysqlSyncConn::storeResult()
+  * * MysqlSyncConn::threadId()
+  * * MysqlSyncConn::threadKill()
+  * * MysqlSyncConn::threadSafe()
+  * * MysqlSyncConn::useResult()
+  * * MysqlSyncStmt::prepare()
+  * Decrease number of cpplint warnings (dirty hack? maybe)
+
 = Version 0.0.3
   * Add 'lint' target for node-waf
   * Add docs dir, docs/examples.md,
@@ -13,7 +40,7 @@
   * * MysqlSyncConn::SelectDb()
   * * MysqlSyncConn::SetCharset()
   * * MysqlSyncConn::SetSsl()
-  * Improve MysqlSyncConn::Connect() functionality, see d2d9ae207daa704618e205fc18d464220de7879b
+  * Improve MysqlSyncConn::Connect() functionality, see d2d9ae2
 
 = Version 0.0.2
   * Split MysqlDbSync into MysqlSyncConn and MysqlSyncRes

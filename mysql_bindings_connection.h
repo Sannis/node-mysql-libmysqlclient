@@ -4,7 +4,7 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 See license text in LICENSE file
 */
 
-#ifndef NODE_MYSQL_CONNECTION_H
+#ifndef NODE_MYSQL_CONNECTION_H  // NOLINT
 #define NODE_MYSQL_CONNECTION_H
 
 #include <mysql/mysql.h>
@@ -41,10 +41,7 @@ Local<External> VAR = Local<External>::Cast(args[I]);
     conn->multi_query = true; \
 }
 
-// This line caused
-// "Do not use namespace using-directives. Use using-declarations instead."
-// [build/namespaces] [5] error in cpplint.py
-using namespace v8;
+using namespace v8; // NOLINT
 
 // static Persistent<String> affectedRows_symbol;
 // static Persistent<String> autoCommit_symbol;
@@ -96,9 +93,9 @@ class MysqlSyncConn : public node::EventEmitter {
         const char *host_info;
         uint32_t proto_info;
     };
-    
+
     class MysqlSyncRes;
-    
+
     class MysqlSyncStmt;
 
     static void Init(Handle<Object> target);
@@ -207,10 +204,12 @@ class MysqlSyncConn : public node::EventEmitter {
     static Handle<Value> WarningCount(const Arguments& args);
 };
 
-//Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncRes::constructor_template;
-//Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncStmt::constructor_template;
+// Persistent<FunctionTemplate> MysqlSyncConn::
+//                                 MysqlSyncRes::constructor_template;
+// Persistent<FunctionTemplate> MysqlSyncConn::
+//                                 MysqlSyncStmt::constructor_template;
 
 extern "C" void init(Handle<Object> target);
 
-#endif  // NODE_MYSQL_CONNECTION_H
+#endif  // NODE_MYSQL_CONNECTION_H  // NOLINT
 
