@@ -30,12 +30,7 @@ def test(tst):
 
 def lint(lnt):
   # Bindings C++ source code
-  Utils.exec_command('cpplint ./mysql_bindings_connection.cc')
-  Utils.exec_command('cpplint ./mysql_bindings_connection.h')
-  Utils.exec_command('cpplint ./mysql_bindings_result.cc')
-  Utils.exec_command('cpplint ./mysql_bindings_result.h')
-  Utils.exec_command('cpplint ./mysql_bindings_statement.cc')
-  Utils.exec_command('cpplint ./mysql_bindings_statement.h')
+  Utils.exec_command('cpplint ./*.h ./*.cc')
   # Bindings javascript code
   Utils.exec_command('nodelint ./mysql-sync.js')
   # Bindings tests
