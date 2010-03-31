@@ -20,14 +20,14 @@ var
 sys.puts("mysql_sync.createConnection(host, user, password, database)");
 sys.puts(sys.inspect(conn));
 
-sys.puts("Before run conn.query();");
+sys.puts("Before run conn.queryAsync();");
 
-conn.query("SHOW TABLES;", function (result) {
-  sys.puts("In conn.query();");
+conn.queryAsync("SHOW TABLES;", function (result) {
+  sys.puts("In conn.queryAsync();");
   sys.puts(sys.inspect(result));
   conn.close();
-  sys.puts("End of conn.query();");
+  sys.puts("End of conn.queryAsync();");
 });
 
-sys.puts("After run conn.query();");
+sys.puts("After run conn.queryAsync();");
 

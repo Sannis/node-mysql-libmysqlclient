@@ -42,6 +42,7 @@ void MysqlSyncConn::Init(Handle<Object> target) {
     // multiRealQuery_symbol = NODE_PSYMBOL("multiRealQuery");
     // ping_symbol = NODE_PSYMBOL("ping");
     // query_symbol = NODE_PSYMBOL("query");
+    // queryAsync_symbol = NODE_PSYMBOL("queryAsync");
     // realQuery_symbol = NODE_PSYMBOL("realQuery");
     // rollback_symbol = NODE_PSYMBOL("rollback");
     // selectDb_symbol = NODE_PSYMBOL("selectDb");
@@ -82,6 +83,7 @@ void MysqlSyncConn::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(t, "multiRealQuery", MultiRealQuery);
     NODE_SET_PROTOTYPE_METHOD(t, "ping", Ping);
     NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
+    NODE_SET_PROTOTYPE_METHOD(t, "queryAsync", QueryAsync);
     NODE_SET_PROTOTYPE_METHOD(t, "realQuery", RealQuery);
     NODE_SET_PROTOTYPE_METHOD(t, "rollback", Rollback);
     NODE_SET_PROTOTYPE_METHOD(t, "selectDb", SelectDb);

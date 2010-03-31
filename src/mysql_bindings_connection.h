@@ -83,6 +83,7 @@ using namespace v8; // NOLINT
 // static Persistent<String> multiRealQuery_symbol;
 // static Persistent<String> ping_symbol;
 // static Persistent<String> query_symbol;
+// static Persistent<String> queryAsync_symbol;
 // static Persistent<String> realQuery_symbol;
 // static Persistent<String> rollback_symbol;
 // static Persistent<String> selectDb_symbol;
