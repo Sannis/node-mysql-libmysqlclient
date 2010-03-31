@@ -15,7 +15,7 @@ See license text in LICENSE file
 
 // static Persistent<String> fetchResult_symbol;
 
-class MysqlSyncConn::MysqlSyncRes : public EventEmitter {
+class MysqlSyncConn::MysqlSyncRes : public node::EventEmitter {
   public:
     static Persistent<FunctionTemplate> constructor_template;
 

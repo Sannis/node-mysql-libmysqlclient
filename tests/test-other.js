@@ -5,60 +5,13 @@ See license text in LICENSE file
 */
 
 // Mixin settings
-/*global host, user, password, database, database_denied, test_table, insert_rows_count */
+/*global host, user, password, database, test_table, insert_rows_count */
 process.mixin(require("./settings"));
 
 // Require modules
-var sys = require("sys"),
+var
+  sys = require("sys"),
   mysql_sync = require("../mysql-sync");
-
-exports.escape = function (test) {
-  var conn = mysql_sync.createConnection(host, user, password, database),
-    strings_to_escape = [
-    ["test string", "test string"],
-    ["test\\string", "test\\\\string"],
-    ["test\nstring", "test\\nstring"],
-    ["test\rstring", "test\\rstring"],
-    ["test\"string", "test\\\"string"],
-    ["test\'string", "test\\'string"],
-    ["test \x00", "test \\0"]
-  ],
-  str,
-  str_esc_theor,
-  str_esc_real,
-  i;
-  
-  test.expect(strings_to_escape.length + 1);
-  
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
-  
-  for (i in strings_to_escape) {
-    if (typeof i === 'string') {
-      str = strings_to_escape[i][0];
-      str_esc_theor = strings_to_escape[i][1];
-      str_esc_real = conn.escape(strings_to_escape[i][0]);
-
-      test.equals(str_esc_real, str_esc_theor, "conn.escape()");
-    }
-  }
-  
-  conn.close();
-  
-  test.done();
-};
-
-exports.query_ShowTables = function (test) {
-  test.expect(2);
-  
-  var conn = mysql_sync.createConnection(host, user, password, database),
-    res;
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
-  res = conn.query("SHOW TABLES;");
-  test.ok(res, "conn.query('SHOW TABLES;'");
-  conn.close();
-  
-  test.done();
-};
 
 exports.query_ShowTables_FetchResult = function (test) {
   test.expect(3);
@@ -131,35 +84,7 @@ exports.query_InsertIntoTestTable = function (test) {
   test.done();
 };
 
-exports.query_InsertIntoTestTable = function (test) {
-  test.expect(3);
 
-  var conn = mysql_sync.createConnection(host, user, password, database),
-    res = true,
-    random_number,
-    random_boolean,
-    last_insert_id,
-    i;
-  
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
-  
-  for (i = 0; i < insert_rows_count; i += 1)
-  {
-    random_number = Math.round(Math.random() * 1000000);
-    random_boolean = (Math.random() > 0.5) ? 1 : 0;
-    res = conn.query("INSERT INTO " + test_table +
-      " (random_number, random_boolean) VALUES ('" + random_number +
-      "', '" + random_boolean + "');") && res;
-  }
-
-  test.equals(res, true, "Insert " + insert_rows_count + " rows into table " + test_table);
-  last_insert_id = conn.lastInsertId();
-  // TODO: WTF? Asynchronouse?
-  test.equals(last_insert_id, insert_rows_count, "conn.lastInsertId() " + last_insert_id + " " + insert_rows_count);
-  conn.close();
-  
-  test.done();
-};
 
 /*
 // TODO: Rewrite these tests
@@ -189,5 +114,4 @@ for( var i in select_limit_result )
   sys.puts(i + ": " + JSON.stringify(select_limit_result[i]));
 }
 */
-
 

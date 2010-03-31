@@ -1,3 +1,6 @@
+= [Future] Version 0.0.5
+  * Add a script to verify the existence of unittests for each function
+
 = Version 0.0.4
   * Split source code into separate files for database connection,
     query result and prepared statements
