@@ -53,15 +53,15 @@ function getBindingsClasses() {
 }
 
 var red   = function (str) {
-  return "\033[31m" + str + "\033[39m";
+  return "\u001b[31m" + str + "\u001b[39m";
 };
 
 var green = function (str) {
-  return "\033[32m" + str + "\033[39m";
+  return "\u001b[32m" + str + "\u001b[39m";
 };
 
 var bold  = function (str) {
-  return "\033[1m" + str + "\033[22m";
+  return "\u001b[1m" + str + "\u001b[22m";
 };
 
 var
