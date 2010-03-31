@@ -9,7 +9,8 @@ See license text in LICENSE file
 process.mixin(require("./settings"));
 
 // Require modules
-var sys = require("sys"),
+var
+  sys = require("sys"),
   mysql_sync = require("../mysql-sync");
 
 exports.FetchResult = function (test) {
