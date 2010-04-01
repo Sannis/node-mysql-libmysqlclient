@@ -149,7 +149,6 @@ Handle<Value> MysqlConn::New(const Arguments& args) {
 int MysqlConn::EIO_After_Async(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct async_request *async_req = (struct async_request *)(req->data);
-    HandleScope scope;
 
     printf("In MysqlConn::EIO_After_Async()\n");
     
@@ -157,13 +156,12 @@ int MysqlConn::EIO_After_Async(eio_req *req) {
     int argc = 0;
 
     TryCatch try_catch;
-printf("1\n");
+    printf("1\n");
     printf("req = %ld\n", req);
     printf("req->data = %ld\n", req->data);
     printf("async_req = %ld\n", async_req);
     printf("async_req->conn = %ld\n", async_req->conn);
-    async_req->conn->Unref();
-printf("2\n");
+    printf("2\n");
     printf("In MysqlConn::EIO_After_Async() before callback.Call()\n");
     async_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
     printf("In MysqlConn::EIO_After_Async() after callback.Call()\n");
@@ -173,8 +171,8 @@ printf("2\n");
     }
 
     async_req->callback.Dispose();
+    async_req->conn->Unref();
     free(async_req);
-    
     return 0;
 }
 
@@ -189,7 +187,7 @@ int MysqlConn::EIO_Async(eio_req *req) {
 
 Handle<Value> MysqlConn::Async(const Arguments& args) {
     HandleScope scope;
-printf("In MysqlConn::Async()\n");
+    printf("In MysqlConn::Async()\n");
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
     
     REQ_FUN_ARG(0, callback);
@@ -212,6 +210,8 @@ printf("In MysqlConn::Async()\n");
     eio_req *req = eio_custom(EIO_Async, EIO_PRI_DEFAULT, EIO_After_Async, async_req);
     printf("req = %ld\n", req);
     printf("req->data = %ld\n", req->data);
+    printf("(void*)req->data = %ld\n", (void*)req->data);
+    printf("static_cast<struct async_request *>(req->data) = %ld\n", static_cast<struct async_request *>(req->data));
     printf("In MysqlConn::Async() after eio_custom()\n");
 
     ev_ref(EV_DEFAULT_UC);
