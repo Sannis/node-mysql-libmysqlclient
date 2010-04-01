@@ -20,7 +20,7 @@ var host = "localhost",
   // Require modules
   sys = require("sys"),
   events = require('events'),
-  mysql_sync = require("../mysql-sync"),
+  mysql_libmysqlclient = require("../mysql-libmysqlclient"),
 
   conn,
   res;
@@ -39,13 +39,13 @@ function debug(title, obj) {
   }
 }
 
-sys.print("Show debug information for NodeJS syncronous MySQL binding...\n");
+sys.print("Show debug information for NodeJS libmysqlclientronous MySQL binding...\n");
 
-conn = mysql_sync.createConnection(host, user, password, database);
+conn = mysql_libmysqlclient.createConnection(host, user, password, database);
 
 res = conn.query("SHOW TABLES;");
 
-debug("mysql_sync", mysql_sync);
+debug("mysql_libmysqlclient", mysql_libmysqlclient);
 debug("conn", conn);
 debug("res", res);
 //debug("events.EventEmitter", events.EventEmitter.prototype);

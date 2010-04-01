@@ -11,14 +11,14 @@ process.mixin(require("./settings"));
 // Require modules
 var
   sys = require("sys"),
-  mysql_sync = require("../mysql-sync"),
+  mysql_libmysqlclient = require("../mysql-libmysqlclient"),
   mysql_bindings = require("../mysql_bindings");
 
 exports.New = function (test) {
   test.expect(1);
   
-  var db = new mysql_bindings.MysqlSyncConn();
-  test.ok(db, "var db = new MysqlSyncConn()");
+  var db = new mysql_bindings.MysqlConn();
+  test.ok(db, "var db = new MysqllibmysqlclientConn()");
   
   test.done();
 };
@@ -26,14 +26,14 @@ exports.New = function (test) {
 exports.AffectedRows = function (test) {
   test.expect(5);
 
-  var conn = mysql_sync.createConnection(host, user, password, database),
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database),
     res = true,
     random_number,
     random_boolean,
     affected_rows,
     i;
   
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   
   res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
   res = conn.query("CREATE TABLE " + test_table +
@@ -68,8 +68,8 @@ exports.AffectedRows = function (test) {
 exports.Connect = function (test) {
   test.expect(2);
   
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database);
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   conn.close();
   test.ok(conn.connect(host, user, password), "conn.connect() without database selection");
   conn.close();
@@ -80,8 +80,8 @@ exports.Connect = function (test) {
 exports.ConnectErrno = function (test) {
   test.expect(2);
   
-  var conn = mysql_sync.createConnection(host, user, password);
-  test.ok(conn, "mysql_sync.createConnection(host, user, password)");
+  var conn = mysql_libmysqlclient.createConnection(host, user, password);
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password)");
   conn.close();
   conn.connect(host, user, password, database_denied);
   test.equals(conn.connectErrno(), 1044, "conn.connectErrno()");
@@ -92,8 +92,8 @@ exports.ConnectErrno = function (test) {
 exports.ConnectError = function (test) {
   test.expect(2);
   
-  var conn = mysql_sync.createConnection(host, user, password);
-  test.ok(conn, "mysql_sync.createConnection(host, user, password)");
+  var conn = mysql_libmysqlclient.createConnection(host, user, password);
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password)");
   conn.close();
   conn.connect(host, user, password, database_denied);
   test.equals(conn.connectError(), "Access denied for user ''@'" + host +
@@ -103,7 +103,7 @@ exports.ConnectError = function (test) {
 };
 
 exports.Escape = function (test) {
-  var conn = mysql_sync.createConnection(host, user, password, database),
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database),
     strings_to_escape = [
     ["test string", "test string"],
     ["test\\string", "test\\\\string"],
@@ -120,7 +120,7 @@ exports.Escape = function (test) {
   
   test.expect(strings_to_escape.length + 1);
   
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   
   for (i in strings_to_escape) {
     if (typeof i === 'string') {
@@ -140,9 +140,9 @@ exports.Escape = function (test) {
 exports.GetCharset = function (test) {
   test.expect(4);
   
-  var conn = mysql_sync.createConnection(host, user, password),
+  var conn = mysql_libmysqlclient.createConnection(host, user, password),
     charset_obj;
-  test.ok(conn, "mysql_sync.createConnection(host, user, password)");
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password)");
   test.ok(conn.setCharset(charset), "conn.setCharset()");
   charset_obj = conn.getCharset();
   test.equals(charset_obj.charset, charset, "conn.getCharset()");
@@ -155,8 +155,8 @@ exports.GetCharset = function (test) {
 exports.GetCharsetName = function (test) {
   test.expect(3);
   
-  var conn = mysql_sync.createConnection(host, user, password);
-  test.ok(conn, "mysql_sync.createConnection(host, user, password)");
+  var conn = mysql_libmysqlclient.createConnection(host, user, password);
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password)");
   test.ok(conn.setCharset(charset), "conn.setCharset()");
   test.equals(conn.getCharsetName(), charset, "conn.getCharsetName()");
   conn.close();
@@ -167,8 +167,8 @@ exports.GetCharsetName = function (test) {
 exports.GetInfo = function (test) {
   test.expect(2);
   
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database);
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   test.ok(conn.getInfo(), "conn.getInfo() after connection to allowed database");
   
   test.done();
@@ -177,7 +177,7 @@ exports.GetInfo = function (test) {
 exports.GetInfoString = function (test) {
   test.expect(4);
   
-  var conn = mysql_sync.createConnection(host, user, password, database), res;
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database), res;
   res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
   test.equals(res, true);
   res = conn.query("CREATE TABLE " + test_table +
@@ -197,7 +197,7 @@ exports.GetInfoString = function (test) {
 exports.GetWarnings = function (test) {
   test.expect(2);
   
-  var conn = mysql_sync.createConnection(host, user, password, database), res;  
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database), res;  
   res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
   test.same(conn.getWarnings(), [],
             "conn.getWarnings() after DROP TABLE IF EXISTS");
@@ -213,14 +213,14 @@ exports.GetWarnings = function (test) {
 exports.LastInsertId = function (test) {
   test.expect(4);
 
-  var conn = mysql_sync.createConnection(host, user, password, database),
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database),
     res = true,
     random_number,
     random_boolean,
     last_insert_id,
     i;
   
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   
   res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
   res = conn.query("CREATE TABLE " + test_table +
@@ -251,9 +251,9 @@ exports.LastInsertId = function (test) {
 exports.Query = function (test) {
   test.expect(2);
   
-  var conn = mysql_sync.createConnection(host, user, password, database),
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database),
     res;
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   res = conn.query("SHOW TABLES;");
   test.ok(res, "conn.query('SHOW TABLES;'");
   conn.close();
@@ -264,8 +264,8 @@ exports.Query = function (test) {
 exports.SelectDb = function (test) {
   test.expect(3);
   
-  var conn = mysql_sync.createConnection(host, user, password);
-  test.ok(conn, "mysql_sync.createConnection(host, user, password)");
+  var conn = mysql_libmysqlclient.createConnection(host, user, password);
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password)");
   test.ok(conn.selectDb(database), "conn.selectDb() for allowed database");
   test.ok(!conn.selectDb(database_denied), "conn.selectDb() for denied database");
   conn.close();
@@ -276,8 +276,8 @@ exports.SelectDb = function (test) {
 exports.SetCharset = function (test) {
   test.expect(2);
   
-  var conn = mysql_sync.createConnection(host, user, password);
-  test.ok(conn, "mysql_sync.createConnection(host, user, password)");
+  var conn = mysql_libmysqlclient.createConnection(host, user, password);
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password)");
   test.ok(conn.setCharset(charset), "conn.setCharset()");
   conn.close();
   
@@ -287,8 +287,8 @@ exports.SetCharset = function (test) {
 exports.SqlState = function (test) {
   test.expect(4);
   
-  var conn = mysql_sync.createConnection(host, user, password, database), res;
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database), res;
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   test.equals(conn.sqlState(), "00000", "conn.sqlState() after connection to allowed database");
   conn.close();
   res = conn.connect(host, user, password, database_denied);
@@ -301,7 +301,7 @@ exports.SqlState = function (test) {
 exports.WarningCount = function (test) {
   test.expect(1);
   
-  var conn = mysql_sync.createConnection(host, user, password, database), res;  
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database), res;  
   res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
   res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
   test.equals(conn.warningCount(), 1, "conn.getWarnings() after double DROP TABLE IF EXISTS");

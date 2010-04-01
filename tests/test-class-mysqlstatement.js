@@ -11,5 +11,5 @@ process.mixin(require("./settings"));
 // Require modules
 var
   sys = require("sys"),
-  mysql_sync = require("../mysql-sync");
+  mysql_libmysqlclient = require("../mysql-libmysqlclient");
 

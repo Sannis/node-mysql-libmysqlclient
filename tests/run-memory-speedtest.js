@@ -13,8 +13,8 @@ process.mixin(require("./settings"));
 var
   assert = require("assert"),
   sys = require("sys"),
-  mysql_sync = require("../mysql-sync"),
-  conn = mysql_sync.createConnection(host, user, password, database),
+  mysql_libmysqlclient = require("../mysql-libmysqlclient"),
+  conn = mysql_libmysqlclient.createConnection(host, user, password, database),
   res,
   rows;
 
@@ -54,7 +54,7 @@ function readTest() {
  
 
 
-sys.puts("mysql_sync.createConnection() result: " + sys.inspect(conn));
+sys.puts("mysql_libmysqlclient.createConnection() result: " + sys.inspect(conn));
 
 res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
 sys.puts("'DROP TABLE IF EXISTS' result: " + sys.inspect(res));

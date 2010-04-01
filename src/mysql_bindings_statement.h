@@ -15,7 +15,7 @@ See license text in LICENSE file
 
 static Persistent<String> prepare_symbol;
 
-class MysqlSyncConn::MysqlSyncStmt : public node::EventEmitter {
+class MysqlConn::MysqlStatement : public node::EventEmitter {
   public:
     static Persistent<FunctionTemplate> constructor_template;
 
@@ -24,12 +24,12 @@ class MysqlSyncConn::MysqlSyncStmt : public node::EventEmitter {
   protected:
     MYSQL_STMT *_stmt;
 
-    MysqlSyncStmt();
+    MysqlStatement();
 
-    explicit MysqlSyncStmt(MYSQL_STMT *my_stmt):
+    explicit MysqlStatement(MYSQL_STMT *my_stmt):
                                     _stmt(my_stmt), EventEmitter() {}
 
-    ~MysqlSyncStmt();
+    ~MysqlStatement();
 
     static Handle<Value> New(const Arguments& args);
 

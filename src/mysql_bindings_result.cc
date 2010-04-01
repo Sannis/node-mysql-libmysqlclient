@@ -7,9 +7,9 @@ See license text in LICENSE file
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 
-Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncRes::constructor_template;
+Persistent<FunctionTemplate> MysqlConn::MysqlResult::constructor_template;
 
-void MysqlSyncConn::MysqlSyncRes::Init(Handle<Object> target) {
+void MysqlConn::MysqlResult::Init(Handle<Object> target) {
     HandleScope scope;
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
@@ -17,30 +17,30 @@ void MysqlSyncConn::MysqlSyncRes::Init(Handle<Object> target) {
     constructor_template = Persistent<FunctionTemplate>::New(t);
     constructor_template->Inherit(EventEmitter::constructor_template);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
-    constructor_template->SetClassName(String::NewSymbol("MysqlSyncRes"));
+    constructor_template->SetClassName(String::NewSymbol("MysqlResult"));
 
     ADD_PROTOTYPE_METHOD(fetchResult, FetchResult);
 }
 
-MysqlSyncConn::MysqlSyncRes::MysqlSyncRes(): EventEmitter() {}
+MysqlConn::MysqlResult::MysqlResult(): EventEmitter() {}
 
-MysqlSyncConn::MysqlSyncRes::~MysqlSyncRes() {}
+MysqlConn::MysqlResult::~MysqlResult() {}
 
-Handle<Value> MysqlSyncConn::MysqlSyncRes::New(const Arguments& args) {
+Handle<Value> MysqlConn::MysqlResult::New(const Arguments& args) {
     HandleScope scope;
 
     REQ_EXT_ARG(0, js_res);
     MYSQL_RES *res = static_cast<MYSQL_RES*>(js_res->Value());
-    MysqlSyncRes *my_res = new MysqlSyncRes(res);
+    MysqlResult *my_res = new MysqlResult(res);
     my_res->Wrap(args.This());
 
     return args.This();
 }
 
-Handle<Value> MysqlSyncConn::MysqlSyncRes::FetchResult(const Arguments& args) {
+Handle<Value> MysqlConn::MysqlResult::FetchResult(const Arguments& args) {
     HandleScope scope;
 
-    MysqlSyncRes *res = OBJUNWRAP<MysqlSyncRes>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
     if (!res->_res) {
         return scope.Close(False());

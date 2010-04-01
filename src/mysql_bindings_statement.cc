@@ -7,9 +7,9 @@ See license text in LICENSE file
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_statement.h"
 
-Persistent<FunctionTemplate> MysqlSyncConn::MysqlSyncStmt::constructor_template;
+Persistent<FunctionTemplate> MysqlConn::MysqlStatement::constructor_template;
 
-void MysqlSyncConn::MysqlSyncStmt::Init(Handle<Object> target) {
+void MysqlConn::MysqlStatement::Init(Handle<Object> target) {
     HandleScope scope;
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
@@ -17,36 +17,36 @@ void MysqlSyncConn::MysqlSyncStmt::Init(Handle<Object> target) {
     constructor_template = Persistent<FunctionTemplate>::New(t);
     constructor_template->Inherit(EventEmitter::constructor_template);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
-    constructor_template->SetClassName(String::NewSymbol("MysqlSyncStmt"));
+    constructor_template->SetClassName(String::NewSymbol("MysqlStatement"));
 
     ADD_PROTOTYPE_METHOD(prepare, Prepare);
 }
 
-MysqlSyncConn::MysqlSyncStmt::MysqlSyncStmt(): EventEmitter() {
+MysqlConn::MysqlStatement::MysqlStatement(): EventEmitter() {
     _stmt = NULL;
 }
 
-MysqlSyncConn::MysqlSyncStmt::~MysqlSyncStmt() {
+MysqlConn::MysqlStatement::~MysqlStatement() {
     if (_stmt) {
         mysql_stmt_close(_stmt);
     }
 }
 
-Handle<Value> MysqlSyncConn::MysqlSyncStmt::New(const Arguments& args) {
+Handle<Value> MysqlConn::MysqlStatement::New(const Arguments& args) {
     HandleScope scope;
 
     REQ_EXT_ARG(0, js_stmt);
     MYSQL_STMT *stmt = static_cast<MYSQL_STMT*>(js_stmt->Value());
-    MysqlSyncStmt *my_stmt = new MysqlSyncStmt(stmt);
+    MysqlStatement *my_stmt = new MysqlStatement(stmt);
     my_stmt->Wrap(args.This());
 
     return args.This();
 }
 
-Handle<Value> MysqlSyncConn::MysqlSyncStmt::Prepare(const Arguments& args) {
+Handle<Value> MysqlConn::MysqlStatement::Prepare(const Arguments& args) {
     HandleScope scope;
 
-    MysqlSyncStmt *stmt = OBJUNWRAP<MysqlSyncStmt>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
 
     if (args.Length() == 0 || !args[0]->IsString()) {
         return THREXC("First arg of stmt.prepare() must be a string");

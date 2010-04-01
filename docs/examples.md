@@ -6,13 +6,13 @@ Initialize
 
 First, import the library and open a database:
 
-    var mysql = require("./node-mysql/mysql-sync");
-    var conn = mysql_sync.createConnection(host, user, password, database);
+    var mysql_libmysqlclient = require("./node-mysql-libmysqlclient/mysql-libmysqlclient");
+    var conn = mysql_libmysqlclient.createConnection(host, user, password, database);
 
 Close and connect again
 -----------------------
 
-You can use all this argument in mysql_sync.createConnection too.
+You can use all this argument in mysql_libmysqlclient.createConnection too.
 
     conn.close();
     conn.connect(servername, user, password, database, port, socket);

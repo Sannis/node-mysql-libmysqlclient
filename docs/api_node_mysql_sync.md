@@ -10,7 +10,7 @@ This file contains overview of node-mysql-sync API.
 MysqlSyncConn class
 -------------------
 
-    class MysqlSyncConn {
+    class MysqlConn {
         /* Constructor */
         require('mysql-sync').createConnection(servername, user, password, dbname, port, socket);
         
@@ -27,7 +27,7 @@ MysqlSyncConn class
         Object getInfo();
         Integer lastInsertId();
         Boolean ping();
-        MysqlSyncRes query();
+        MysqlResult query();
         Integer warningCount();
     }
 
@@ -86,16 +86,16 @@ Query
     Boolean multiMoreResults();
     Boolean multiNextResult()
     Boolean multiRealQuery(query);
-    MysqlSyncRes query(query);
+    MysqlResult query(query);
     Boolean realQuery(query);
-    MysqlSyncRes storeResult();
-    MysqlSyncRes useResult();
+    MysqlResult storeResult();
+    MysqlResult useResult();
 
 
 Statements
 ----------
 
-    MysqlSyncStmt initStmt (void);
+    MysqlStatement initStmt (void);
 
 
 Transactions

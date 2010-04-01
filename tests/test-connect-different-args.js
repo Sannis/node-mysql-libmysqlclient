@@ -11,13 +11,13 @@ process.mixin(require("./settings"));
 // Require modules
 var
   sys = require("sys"),
-  mysql_sync = require("../mysql-sync");
+  mysql_libmysqlclient = require("../mysql-libmysqlclient");
 
 exports.Connect_WithoutDb = function (test) {
   test.expect(2);
   
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database);
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   conn.close();
   test.ok(conn.connect(host, user, password), "conn.connect() without database selection");
   conn.close();
@@ -28,8 +28,8 @@ exports.Connect_WithoutDb = function (test) {
 exports.Connect_ManyTimes = function (test) {
   test.expect(2);
   
-  var conn = mysql_sync.createConnection(host, user, password, database), i;
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database), i;
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   conn.close();
   for (i = 1; i <= reconnect_count; i += 1) {
     conn.connect(host, user, password);
@@ -44,7 +44,7 @@ exports.Connect_ManyTimes = function (test) {
 /*
 // TODO: how to write this test?
 unittest.test('conn.close()', function () {
-  var conn = mysql_sync.createConnection(host, user, password, database);
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database);
   conn.close();
   unittest.assert(conn);
 });
@@ -53,8 +53,8 @@ unittest.test('conn.close()', function () {
 exports.Connect_AllowedDb = function (test) {
   test.expect(2);
   
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database);
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   conn.close();
   test.ok(conn.connect(host, user, password, database), "conn.connect() for allowed database");
   conn.close();
@@ -65,8 +65,8 @@ exports.Connect_AllowedDb = function (test) {
 exports.Connect_DeniedDb = function (test) {
   test.expect(2);
   
-  var conn = mysql_sync.createConnection(host, user, password, database);
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database);
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   conn.close();
   test.ok(!conn.connect(host, user, password, database_denied), "conn.connect() for denied database");
   

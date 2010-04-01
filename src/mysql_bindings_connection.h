@@ -106,13 +106,13 @@ static Persistent<String> threadSafe_symbol;
 static Persistent<String> useResult_symbol;
 static Persistent<String> warningCount_symbol;
 
-class MysqlSyncConn : public node::EventEmitter {
+class MysqlConn : public node::EventEmitter {
   public:
     static Persistent<FunctionTemplate> constructor_template;
 
     static void Init(Handle<Object> target);
 
-    struct MysqlSyncConnInfo {
+    struct MysqlConnInfo {
         uint64_t client_version;
         const char *client_info;
         uint64_t server_version;
@@ -121,9 +121,9 @@ class MysqlSyncConn : public node::EventEmitter {
         uint32_t proto_info;
     };
 
-    class MysqlSyncRes;
+    class MysqlResult;
 
-    class MysqlSyncStmt;
+    class MysqlStatement;
 
     bool Connect(const char* hostname,
                  const char* user,
@@ -134,7 +134,7 @@ class MysqlSyncConn : public node::EventEmitter {
 
     void Close();
 
-    MysqlSyncConnInfo GetInfo();
+    MysqlConnInfo GetInfo();
 
   protected:
     MYSQL *_conn;
@@ -144,16 +144,16 @@ class MysqlSyncConn : public node::EventEmitter {
     unsigned int connect_errno;
     const char *connect_error;
 
-    MysqlSyncConn();
+    MysqlConn();
 
-    ~MysqlSyncConn();
+    ~MysqlConn();
 
     static Handle<Value> New(const Arguments& args);
 
     /* Example of async function? based on libeio */
     struct async_request {
         Persistent<Function> callback;
-        MysqlSyncConn *conn;
+        MysqlConn *conn;
     };
     static int EIO_After_Async(eio_req *req);
     static int EIO_Async(eio_req *req);
@@ -215,7 +215,7 @@ class MysqlSyncConn : public node::EventEmitter {
     struct query_request {
         Handle<Value> js_result;
         Persistent<Function> callback;
-        MysqlSyncConn *conn;
+        MysqlConn *conn;
         int result_mode;
         int query_length;
         char query[1];

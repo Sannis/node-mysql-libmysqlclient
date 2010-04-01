@@ -11,15 +11,15 @@ process.mixin(require("./settings"));
 // Require modules
 var
   sys = require("sys"),
-  mysql_sync = require("../mysql-sync");
+  mysql_libmysqlclient = require("../mysql-libmysqlclient");
 
 exports.FetchResult = function (test) {
   test.expect(3);
   
-  var conn = mysql_sync.createConnection(host, user, password, database),
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database),
     res,
     tables;
-  test.ok(conn, "mysql_sync.createConnection(host, user, password, database)");
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   res = conn.query("SHOW TABLES;");
   test.ok(res, "conn.query('SHOW TABLES;')");
   tables = res.fetchResult();

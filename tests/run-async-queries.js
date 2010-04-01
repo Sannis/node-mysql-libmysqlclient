@@ -12,7 +12,7 @@ process.mixin(require("./settings"));
 // Require modules
 var
   sys = require("sys"),
-  mysql_sync = require("../mysql-sync");
+  mysql_sync = require("../mysql-libmysqlclient");
 
 var
   conn = mysql_sync.createConnection(host, user, password, database);
@@ -20,7 +20,7 @@ var
 sys.puts("mysql_sync.createConnection(host, user, password, database)");
 sys.puts(sys.inspect(conn));
 
-sys.puts("Before run conn.async();");
+sys.puts("Before run conn.async()");
 
 conn.async(function () {
   sys.puts("In conn.async() callback");
@@ -28,7 +28,7 @@ conn.async(function () {
   sys.puts("End of conn.async() callback");
 });
 
-sys.puts("After run conn.async();");
+sys.puts("After run conn.async()");
 
 /*sys.puts("Before run conn.queryAsync();");
 
