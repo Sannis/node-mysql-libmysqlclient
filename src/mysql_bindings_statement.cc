@@ -13,14 +13,13 @@ void MysqlSyncConn::MysqlSyncStmt::Init(Handle<Object> target) {
     HandleScope scope;
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
+    
     constructor_template = Persistent<FunctionTemplate>::New(t);
+    constructor_template->Inherit(EventEmitter::constructor_template);
+    constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
+    constructor_template->SetClassName(String::NewSymbol("MysqlSyncStmt"));
 
-    t->Inherit(EventEmitter::constructor_template);
-    t->InstanceTemplate()->SetInternalFieldCount(1);
-
-    // prepare_symbol = NODE_PSYMBOL("prepare");
-
-    NODE_SET_PROTOTYPE_METHOD(t, "prepare", Prepare);
+    ADD_PROTOTYPE_METHOD(prepare, Prepare);
 }
 
 MysqlSyncConn::MysqlSyncStmt::MysqlSyncStmt(): EventEmitter() {

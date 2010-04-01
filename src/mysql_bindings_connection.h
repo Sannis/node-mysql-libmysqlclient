@@ -13,7 +13,13 @@ See license text in LICENSE file
 #include <node.h>
 #include <node_events.h>
 
-#include <cstdlib>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#define ADD_PROTOTYPE_METHOD(name, method) \
+name ## _symbol = NODE_PSYMBOL(#name); \
+NODE_SET_PROTOTYPE_METHOD(constructor_template, #name, method);
 
 // Only for fixing some cpplint.py errors:
 // Lines should be <= 80 characters long
@@ -57,49 +63,55 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 
 using namespace v8; // NOLINT
 
-// static Persistent<String> affectedRows_symbol;
-// static Persistent<String> autoCommit_symbol;
-// static Persistent<String> changeUser_symbol;
-// static Persistent<String> commit_symbol;
-// static Persistent<String> connect_symbol;
-// static Persistent<String> connectErrno_symbol;
-// static Persistent<String> connectError_symbol;
-// static Persistent<String> close_symbol;
-// static Persistent<String> debug_symbol;
-// static Persistent<String> dumpDebugInfo_symbol;
-// static Persistent<String> errno_symbol;
-// static Persistent<String> error_symbol;
-// static Persistent<String> escape_symbol;
-// static Persistent<String> fieldCount_symbol;
-// static Persistent<String> getCharset_symbol;
-// static Persistent<String> getCharsetName_symbol;
-// static Persistent<String> getInfo_symbol;
-// static Persistent<String> getInfoString_symbol;
-// static Persistent<String> getWarnings_symbol;
-// static Persistent<String> initStatement_symbol;
-// static Persistent<String> lastInsertId_symbol;
-// static Persistent<String> multiMoreResults_symbol;
-// static Persistent<String> multiNextResult_symbol;
-// static Persistent<String> multiRealQuery_symbol;
-// static Persistent<String> ping_symbol;
-// static Persistent<String> query_symbol;
-// static Persistent<String> queryAsync_symbol;
-// static Persistent<String> realQuery_symbol;
-// static Persistent<String> rollback_symbol;
-// static Persistent<String> selectDb_symbol;
-// static Persistent<String> setCharset_symbol;
-// static Persistent<String> setSsl_symbol;
-// static Persistent<String> sqlState_symbol;
-// static Persistent<String> stat_symbol;
-// static Persistent<String> storeResult_symbol;
-// static Persistent<String> threadId_symbol;
-// static Persistent<String> threadKill_symbol;
-// static Persistent<String> threadSafe_symbol;
-// static Persistent<String> useResult_symbol;
-// static Persistent<String> warningCount_symbol;
+static Persistent<String> async_symbol;
+
+static Persistent<String> affectedRows_symbol;
+static Persistent<String> autoCommit_symbol;
+static Persistent<String> changeUser_symbol;
+static Persistent<String> commit_symbol;
+static Persistent<String> connect_symbol;
+static Persistent<String> connectErrno_symbol;
+static Persistent<String> connectError_symbol;
+static Persistent<String> close_symbol;
+static Persistent<String> debug_symbol;
+static Persistent<String> dumpDebugInfo_symbol;
+static Persistent<String> errno_symbol;
+static Persistent<String> error_symbol;
+static Persistent<String> escape_symbol;
+static Persistent<String> fieldCount_symbol;
+static Persistent<String> getCharset_symbol;
+static Persistent<String> getCharsetName_symbol;
+static Persistent<String> getInfo_symbol;
+static Persistent<String> getInfoString_symbol;
+static Persistent<String> getWarnings_symbol;
+static Persistent<String> initStatement_symbol;
+static Persistent<String> lastInsertId_symbol;
+static Persistent<String> multiMoreResults_symbol;
+static Persistent<String> multiNextResult_symbol;
+static Persistent<String> multiRealQuery_symbol;
+static Persistent<String> ping_symbol;
+static Persistent<String> query_symbol;
+static Persistent<String> queryAsync_symbol;
+static Persistent<String> realQuery_symbol;
+static Persistent<String> rollback_symbol;
+static Persistent<String> selectDb_symbol;
+static Persistent<String> setCharset_symbol;
+static Persistent<String> setSsl_symbol;
+static Persistent<String> sqlState_symbol;
+static Persistent<String> stat_symbol;
+static Persistent<String> storeResult_symbol;
+static Persistent<String> threadId_symbol;
+static Persistent<String> threadKill_symbol;
+static Persistent<String> threadSafe_symbol;
+static Persistent<String> useResult_symbol;
+static Persistent<String> warningCount_symbol;
 
 class MysqlSyncConn : public node::EventEmitter {
   public:
+    static Persistent<FunctionTemplate> constructor_template;
+
+    static void Init(Handle<Object> target);
+
     struct MysqlSyncConnInfo {
         uint64_t client_version;
         const char *client_info;
@@ -112,8 +124,6 @@ class MysqlSyncConn : public node::EventEmitter {
     class MysqlSyncRes;
 
     class MysqlSyncStmt;
-
-    static void Init(Handle<Object> target);
 
     bool Connect(const char* hostname,
                  const char* user,
@@ -139,6 +149,16 @@ class MysqlSyncConn : public node::EventEmitter {
     ~MysqlSyncConn();
 
     static Handle<Value> New(const Arguments& args);
+
+    /* Example of async function? based on libeio */
+    struct async_request {
+        Persistent<Function> callback;
+        MysqlSyncConn *conn;
+    };
+    static int EIO_After_Async(eio_req *req);
+    static int EIO_Async(eio_req *req);
+    static Handle<Value> Async(const Arguments& args);
+    /* Example of async function? based on libeio [E] */
 
     static Handle<Value> AffectedRows(const Arguments& args);
 
@@ -230,11 +250,6 @@ class MysqlSyncConn : public node::EventEmitter {
 
     static Handle<Value> WarningCount(const Arguments& args);
 };
-
-// Persistent<FunctionTemplate> MysqlSyncConn::
-//                                 MysqlSyncRes::constructor_template;
-// Persistent<FunctionTemplate> MysqlSyncConn::
-//                                 MysqlSyncStmt::constructor_template;
 
 extern "C" void init(Handle<Object> target);
 

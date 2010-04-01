@@ -13,7 +13,7 @@ See license text in LICENSE file
 #include <node.h>
 #include <node_events.h>
 
-// static Persistent<String> fetchResult_symbol;
+static Persistent<String> fetchResult_symbol;
 
 class MysqlSyncConn::MysqlSyncRes : public node::EventEmitter {
   public:

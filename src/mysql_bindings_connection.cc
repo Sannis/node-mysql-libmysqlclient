@@ -8,97 +8,62 @@ See license text in LICENSE file
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
 
+Persistent<FunctionTemplate> MysqlSyncConn::constructor_template;
+
 void MysqlSyncConn::Init(Handle<Object> target) {
     HandleScope scope;
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
 
-    t->Inherit(EventEmitter::constructor_template);
-    t->InstanceTemplate()->SetInternalFieldCount(1);
+    constructor_template = Persistent<FunctionTemplate>::New(t);
+    constructor_template->Inherit(EventEmitter::constructor_template);
+    constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
+    constructor_template->SetClassName(String::NewSymbol("MysqlSyncConn"));
 
-    // affectedRows_symbol = NODE_PSYMBOL("affectedRows");
-    // autoCommit_symbol = NODE_PSYMBOL("autoCommit");
-    // changeUser_symbol = NODE_PSYMBOL("changeUser");
-    // commit_symbol = NODE_PSYMBOL("commit");
-    // connect_symbol = NODE_PSYMBOL("connect");
-    // connectErrno_symbol = NODE_PSYMBOL("connectErrno");
-    // connectError_symbol = NODE_PSYMBOL("connectError");
-    // close_symbol = NODE_PSYMBOL("close");
-    // debug_symbol = NODE_PSYMBOL("debug");
-    // dumpDebugInfo_symbol = NODE_PSYMBOL("dumpDebugInfo");
-    // errno_symbol = NODE_PSYMBOL("errno");
-    // error_symbol = NODE_PSYMBOL("error");
-    // escape_symbol = NODE_PSYMBOL("escape");
-    // fieldCount_symbol = NODE_PSYMBOL("fieldCount");
-    // getCharset_symbol = NODE_PSYMBOL("getCharset");
-    // getCharsetName_symbol = NODE_PSYMBOL("getCharsetName");
-    // getInfo_symbol = NODE_PSYMBOL("getInfo");
-    // getInfoString_symbol = NODE_PSYMBOL("getInfoString");
-    // getWarnings_symbol = NODE_PSYMBOL("getWarnings");
-    // initStatement_symbol = NODE_PSYMBOL("initStatement");
-    // lastInsertId_symbol = NODE_PSYMBOL("lastInsertId");
-    // multiMoreResults_symbol = NODE_PSYMBOL("multiMoreResults");
-    // multiNextResult_symbol = NODE_PSYMBOL("multiNextResult");
-    // multiRealQuery_symbol = NODE_PSYMBOL("multiRealQuery");
-    // ping_symbol = NODE_PSYMBOL("ping");
-    // query_symbol = NODE_PSYMBOL("query");
-    // queryAsync_symbol = NODE_PSYMBOL("queryAsync");
-    // realQuery_symbol = NODE_PSYMBOL("realQuery");
-    // rollback_symbol = NODE_PSYMBOL("rollback");
-    // selectDb_symbol = NODE_PSYMBOL("selectDb");
-    // setCharset_symbol = NODE_PSYMBOL("setCharset");
-    // setSsl_symbol = NODE_PSYMBOL("setSsl");
-    // sqlState_symbol = NODE_PSYMBOL("sqlState");
-    // stat_symbol = NODE_PSYMBOL("stat");
-    // storeResult_symbol = NODE_PSYMBOL("storeResult");
-    // threadId_symbol = NODE_PSYMBOL("threadId");
-    // threadKill_symbol = NODE_PSYMBOL("threadKill");
-    // threadSafe_symbol = NODE_PSYMBOL("threadSafe");
-    // useResult_symbol = NODE_PSYMBOL("useResult");
-    // warningCount_symbol = NODE_PSYMBOL("warningCount");
+    ADD_PROTOTYPE_METHOD(async, Async);
 
-    NODE_SET_PROTOTYPE_METHOD(t, "affectedRows", AffectedRows);
-    NODE_SET_PROTOTYPE_METHOD(t, "autoCommit", AutoCommit);
-    NODE_SET_PROTOTYPE_METHOD(t, "changeUser", ChangeUser);
-    NODE_SET_PROTOTYPE_METHOD(t, "commit", Commit);
-    NODE_SET_PROTOTYPE_METHOD(t, "connect", Connect);
-    NODE_SET_PROTOTYPE_METHOD(t, "connectErrno", ConnectErrno);
-    NODE_SET_PROTOTYPE_METHOD(t, "connectError", ConnectError);
-    NODE_SET_PROTOTYPE_METHOD(t, "close", Close);
-    NODE_SET_PROTOTYPE_METHOD(t, "debug", Debug);
-    NODE_SET_PROTOTYPE_METHOD(t, "dumpDebugInfo", DumpDebugInfo);
-    NODE_SET_PROTOTYPE_METHOD(t, "errno", Errno);
-    NODE_SET_PROTOTYPE_METHOD(t, "error", Error);
-    NODE_SET_PROTOTYPE_METHOD(t, "escape", Escape);
-    NODE_SET_PROTOTYPE_METHOD(t, "fieldCount", FieldCount);
-    NODE_SET_PROTOTYPE_METHOD(t, "getCharset", GetCharset);
-    NODE_SET_PROTOTYPE_METHOD(t, "getCharsetName", GetCharsetName);
-    NODE_SET_PROTOTYPE_METHOD(t, "getInfo", GetInfo);
-    NODE_SET_PROTOTYPE_METHOD(t, "getInfoString", GetInfoString);
-    NODE_SET_PROTOTYPE_METHOD(t, "getWarnings", GetWarnings);
-    NODE_SET_PROTOTYPE_METHOD(t, "initStatement", InitStatement);
-    NODE_SET_PROTOTYPE_METHOD(t, "lastInsertId", LastInsertId);
-    NODE_SET_PROTOTYPE_METHOD(t, "multiMoreResults", MultiMoreResults);
-    NODE_SET_PROTOTYPE_METHOD(t, "multiNextResult", MultiNextResult);
-    NODE_SET_PROTOTYPE_METHOD(t, "multiRealQuery", MultiRealQuery);
-    NODE_SET_PROTOTYPE_METHOD(t, "ping", Ping);
-    NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
-    NODE_SET_PROTOTYPE_METHOD(t, "queryAsync", QueryAsync);
-    NODE_SET_PROTOTYPE_METHOD(t, "realQuery", RealQuery);
-    NODE_SET_PROTOTYPE_METHOD(t, "rollback", Rollback);
-    NODE_SET_PROTOTYPE_METHOD(t, "selectDb", SelectDb);
-    NODE_SET_PROTOTYPE_METHOD(t, "setCharset", SetCharset);
-    NODE_SET_PROTOTYPE_METHOD(t, "setSsl", SetSsl);
-    NODE_SET_PROTOTYPE_METHOD(t, "sqlState", SqlState);
-    NODE_SET_PROTOTYPE_METHOD(t, "stat", Stat);
-    NODE_SET_PROTOTYPE_METHOD(t, "storeResult", StoreResult);
-    NODE_SET_PROTOTYPE_METHOD(t, "threadId", ThreadId);
-    NODE_SET_PROTOTYPE_METHOD(t, "threadSafe", ThreadSafe);
-    NODE_SET_PROTOTYPE_METHOD(t, "threadKill", ThreadKill);
-    NODE_SET_PROTOTYPE_METHOD(t, "useResult", UseResult);
-    NODE_SET_PROTOTYPE_METHOD(t, "warningCount", WarningCount);
+    ADD_PROTOTYPE_METHOD(affectedRows, AffectedRows);
+    ADD_PROTOTYPE_METHOD(autoCommit, AutoCommit);
+    ADD_PROTOTYPE_METHOD(changeUser, ChangeUser);
+    ADD_PROTOTYPE_METHOD(commit, Commit);
+    ADD_PROTOTYPE_METHOD(connect, Connect);
+    ADD_PROTOTYPE_METHOD(connectErrno, ConnectErrno);
+    ADD_PROTOTYPE_METHOD(connectError, ConnectError);
+    ADD_PROTOTYPE_METHOD(close, Close);
+    ADD_PROTOTYPE_METHOD(debug, Debug);
+    ADD_PROTOTYPE_METHOD(dumpDebugInfo, DumpDebugInfo);
+    ADD_PROTOTYPE_METHOD(errno, Errno);
+    ADD_PROTOTYPE_METHOD(error, Error);
+    ADD_PROTOTYPE_METHOD(escape, Escape);
+    ADD_PROTOTYPE_METHOD(fieldCount, FieldCount);
+    ADD_PROTOTYPE_METHOD(getCharset, GetCharset);
+    ADD_PROTOTYPE_METHOD(getCharsetName, GetCharsetName);
+    ADD_PROTOTYPE_METHOD(getInfo, GetInfo);
+    ADD_PROTOTYPE_METHOD(getInfoString, GetInfoString);
+    ADD_PROTOTYPE_METHOD(getWarnings, GetWarnings);
+    ADD_PROTOTYPE_METHOD(initStatement, InitStatement);
+    ADD_PROTOTYPE_METHOD(lastInsertId, LastInsertId);
+    ADD_PROTOTYPE_METHOD(multiMoreResults, MultiMoreResults);
+    ADD_PROTOTYPE_METHOD(multiNextResult, MultiNextResult);
+    ADD_PROTOTYPE_METHOD(multiRealQuery, MultiRealQuery);
+    ADD_PROTOTYPE_METHOD(ping, Ping);
+    ADD_PROTOTYPE_METHOD(query, Query);
+    ADD_PROTOTYPE_METHOD(queryAsync, QueryAsync);
+    ADD_PROTOTYPE_METHOD(realQuery, RealQuery);
+    ADD_PROTOTYPE_METHOD(rollback, Rollback);
+    ADD_PROTOTYPE_METHOD(selectDb, SelectDb);
+    ADD_PROTOTYPE_METHOD(setCharset, SetCharset);
+    ADD_PROTOTYPE_METHOD(setSsl, SetSsl);
+    ADD_PROTOTYPE_METHOD(sqlState, SqlState);
+    ADD_PROTOTYPE_METHOD(stat, Stat);
+    ADD_PROTOTYPE_METHOD(storeResult, StoreResult);
+    ADD_PROTOTYPE_METHOD(threadId, ThreadId);
+    ADD_PROTOTYPE_METHOD(threadSafe, ThreadSafe);
+    ADD_PROTOTYPE_METHOD(threadKill, ThreadKill);
+    ADD_PROTOTYPE_METHOD(useResult, UseResult);
+    ADD_PROTOTYPE_METHOD(warningCount, WarningCount);
 
-    target->Set(String::NewSymbol("MysqlSyncConn"), t->GetFunction());
+    target->Set(String::NewSymbol("MysqlSyncConn"), constructor_template->GetFunction());
 
     MysqlSyncRes::Init(target);
     MysqlSyncStmt::Init(target);
@@ -178,6 +143,80 @@ Handle<Value> MysqlSyncConn::New(const Arguments& args) {
 
     return args.This();
 }
+
+/* Example of async function? based on libeio */
+
+int MysqlSyncConn::EIO_After_Async(eio_req *req) {
+    ev_unref(EV_DEFAULT_UC);
+    struct async_request *async_req = (struct async_request *)(req->data);
+    HandleScope scope;
+
+    printf("In MysqlSyncConn::EIO_After_Async()\n");
+    
+    Local<Value> argv[0];
+    int argc = 0;
+
+    TryCatch try_catch;
+printf("1\n");
+    printf("async_req = %ld\n", async_req);
+    printf("async_req->conn = %ld\n", async_req->conn);
+    async_req->conn->Unref();
+printf("2\n");
+    printf("In MysqlSyncConn::EIO_After_Async() before callback.Call()\n");
+    async_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
+    printf("In MysqlSyncConn::EIO_After_Async() after callback.Call()\n");
+
+    if (try_catch.HasCaught()) {
+        node::FatalException(try_catch);
+    }
+
+    async_req->callback.Dispose();
+    free(async_req);
+    
+    return 0;
+}
+
+int MysqlSyncConn::EIO_Async(eio_req *req) {
+    struct async_request *async_req = (struct async_request *)(req->data);
+
+    printf("In MysqlSyncConn::EIO_Async()\n");
+
+    req->result = 0;
+    return 0;
+}
+
+Handle<Value> MysqlSyncConn::Async(const Arguments& args) {
+    HandleScope scope;
+printf("In MysqlSyncConn::Async()\n");
+    MysqlSyncConn *conn = OBJUNWRAP<MysqlSyncConn>(args.This());
+    
+    REQ_FUN_ARG(0, callback);
+
+    struct async_request *async_req = (struct async_request *)
+        calloc(1, sizeof(struct async_request));
+
+    if (!async_req) {
+      V8::LowMemoryNotification();
+      return THREXC("Could not allocate enough memory");
+    }
+
+    async_req->callback = Persistent<Function>::New(callback);
+    async_req->conn = conn;
+    printf("async_req->conn = %ld\n", async_req->conn);
+    printf("conn = %ld\n", conn);
+    printf("async_req = %ld\n", async_req);
+    printf("(void*)async_req = %ld\n", (void*)async_req);
+    printf("In MysqlSyncConn::Async() before eio_custom()\n");
+    eio_custom(EIO_Async, EIO_PRI_DEFAULT, EIO_After_Async, async_req);
+    printf("In MysqlSyncConn::Async() after eio_custom()\n");
+
+    ev_ref(EV_DEFAULT_UC);
+    conn->Ref();
+
+    return Undefined();
+}
+
+/* Example of async function? based on libeio [E] */
 
 Handle<Value> MysqlSyncConn::AffectedRows(const Arguments& args) {
     HandleScope scope;
@@ -784,8 +823,6 @@ int MysqlSyncConn::EIO_After_Query(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct query_request *query_req = (struct query_request *)(req->data);
 
-    HandleScope scope;
-
     Local<Value> argv[2];
     int argc = 0;
 
@@ -816,6 +853,7 @@ int MysqlSyncConn::EIO_After_Query(eio_req *req) {
 
 int MysqlSyncConn::EIO_Query(eio_req *req) {
     struct query_request *query_req = (struct query_request *)(req->data);
+
     MysqlSyncConn *conn = query_req->conn;
 
     if (!conn->_conn) {
@@ -868,6 +906,7 @@ int MysqlSyncConn::EIO_Query(eio_req *req) {
 }
 
 Handle<Value> MysqlSyncConn::QueryAsync(const Arguments& args) {
+
     HandleScope scope;
 
     REQ_STR_ARG(0, query);

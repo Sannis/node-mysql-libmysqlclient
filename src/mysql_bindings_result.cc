@@ -13,14 +13,13 @@ void MysqlSyncConn::MysqlSyncRes::Init(Handle<Object> target) {
     HandleScope scope;
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
+    
     constructor_template = Persistent<FunctionTemplate>::New(t);
+    constructor_template->Inherit(EventEmitter::constructor_template);
+    constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
+    constructor_template->SetClassName(String::NewSymbol("MysqlSyncRes"));
 
-    t->Inherit(EventEmitter::constructor_template);
-    t->InstanceTemplate()->SetInternalFieldCount(1);
-
-    // fetchResult_symbol = NODE_PSYMBOL("fetchResult");
-
-    NODE_SET_PROTOTYPE_METHOD(t, "fetchResult", FetchResult);
+    ADD_PROTOTYPE_METHOD(fetchResult, FetchResult);
 }
 
 MysqlSyncConn::MysqlSyncRes::MysqlSyncRes(): EventEmitter() {}
