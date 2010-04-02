@@ -24,13 +24,12 @@ sys.puts("Before run conn.async()");
 
 conn.async(function () {
   sys.puts("In conn.async() callback");
-  conn.close();
   sys.puts("End of conn.async() callback");
 });
 
 sys.puts("After run conn.async()");
 
-/*sys.puts("Before run conn.queryAsync();");
+sys.puts("Before run conn.queryAsync();");
 
 conn.queryAsync("SHOW TABLES;", function (result) {
   sys.puts("In conn.queryAsync();");
@@ -39,5 +38,5 @@ conn.queryAsync("SHOW TABLES;", function (result) {
   sys.puts("End of conn.queryAsync();");
 });
 
-sys.puts("After run conn.queryAsync();");*/
+sys.puts("After run conn.queryAsync();");
 

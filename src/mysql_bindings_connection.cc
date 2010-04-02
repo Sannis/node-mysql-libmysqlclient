@@ -144,8 +144,7 @@ Handle<Value> MysqlConn::New(const Arguments& args) {
     return args.This();
 }
 
-/* Example of async function? based on libeio */
-
+/* Example of async function based on libeio */
 int MysqlConn::EIO_After_Async(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct async_request *async_req = (struct async_request *)(req->data);
@@ -169,8 +168,6 @@ int MysqlConn::EIO_After_Async(eio_req *req) {
 }
 
 int MysqlConn::EIO_Async(eio_req *req) {
-    struct async_request *async_req = (struct async_request *)(req->data);
-
     req->result = 0;
     
     return 0;
@@ -201,7 +198,6 @@ Handle<Value> MysqlConn::Async(const Arguments& args) {
     
     return Undefined();
 }
-
 /* Example of async function? based on libeio [E] */
 
 Handle<Value> MysqlConn::AffectedRows(const Arguments& args) {
@@ -823,7 +819,7 @@ int MysqlConn::EIO_After_Query(eio_req *req) {
 
     TryCatch try_catch;
 
-    query_req->conn->Unref();
+    
     query_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
 
     if (try_catch.HasCaught()) {
@@ -831,9 +827,9 @@ int MysqlConn::EIO_After_Query(eio_req *req) {
     }
 
     query_req->callback.Dispose();
-
+    query_req->conn->Unref();
     free(query_req);
-    // ???
+
     return 0;
 }
 
@@ -931,8 +927,7 @@ Handle<Value> MysqlConn::QueryAsync(const Arguments& args) {
     eio_custom(EIO_Query, EIO_PRI_DEFAULT, EIO_After_Query, query_req);
 
     ev_ref(EV_DEFAULT_UC);
-    // assert() here?
-    conn->Ref();  // what is it?
+    conn->Ref();
 
     return Undefined();
 }
