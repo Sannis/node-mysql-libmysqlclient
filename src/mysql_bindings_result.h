@@ -27,7 +27,7 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     MysqlResult();
 
     explicit MysqlResult(MYSQL_RES *my_result):
-                                    _res(my_result), EventEmitter() {}
+                                    EventEmitter(), _res(my_result) {}
 
     ~MysqlResult();
 

@@ -27,7 +27,7 @@ class MysqlConn::MysqlStatement : public node::EventEmitter {
     MysqlStatement();
 
     explicit MysqlStatement(MYSQL_STMT *my_stmt):
-                                    _stmt(my_stmt), EventEmitter() {}
+                                    EventEmitter(), _stmt(my_stmt) {}
 
     ~MysqlStatement();
 
