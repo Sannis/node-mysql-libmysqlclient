@@ -33,7 +33,7 @@ def lint(lnt):
   # Bindings C++ source code
   Utils.exec_command('cpplint ./src/*.h ./src/*.cc')
   # Bindings javascript code
-  Utils.exec_command('nodelint ./mysql-sync.js')
+  Utils.exec_command('nodelint ./mysql-libmysqlclient.js')
   # Bindings tests
   Utils.exec_command('nodelint ./tests/*.js')
   # Bindings benchmarks

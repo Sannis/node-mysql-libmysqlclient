@@ -13,7 +13,7 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
     HandleScope scope;
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
-    
+
     constructor_template = Persistent<FunctionTemplate>::New(t);
     constructor_template->Inherit(EventEmitter::constructor_template);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);

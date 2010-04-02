@@ -63,7 +63,8 @@ void MysqlConn::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(useResult, UseResult);
     ADD_PROTOTYPE_METHOD(warningCount, WarningCount);
 
-    target->Set(String::NewSymbol("MysqlConn"), constructor_template->GetFunction());
+    target->Set(String::NewSymbol("MysqlConn"),
+                                  constructor_template->GetFunction());
 
     MysqlResult::Init(target);
     MysqlStatement::Init(target);
@@ -148,7 +149,7 @@ Handle<Value> MysqlConn::New(const Arguments& args) {
 int MysqlConn::EIO_After_Async(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct async_request *async_req = (struct async_request *)(req->data);
-    
+
     Local<Value> argv[0];
     int argc = 0;
 
@@ -163,13 +164,13 @@ int MysqlConn::EIO_After_Async(eio_req *req) {
     async_req->callback.Dispose();
     async_req->conn->Unref();
     free(async_req);
-    
+
     return 0;
 }
 
 int MysqlConn::EIO_Async(eio_req *req) {
     req->result = 0;
-    
+
     return 0;
 }
 
@@ -177,7 +178,7 @@ Handle<Value> MysqlConn::Async(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
-    
+
     REQ_FUN_ARG(0, callback);
 
     struct async_request *async_req = (struct async_request *)
@@ -195,7 +196,7 @@ Handle<Value> MysqlConn::Async(const Arguments& args) {
 
     ev_ref(EV_DEFAULT_UC);
     conn->Ref();
-    
+
     return Undefined();
 }
 /* Example of async function? based on libeio [E] */
@@ -887,8 +888,6 @@ int MysqlConn::EIO_Query(eio_req *req) {
         return 0;
     }
 
-
-                             
     query_req->my_result = my_result;
     req->result = 0;
 
@@ -896,7 +895,6 @@ int MysqlConn::EIO_Query(eio_req *req) {
 }
 
 Handle<Value> MysqlConn::QueryAsync(const Arguments& args) {
-
     HandleScope scope;
 
     REQ_STR_ARG(0, query);
