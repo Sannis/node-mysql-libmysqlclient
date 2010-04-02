@@ -149,22 +149,13 @@ Handle<Value> MysqlConn::New(const Arguments& args) {
 int MysqlConn::EIO_After_Async(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct async_request *async_req = (struct async_request *)(req->data);
-
-    printf("In MysqlConn::EIO_After_Async()\n");
     
     Local<Value> argv[0];
     int argc = 0;
 
     TryCatch try_catch;
-    printf("1\n");
-    printf("req = %ld\n", req);
-    printf("req->data = %ld\n", req->data);
-    printf("async_req = %ld\n", async_req);
-    printf("async_req->conn = %ld\n", async_req->conn);
-    printf("2\n");
-    printf("In MysqlConn::EIO_After_Async() before callback.Call()\n");
+
     async_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
-    printf("In MysqlConn::EIO_After_Async() after callback.Call()\n");
 
     if (try_catch.HasCaught()) {
         node::FatalException(try_catch);
@@ -173,21 +164,21 @@ int MysqlConn::EIO_After_Async(eio_req *req) {
     async_req->callback.Dispose();
     async_req->conn->Unref();
     free(async_req);
+    
     return 0;
 }
 
 int MysqlConn::EIO_Async(eio_req *req) {
     struct async_request *async_req = (struct async_request *)(req->data);
 
-    printf("In MysqlConn::EIO_Async()\n");
-
     req->result = 0;
+    
     return 0;
 }
 
 Handle<Value> MysqlConn::Async(const Arguments& args) {
     HandleScope scope;
-    printf("In MysqlConn::Async()\n");
+
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
     
     REQ_FUN_ARG(0, callback);
@@ -202,21 +193,12 @@ Handle<Value> MysqlConn::Async(const Arguments& args) {
 
     async_req->callback = Persistent<Function>::New(callback);
     async_req->conn = conn;
-    printf("async_req->conn = %ld\n", async_req->conn);
-    printf("conn = %ld\n", conn);
-    printf("async_req = %ld\n", async_req);
-    printf("(void*)async_req = %ld\n", (void*)async_req);
-    printf("In MysqlConn::Async() before eio_custom()\n");
-    eio_req *req = eio_custom(EIO_Async, EIO_PRI_DEFAULT, EIO_After_Async, async_req);
-    printf("req = %ld\n", req);
-    printf("req->data = %ld\n", req->data);
-    printf("(void*)req->data = %ld\n", (void*)req->data);
-    printf("static_cast<struct async_request *>(req->data) = %ld\n", static_cast<struct async_request *>(req->data));
-    printf("In MysqlConn::Async() after eio_custom()\n");
+
+    eio_custom(EIO_Async, EIO_PRI_DEFAULT, EIO_After_Async, async_req);
 
     ev_ref(EV_DEFAULT_UC);
     conn->Ref();
-
+    
     return Undefined();
 }
 
@@ -233,8 +215,8 @@ Handle<Value> MysqlConn::AffectedRows(const Arguments& args) {
 
     my_ulonglong affected_rows = mysql_affected_rows(conn->_conn);
 
-    if (affected_rows == -1) {
-        return THREXC("Error occured in mysql_affected_rows()");
+    if (affected_rows == ((my_ulonglong)-1)) {
+        return THREXC("Error occured in mysql_affected_rows(), -1 returned");
     }
 
     Local<Value> js_result = Integer::New(affected_rows);

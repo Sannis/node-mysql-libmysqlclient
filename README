@@ -8,7 +8,7 @@ The two files required to use these bindings are mysql-sync.js and
 build/default/mysql_sync_bindings.node. Put this directory in your
 NODE_PATH or copy those two files where you need them.
 
-Tested with Node version v0.1.33-164-g4279725
+Tested with Node version v0.1.33
 
 == Node.js
 
