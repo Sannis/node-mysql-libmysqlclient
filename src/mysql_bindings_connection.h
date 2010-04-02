@@ -213,12 +213,12 @@ class MysqlConn : public node::EventEmitter {
     static Handle<Value> Query(const Arguments& args);
 
     struct query_request {
-        Handle<Value> js_result;
         Persistent<Function> callback;
         MysqlConn *conn;
         int result_mode;
         int query_length;
         char query[1];
+        MYSQL_RES *my_result;
     };
     static int EIO_After_Query(eio_req *req);
     static int EIO_Query(eio_req *req);

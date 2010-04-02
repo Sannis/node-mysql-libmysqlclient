@@ -808,18 +808,26 @@ int MysqlConn::EIO_After_Query(eio_req *req) {
     Local<Value> argv[2];
     int argc = 0;
 
+
     if (req->result) {
         argv[0] = Exception::Error(String::New("Error on query execution"));
         argc = 1;
     } else {
-        argv[0] = Local<Value>::New(Undefined());
-        argv[1] = Local<Value>::New(query_req->js_result);
-        argc = 2;
+        if (req->int1) {
+            argv[0] = External::New(query_req->my_result);
+            Persistent<Object> js_result(MysqlResult::constructor_template->
+                                     GetFunction()->NewInstance(1, argv));
+
+            argv[0] = Local<Value>::New(js_result);
+            argc = 1;
+        } else {
+            /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN */
+            argc = 0;
+        }
     }
 
     TryCatch try_catch;
 
-    
     query_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
 
     if (try_catch.HasCaught()) {
@@ -855,9 +863,10 @@ int MysqlConn::EIO_Query(eio_req *req) {
         return 0;
     }
 
+    req->int1 = 1;
     if (!mysql_field_count(conn->_conn)) {
-        /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
-        query_req->js_result = True();
+        /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN */
+        req->int1 = 0;
         req->result = 0;
         return 0;
     }
@@ -878,12 +887,11 @@ int MysqlConn::EIO_Query(eio_req *req) {
         return 0;
     }
 
-    Local<Value> arg = External::New(my_result);
-    Persistent<Object> js_result(MysqlResult::constructor_template->
-                             GetFunction()->NewInstance(1, &arg));
 
-    query_req->js_result = js_result;
+                             
+    query_req->my_result = my_result;
     req->result = 0;
+
     return 0;
 }
 

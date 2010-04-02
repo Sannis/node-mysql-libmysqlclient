@@ -33,7 +33,9 @@ sys.puts("Before run conn.queryAsync();");
 
 conn.queryAsync("SHOW TABLES;", function (result) {
   sys.puts("In conn.queryAsync();");
-  sys.puts(sys.inspect(result));
+  sys.puts("arguments: " + sys.inspect(arguments));
+  sys.puts("result: " + sys.inspect(result));
+  sys.puts("result.fetchResult(): " + sys.inspect(result.fetchResult()));
   conn.close();
   sys.puts("End of conn.queryAsync();");
 });
