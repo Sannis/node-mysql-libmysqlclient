@@ -19,7 +19,7 @@ var host = "localhost",
   rows_to_select = 10,
 
   sys = require("sys"),
-  mysql_sync = require("../mysql-sync"),
+  mysql_libmysqlclient = require("../mysql-libmysqlclient"),
   
   start,
   finish,
@@ -58,7 +58,7 @@ function doBenchmark(title, prepare_function, execute_function) {
 
 sys.puts("Init...");
 
-conn = mysql_sync.createConnection(host, user, password, database);
+conn = mysql_libmysqlclient.createConnection(host, user, password, database);
 
 start = new Date();
 
