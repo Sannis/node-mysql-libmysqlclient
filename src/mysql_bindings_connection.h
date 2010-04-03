@@ -70,6 +70,7 @@ static Persistent<String> autoCommit_symbol;
 static Persistent<String> changeUser_symbol;
 static Persistent<String> commit_symbol;
 static Persistent<String> connect_symbol;
+static Persistent<String> connected_symbol;
 static Persistent<String> connectErrno_symbol;
 static Persistent<String> connectError_symbol;
 static Persistent<String> close_symbol;
@@ -138,7 +139,8 @@ class MysqlConn : public node::EventEmitter {
 
   protected:
     MYSQL *_conn;
-
+    bool connected;
+    
     bool multi_query;
 
     unsigned int connect_errno;
@@ -169,6 +171,8 @@ class MysqlConn : public node::EventEmitter {
     static Handle<Value> Commit(const Arguments& args);
 
     static Handle<Value> Connect(const Arguments& args);
+
+    static Handle<Value> Connected(const Arguments& args);
 
     static Handle<Value> ConnectErrno(const Arguments& args);
 

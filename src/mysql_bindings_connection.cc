@@ -27,6 +27,7 @@ void MysqlConn::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(changeUser, ChangeUser);
     ADD_PROTOTYPE_METHOD(commit, Commit);
     ADD_PROTOTYPE_METHOD(connect, Connect);
+    ADD_PROTOTYPE_METHOD(connected, Connected);
     ADD_PROTOTYPE_METHOD(connectErrno, ConnectErrno);
     ADD_PROTOTYPE_METHOD(connectError, ConnectError);
     ADD_PROTOTYPE_METHOD(close, Close);
@@ -83,6 +84,7 @@ bool MysqlConn::Connect(const char* hostname,
     _conn = mysql_init(NULL);
 
     if (!_conn) {
+        connected = false;
         return false;
     }
 
@@ -99,15 +101,18 @@ bool MysqlConn::Connect(const char* hostname,
     connect_error = mysql_error(_conn);
 
     if (unsuccessful) {
+        connected = false;
         return false;
     }
-
+    
+    connected = true;
     return true;
 }
 
 void MysqlConn::Close() {
     if (_conn) {
         mysql_close(_conn);
+        connected = false;
         _conn = NULL;
     }
 }
@@ -131,9 +136,7 @@ MysqlConn::MysqlConn(): EventEmitter() {
 }
 
 MysqlConn::~MysqlConn() {
-    if (_conn) {
-        mysql_close(_conn);
-    }
+    this->Close();
 }
 
 Handle<Value> MysqlConn::New(const Arguments& args) {
@@ -289,11 +292,6 @@ Handle<Value> MysqlConn::Connect(const Arguments& args) {
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
 
-    if ( (args.Length() < 3 || !args[0]->IsString()) ||
-         (!args[1]->IsString() || !args[2]->IsString()) ) {
-        return THREXC("Must give hostname, user and password as arguments");
-    }
-
     String::Utf8Value hostname(args[0]->ToString());
     String::Utf8Value user(args[1]->ToString());
     String::Utf8Value password(args[2]->ToString());
@@ -302,26 +300,33 @@ Handle<Value> MysqlConn::Connect(const Arguments& args) {
     String::Utf8Value socket(args[5]->ToString());
 
     bool r = conn->Connect(
-                    *hostname,
                     (
+                        args[0]->IsString() ?
+                        *hostname : NULL),
+                    (
+                        args[0]->IsString() &&
                         args[1]->IsString() ?
                         *user : NULL),
                     (
+                        args[0]->IsString() &&
                         args[1]->IsString() &&
                         args[2]->IsString() ?
                         *password : NULL),
                     (
+                        args[0]->IsString() &&
                         args[1]->IsString() &&
                         args[2]->IsString() &&
                         args[3]->IsString() ?
                         *dbname : NULL),
                     (
+                        args[0]->IsString() &&
                         args[1]->IsString() &&
                         args[2]->IsString() &&
                         args[3]->IsString() &&
                         args[4]->IsString() ?
                         port : 0),
                     (
+                        args[0]->IsString() &&
                         args[1]->IsString() &&
                         args[2]->IsString() &&
                         args[3]->IsString() &&
@@ -334,6 +339,14 @@ Handle<Value> MysqlConn::Connect(const Arguments& args) {
     }
 
     return scope.Close(True());
+}
+
+Handle<Value> MysqlConn::Connected(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+
+    return scope.Close(conn->connected ? True() : False());
 }
 
 Handle<Value> MysqlConn::ConnectErrno(const Arguments& args) {

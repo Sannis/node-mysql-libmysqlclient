@@ -11,7 +11,30 @@ var
 function createConnection(servername, user, password, dbname, port, socket)
 {
   var db = new binding.MysqlConn();
-  db.connect(servername, user, password, dbname, port, socket);
+  
+  if (typeof socket !== "undefined") {
+    db.connect(servername, user, password, dbname, port, socket);
+  } else {
+    if (typeof port !== "undefined") {
+      db.connect(servername, user, password, dbname, port);
+    } else {
+      if (typeof dbname !== "undefined") {
+        db.connect(servername, user, password, dbname);
+      } else {
+        if (typeof password !== "undefined") {
+          db.connect(servername, user, password);
+        } else {
+          if (typeof user !== "undefined") {
+            db.connect(servername, user);
+          } else {
+            if (typeof servername !== "undefined") {
+              db.connect(servername);
+            }
+          }
+        }
+      }
+    }
+  }
   
   return db;
 }

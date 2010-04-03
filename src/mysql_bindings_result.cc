@@ -52,14 +52,14 @@ Handle<Value> MysqlConn::MysqlResult::FetchResult(const Arguments& args) {
     // Only use this with
     // mysql_store_result() instead of mysql_use_result()
     // my_ulonglong num_rows = mysql_num_rows(result);
-    int i = 0, j = 0;
+    uint32_t i = 0, j = 0;
 
     Local<Array> js_result = Array::New();
     Local<Object> js_result_row;
     Local<Value> js_field;
 
     i = 0;
-    while ( result_row = mysql_fetch_row(res->_res) ) {
+    while ( (result_row = mysql_fetch_row(res->_res)) ) {
         js_result_row = Object::New();
 
         for ( j = 0; j < num_fields; j++ ) {
