@@ -1,5 +1,11 @@
-= [Future] Version 0.0.5
+= [Future] Version 0.0.6
+  * Look at TODO file
+
+= Version 0.0.5
+  * Add example MysqlSyncConn::queryAsync() and MysqlSyncConn::async() methods
   * Add a script to verify the existence of unittests for each function
+  * Reorganize tests files for new think and add some tests
+  * Add speedtest
 
 = Version 0.0.4
   * Split source code into separate files for database connection,
