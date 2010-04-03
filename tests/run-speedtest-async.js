@@ -46,7 +46,7 @@ function writeTest(db, i, callback) {
       }
     }
     else {
-      writeTest(db, i - 1, callback);
+      writeTest(db, i, callback);
     }
   });
 }
