@@ -140,7 +140,7 @@ class MysqlConn : public node::EventEmitter {
   protected:
     MYSQL *_conn;
     bool connected;
-    
+
     bool multi_query;
 
     unsigned int connect_errno;

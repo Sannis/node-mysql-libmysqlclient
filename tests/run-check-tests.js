@@ -40,7 +40,7 @@ function getBindingsClasses() {
       class_methods = [];
       
       regex_class_methods.lastIndex = 0;
-      while (class_method_match = regex_class_methods.exec(file_content)) {
+      while ((class_method_match = regex_class_methods.exec(file_content))) {
         class_methods.push(class_method_match[1]);
         regex_class_methods.lastIndex += 1;
       }

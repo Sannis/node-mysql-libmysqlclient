@@ -104,7 +104,7 @@ bool MysqlConn::Connect(const char* hostname,
         connected = false;
         return false;
     }
-    
+
     connected = true;
     return true;
 }

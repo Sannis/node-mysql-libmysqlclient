@@ -26,7 +26,7 @@ exports.Connect_WithoutDb = function (test) {
 exports.Connect_ManyTimes = function (test) {
   test.expect(1);
   
-  var conn = mysql_libmysqlclient.createConnection();
+  var conn = mysql_libmysqlclient.createConnection(), i;
   for (i = 1; i <= reconnect_count; i += 1) {
     conn.connect(host, user, password);
     conn.close();
