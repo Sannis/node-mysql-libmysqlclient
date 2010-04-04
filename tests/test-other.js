@@ -13,17 +13,35 @@ var
   sys = require("sys"),
   mysql_libmysqlclient = require("../mysql-libmysqlclient");
 
-exports.query_ShowTables_FetchResult = function (test) {
-  test.expect(3);
+exports.query_FetchAll = function (test) {
+  test.expect(5);
   
   var conn = mysql_libmysqlclient.createConnection(host, user, password, database),
     res,
-    tables;
+    rows;
   test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
-  res = conn.query("SHOW TABLES;");
-  test.ok(res, "conn.query('SHOW TABLES;')");
-  tables = res.fetchResult();
-  test.ok(tables, "res.fetchResult()");
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+  res = conn.query("CREATE TABLE " + test_table +
+    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
+    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
+    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
+  test.ok(res, "conn.query('DELETE FROM test_table')");
+  
+  res = conn.query("INSERT INTO " + test_table +
+                   " (random_number, random_boolean) VALUES ('1', '1');") && res;
+  res = conn.query("INSERT INTO " + test_table +
+                    " (random_number, random_boolean) VALUES ('2', '1');") && res;
+  res = conn.query("INSERT INTO " + test_table +
+                   " (random_number, random_boolean) VALUES ('3', '0');") && res;
+  test.ok(res, "conn.query('INSERT INTO test_table ...')");
+  
+  res = conn.query("SELECT random_number from " + test_table +
+                   " WHERE random_boolean='0';");
+  test.ok(res, "conn.query('SELECT ...')");
+  rows = res.fetchAll();
+  test.same(rows, [{random_number: 3}], "conn.query('SELECT ...').fetchAll()")
+  
   conn.close();
   
   test.done();
@@ -107,7 +125,7 @@ else
 
 sys.print("Run end get results of query 'SELECT * FROM " + test_table + " ORDER BY RAND() LIMIT 10': ");
 conn.query("SELECT * FROM " + test_table + " ORDER BY RAND() LIMIT 10;");
-var select_limit_result = conn.fetchResult();
+var select_limit_result = conn.fetchAll();
 sys.print("OK\n");
 for( var i in select_limit_result )
 {

@@ -7,8 +7,8 @@ Introduction
 This file contains overview of node-mysql-sync API.
 
 
-MysqlSyncConn class
--------------------
+MysqlConn class
+---------------
 
     class MysqlConn {
         /* Constructor */
@@ -114,10 +114,20 @@ Other
     Boolean threadSafe();
 
 
-MysqlSyncStmt class
--------------------
+MysqlResult class
+-----------------
 
-    class MysqlSyncStmt {
+    class MysqlResult {
+        /* Methods */
+        Array fetchAll();
+        Integer numRows();
+    }
+
+
+MysqlStatement class
+--------------------
+
+    class MysqlStatement {
         /* Methods */
         Boolean prepare(query);
     }

@@ -130,8 +130,8 @@ doBenchmark("Selects(" + selects_count + ", " + rows_to_select + ")", function (
     i;
     
   for (i = 0; i < selects_count; i += 1) {
-    res = conn.query("SELECT * FROM " + test_table + " ORDER BY RAND() LIMIT " + limits[i] + ", " + rows_to_select + ";");
-    rows[i] = res.fetchResult();
+    res = conn.query("SELECT * FROM " + test_table + " ORDER BY RAND() LIMIT " + limits[i] + ", " + rows_to_select + ";", 1);
+    rows[i] = res.fetchAll();
   }
 });
 

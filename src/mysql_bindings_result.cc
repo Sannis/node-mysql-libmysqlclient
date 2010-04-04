@@ -19,7 +19,8 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlResult"));
 
-    ADD_PROTOTYPE_METHOD(fetchResult, FetchResult);
+    ADD_PROTOTYPE_METHOD(fetchAll, FetchAll);
+    ADD_PROTOTYPE_METHOD(numRows, NumRows);
 }
 
 MysqlConn::MysqlResult::MysqlResult(): EventEmitter() {}
@@ -37,11 +38,12 @@ Handle<Value> MysqlConn::MysqlResult::New(const Arguments& args) {
     return args.This();
 }
 
-Handle<Value> MysqlConn::MysqlResult::FetchResult(const Arguments& args) {
+Handle<Value> MysqlConn::MysqlResult::FetchAll(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
+    // TODO(Sannis): Is it possible?
     if (!res->_res) {
         return scope.Close(False());
     }
@@ -107,6 +109,25 @@ Handle<Value> MysqlConn::MysqlResult::FetchResult(const Arguments& args) {
 
         i++;
     }
+
+    return scope.Close(js_result);
+}
+
+Handle<Value> MysqlConn::MysqlResult::NumRows(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+
+    // TODO(Sannis): Is it possible?
+    if (!res->_res) {
+        return scope.Close(False());
+    }
+
+	if (mysqli_result_is_unbuffered(res->_res)) {
+		return THREXC("Function cannot be used with MYSQL_USE_RESULT");
+	}
+
+    Local<Value> js_result = Integer::New(mysql_num_rows(res->_res));
 
     return scope.Close(js_result);
 }

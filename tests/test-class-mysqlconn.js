@@ -40,8 +40,7 @@ exports.AffectedRows = function (test) {
     " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
     " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
     " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
-  
-  res = conn.query("DELETE FROM " + test_table + ";");
+
   test.ok(res, "conn.query('DELETE FROM test_table')");
   
   for (i = 0; i < insert_rows_count; i += 1)
