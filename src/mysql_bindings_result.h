@@ -27,6 +27,7 @@ static Persistent<String> result_fetchObject_symbol;
 static Persistent<String> result_fieldCount_symbol;
 static Persistent<String> result_fieldSeek_symbol;
 static Persistent<String> result_fieldTell_symbol;
+static Persistent<String> result_free_symbol;
 static Persistent<String> result_numRows_symbol;
 
 class MysqlConn::MysqlResult : public node::EventEmitter {
@@ -81,6 +82,8 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     static Handle<Value> FieldSeek(const Arguments& args);
 
     static Handle<Value> FieldTell(const Arguments& args);
+
+    static Handle<Value> Free(const Arguments& args);
 
     static Handle<Value> NumRows(const Arguments& args);
 };

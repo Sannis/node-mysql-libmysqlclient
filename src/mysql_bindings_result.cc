@@ -30,6 +30,7 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(result, fieldCount, FieldCount);
     ADD_PROTOTYPE_METHOD(result, fieldSeek, FieldSeek);
     ADD_PROTOTYPE_METHOD(result, fieldTell, FieldTell);
+    ADD_PROTOTYPE_METHOD(result, free, Free);
     ADD_PROTOTYPE_METHOD(result, numRows, NumRows);
 }
 
@@ -70,36 +71,36 @@ void MysqlConn::MysqlResult::SetFieldValue(
                                         MYSQL_FIELD field,
                                         char* field_value) {
     switch (field.type) {
-        case MYSQL_TYPE_NULL: // NULL-type field
+        case MYSQL_TYPE_NULL:  // NULL-type field
             js_field = Undefined();
             break;
-        case MYSQL_TYPE_TINY: // TINYINT field
-        case MYSQL_TYPE_BIT: // BIT field (MySQL 5.0.3 and up)
-        case MYSQL_TYPE_SHORT: // SMALLINT field
-        case MYSQL_TYPE_LONG: // INTEGER field
-        case MYSQL_TYPE_INT24: // MEDIUMINT field
-        case MYSQL_TYPE_LONGLONG: // BIGINT field
-        case MYSQL_TYPE_YEAR: // YEAR field
+        case MYSQL_TYPE_TINY:  // TINYINT field
+        case MYSQL_TYPE_BIT:  // BIT field (MySQL 5.0.3 and up)
+        case MYSQL_TYPE_SHORT:  // SMALLINT field
+        case MYSQL_TYPE_LONG:  // INTEGER field
+        case MYSQL_TYPE_INT24:  // MEDIUMINT field
+        case MYSQL_TYPE_LONGLONG:  // BIGINT field
+        case MYSQL_TYPE_YEAR:  // YEAR field
             js_field = String::New(field_value)->ToInteger();
             break;
-        case MYSQL_TYPE_DECIMAL: // DECIMAL or NUMERIC field
-        case MYSQL_TYPE_NEWDECIMAL: // Precision math DECIMAL or NUMERIC field
-        case MYSQL_TYPE_FLOAT: // FLOAT field
-        case MYSQL_TYPE_DOUBLE: // DOUBLE or REAL field
+        case MYSQL_TYPE_DECIMAL:  // DECIMAL or NUMERIC field
+        case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
+        case MYSQL_TYPE_FLOAT:  // FLOAT field
+        case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
             // TODO(Sannis): Read about MySQL datatypes and javascript data
             js_field = String::New(field_value)->ToNumber();
             break;
-        case MYSQL_TYPE_TIME: // TIME field
+        case MYSQL_TYPE_TIME:  // TIME field
             // TODO(Sannis): Read about MySQL datatypes and javascript data
             js_field = String::New(field_value);
             break;
-        case MYSQL_TYPE_TIMESTAMP: // TIMESTAMP field
-        case MYSQL_TYPE_DATETIME: // DATETIME field
+        case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
+        case MYSQL_TYPE_DATETIME:  // DATETIME field
             // TODO(Sannis): Read about MySQL datatypes and javascript data
             js_field = String::New(field_value);
             break;
-        case MYSQL_TYPE_DATE: // DATE field
-        case MYSQL_TYPE_NEWDATE: // Newer const used > 5.0
+        case MYSQL_TYPE_DATE:  // DATE field
+        case MYSQL_TYPE_NEWDATE:  // Newer const used > 5.0
             // TODO(Sannis): Read about MySQL datatypes and javascript data
             js_field = String::New(field_value);
             break;
@@ -109,10 +110,9 @@ void MysqlConn::MysqlResult::SetFieldValue(
         case MYSQL_TYPE_BLOB:
         case MYSQL_TYPE_VAR_STRING:
         case MYSQL_TYPE_VARCHAR:
-        case MYSQL_TYPE_STRING: // CHAR or BINARY field
-        case MYSQL_TYPE_SET: // SET field
-        case MYSQL_TYPE_ENUM: // ENUM field
-        case MYSQL_TYPE_GEOMETRY: // Spatial fielda
+        case MYSQL_TYPE_SET:  // SET field
+        case MYSQL_TYPE_ENUM:  // ENUM field
+        case MYSQL_TYPE_GEOMETRY:  // Spatial fielda
         default:
             js_field = String::New(field_value);
     }
@@ -437,6 +437,22 @@ Handle<Value> MysqlConn::MysqlResult::FieldTell(const Arguments& args) {
     Local<Value> js_result = Integer::New(mysql_field_tell(res->_res));
 
     return scope.Close(js_result);
+}
+
+Handle<Value> MysqlConn::MysqlResult::Free(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+
+    // TODO(Sannis): Is it possible? Yes!
+    if (!res->_res) {
+        return scope.Close(False());
+    }
+
+    mysql_free_result(res->_res);
+    res->_res = NULL;
+
+    return Undefined();
 }
 
 Handle<Value> MysqlConn::MysqlResult::NumRows(const Arguments& args) {

@@ -130,6 +130,7 @@ MysqlResult class
         Integer fieldCount();
         Undefined fieldSeek();
         Integer fieldTell();
+        Undefined free();
         Integer numRows();
     }
 
