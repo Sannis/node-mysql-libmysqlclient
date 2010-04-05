@@ -21,10 +21,13 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
 
     ADD_PROTOTYPE_METHOD(result, fetchAll, FetchAll);
     ADD_PROTOTYPE_METHOD(result, fetchArray, FetchArray);
+    ADD_PROTOTYPE_METHOD(result, fetchField, FetchField);
+    ADD_PROTOTYPE_METHOD(result, fetchFieldDirect, FetchFieldDirect);
     ADD_PROTOTYPE_METHOD(result, fetchFields, FetchFields);
     ADD_PROTOTYPE_METHOD(result, fetchLengths, FetchLengths);
     ADD_PROTOTYPE_METHOD(result, fetchObject, FetchObject);
     ADD_PROTOTYPE_METHOD(result, fieldCount, FieldCount);
+    ADD_PROTOTYPE_METHOD(result, fieldSeek, FieldSeek);
     ADD_PROTOTYPE_METHOD(result, numRows, NumRows);
 }
 
@@ -34,8 +37,7 @@ MysqlConn::MysqlResult::~MysqlResult() {}
 
 void MysqlConn::MysqlResult::AddFieldProperties(
                                         Local<Object> &js_field_obj,
-                                        MYSQL_FIELD *field)
-{
+                                        MYSQL_FIELD *field) {
     js_field_obj->Set(String::New("name"),
                         String::New(field->name ? field->name : ""));
     js_field_obj->Set(String::New("orgname"),
@@ -64,8 +66,7 @@ void MysqlConn::MysqlResult::AddFieldProperties(
 void MysqlConn::MysqlResult::SetFieldValue(
                                         Local<Value> &js_field,
                                         MYSQL_FIELD field,
-                                        char* field_value)
-{
+                                        char* field_value) {
     switch (field.type) {
         MYSQL_TYPE_BIT:
 
@@ -141,7 +142,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchAll(const Arguments& args) {
 
         for ( j = 0; j < num_fields; j++ ) {
             SetFieldValue(js_field, fields[j], result_row[j]);
-            
+
             js_result_row->Set(String::New(fields[j].name), js_field);
         }
 
@@ -188,6 +189,64 @@ Handle<Value> MysqlConn::MysqlResult::FetchArray(const Arguments& args) {
     return scope.Close(js_result_row);
 }
 
+Handle<Value> MysqlConn::MysqlResult::FetchField(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+
+    // TODO(Sannis): Is it possible?
+    if (!res->_res) {
+        return scope.Close(False());
+    }
+
+    MYSQL_FIELD *field;
+
+    Local<Object> js_result;
+
+    field = mysql_fetch_field(res->_res);
+
+    if (!field) {
+        return scope.Close(False());
+    }
+
+    js_result = Object::New();
+    AddFieldProperties(js_result, field);
+
+    return scope.Close(js_result);
+}
+
+Handle<Value> MysqlConn::MysqlResult::FetchFieldDirect(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+
+    // TODO(Sannis): Is it possible?
+    if (!res->_res) {
+        return scope.Close(False());
+    }
+
+    if (args.Length() == 0 || !args[0]->IsNumber()) {
+        return THREXC("First arg of res.fetchFieldDirect() must be a number");
+    }
+
+    uint32_t field_num = args[0]->IntegerValue();
+
+    MYSQL_FIELD *field;
+
+    Local<Object> js_result;
+
+    field = mysql_fetch_field_direct(res->_res, field_num);
+
+    if (!field) {
+        return scope.Close(False());
+    }
+
+    js_result = Object::New();
+    AddFieldProperties(js_result, field);
+
+    return scope.Close(js_result);
+}
+
 Handle<Value> MysqlConn::MysqlResult::FetchFields(const Arguments& args) {
     HandleScope scope;
 
@@ -205,14 +264,14 @@ Handle<Value> MysqlConn::MysqlResult::FetchFields(const Arguments& args) {
     Local<Array> js_result = Array::New();
     Local<Object> js_result_obj;
 
-	for (i = 0; i < num_fields; i++) {
-		field = mysql_fetch_field_direct(res->_res, i);
+    for (i = 0; i < num_fields; i++) {
+        field = mysql_fetch_field_direct(res->_res, i);
 
         js_result_obj = Object::New();
-		AddFieldProperties(js_result_obj, field);
+        AddFieldProperties(js_result_obj, field);
 
-		js_result->Set(Integer::New(i), js_result_obj);
-	}
+        js_result->Set(Integer::New(i), js_result_obj);
+    }
 
     return scope.Close(js_result);
 }
@@ -228,7 +287,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchLengths(const Arguments& args) {
     }
 
     uint32_t num_fields = mysql_num_fields(res->_res);
-    unsigned long *lengths;
+    unsigned long int *lengths;
     uint32_t i = 0;
 
     Local<Array> js_result = Array::New();
@@ -296,6 +355,31 @@ Handle<Value> MysqlConn::MysqlResult::FieldCount(const Arguments& args) {
     } else {
         return Undefined();
     }
+}
+
+Handle<Value> MysqlConn::MysqlResult::FieldSeek(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+
+    // TODO(Sannis): Is it possible?
+    if (!res->_res) {
+        return scope.Close(False());
+    }
+
+    if (args.Length() == 0 || !args[0]->IsNumber()) {
+        return THREXC("First arg of res.fieldSeek() must be a number");
+    }
+
+    uint32_t field_num = args[0]->IntegerValue();
+
+    if (field_num < 0 || field_num >= res->field_count) {
+        return THREXC("Invalid field offset");
+    }
+
+    mysql_field_seek(res->_res, field_num);
+
+    return Undefined();
 }
 
 Handle<Value> MysqlConn::MysqlResult::NumRows(const Arguments& args) {

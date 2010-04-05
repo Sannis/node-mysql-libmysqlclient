@@ -13,6 +13,58 @@ var
   sys = require("sys"),
   mysql_libmysqlclient = require("../mysql-libmysqlclient");
 
+/*
+Compled test for methods:
+res.fieldSeek();
+res.fetchField();
+res.fetchFieldDirect();
+res.fetchFields();
+*/
+var testFieldSeekAndFetchAndFetchDirectAndFetchFields = function (test) {
+  test.expect(8);
+  
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database),
+    res,
+    row,
+    field1,
+    field2,
+    fields;
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+  res = conn.query("CREATE TABLE " + test_table +
+    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
+    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
+    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
+  test.ok(res, "conn.query('DELETE FROM test_table')");
+  
+  res = conn.query("INSERT INTO " + test_table +
+                   " (random_number, random_boolean) VALUES ('123456', '0');") && res;
+  res = conn.query("INSERT INTO " + test_table +
+                    " (random_number, random_boolean) VALUES ('7', '1');") && res;
+  test.ok(res, "conn.query('INSERT INTO test_table ...')");
+  
+  res = conn.query("SELECT random_number, random_boolean from " + test_table +
+                   " WHERE random_boolean='0';", 1);
+  test.ok(res, "conn.query('SELECT ... 1')");
+
+  res.fieldSeek(1);
+  field1 = res.fetchField();
+  test.ok(field1, "conn.query('SELECT ...') && res.fieldSeek() && res.fetchField()");
+  fields = res.fetchFields();
+  test.same(field1, fields[1], "conn.query('SELECT ...') && res.fieldSeek() && res.fetchFields() same check");
+
+  res.fieldSeek(0);
+  field1 = res.fetchField();
+  test.ok(field1, "conn.query('SELECT ...') && res.fieldSeek() && res.fetchField()");
+  field2 = res.fetchFieldDirect(0);
+  test.same(field1, field2, "conn.query('SELECT ...') && res.fieldSeek() && res.fetchFieldDirect() same check");
+  
+  conn.close();
+  
+  test.done();
+};
+
 exports.NumRows = function (test) {
   test.expect(9);
   
@@ -107,6 +159,18 @@ exports.FetchArray = function (test) {
   conn.close();
   
   test.done();
+};
+
+exports.FetchField = function (test) {
+  testFieldSeekAndFetchAndFetchDirectAndFetchFields(test);
+};
+
+exports.FetchFieldDirect = function (test) {
+  testFieldSeekAndFetchAndFetchDirectAndFetchFields(test);
+};
+
+exports.FetchFields = function (test) {
+  testFieldSeekAndFetchAndFetchDirectAndFetchFields(test);
 };
 
 exports.FetchLengths = function (test) {
@@ -217,5 +281,9 @@ exports.FieldCount = function (test) {
   conn.close();
   
   test.done();
+};
+
+exports.FieldSeek = function (test) {
+  testFieldSeekAndFetchAndFetchDirectAndFetchFields(test);
 };
 

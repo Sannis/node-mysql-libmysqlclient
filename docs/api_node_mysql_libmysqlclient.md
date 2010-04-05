@@ -121,10 +121,13 @@ MysqlResult class
         /* Methods */
         Array fetchAll();
         Array fetchArray();
+        Object fetchField();
+        Object fetchFieldDirect();
         Array fetchFields();
         Array fetchLengths();
         Object fetchObject();
         Integer fieldCount();
+        Undefined fieldSeek();
         Integer numRows();
     }
 

@@ -18,9 +18,6 @@ MysqlResult class
 
 currentField
 dataSeek
-fetchField_direct
-fetchField
-fieldSeek
 free
 
 Maybe: fetchRow<->fetchArray, fetchAssoc->fetchObject

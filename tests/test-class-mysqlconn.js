@@ -57,7 +57,13 @@ exports.AffectedRows = function (test) {
   test.equals(res, true, "Update " + insert_rows_count + " rows in table " + test_table);
   
   affected_rows = conn.affectedRows();
-  sys.puts(sys.inspect(affected_rows));
+  
+  if (affected_rows !== insert_rows_count) {
+    res = conn.query("UPDATE " + test_table + " SET random_number=1;");
+  
+    affected_rows = conn.affectedRows();
+  }
+  
   test.equals(affected_rows, insert_rows_count, "conn.affectedRows()");
   
   conn.close();

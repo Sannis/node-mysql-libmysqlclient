@@ -18,10 +18,13 @@ See license text in LICENSE file
 
 static Persistent<String> result_fetchAll_symbol;
 static Persistent<String> result_fetchArray_symbol;
+static Persistent<String> result_fetchField_symbol;
+static Persistent<String> result_fetchFieldDirect_symbol;
 static Persistent<String> result_fetchFields_symbol;
 static Persistent<String> result_fetchLengths_symbol;
 static Persistent<String> result_fetchObject_symbol;
 static Persistent<String> result_fieldCount_symbol;
+static Persistent<String> result_fieldSeek_symbol;
 static Persistent<String> result_numRows_symbol;
 
 class MysqlConn::MysqlResult : public node::EventEmitter {
@@ -29,7 +32,7 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     static Persistent<FunctionTemplate> constructor_template;
 
     static void Init(Handle<Object> target);
-    
+
     static void AddFieldProperties(
                                     Local<Object> &js_field_obj,
                                     MYSQL_FIELD *field);
@@ -59,6 +62,10 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
 
     static Handle<Value> FetchArray(const Arguments& args);
 
+    static Handle<Value> FetchField(const Arguments& args);
+
+    static Handle<Value> FetchFieldDirect(const Arguments& args);
+
     static Handle<Value> FetchFields(const Arguments& args);
 
     static Handle<Value> FetchLengths(const Arguments& args);
@@ -66,6 +73,8 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     static Handle<Value> FetchObject(const Arguments& args);
 
     static Handle<Value> FieldCount(const Arguments& args);
+
+    static Handle<Value> FieldSeek(const Arguments& args);
 
     static Handle<Value> NumRows(const Arguments& args);
 };
