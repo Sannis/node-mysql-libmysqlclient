@@ -40,7 +40,7 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
                                     MYSQL_FIELD *field);
 
     static void SetFieldValue(
-                                Local<Value> &js_field,
+                                Handle<Value> &js_field,
                                 MYSQL_FIELD field,
                                 char* field_value);
 

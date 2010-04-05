@@ -66,42 +66,53 @@ void MysqlConn::MysqlResult::AddFieldProperties(
 }
 
 void MysqlConn::MysqlResult::SetFieldValue(
-                                        Local<Value> &js_field,
+                                        Handle<Value> &js_field,
                                         MYSQL_FIELD field,
                                         char* field_value) {
     switch (field.type) {
-        MYSQL_TYPE_BIT:
-
-        MYSQL_TYPE_TINY:
-        MYSQL_TYPE_SHORT:
-        MYSQL_TYPE_LONG:
-
-        MYSQL_TYPE_LONGLONG:
-        MYSQL_TYPE_INT24:
+        case MYSQL_TYPE_NULL: // NULL-type field
+            js_field = Undefined();
+            break;
+        case MYSQL_TYPE_TINY: // TINYINT field
+        case MYSQL_TYPE_BIT: // BIT field (MySQL 5.0.3 and up)
+        case MYSQL_TYPE_SHORT: // SMALLINT field
+        case MYSQL_TYPE_LONG: // INTEGER field
+        case MYSQL_TYPE_INT24: // MEDIUMINT field
+        case MYSQL_TYPE_LONGLONG: // BIGINT field
+        case MYSQL_TYPE_YEAR: // YEAR field
             js_field = String::New(field_value)->ToInteger();
             break;
-        MYSQL_TYPE_DECIMAL:
-        MYSQL_TYPE_FLOAT:
-        MYSQL_TYPE_DOUBLE:
+        case MYSQL_TYPE_DECIMAL: // DECIMAL or NUMERIC field
+        case MYSQL_TYPE_NEWDECIMAL: // Precision math DECIMAL or NUMERIC field
+        case MYSQL_TYPE_FLOAT: // FLOAT field
+        case MYSQL_TYPE_DOUBLE: // DOUBLE or REAL field
+            // TODO(Sannis): Read about MySQL datatypes and javascript data
             js_field = String::New(field_value)->ToNumber();
             break;
-        // TODO(Sannis): Handle other types, dates in first order
-        /*  MYSQL_TYPE_NULL,   MYSQL_TYPE_TIMESTAMP,
-        MYSQL_TYPE_DATE,   MYSQL_TYPE_TIME,
-        MYSQL_TYPE_DATETIME, MYSQL_TYPE_YEAR,
-        MYSQL_TYPE_NEWDATE, MYSQL_TYPE_VARCHAR,*/
-        /*MYSQL_TYPE_NEWDECIMAL=246,
-        MYSQL_TYPE_ENUM=247,
-        MYSQL_TYPE_SET=248,
-        MYSQL_TYPE_TINY_BLOB=249,
-        MYSQL_TYPE_MEDIUM_BLOB=250,
-        MYSQL_TYPE_LONG_BLOB=251,
-        MYSQL_TYPE_BLOB=252,*/
-        MYSQL_TYPE_VAR_STRING:
-        MYSQL_TYPE_STRING:
+        case MYSQL_TYPE_TIME: // TIME field
+            // TODO(Sannis): Read about MySQL datatypes and javascript data
             js_field = String::New(field_value);
             break;
-        /*MYSQL_TYPE_GEOMETRY=255*/
+        case MYSQL_TYPE_TIMESTAMP: // TIMESTAMP field
+        case MYSQL_TYPE_DATETIME: // DATETIME field
+            // TODO(Sannis): Read about MySQL datatypes and javascript data
+            js_field = String::New(field_value);
+            break;
+        case MYSQL_TYPE_DATE: // DATE field
+        case MYSQL_TYPE_NEWDATE: // Newer const used > 5.0
+            // TODO(Sannis): Read about MySQL datatypes and javascript data
+            js_field = String::New(field_value);
+            break;
+        case MYSQL_TYPE_TINY_BLOB:
+        case MYSQL_TYPE_MEDIUM_BLOB:
+        case MYSQL_TYPE_LONG_BLOB:
+        case MYSQL_TYPE_BLOB:
+        case MYSQL_TYPE_VAR_STRING:
+        case MYSQL_TYPE_VARCHAR:
+        case MYSQL_TYPE_STRING: // CHAR or BINARY field
+        case MYSQL_TYPE_SET: // SET field
+        case MYSQL_TYPE_ENUM: // ENUM field
+        case MYSQL_TYPE_GEOMETRY: // Spatial fielda
         default:
             js_field = String::New(field_value);
     }
