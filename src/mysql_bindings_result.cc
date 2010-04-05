@@ -28,6 +28,7 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(result, fetchObject, FetchObject);
     ADD_PROTOTYPE_METHOD(result, fieldCount, FieldCount);
     ADD_PROTOTYPE_METHOD(result, fieldSeek, FieldSeek);
+    ADD_PROTOTYPE_METHOD(result, fieldTell, FieldTell);
     ADD_PROTOTYPE_METHOD(result, numRows, NumRows);
 }
 
@@ -380,6 +381,21 @@ Handle<Value> MysqlConn::MysqlResult::FieldSeek(const Arguments& args) {
     mysql_field_seek(res->_res, field_num);
 
     return Undefined();
+}
+
+Handle<Value> MysqlConn::MysqlResult::FieldTell(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+
+    // TODO(Sannis): Is it possible?
+    if (!res->_res) {
+        return scope.Close(False());
+    }
+
+    Local<Value> js_result = Integer::New(mysql_field_tell(res->_res));
+
+    return scope.Close(js_result);
 }
 
 Handle<Value> MysqlConn::MysqlResult::NumRows(const Arguments& args) {

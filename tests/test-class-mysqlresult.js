@@ -20,15 +20,16 @@ res.fetchField();
 res.fetchFieldDirect();
 res.fetchFields();
 */
-var testFieldSeekAndFetchAndFetchDirectAndFetchFields = function (test) {
-  test.expect(8);
+var testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFields = function (test) {
+  test.expect(9);
   
   var conn = mysql_libmysqlclient.createConnection(host, user, password, database),
     res,
     row,
     field1,
     field2,
-    fields;
+    fields,
+    field_tell;
   test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   
   res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
@@ -49,62 +50,18 @@ var testFieldSeekAndFetchAndFetchDirectAndFetchFields = function (test) {
   test.ok(res, "conn.query('SELECT ... 1')");
 
   res.fieldSeek(1);
+  field_tell = res.fieldTell();
+  test.equals(field_tell, 1, "res.fieldTell()");
   field1 = res.fetchField();
-  test.ok(field1, "conn.query('SELECT ...') && res.fieldSeek() && res.fetchField()");
+  test.ok(field1, "res.fetchField()");
   fields = res.fetchFields();
-  test.same(field1, fields[1], "conn.query('SELECT ...') && res.fieldSeek() && res.fetchFields() same check");
+  test.same(field1, fields[1], "res.fetchFields() same check");
 
   res.fieldSeek(0);
   field1 = res.fetchField();
-  test.ok(field1, "conn.query('SELECT ...') && res.fieldSeek() && res.fetchField()");
+  test.ok(field1, "res.fetchField()");
   field2 = res.fetchFieldDirect(0);
-  test.same(field1, field2, "conn.query('SELECT ...') && res.fieldSeek() && res.fetchFieldDirect() same check");
-  
-  conn.close();
-  
-  test.done();
-};
-
-exports.NumRows = function (test) {
-  test.expect(9);
-  
-  var conn = mysql_libmysqlclient.createConnection(host, user, password, database),
-    res,
-    rows;
-  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
-  
-  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
-  res = conn.query("CREATE TABLE " + test_table +
-    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
-  test.ok(res, "conn.query('DELETE FROM test_table')");
-  
-  res = conn.query("INSERT INTO " + test_table +
-                   " (random_number, random_boolean) VALUES ('1', '1');") && res;
-  res = conn.query("INSERT INTO " + test_table +
-                    " (random_number, random_boolean) VALUES ('2', '1');") && res;
-  res = conn.query("INSERT INTO " + test_table +
-                   " (random_number, random_boolean) VALUES ('3', '0');") && res;
-  test.ok(res, "conn.query('INSERT INTO test_table ...')");
-  
-  res = conn.query("SELECT random_number from " + test_table +
-                   " WHERE random_boolean='0';", 1);
-  test.ok(res, "conn.query('SELECT ... 1')");
-  rows = res.numRows();
-  test.equals(rows, 1, "conn.query('SELECT ... 1').numRows()");
-  
-  res = conn.query("SELECT random_number from " + test_table +
-                   " WHERE random_boolean='1';", 1);
-  test.ok(res, "conn.query('SELECT ... 2')");
-  rows = res.numRows();
-  test.equals(rows, 2, "conn.query('SELECT ... 2').numRows()");
-  
-  res = conn.query("SELECT random_number from " + test_table +
-                   " WHERE random_number>'0';", 1);
-  test.ok(res, "conn.query('SELECT ... 3')");
-  rows = res.numRows();
-  test.equals(rows, 3, "conn.query('SELECT ... 3').numRows()");
+  test.same(field1, field2, "res.fetchFieldDirect() same check");
   
   conn.close();
   
@@ -162,15 +119,15 @@ exports.FetchArray = function (test) {
 };
 
 exports.FetchField = function (test) {
-  testFieldSeekAndFetchAndFetchDirectAndFetchFields(test);
+  testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFields(test);
 };
 
 exports.FetchFieldDirect = function (test) {
-  testFieldSeekAndFetchAndFetchDirectAndFetchFields(test);
+  testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFields(test);
 };
 
 exports.FetchFields = function (test) {
-  testFieldSeekAndFetchAndFetchDirectAndFetchFields(test);
+  testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFields(test);
 };
 
 exports.FetchLengths = function (test) {
@@ -284,6 +241,56 @@ exports.FieldCount = function (test) {
 };
 
 exports.FieldSeek = function (test) {
-  testFieldSeekAndFetchAndFetchDirectAndFetchFields(test);
+  testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFields(test);
+};
+
+exports.FieldTell = function (test) {
+  testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFields(test);
+};
+
+exports.NumRows = function (test) {
+  test.expect(9);
+  
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database),
+    res,
+    rows;
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+  res = conn.query("CREATE TABLE " + test_table +
+    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
+    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
+    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
+  test.ok(res, "conn.query('DELETE FROM test_table')");
+  
+  res = conn.query("INSERT INTO " + test_table +
+                   " (random_number, random_boolean) VALUES ('1', '1');") && res;
+  res = conn.query("INSERT INTO " + test_table +
+                    " (random_number, random_boolean) VALUES ('2', '1');") && res;
+  res = conn.query("INSERT INTO " + test_table +
+                   " (random_number, random_boolean) VALUES ('3', '0');") && res;
+  test.ok(res, "conn.query('INSERT INTO test_table ...')");
+  
+  res = conn.query("SELECT random_number from " + test_table +
+                   " WHERE random_boolean='0';", 1);
+  test.ok(res, "conn.query('SELECT ... 1')");
+  rows = res.numRows();
+  test.equals(rows, 1, "conn.query('SELECT ... 1').numRows()");
+  
+  res = conn.query("SELECT random_number from " + test_table +
+                   " WHERE random_boolean='1';", 1);
+  test.ok(res, "conn.query('SELECT ... 2')");
+  rows = res.numRows();
+  test.equals(rows, 2, "conn.query('SELECT ... 2').numRows()");
+  
+  res = conn.query("SELECT random_number from " + test_table +
+                   " WHERE random_number>'0';", 1);
+  test.ok(res, "conn.query('SELECT ... 3')");
+  rows = res.numRows();
+  test.equals(rows, 3, "conn.query('SELECT ... 3').numRows()");
+  
+  conn.close();
+  
+  test.done();
 };
 

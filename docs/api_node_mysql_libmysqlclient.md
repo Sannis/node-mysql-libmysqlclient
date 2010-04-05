@@ -128,6 +128,7 @@ MysqlResult class
         Object fetchObject();
         Integer fieldCount();
         Undefined fieldSeek();
+        Integer fieldTell();
         Integer numRows();
     }
 
