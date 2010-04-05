@@ -1,7 +1,8 @@
-MySQL synchronous bindings for Node.js using libmysqlclient
-===========================================================
+MySQL bindings for Node.js using libmysqlclient
+===============================================
 
-Documentation lives at http://wiki.github.com/Sannis/node-mysql-libmysqlclient/.
+Documentation lives at http://wiki.github.com/Sannis/node-mysql-libmysqlclient/
+and http://github.com/Sannis/node-mysql-libmysqlclient/tree/master/docs/.
 The code lives at http://github.com/Sannis/node-mysql-libmysqlclient/.
 
 The two files required to use these bindings are ./mysql-libmysqlclient.js and
@@ -9,6 +10,19 @@ The two files required to use these bindings are ./mysql-libmysqlclient.js and
 Put this directory in your NODE_PATH or copy those two files where you need them.
 
 Tested with Node version v0.1.33
+
+== A small message for NodeJS community
+
+Today this library supports all basic functions for working with MySQL.
+In the near future, I plan to expand the list of methods
+that can be invoked in an asynchronous NodeJS style.
+I also postponed the implementation of prepared statements.
+
+I will be happy to hear tips from the more experienced programmers.
+If you are interested in wide MySQL usage in NodeJS applications,
+leave your comments to the code.
+Unfortunately not all methods are covered by unit and functional tests,
+so I'll be glad to see your forks and commits in them :)
 
 == Node.js
 
@@ -31,3 +45,4 @@ MIT License. See license text in file LICENSE.
 Copyright (C) 2010 Oleg Efimov
 E-mail: <efimovov@gmail.com>
 Site: http://sannis.ru
+
