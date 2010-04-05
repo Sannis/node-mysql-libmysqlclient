@@ -1,6 +1,10 @@
-{
-    "name" : "node-mysql-sync",
-    "description" : "MySQL synchronous binding for Node.js",
-    "version" : "0.0.5",
-    "author" : "Oleg Efimov <efimovov@gmail.com>"
+{  "name" : "node-mysql-libmysqlclient"
+,  "description" : "MySQL binding for Node.js"
+,  "version" : "0.0.5"
+, "contributors" : [ "Oleg Efimov <efimovov@gmail.com>" ]
+, "repository" :
+  { "type" : "git"
+  , "url" : "http://github.com/Sannis/node-mysql-libmysqlclient"
+  }
+, "main" : "mysql-libmysqlclient"
 }
