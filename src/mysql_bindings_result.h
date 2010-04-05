@@ -29,6 +29,15 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     static Persistent<FunctionTemplate> constructor_template;
 
     static void Init(Handle<Object> target);
+    
+    static void AddFieldProperties(
+                                    Local<Object> &js_field_obj,
+                                    MYSQL_FIELD *field);
+
+    static void SetFieldValue(
+                                Local<Value> &js_field,
+                                MYSQL_FIELD field,
+                                char* field_value);
 
   protected:
     MYSQL_RES *_res;

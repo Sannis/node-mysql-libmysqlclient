@@ -32,6 +32,78 @@ MysqlConn::MysqlResult::MysqlResult(): EventEmitter() {}
 
 MysqlConn::MysqlResult::~MysqlResult() {}
 
+void MysqlConn::MysqlResult::AddFieldProperties(
+                                        Local<Object> &js_field_obj,
+                                        MYSQL_FIELD *field)
+{
+    js_field_obj->Set(String::New("name"),
+                        String::New(field->name ? field->name : ""));
+    js_field_obj->Set(String::New("orgname"),
+                        String::New(field->org_name ? field->org_name : ""));
+    js_field_obj->Set(String::New("table"),
+                        String::New(field->table ? field->table : ""));
+    js_field_obj->Set(String::New("orgtable"),
+                        String::New(field->org_table ? field->org_table : ""));
+    js_field_obj->Set(String::New("def"),
+                        String::New(field->def ? field->def : ""));
+
+    js_field_obj->Set(String::New("max_length"),
+                        Integer::New(field->max_length));
+    js_field_obj->Set(String::New("length"),
+                        Integer::New(field->length));
+    js_field_obj->Set(String::New("charsetnr"),
+                        Integer::New(field->charsetnr));
+    js_field_obj->Set(String::New("flags"),
+                        Integer::New(field->flags));
+    js_field_obj->Set(String::New("type"),
+                        Integer::New(field->type));
+    js_field_obj->Set(String::New("decimals"),
+                        Integer::New(field->decimals));
+}
+
+void MysqlConn::MysqlResult::SetFieldValue(
+                                        Local<Value> &js_field,
+                                        MYSQL_FIELD field,
+                                        char* field_value)
+{
+    switch (field.type) {
+        MYSQL_TYPE_BIT:
+
+        MYSQL_TYPE_TINY:
+        MYSQL_TYPE_SHORT:
+        MYSQL_TYPE_LONG:
+
+        MYSQL_TYPE_LONGLONG:
+        MYSQL_TYPE_INT24:
+            js_field = String::New(field_value)->ToInteger();
+            break;
+        MYSQL_TYPE_DECIMAL:
+        MYSQL_TYPE_FLOAT:
+        MYSQL_TYPE_DOUBLE:
+            js_field = String::New(field_value)->ToNumber();
+            break;
+        // TODO(Sannis): Handle other types, dates in first order
+        /*  MYSQL_TYPE_NULL,   MYSQL_TYPE_TIMESTAMP,
+        MYSQL_TYPE_DATE,   MYSQL_TYPE_TIME,
+        MYSQL_TYPE_DATETIME, MYSQL_TYPE_YEAR,
+        MYSQL_TYPE_NEWDATE, MYSQL_TYPE_VARCHAR,*/
+        /*MYSQL_TYPE_NEWDECIMAL=246,
+        MYSQL_TYPE_ENUM=247,
+        MYSQL_TYPE_SET=248,
+        MYSQL_TYPE_TINY_BLOB=249,
+        MYSQL_TYPE_MEDIUM_BLOB=250,
+        MYSQL_TYPE_LONG_BLOB=251,
+        MYSQL_TYPE_BLOB=252,*/
+        MYSQL_TYPE_VAR_STRING:
+        MYSQL_TYPE_STRING:
+            js_field = String::New(field_value);
+            break;
+        /*MYSQL_TYPE_GEOMETRY=255*/
+        default:
+            js_field = String::New(field_value);
+    }
+}
+
 Handle<Value> MysqlConn::MysqlResult::New(const Arguments& args) {
     HandleScope scope;
 
@@ -68,43 +140,8 @@ Handle<Value> MysqlConn::MysqlResult::FetchAll(const Arguments& args) {
         js_result_row = Object::New();
 
         for ( j = 0; j < num_fields; j++ ) {
-            switch (fields[j].type) {
-              MYSQL_TYPE_BIT:
-
-              MYSQL_TYPE_TINY:
-              MYSQL_TYPE_SHORT:
-              MYSQL_TYPE_LONG:
-
-              MYSQL_TYPE_LONGLONG:
-              MYSQL_TYPE_INT24:
-                js_field = String::New(result_row[j])->ToInteger();
-                break;
-              MYSQL_TYPE_DECIMAL:
-              MYSQL_TYPE_FLOAT:
-              MYSQL_TYPE_DOUBLE:
-                js_field = String::New(result_row[j])->ToNumber();
-                break;
-              // TODO(Sannis): Handle other types, dates in first order
-              /*  MYSQL_TYPE_NULL,   MYSQL_TYPE_TIMESTAMP,
-                MYSQL_TYPE_DATE,   MYSQL_TYPE_TIME,
-                MYSQL_TYPE_DATETIME, MYSQL_TYPE_YEAR,
-                MYSQL_TYPE_NEWDATE, MYSQL_TYPE_VARCHAR,*/
-                /*MYSQL_TYPE_NEWDECIMAL=246,
-                MYSQL_TYPE_ENUM=247,
-                MYSQL_TYPE_SET=248,
-                MYSQL_TYPE_TINY_BLOB=249,
-                MYSQL_TYPE_MEDIUM_BLOB=250,
-                MYSQL_TYPE_LONG_BLOB=251,
-                MYSQL_TYPE_BLOB=252,*/
-              MYSQL_TYPE_VAR_STRING:
-              MYSQL_TYPE_STRING:
-                js_field = String::New(result_row[j]);
-                break;
-                /*MYSQL_TYPE_GEOMETRY=255*/
-              default:
-                js_field = String::New(result_row[j]);
-            }
-
+            SetFieldValue(js_field, fields[j], result_row[j]);
+            
             js_result_row->Set(String::New(fields[j].name), js_field);
         }
 
@@ -143,63 +180,12 @@ Handle<Value> MysqlConn::MysqlResult::FetchArray(const Arguments& args) {
     js_result_row = Array::New();
 
     for ( j = 0; j < num_fields; j++ ) {
-        switch (fields[j].type) {
-          MYSQL_TYPE_BIT:
-
-          MYSQL_TYPE_TINY:
-          MYSQL_TYPE_SHORT:
-          MYSQL_TYPE_LONG:
-
-          MYSQL_TYPE_LONGLONG:
-          MYSQL_TYPE_INT24:
-            js_field = String::New(result_row[j])->ToInteger();
-            break;
-          MYSQL_TYPE_DECIMAL:
-          MYSQL_TYPE_FLOAT:
-          MYSQL_TYPE_DOUBLE:
-            js_field = String::New(result_row[j])->ToNumber();
-            break;
-          // TODO(Sannis): Handle other types, dates in first order
-          /*  MYSQL_TYPE_NULL,   MYSQL_TYPE_TIMESTAMP,
-            MYSQL_TYPE_DATE,   MYSQL_TYPE_TIME,
-            MYSQL_TYPE_DATETIME, MYSQL_TYPE_YEAR,
-            MYSQL_TYPE_NEWDATE, MYSQL_TYPE_VARCHAR,*/
-            /*MYSQL_TYPE_NEWDECIMAL=246,
-            MYSQL_TYPE_ENUM=247,
-            MYSQL_TYPE_SET=248,
-            MYSQL_TYPE_TINY_BLOB=249,
-            MYSQL_TYPE_MEDIUM_BLOB=250,
-            MYSQL_TYPE_LONG_BLOB=251,
-            MYSQL_TYPE_BLOB=252,*/
-          MYSQL_TYPE_VAR_STRING:
-          MYSQL_TYPE_STRING:
-            js_field = String::New(result_row[j]);
-            break;
-            /*MYSQL_TYPE_GEOMETRY=255*/
-          default:
-            js_field = String::New(result_row[j]);
-        }
+        SetFieldValue(js_field, fields[j], result_row[j]);
 
         js_result_row->Set(Integer::New(j), js_field);
     }
 
     return scope.Close(js_result_row);
-}
-
-void v8_add_field_properties(Local<Object> &obj, const MYSQL_FIELD *field)
-{
-    obj->Set(String::New("name"), String::New(field->name ? field->name : ""));
-    obj->Set(String::New("orgname"), String::New(field->org_name ? field->org_name : ""));
-    obj->Set(String::New("table"), String::New(field->table ? field->table : ""));
-    obj->Set(String::New("orgtable"), String::New(field->org_table ? field->org_table : ""));
-    obj->Set(String::New("def"), String::New(field->def ? field->def : ""));
-
-    obj->Set(String::New("max_length"), Integer::New(field->max_length));
-    obj->Set(String::New("length"), Integer::New(field->length));
-    obj->Set(String::New("charsetnr"), Integer::New(field->charsetnr));
-    obj->Set(String::New("flags"), Integer::New(field->flags));
-    obj->Set(String::New("type"), Integer::New(field->type));
-    obj->Set(String::New("decimals"), Integer::New(field->decimals));
 }
 
 Handle<Value> MysqlConn::MysqlResult::FetchFields(const Arguments& args) {
@@ -213,7 +199,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchFields(const Arguments& args) {
     }
 
     uint32_t num_fields = mysql_num_fields(res->_res);
-    const MYSQL_FIELD *field;
+    MYSQL_FIELD *field;
     uint32_t i = 0;
 
     Local<Array> js_result = Array::New();
@@ -223,7 +209,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchFields(const Arguments& args) {
 		field = mysql_fetch_field_direct(res->_res, i);
 
         js_result_obj = Object::New();
-		v8_add_field_properties(js_result_obj, field);
+		AddFieldProperties(js_result_obj, field);
 
 		js_result->Set(Integer::New(i), js_result_obj);
 	}
@@ -287,42 +273,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchObject(const Arguments& args) {
     js_result_row = Object::New();
 
     for ( j = 0; j < num_fields; j++ ) {
-        switch (fields[j].type) {
-          MYSQL_TYPE_BIT:
-
-          MYSQL_TYPE_TINY:
-          MYSQL_TYPE_SHORT:
-          MYSQL_TYPE_LONG:
-
-          MYSQL_TYPE_LONGLONG:
-          MYSQL_TYPE_INT24:
-            js_field = String::New(result_row[j])->ToInteger();
-            break;
-          MYSQL_TYPE_DECIMAL:
-          MYSQL_TYPE_FLOAT:
-          MYSQL_TYPE_DOUBLE:
-            js_field = String::New(result_row[j])->ToNumber();
-            break;
-          // TODO(Sannis): Handle other types, dates in first order
-          /*  MYSQL_TYPE_NULL,   MYSQL_TYPE_TIMESTAMP,
-            MYSQL_TYPE_DATE,   MYSQL_TYPE_TIME,
-            MYSQL_TYPE_DATETIME, MYSQL_TYPE_YEAR,
-            MYSQL_TYPE_NEWDATE, MYSQL_TYPE_VARCHAR,*/
-            /*MYSQL_TYPE_NEWDECIMAL=246,
-            MYSQL_TYPE_ENUM=247,
-            MYSQL_TYPE_SET=248,
-            MYSQL_TYPE_TINY_BLOB=249,
-            MYSQL_TYPE_MEDIUM_BLOB=250,
-            MYSQL_TYPE_LONG_BLOB=251,
-            MYSQL_TYPE_BLOB=252,*/
-          MYSQL_TYPE_VAR_STRING:
-          MYSQL_TYPE_STRING:
-            js_field = String::New(result_row[j]);
-            break;
-            /*MYSQL_TYPE_GEOMETRY=255*/
-          default:
-            js_field = String::New(result_row[j]);
-        }
+        SetFieldValue(js_field, fields[j], result_row[j]);
 
         js_result_row->Set(String::New(fields[j].name), js_field);
     }
