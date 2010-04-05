@@ -13,9 +13,10 @@ See license text in LICENSE file
 #include <node.h>
 #include <node_events.h>
 
-#define mysqli_result_is_unbuffered(r) \
+#define mysql_result_is_unbuffered(r) \
 ((r)->handle && (r)->handle->status == MYSQL_STATUS_USE_RESULT)
 
+static Persistent<String> result_dataSeek_symbol;
 static Persistent<String> result_fetchAll_symbol;
 static Persistent<String> result_fetchArray_symbol;
 static Persistent<String> result_fetchField_symbol;
@@ -58,6 +59,8 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     ~MysqlResult();
 
     static Handle<Value> New(const Arguments& args);
+
+    static Handle<Value> DataSeek(const Arguments& args);
 
     static Handle<Value> FetchAll(const Arguments& args);
 

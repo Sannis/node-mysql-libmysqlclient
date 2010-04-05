@@ -19,6 +19,7 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlResult"));
 
+    ADD_PROTOTYPE_METHOD(result, dataSeek, DataSeek);
     ADD_PROTOTYPE_METHOD(result, fetchAll, FetchAll);
     ADD_PROTOTYPE_METHOD(result, fetchArray, FetchArray);
     ADD_PROTOTYPE_METHOD(result, fetchField, FetchField);
@@ -116,6 +117,35 @@ Handle<Value> MysqlConn::MysqlResult::New(const Arguments& args) {
     my_res->Wrap(args.This());
 
     return args.This();
+}
+
+Handle<Value> MysqlConn::MysqlResult::DataSeek(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+
+    // TODO(Sannis): Is it possible?
+    if (!res->_res) {
+        return scope.Close(False());
+    }
+
+    if (args.Length() == 0 || !args[0]->IsNumber()) {
+        return THREXC("First arg of res.fieldSeek() must be a number");
+    }
+
+    uint32_t row_num = args[0]->IntegerValue();
+
+    if (mysql_result_is_unbuffered(res->_res)) {
+        return THREXC("Function cannot be used with MYSQL_USE_RESULT");
+    }
+
+    if (row_num < 0 || row_num >= mysql_num_rows(res->_res)) {
+        return THREXC("Invalid row offset");
+    }
+
+    mysql_data_seek(res->_res, row_num);
+
+    return Undefined();
 }
 
 Handle<Value> MysqlConn::MysqlResult::FetchAll(const Arguments& args) {
@@ -408,7 +438,7 @@ Handle<Value> MysqlConn::MysqlResult::NumRows(const Arguments& args) {
         return scope.Close(False());
     }
 
-    if (mysqli_result_is_unbuffered(res->_res)) {
+    if (mysql_result_is_unbuffered(res->_res)) {
         return THREXC("Function cannot be used with MYSQL_USE_RESULT");
     }
 

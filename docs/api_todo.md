@@ -16,7 +16,6 @@ and MysqlSyncConn::setLocalInfile{Default,Handler} later.
 MysqlResult class
 -----------------
 
-dataSeek
 free
 
 Maybe: fetchRow<->fetchArray, fetchAssoc->fetchObject

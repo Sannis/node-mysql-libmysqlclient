@@ -68,6 +68,44 @@ var testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFields = function (test) {
   test.done();
 };
 
+exports.DataSeek = function (test) {
+  test.expect(6);
+  
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database),
+    res,
+    row;
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+  res = conn.query("CREATE TABLE " + test_table +
+    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
+    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
+    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
+  test.ok(res, "conn.query('DELETE FROM test_table')");
+  
+  res = conn.query("INSERT INTO " + test_table +
+                   " (random_number, random_boolean) VALUES ('1', '1');") && res;
+  res = conn.query("INSERT INTO " + test_table +
+                    " (random_number, random_boolean) VALUES ('2', '1');") && res;
+  res = conn.query("INSERT INTO " + test_table +
+                   " (random_number, random_boolean) VALUES ('3', '0');") && res;
+  test.ok(res, "conn.query('INSERT INTO test_table ...')");
+  
+  res = conn.query("SELECT random_number, random_boolean from " + test_table +
+                   " WHERE random_boolean='1' ORDER BY random_number ASC;", 1);
+  test.ok(res, "conn.query('SELECT ...')");
+  res.dataSeek(1);
+  row = res.fetchArray();
+  test.same(row, [2, 1], "conn.query('SELECT ...').dataSeek().fetchArray()");
+  res.dataSeek(0);
+  row = res.fetchArray();
+  test.same(row, [1, 1], "conn.query('SELECT ...').dataSeek().fetchArray()");
+  
+  conn.close();
+  
+  test.done();
+};
+
 exports.FetchAll = function (test) {
   test.expect(3);
   

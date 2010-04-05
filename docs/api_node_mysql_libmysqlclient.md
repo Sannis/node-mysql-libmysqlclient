@@ -119,6 +119,7 @@ MysqlResult class
 
     class MysqlResult {
         /* Methods */
+        Undefined dataSeek();
         Array fetchAll();
         Array fetchArray();
         Object fetchField();
