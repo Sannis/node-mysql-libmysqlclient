@@ -21,6 +21,7 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
 
     ADD_PROTOTYPE_METHOD(fetchAll, FetchAll);
     ADD_PROTOTYPE_METHOD(fetchArray, FetchArray);
+    ADD_PROTOTYPE_METHOD(fetchLengths, FetchLengths);
     ADD_PROTOTYPE_METHOD(fetchObject, FetchObject);
     ADD_PROTOTYPE_METHOD(numRows, NumRows);
 }
@@ -127,7 +128,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchArray(const Arguments& args) {
     MYSQL_ROW result_row;
     uint32_t j = 0;
 
-    Local<Object> js_result_row;
+    Local<Array> js_result_row;
     Local<Value> js_field;
 
     result_row = mysql_fetch_row(res->_res);
@@ -180,6 +181,35 @@ Handle<Value> MysqlConn::MysqlResult::FetchArray(const Arguments& args) {
     }
 
     return scope.Close(js_result_row);
+}
+
+Handle<Value> MysqlConn::MysqlResult::FetchLengths(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+
+    // TODO(Sannis): Is it possible?
+    if (!res->_res) {
+        return scope.Close(False());
+    }
+
+    uint32_t num_fields = mysql_num_fields(res->_res);
+    unsigned long *lengths;
+    uint32_t i = 0;
+
+    Local<Array> js_result = Array::New();
+
+    lengths = mysql_fetch_lengths(res->_res);
+
+    if (!lengths) {
+        return scope.Close(False());
+    }
+
+    for (i = 0; i < num_fields; i++) {
+        js_result->Set(Integer::New(i), Integer::New(lengths[i]));
+    }
+
+    return scope.Close(js_result);
 }
 
 Handle<Value> MysqlConn::MysqlResult::FetchObject(const Arguments& args) {

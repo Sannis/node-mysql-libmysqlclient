@@ -18,6 +18,7 @@ See license text in LICENSE file
 
 static Persistent<String> fetchAll_symbol;
 static Persistent<String> fetchArray_symbol;
+static Persistent<String> fetchLengths_symbol;
 static Persistent<String> fetchObject_symbol;
 static Persistent<String> numRows_symbol;
 
@@ -42,6 +43,8 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     static Handle<Value> FetchAll(const Arguments& args);
 
     static Handle<Value> FetchArray(const Arguments& args);
+
+    static Handle<Value> FetchLengths(const Arguments& args);
 
     static Handle<Value> FetchObject(const Arguments& args);
 

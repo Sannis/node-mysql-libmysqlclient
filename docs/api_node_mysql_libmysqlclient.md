@@ -121,6 +121,7 @@ MysqlResult class
         /* Methods */
         Array fetchAll();
         Array fetchArray();
+        Array fetchLengths();
         Object fetchObject();
         Integer numRows();
     }
