@@ -20,7 +20,6 @@ currentField
 dataSeek
 fetchField_direct
 fetchField
-fetchFields
 fieldSeek
 free
 

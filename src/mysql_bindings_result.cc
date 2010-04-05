@@ -21,6 +21,7 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
 
     ADD_PROTOTYPE_METHOD(result, fetchAll, FetchAll);
     ADD_PROTOTYPE_METHOD(result, fetchArray, FetchArray);
+    ADD_PROTOTYPE_METHOD(result, fetchFields, FetchFields);
     ADD_PROTOTYPE_METHOD(result, fetchLengths, FetchLengths);
     ADD_PROTOTYPE_METHOD(result, fetchObject, FetchObject);
     ADD_PROTOTYPE_METHOD(result, fieldCount, FieldCount);
@@ -183,6 +184,51 @@ Handle<Value> MysqlConn::MysqlResult::FetchArray(const Arguments& args) {
     }
 
     return scope.Close(js_result_row);
+}
+
+void v8_add_field_properties(Local<Object> &obj, const MYSQL_FIELD *field)
+{
+    obj->Set(String::New("name"), String::New(field->name ? field->name : ""));
+    obj->Set(String::New("orgname"), String::New(field->org_name ? field->org_name : ""));
+    obj->Set(String::New("table"), String::New(field->table ? field->table : ""));
+    obj->Set(String::New("orgtable"), String::New(field->org_table ? field->org_table : ""));
+    obj->Set(String::New("def"), String::New(field->def ? field->def : ""));
+
+    obj->Set(String::New("max_length"), Integer::New(field->max_length));
+    obj->Set(String::New("length"), Integer::New(field->length));
+    obj->Set(String::New("charsetnr"), Integer::New(field->charsetnr));
+    obj->Set(String::New("flags"), Integer::New(field->flags));
+    obj->Set(String::New("type"), Integer::New(field->type));
+    obj->Set(String::New("decimals"), Integer::New(field->decimals));
+}
+
+Handle<Value> MysqlConn::MysqlResult::FetchFields(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+
+    // TODO(Sannis): Is it possible?
+    if (!res->_res) {
+        return scope.Close(False());
+    }
+
+    uint32_t num_fields = mysql_num_fields(res->_res);
+    const MYSQL_FIELD *field;
+    uint32_t i = 0;
+
+    Local<Array> js_result = Array::New();
+    Local<Object> js_result_obj;
+
+	for (i = 0; i < num_fields; i++) {
+		field = mysql_fetch_field_direct(res->_res, i);
+
+        js_result_obj = Object::New();
+		v8_add_field_properties(js_result_obj, field);
+
+		js_result->Set(Integer::New(i), js_result_obj);
+	}
+
+    return scope.Close(js_result);
 }
 
 Handle<Value> MysqlConn::MysqlResult::FetchLengths(const Arguments& args) {
