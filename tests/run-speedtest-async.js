@@ -24,7 +24,7 @@ function readTest(db) {
   var t0 = new Date();
   conn.queryAsync("SELECT * FROM " + test_table + ";", function (result) {
     var
-      rows = result.fetchResult(),
+      rows = result.fetchAll(),
       d = ((new Date()) - t0) / 1000;
       
     puts("**** " + rows.length + " rows in " + d + "s (" + (rows.length / d) + "/s)");
