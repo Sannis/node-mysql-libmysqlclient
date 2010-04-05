@@ -1,8 +1,25 @@
-= [Future] Version 0.0.6
-  * Look at TODO file
+= Version 0.0.6
+  * Update package.json and make small fixes in docs and README
+  * Rename MysqlResult::FetchResult method to FetchAll
+  * Implemented methods:
+  * * MysqlResult::DataSeek()
+  * * MysqlResult::NumRows()
+  * * MysqlResult::FetchArray()
+  * * MysqlResult::FetchFields()
+  * * MysqlResult::FetchField()
+  * * MysqlResult::FetchFieldDirect()
+  * * MysqlResult::FetchLengths()
+  * * MysqlResult::FetchObject()
+  * * MysqlResult::FieldCount()
+  * * MysqlResult::FieldSeek()
+  * * MysqlResult::FieldTell()
+  * * MysqlResult::Free()
+  * MysqlResult class finished
 
 = Version 0.0.5
-  * Add example MysqlSyncConn::queryAsync() and MysqlSyncConn::async() methods
+  * Remove 'Sync' from classes names,
+    rename main module file to mysql-libmysqlclient.js
+  * Add example MysqlConn::queryAsync() and MysqlConn::async() methods
   * Add a script to verify the existence of unittests for each function
   * Reorganize tests files for new think and add some tests
   * Add speedtest
@@ -58,3 +75,16 @@
 
 = Version 0.0.1
   * Basic functionality: connect/close/query/fenchAll/getInfo/error/etc.
+  * Implemented methods:
+  * * MysqlDbSync::AffectedRows()
+  * * MysqlDbSync::Connect()
+  * * MysqlDbSync::Close()
+  * * MysqlDbSync::Errno()
+  * * MysqlDbSync::Error()
+  * * MysqlDbSync::Escape()
+  * * MysqlDbSync::FetchResult()
+  * * MysqlDbSync::GetInfo()
+  * * MysqlDbSync::LastInsertId()
+  * * MysqlDbSync::Query()
+  * * MysqlDbSync::WarningCount()
+

@@ -1,6 +1,6 @@
 {  "name" : "node-mysql-libmysqlclient"
 ,  "description" : "MySQL binding for Node.js"
-,  "version" : "0.0.5"
+,  "version" : "0.0.6"
 , "contributors" : [ "Oleg Efimov <efimovov@gmail.com>" ]
 , "repository" :
   { "type" : "git"
