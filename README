@@ -4,9 +4,9 @@ MySQL synchronous bindings for Node.js using libmysqlclient
 Documentation lives at http://wiki.github.com/Sannis/node-mysql-libmysqlclient/.
 The code lives at http://github.com/Sannis/node-mysql-libmysqlclient/.
 
-The two files required to use these bindings are mysql-sync.js and
-build/default/mysql_sync_bindings.node. Put this directory in your
-NODE_PATH or copy those two files where you need them.
+The two files required to use these bindings are ./mysql-libmysqlclient.js and
+./mysql_bindings.node(build/default/mysql_bindings.node).
+Put this directory in your NODE_PATH or copy those two files where you need them.
 
 Tested with Node version v0.1.33
 
