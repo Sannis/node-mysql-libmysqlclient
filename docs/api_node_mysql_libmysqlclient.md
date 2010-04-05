@@ -123,6 +123,7 @@ MysqlResult class
         Array fetchArray();
         Array fetchLengths();
         Object fetchObject();
+        Integer fieldCount();
         Integer numRows();
     }
 

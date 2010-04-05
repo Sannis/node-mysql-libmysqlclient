@@ -16,11 +16,12 @@ See license text in LICENSE file
 #define mysqli_result_is_unbuffered(r) \
 ((r)->handle && (r)->handle->status == MYSQL_STATUS_USE_RESULT)
 
-static Persistent<String> fetchAll_symbol;
-static Persistent<String> fetchArray_symbol;
-static Persistent<String> fetchLengths_symbol;
-static Persistent<String> fetchObject_symbol;
-static Persistent<String> numRows_symbol;
+static Persistent<String> result_fetchAll_symbol;
+static Persistent<String> result_fetchArray_symbol;
+static Persistent<String> result_fetchLengths_symbol;
+static Persistent<String> result_fetchObject_symbol;
+static Persistent<String> result_fieldCount_symbol;
+static Persistent<String> result_numRows_symbol;
 
 class MysqlConn::MysqlResult : public node::EventEmitter {
   public:
@@ -31,10 +32,14 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
   protected:
     MYSQL_RES *_res;
 
+    uint32_t field_count;
+
     MysqlResult();
 
-    explicit MysqlResult(MYSQL_RES *my_result):
-                                    EventEmitter(), _res(my_result) {}
+    explicit MysqlResult(MYSQL_RES *my_result, uint32_t my_field_count):
+                                    EventEmitter(),
+                                    _res(my_result),
+                                    field_count(my_field_count) {}
 
     ~MysqlResult();
 
@@ -47,6 +52,8 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     static Handle<Value> FetchLengths(const Arguments& args);
 
     static Handle<Value> FetchObject(const Arguments& args);
+
+    static Handle<Value> FieldCount(const Arguments& args);
 
     static Handle<Value> NumRows(const Arguments& args);
 };

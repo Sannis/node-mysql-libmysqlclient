@@ -19,7 +19,7 @@ void MysqlConn::MysqlStatement::Init(Handle<Object> target) {
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlStatement"));
 
-    ADD_PROTOTYPE_METHOD(prepare, Prepare);
+    ADD_PROTOTYPE_METHOD(statement, prepare, Prepare);
 }
 
 MysqlConn::MysqlStatement::MysqlStatement(): EventEmitter() {

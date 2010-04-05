@@ -13,7 +13,7 @@ See license text in LICENSE file
 #include <node.h>
 #include <node_events.h>
 
-static Persistent<String> prepare_symbol;
+static Persistent<String> statement_prepare_symbol;
 
 class MysqlConn::MysqlStatement : public node::EventEmitter {
   public:

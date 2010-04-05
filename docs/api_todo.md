@@ -12,3 +12,17 @@ I think that this functions not so important at this moment.
 We can implement MysqlSyncConn::setOption in first stable release,
 and MysqlSyncConn::setLocalInfile{Default,Handler} later.
 
+
+MysqlResult class
+-----------------
+
+currentField
+dataSeek
+fetchField_direct
+fetchField
+fetchFields
+fieldSeek
+free
+
+Maybe: fetchRow<->fetchArray, fetchAssoc->fetchObject
+

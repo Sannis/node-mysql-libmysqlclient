@@ -20,49 +20,49 @@ void MysqlConn::Init(Handle<Object> target) {
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlConn"));
 
-    ADD_PROTOTYPE_METHOD(async, Async);
+    ADD_PROTOTYPE_METHOD(connection, async, Async);
 
-    ADD_PROTOTYPE_METHOD(affectedRows, AffectedRows);
-    ADD_PROTOTYPE_METHOD(autoCommit, AutoCommit);
-    ADD_PROTOTYPE_METHOD(changeUser, ChangeUser);
-    ADD_PROTOTYPE_METHOD(commit, Commit);
-    ADD_PROTOTYPE_METHOD(connect, Connect);
-    ADD_PROTOTYPE_METHOD(connected, Connected);
-    ADD_PROTOTYPE_METHOD(connectErrno, ConnectErrno);
-    ADD_PROTOTYPE_METHOD(connectError, ConnectError);
-    ADD_PROTOTYPE_METHOD(close, Close);
-    ADD_PROTOTYPE_METHOD(debug, Debug);
-    ADD_PROTOTYPE_METHOD(dumpDebugInfo, DumpDebugInfo);
-    ADD_PROTOTYPE_METHOD(errno, Errno);
-    ADD_PROTOTYPE_METHOD(error, Error);
-    ADD_PROTOTYPE_METHOD(escape, Escape);
-    ADD_PROTOTYPE_METHOD(fieldCount, FieldCount);
-    ADD_PROTOTYPE_METHOD(getCharset, GetCharset);
-    ADD_PROTOTYPE_METHOD(getCharsetName, GetCharsetName);
-    ADD_PROTOTYPE_METHOD(getInfo, GetInfo);
-    ADD_PROTOTYPE_METHOD(getInfoString, GetInfoString);
-    ADD_PROTOTYPE_METHOD(getWarnings, GetWarnings);
-    ADD_PROTOTYPE_METHOD(initStatement, InitStatement);
-    ADD_PROTOTYPE_METHOD(lastInsertId, LastInsertId);
-    ADD_PROTOTYPE_METHOD(multiMoreResults, MultiMoreResults);
-    ADD_PROTOTYPE_METHOD(multiNextResult, MultiNextResult);
-    ADD_PROTOTYPE_METHOD(multiRealQuery, MultiRealQuery);
-    ADD_PROTOTYPE_METHOD(ping, Ping);
-    ADD_PROTOTYPE_METHOD(query, Query);
-    ADD_PROTOTYPE_METHOD(queryAsync, QueryAsync);
-    ADD_PROTOTYPE_METHOD(realQuery, RealQuery);
-    ADD_PROTOTYPE_METHOD(rollback, Rollback);
-    ADD_PROTOTYPE_METHOD(selectDb, SelectDb);
-    ADD_PROTOTYPE_METHOD(setCharset, SetCharset);
-    ADD_PROTOTYPE_METHOD(setSsl, SetSsl);
-    ADD_PROTOTYPE_METHOD(sqlState, SqlState);
-    ADD_PROTOTYPE_METHOD(stat, Stat);
-    ADD_PROTOTYPE_METHOD(storeResult, StoreResult);
-    ADD_PROTOTYPE_METHOD(threadId, ThreadId);
-    ADD_PROTOTYPE_METHOD(threadSafe, ThreadSafe);
-    ADD_PROTOTYPE_METHOD(threadKill, ThreadKill);
-    ADD_PROTOTYPE_METHOD(useResult, UseResult);
-    ADD_PROTOTYPE_METHOD(warningCount, WarningCount);
+    ADD_PROTOTYPE_METHOD(connection, affectedRows, AffectedRows);
+    ADD_PROTOTYPE_METHOD(connection, autoCommit, AutoCommit);
+    ADD_PROTOTYPE_METHOD(connection, changeUser, ChangeUser);
+    ADD_PROTOTYPE_METHOD(connection, commit, Commit);
+    ADD_PROTOTYPE_METHOD(connection, connect, Connect);
+    ADD_PROTOTYPE_METHOD(connection, connected, Connected);
+    ADD_PROTOTYPE_METHOD(connection, connectErrno, ConnectErrno);
+    ADD_PROTOTYPE_METHOD(connection, connectError, ConnectError);
+    ADD_PROTOTYPE_METHOD(connection, close, Close);
+    ADD_PROTOTYPE_METHOD(connection, debug, Debug);
+    ADD_PROTOTYPE_METHOD(connection, dumpDebugInfo, DumpDebugInfo);
+    ADD_PROTOTYPE_METHOD(connection, errno, Errno);
+    ADD_PROTOTYPE_METHOD(connection, error, Error);
+    ADD_PROTOTYPE_METHOD(connection, escape, Escape);
+    ADD_PROTOTYPE_METHOD(connection, fieldCount, FieldCount);
+    ADD_PROTOTYPE_METHOD(connection, getCharset, GetCharset);
+    ADD_PROTOTYPE_METHOD(connection, getCharsetName, GetCharsetName);
+    ADD_PROTOTYPE_METHOD(connection, getInfo, GetInfo);
+    ADD_PROTOTYPE_METHOD(connection, getInfoString, GetInfoString);
+    ADD_PROTOTYPE_METHOD(connection, getWarnings, GetWarnings);
+    ADD_PROTOTYPE_METHOD(connection, initStatement, InitStatement);
+    ADD_PROTOTYPE_METHOD(connection, lastInsertId, LastInsertId);
+    ADD_PROTOTYPE_METHOD(connection, multiMoreResults, MultiMoreResults);
+    ADD_PROTOTYPE_METHOD(connection, multiNextResult, MultiNextResult);
+    ADD_PROTOTYPE_METHOD(connection, multiRealQuery, MultiRealQuery);
+    ADD_PROTOTYPE_METHOD(connection, ping, Ping);
+    ADD_PROTOTYPE_METHOD(connection, query, Query);
+    ADD_PROTOTYPE_METHOD(connection, queryAsync, QueryAsync);
+    ADD_PROTOTYPE_METHOD(connection, realQuery, RealQuery);
+    ADD_PROTOTYPE_METHOD(connection, rollback, Rollback);
+    ADD_PROTOTYPE_METHOD(connection, selectDb, SelectDb);
+    ADD_PROTOTYPE_METHOD(connection, setCharset, SetCharset);
+    ADD_PROTOTYPE_METHOD(connection, setSsl, SetSsl);
+    ADD_PROTOTYPE_METHOD(connection, sqlState, SqlState);
+    ADD_PROTOTYPE_METHOD(connection, stat, Stat);
+    ADD_PROTOTYPE_METHOD(connection, storeResult, StoreResult);
+    ADD_PROTOTYPE_METHOD(connection, threadId, ThreadId);
+    ADD_PROTOTYPE_METHOD(connection, threadSafe, ThreadSafe);
+    ADD_PROTOTYPE_METHOD(connection, threadKill, ThreadKill);
+    ADD_PROTOTYPE_METHOD(connection, useResult, UseResult);
+    ADD_PROTOTYPE_METHOD(connection, warningCount, WarningCount);
 
     target->Set(String::NewSymbol("MysqlConn"),
                                   constructor_template->GetFunction());
@@ -808,9 +808,12 @@ Handle<Value> MysqlConn::Query(const Arguments& args) {
         return scope.Close(False());
     }
 
-    Local<Value> arg = External::New(my_result);
+    int argc = 2;
+    Local<Value> argv[2];
+    argv[0] = External::New(my_result);
+    argv[1] = Integer::New(mysql_field_count(conn->_conn));
     Persistent<Object> js_result(MysqlResult::constructor_template->
-                             GetFunction()->NewInstance(1, &arg));
+                             GetFunction()->NewInstance(argc, argv));
 
     return scope.Close(js_result);
 }
@@ -819,9 +822,8 @@ int MysqlConn::EIO_After_Query(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct query_request *query_req = (struct query_request *)(req->data);
 
-    Local<Value> argv[2];
     int argc = 0;
-
+    Local<Value> argv[2];
 
     if (req->result) {
         argv[0] = Exception::Error(String::New("Error on query execution"));
@@ -829,8 +831,9 @@ int MysqlConn::EIO_After_Query(eio_req *req) {
     } else {
         if (req->int1) {
             argv[0] = External::New(query_req->my_result);
+            argv[1] = Integer::New(query_req->field_count);
             Persistent<Object> js_result(MysqlResult::constructor_template->
-                                     GetFunction()->NewInstance(1, argv));
+                                     GetFunction()->NewInstance(2, argv));
 
             argv[0] = Local<Value>::New(js_result);
             argc = 1;
@@ -902,6 +905,7 @@ int MysqlConn::EIO_Query(eio_req *req) {
     }
 
     query_req->my_result = my_result;
+    query_req->field_count = mysql_field_count(conn->_conn);
     req->result = 0;
 
     return 0;
@@ -1120,9 +1124,12 @@ Handle<Value> MysqlConn::StoreResult(const Arguments& args) {
         return scope.Close(False());
     }
 
-    Local<Value> arg = External::New(my_result);
+    int argc = 2;
+    Local<Value> argv[2];
+    argv[0] = External::New(my_result);
+    argv[1] = Integer::New(mysql_field_count(conn->_conn));
     Persistent<Object> js_result(MysqlResult::constructor_template->
-                             GetFunction()->NewInstance(1, &arg));
+                             GetFunction()->NewInstance(argc, argv));
 
     return scope.Close(js_result);
 }
@@ -1189,9 +1196,12 @@ Handle<Value> MysqlConn::UseResult(const Arguments& args) {
         return scope.Close(False());
     }
 
-    Local<Value> arg = External::New(my_result);
+    int argc = 2;
+    Local<Value> argv[2];
+    argv[0] = External::New(my_result);
+    argv[1] = Integer::New(mysql_field_count(conn->_conn));
     Persistent<Object> js_result(MysqlResult::constructor_template->
-                             GetFunction()->NewInstance(1, &arg));
+                             GetFunction()->NewInstance(argc, argv));
 
     return scope.Close(js_result);
 }

@@ -184,3 +184,38 @@ exports.FetchObject = function (test) {
   test.done();
 };
 
+exports.FieldCount = function (test) {
+  test.expect(6);
+  
+  var conn = mysql_libmysqlclient.createConnection(host, user, password, database),
+    res,
+    row,
+    field_count;
+  test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
+  
+  res = conn.query("DROP TABLE IF EXISTS " + test_table + ";");
+  res = conn.query("CREATE TABLE " + test_table +
+    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
+    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
+    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
+  test.ok(res, "conn.query('DELETE FROM test_table')");
+  
+  res = conn.query("INSERT INTO " + test_table +
+                   " (random_number, random_boolean) VALUES ('123456', '0');") && res;
+  res = conn.query("INSERT INTO " + test_table +
+                    " (random_number, random_boolean) VALUES ('7', '1');") && res;
+  test.ok(res, "conn.query('INSERT INTO test_table ...')");
+  
+  res = conn.query("SELECT random_number, random_boolean from " + test_table +
+                   " WHERE random_boolean='0';", 1);
+  test.ok(res, "conn.query('SELECT ... 1')");
+  field_count = conn.fieldCount();
+  test.equals(field_count, 2, "conn.query('SELECT ...') && conn.fieldCount()");
+  field_count = res.fieldCount();
+  test.equals(field_count, 2, "conn.query('SELECT ...') && res.fieldCount()");
+
+  conn.close();
+  
+  test.done();
+};
+

@@ -19,11 +19,12 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlResult"));
 
-    ADD_PROTOTYPE_METHOD(fetchAll, FetchAll);
-    ADD_PROTOTYPE_METHOD(fetchArray, FetchArray);
-    ADD_PROTOTYPE_METHOD(fetchLengths, FetchLengths);
-    ADD_PROTOTYPE_METHOD(fetchObject, FetchObject);
-    ADD_PROTOTYPE_METHOD(numRows, NumRows);
+    ADD_PROTOTYPE_METHOD(result, fetchAll, FetchAll);
+    ADD_PROTOTYPE_METHOD(result, fetchArray, FetchArray);
+    ADD_PROTOTYPE_METHOD(result, fetchLengths, FetchLengths);
+    ADD_PROTOTYPE_METHOD(result, fetchObject, FetchObject);
+    ADD_PROTOTYPE_METHOD(result, fieldCount, FieldCount);
+    ADD_PROTOTYPE_METHOD(result, numRows, NumRows);
 }
 
 MysqlConn::MysqlResult::MysqlResult(): EventEmitter() {}
@@ -34,8 +35,9 @@ Handle<Value> MysqlConn::MysqlResult::New(const Arguments& args) {
     HandleScope scope;
 
     REQ_EXT_ARG(0, js_res);
+    uint32_t field_count = args[1]->IntegerValue();
     MYSQL_RES *res = static_cast<MYSQL_RES*>(js_res->Value());
-    MysqlResult *my_res = new MysqlResult(res);
+    MysqlResult *my_res = new MysqlResult(res, field_count);
     my_res->Wrap(args.This());
 
     return args.This();
@@ -280,6 +282,23 @@ Handle<Value> MysqlConn::MysqlResult::FetchObject(const Arguments& args) {
     }
 
     return scope.Close(js_result_row);
+}
+
+Handle<Value> MysqlConn::MysqlResult::FieldCount(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+
+    // TODO(Sannis): Is it possible?
+    if (!res->_res) {
+        return scope.Close(False());
+    }
+
+    if (res->field_count > 0) {
+        return scope.Close(Integer::New(res->field_count));
+    } else {
+        return Undefined();
+    }
 }
 
 Handle<Value> MysqlConn::MysqlResult::NumRows(const Arguments& args) {
