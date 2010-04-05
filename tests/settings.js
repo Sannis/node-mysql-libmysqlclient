@@ -15,5 +15,6 @@ exports.charset = "utf8";
 
 // Operations count for continuous tests
 exports.reconnect_count = 10000;
-exports.insert_rows_count = 100000;
+exports.insert_rows_count = 10000;
+exports.insert_rows_count_speedtest = 100000;
 

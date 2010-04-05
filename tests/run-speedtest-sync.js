@@ -6,7 +6,7 @@ See license text in LICENSE file
 */
 
 // Mixin settings
-/*global host, user, password, database, test_table, insert_rows_count */
+/*global host, user, password, database, test_table, insert_rows_count_speedtest */
 process.mixin(require("./settings"));
 
 // Require modules
@@ -26,13 +26,13 @@ function writeTest() {
   
   start_time = new Date();
   
-  for (i = 0; i < insert_rows_count; i += 1) {
+  for (i = 0; i < insert_rows_count_speedtest; i += 1) {
     res = conn.query("INSERT INTO " + test_table + " VALUES (1, 'hello', 3.141);");
   }
   
   total_time = ((new Date()) - start_time) / 1000;
   
-  sys.puts("**** " + insert_rows_count + " insertions in " + total_time + "s (" + (insert_rows_count / total_time) + "/s)");
+  sys.puts("**** " + insert_rows_count_speedtest + " insertions in " + total_time + "s (" + (insert_rows_count_speedtest / total_time) + "/s)");
 }
 
 function readTest() {
@@ -43,13 +43,13 @@ function readTest() {
   start_time = new Date();
   
   res = conn.query("SELECT * FROM " + test_table + ";", true);
-  rows = res.fetchResult();
-  assert.equal(rows.length, insert_rows_count);
+  rows = res.fetchAll();
+  assert.equal(rows.length, insert_rows_count_speedtest);
   assert.deepEqual(rows[0], {alpha: 1, beta: 'hello', pi: 3.141});
   
   total_time = ((new Date()) - start_time) / 1000;
   
-  sys.puts("**** " + insert_rows_count + " rows in " + total_time + "s (" + (insert_rows_count / total_time) + "/s)");
+  sys.puts("**** " + insert_rows_count_speedtest + " rows in " + total_time + "s (" + (insert_rows_count_speedtest / total_time) + "/s)");
 }
  
 

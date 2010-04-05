@@ -14,7 +14,7 @@ var
   mysql_libmysqlclient = require("../mysql-libmysqlclient");
 
 /*
-Compled test for methods:
+Complex test for methods:
 res.fieldSeek();
 res.fetchField();
 res.fetchFieldDirect();

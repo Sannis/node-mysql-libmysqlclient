@@ -6,7 +6,7 @@ See license text in LICENSE file
 */
 
 // Mixin settings
-/*global host, user, password, database, test_table, insert_rows_count */
+/*global host, user, password, database, test_table, insert_rows_count_speedtest */
 process.mixin(require("./settings"));
 
 // Require modules
@@ -39,7 +39,7 @@ function writeTest(db, i, callback) {
     if (!i) {
       // end of results
       var dt = ((new Date()) - t0) / 1000;
-      puts("**** " + insert_rows_count + " insertions in " + dt + "s (" + (insert_rows_count / dt) + "/s)");
+      puts("**** " + insert_rows_count_speedtest + " insertions in " + dt + "s (" + (insert_rows_count_speedtest / dt) + "/s)");
 
       if (callback) {
         callback(db);
@@ -71,6 +71,6 @@ puts("'SET max_heap_table_size=128M' result: " + inspect(res));
 conn.queryAsync("CREATE TABLE " + test_table + " (alpha INTEGER) TYPE=MEMORY;", function () {
   puts("In 'CREATE TABLE' callback: " + inspect(arguments));
   t0 = new Date();
-  writeTest(conn, insert_rows_count, readTest);
+  writeTest(conn, insert_rows_count_speedtest, readTest);
 });
 
