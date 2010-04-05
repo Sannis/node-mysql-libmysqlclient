@@ -17,6 +17,8 @@ See license text in LICENSE file
 ((r)->handle && (r)->handle->status == MYSQL_STATUS_USE_RESULT)
 
 static Persistent<String> fetchAll_symbol;
+static Persistent<String> fetchArray_symbol;
+static Persistent<String> fetchObject_symbol;
 static Persistent<String> numRows_symbol;
 
 class MysqlConn::MysqlResult : public node::EventEmitter {
@@ -38,6 +40,10 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     static Handle<Value> New(const Arguments& args);
 
     static Handle<Value> FetchAll(const Arguments& args);
+
+    static Handle<Value> FetchArray(const Arguments& args);
+
+    static Handle<Value> FetchObject(const Arguments& args);
 
     static Handle<Value> NumRows(const Arguments& args);
 };

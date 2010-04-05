@@ -57,6 +57,7 @@ exports.AffectedRows = function (test) {
   test.equals(res, true, "Update " + insert_rows_count + " rows in table " + test_table);
   
   affected_rows = conn.affectedRows();
+  sys.puts(sys.inspect(affected_rows));
   test.equals(affected_rows, insert_rows_count, "conn.affectedRows()");
   
   conn.close();

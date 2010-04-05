@@ -40,7 +40,7 @@ exports.query_FetchAll = function (test) {
                    " WHERE random_boolean='0';");
   test.ok(res, "conn.query('SELECT ...')");
   rows = res.fetchAll();
-  test.same(rows, [{random_number: 3}], "conn.query('SELECT ...').fetchAll()")
+  test.same(rows, [{random_number: 3}], "conn.query('SELECT ...').fetchAll()");
   
   conn.close();
   

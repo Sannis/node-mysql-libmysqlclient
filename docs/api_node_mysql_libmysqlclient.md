@@ -120,6 +120,8 @@ MysqlResult class
     class MysqlResult {
         /* Methods */
         Array fetchAll();
+        Array fetchArray();
+        Object fetchObject();
         Integer numRows();
     }
 
