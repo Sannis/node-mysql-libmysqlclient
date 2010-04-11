@@ -5,19 +5,11 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 See license text in LICENSE file
 */
 
-// Database connection parameters
-var host = "localhost",
-  user = "test",
-  password = "",
-  database = "test",
-  database_denied = "mysql",
-  test_table = "test_table",
+// Load configuration
+var cfg = require("./config").cfg;
 
-  // Operations count for continuous tests
-  reconnect_count = 10000,
-  insert_rows_count = 10000,
-
-  // Require modules
+// Require modules
+var
   sys = require("sys"),
   events = require('events'),
   mysql_libmysqlclient = require("../mysql-libmysqlclient"),
@@ -39,9 +31,9 @@ function debug(title, obj) {
   }
 }
 
-sys.print("Show debug information for NodeJS libmysqlclientronous MySQL binding...\n");
+sys.print("Show debug information for NodeJS MySQL/libmysqlclient bindings...\n");
 
-conn = mysql_libmysqlclient.createConnection(host, user, password, database);
+conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database);
 
 res = conn.query("SHOW TABLES;");
 

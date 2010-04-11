@@ -4,9 +4,8 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 See license text in LICENSE file
 */
 
-// Mixin settings
-/*global host, user, password, database, test_table, insert_rows_count */
-process.mixin(require("./settings"));
+// Load configuration
+var cfg = require("./config").cfg;
 
 // Require modules
 var
@@ -14,7 +13,7 @@ var
   mysql_libmysqlclient = require("../mysql-libmysqlclient");
 
 exports.async = function (test) {
-  var conn = mysql_libmysqlclient.createConnection(host, user, password, database);
+  var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database);
   
   conn.async(function () {
     conn.close();
@@ -23,7 +22,7 @@ exports.async = function (test) {
 };
 
 exports.queryAsync = function (test) {
-  var conn = mysql_libmysqlclient.createConnection(host, user, password, database);
+  var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database);
   
   conn.queryAsync("SHOW TABLES;", function (result) {
     conn.close();

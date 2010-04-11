@@ -4,9 +4,8 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 See license text in LICENSE file
 */
 
-// Mixin settings
-/*global host, user, password, database, database_denied */
-process.mixin(require("./settings"));
+// Load configuration
+var cfg = require("./config").cfg;
 
 // Require modules
 var
@@ -26,7 +25,7 @@ exports.mysql_libmysqlclient_createConnection_0 = function (test) {
 exports.mysql_libmysqlclient_createConnection_1 = function (test) {
   test.expect(2);
   
-  var conn = mysql_libmysqlclient.createConnection(host);
+  var conn = mysql_libmysqlclient.createConnection(cfg.host);
   test.ok(conn, "mysql_libmysqlclient.createConnection(host)");
   test.ok(conn.connected(), "mysql_libmysqlclient.createConnection(host).connected()");
   conn.close();
@@ -37,7 +36,7 @@ exports.mysql_libmysqlclient_createConnection_1 = function (test) {
 exports.mysql_libmysqlclient_createConnection_2 = function (test) {
   test.expect(2);
   
-  var conn = mysql_libmysqlclient.createConnection(host, user);
+  var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user);
   test.ok(conn, "mysql_libmysqlclient.createConnection(host, user)");
   test.ok(conn.connected(), "mysql_libmysqlclient.createConnection(host, user).connected()");
   conn.close();
@@ -48,7 +47,7 @@ exports.mysql_libmysqlclient_createConnection_2 = function (test) {
 exports.mysql_libmysqlclient_createConnection_3 = function (test) {
   test.expect(2);
   
-  var conn = mysql_libmysqlclient.createConnection(host, user, password);
+  var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password);
   test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password)");
   test.ok(conn.connected(), "mysql_libmysqlclient.createConnection(host, user, password).connected()");
   conn.close();
@@ -59,7 +58,7 @@ exports.mysql_libmysqlclient_createConnection_3 = function (test) {
 exports.mysql_libmysqlclient_createConnection_4_allowed = function (test) {
   test.expect(2);
   
-  var conn = mysql_libmysqlclient.createConnection(host, user, password, database);
+  var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database);
   test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   test.ok(conn.connected(), "mysql_libmysqlclient.createConnection(host, user, password, database).connected()");
   conn.close();
@@ -70,7 +69,7 @@ exports.mysql_libmysqlclient_createConnection_4_allowed = function (test) {
 exports.mysql_libmysqlclient_createConnection_4_denied = function (test) {
   test.expect(1);
   
-  var conn = mysql_libmysqlclient.createConnection(host, user, password, database_denied);
+  var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database_denied);
   test.ok(!conn.connected(), "!mysql_libmysqlclient.createConnection(host, user, password, database_denied).connected()");
   
   test.done();

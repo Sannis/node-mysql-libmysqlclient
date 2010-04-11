@@ -4,9 +4,8 @@ Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
 See license text in LICENSE file
 */
 
-// Mixin settings
-/*global host, user, password, database, database_denied, charset, reconnect_count */
-process.mixin(require("./settings"));
+// Load configuration
+var cfg = require("./config").cfg;
 
 // Require modules
 var
