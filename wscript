@@ -14,10 +14,10 @@ def configure(conf):
   conf.check_tool("node_addon")
   # http://gist.github.com/349794
   if not conf.check_cfg(package="mysqlclient", args="--cflags --libs", uselib_store="MYSQLCLIENT"):
-    if not conf.check_cxx(lib="mysqlclient", uselib_store="MYSQLCLIENT"):
-      conf.fatal("Missing libmysqlclient");
+    if not conf.check_cxx(lib="mysqlclient", linkflags="-L/usr/lib/mysql", uselib_store="MYSQLCLIENT"):
+      conf.fatal("Missing libmysqlclient library");
   if not conf.check_cxx(header_name='mysql/mysql.h'):
-    conf.fatal("Missing libmysqlclient-devel");
+    conf.fatal("Missing mysql.h header from libmysqlclient-devel or mysql-devel package");
 
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
