@@ -114,7 +114,9 @@ void MysqlConn::MysqlResult::SetFieldValue(
         case MYSQL_TYPE_ENUM:  // ENUM field
         case MYSQL_TYPE_GEOMETRY:  // Spatial fielda
         default:
-            js_field = String::New(field_value);
+            if (field_value) {
+                js_field = String::New(field_value);
+            }
     }
 }
 
