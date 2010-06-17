@@ -101,7 +101,7 @@ exports.ConnectError = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password)");
   conn.close();
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied);
-  test.equals(conn.connectError(), "Access denied for user ''@'" + cfg.host +
+  test.equals(conn.connectError(), "Access denied for user '" + cfg.user + "'@'" + cfg.host +
               "' to database '" + cfg.database_denied + "'", "conn.connectError()");
   
   test.done();

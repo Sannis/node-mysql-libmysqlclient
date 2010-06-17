@@ -28,6 +28,9 @@ exports.mysql_libmysqlclient_createConnection_1 = function (test) {
   var conn = mysql_libmysqlclient.createConnection(cfg.host);
   test.ok(conn, "mysql_libmysqlclient.createConnection(host)");
   test.ok(conn.connected(), "mysql_libmysqlclient.createConnection(host).connected()");
+  if(!conn.connected()) {
+  	sys.puts("Error:" + conn.connectError());
+  }
   conn.close();
   
   test.done();
@@ -39,6 +42,9 @@ exports.mysql_libmysqlclient_createConnection_2 = function (test) {
   var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user);
   test.ok(conn, "mysql_libmysqlclient.createConnection(host, user)");
   test.ok(conn.connected(), "mysql_libmysqlclient.createConnection(host, user).connected()");
+  if(!conn.connected()) {
+  	sys.puts("Error:" + conn.connectError());
+  }
   conn.close();
   
   test.done();
@@ -50,6 +56,9 @@ exports.mysql_libmysqlclient_createConnection_3 = function (test) {
   var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password);
   test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password)");
   test.ok(conn.connected(), "mysql_libmysqlclient.createConnection(host, user, password).connected()");
+  if(!conn.connected()) {
+  	sys.puts("Error:" + conn.connectError());
+  }
   conn.close();
   
   test.done();
@@ -61,6 +70,9 @@ exports.mysql_libmysqlclient_createConnection_4_allowed = function (test) {
   var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database);
   test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   test.ok(conn.connected(), "mysql_libmysqlclient.createConnection(host, user, password, database).connected()");
+  if(!conn.connected()) {
+  	sys.puts("Error:" + conn.connectError());
+  }
   conn.close();
   
   test.done();
