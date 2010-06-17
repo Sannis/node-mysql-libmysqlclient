@@ -9,7 +9,7 @@ The two files required to use these bindings are ./mysql-libmysqlclient.js and
 ./mysql_bindings.node(build/default/mysql_bindings.node).
 Put this directory in your NODE_PATH or copy those two files where you need them.
 
-Tested with Node version v0.1.97
+Tested with Node version v0.1.98
 
 == A small message for NodeJS community
 
