@@ -1,4 +1,4 @@
-MySQL bindings for Node.js using libmysqlclient
+MySQL bindings for Node.JS using libmysqlclient
 ===============================================
 
 Documentation lives at http://wiki.github.com/Sannis/node-mysql-libmysqlclient/
@@ -9,7 +9,7 @@ The two files required to use these bindings are ./mysql-libmysqlclient.js and
 ./mysql_bindings.node(build/default/mysql_bindings.node).
 Put this directory in your NODE_PATH or copy those two files where you need them.
 
-Tested with Node version v0.1.98
+Tested with Node version v0.1.100
 
 == A small message for NodeJS community
 
@@ -24,7 +24,7 @@ leave your comments to the code.
 Unfortunately not all methods are covered by unit and functional tests,
 so I'll be glad to see your forks and commits in them :)
 
-== Node.js
+== Node.JS
 
 Node is the evented I/O for V8 javascript.
 Node's goal is to provide an easy way to build scalable network programs,
@@ -42,7 +42,7 @@ http://wiki.github.com/Sannis/node-mysql-libmysqlclient/contributing
  
 MIT License. See license text in file LICENSE.
  
-Copyright (C) 2010 Oleg Efimov
+Copyright (C) 2010 Oleg "Sannis" Efimov
 E-mail: <efimovov@gmail.com>
 Site: http://sannis.ru
 
