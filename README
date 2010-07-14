@@ -5,11 +5,17 @@ Documentation lives at http://wiki.github.com/Sannis/node-mysql-libmysqlclient/
 and http://github.com/Sannis/node-mysql-libmysqlclient/tree/master/docs/.
 The code lives at http://github.com/Sannis/node-mysql-libmysqlclient/.
 
+Tested with Node version v0.1.100
+
+== Build and use
+
+To build the bindings library you should run this command in console:
+
+$> node-waf configure build
+
 The two files required to use these bindings are ./mysql-libmysqlclient.js and
 ./mysql_bindings.node(build/default/mysql_bindings.node).
 Put this directory in your NODE_PATH or copy those two files where you need them.
-
-Tested with Node version v0.1.100
 
 == A small message for NodeJS community
 
