@@ -18,3 +18,8 @@ MysqlResult class
 
 Maybe: fetchRow<->fetchArray, fetchAssoc->fetchObject
 
+Statements
+----------
+
+    MysqlStatement prepare (string $query);
+
