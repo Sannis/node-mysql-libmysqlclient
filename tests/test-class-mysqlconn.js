@@ -97,12 +97,21 @@ exports.ConnectErrno = function (test) {
 exports.ConnectError = function (test) {
   test.expect(2);
   
-  var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password);
+  var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password), error_str;
   test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password)");
   conn.close();
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied);
-  test.equals(conn.connectError(), "Access denied for user '" + cfg.user + "'@'" + cfg.host +
-              "' to database '" + cfg.database_denied + "'", "conn.connectError()");
+  
+  error_str = conn.connectError();
+  
+  if( (error_str ==  "Access denied for user '" + cfg.user + "'@'" + cfg.host +
+              "' to database '" + cfg.database_denied + "'", "conn.connectError()") ||
+      (error_str ==  "Access denied for user ''@'" + cfg.host +
+              "' to database '" + cfg.database_denied + "'", "conn.connectError()") ) {
+    test.ok(true, "conn.connectError()");  
+  } else {
+    test.ok(false, "conn.connectError()");  
+  }
   
   test.done();
 };
