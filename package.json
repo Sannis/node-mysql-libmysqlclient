@@ -1,5 +1,5 @@
-{  "name" : "node-mysql-libmysqlclient"
-,  "description" : "MySQL binding for Node.js"
+{  "name" : "mysql-libmysqlclient"
+,  "description" : "MySQL binding for Node.JS"
 ,  "version" : "0.0.6"
 , "contributors" :
   [ "Oleg Efimov <efimovov@gmail.com>"
@@ -10,4 +10,5 @@
   , "url" : "http://github.com/Sannis/node-mysql-libmysqlclient"
   }
 , "main" : "mysql-libmysqlclient"
+, "scripts": { "install": "node-waf configure build" }
 }
