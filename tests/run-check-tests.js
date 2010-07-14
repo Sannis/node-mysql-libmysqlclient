@@ -33,7 +33,7 @@ function getBindingsClasses() {
 
   for (i = 0; i < source_files.length; i += 1) {
     if (source_files[i].match(/\.h$/)) {
-      file_content = fs.readFileSync(source_dir + "/" + source_files[i]);
+      file_content = fs.readFileSync(source_dir + "/" + source_files[i]).toString();
       
       class_name = file_content.match(regex_class_name)[1];
       
