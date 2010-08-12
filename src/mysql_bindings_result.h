@@ -8,7 +8,7 @@ See license text in LICENSE file
 #ifndef NODE_MYSQL_RESULT_H  // NOLINT
 #define NODE_MYSQL_RESULT_H
 
-#include <mysql/mysql.h>
+#include <mysql.h>
 
 #include <v8.h>
 #include <node.h>

@@ -82,28 +82,38 @@ void MysqlConn::MysqlResult::SetFieldValue(
         case MYSQL_TYPE_INT24:  // MEDIUMINT field
         case MYSQL_TYPE_LONGLONG:  // BIGINT field
         case MYSQL_TYPE_YEAR:  // YEAR field
-            js_field = String::New(field_value)->ToInteger();
+            if (field_value) {
+              js_field = String::New(field_value)->ToInteger();
+            }
             break;
         case MYSQL_TYPE_DECIMAL:  // DECIMAL or NUMERIC field
         case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
         case MYSQL_TYPE_FLOAT:  // FLOAT field
         case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
             // TODO(Sannis): Read about MySQL datatypes and javascript data
-            js_field = String::New(field_value)->ToNumber();
+            if (field_value) {
+              js_field = String::New(field_value)->ToNumber();
+            }
             break;
         case MYSQL_TYPE_TIME:  // TIME field
             // TODO(Sannis): Read about MySQL datatypes and javascript data
-            js_field = String::New(field_value);
+            if (field_value) {
+              js_field = String::New(field_value);
+            }
             break;
         case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
         case MYSQL_TYPE_DATETIME:  // DATETIME field
             // TODO(Sannis): Read about MySQL datatypes and javascript data
-            js_field = String::New(field_value);
+            if (field_value) {
+              js_field = String::New(field_value);
+            }
             break;
         case MYSQL_TYPE_DATE:  // DATE field
         case MYSQL_TYPE_NEWDATE:  // Newer const used > 5.0
             // TODO(Sannis): Read about MySQL datatypes and javascript data
-            js_field = String::New(field_value);
+            if (field_value) {
+              js_field = String::New(field_value);
+            }
             break;
         case MYSQL_TYPE_TINY_BLOB:
         case MYSQL_TYPE_MEDIUM_BLOB:
@@ -208,16 +218,14 @@ Handle<Value> MysqlConn::MysqlResult::FetchArray(const Arguments& args) {
     if (!res->_res) {
         return scope.Close(False());
     }
-
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
     uint32_t num_fields = mysql_num_fields(res->_res);
-    MYSQL_ROW result_row;
     uint32_t j = 0;
 
     Local<Array> js_result_row;
     Local<Value> js_field;
 
-    result_row = mysql_fetch_row(res->_res);
+    MYSQL_ROW result_row = mysql_fetch_row(res->_res);
 
     if (!result_row) {
         return scope.Close(False());
