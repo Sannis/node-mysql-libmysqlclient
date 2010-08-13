@@ -91,7 +91,7 @@ exports.DataSeek = function (test) {
   test.ok(res, "conn.query('INSERT INTO cfg.test_table ...')");
   
   res = conn.query("SELECT random_number, random_boolean from " + cfg.test_table +
-                   " WHERE random_boolean='1' ORDER BY random_number ASC;", 1);
+                   " WHERE random_boolean='1' ORDER BY random_number ASC;");
   test.ok(res, "conn.query('SELECT ...')");
   res.dataSeek(1);
   row = res.fetchArray();
@@ -190,14 +190,14 @@ exports.FetchLengths = function (test) {
   test.ok(res, "conn.query('INSERT INTO cfg.test_table ...')");
   
   res = conn.query("SELECT random_number, random_boolean from " + cfg.test_table +
-                   " WHERE random_boolean='0';", 1);
+                   " WHERE random_boolean='0';");
   test.ok(res, "conn.query('SELECT ... 1')");
   row = res.fetchArray();
   lengths = res.fetchLengths();
   test.same(lengths, [6, 1], "conn.query('SELECT ... 1').fetchArray()");
 
   res = conn.query("SELECT random_number, random_boolean from " + cfg.test_table +
-                   " WHERE random_boolean='1';", 1);
+                   " WHERE random_boolean='1';");
   test.ok(res, "conn.query('SELECT ... 2')");
   row = res.fetchArray();
   lengths = res.fetchLengths();
@@ -309,19 +309,19 @@ exports.NumRows = function (test) {
   test.ok(res, "conn.query('INSERT INTO cfg.test_table ...')");
   
   res = conn.query("SELECT random_number from " + cfg.test_table +
-                   " WHERE random_boolean='0';", 1);
+                   " WHERE random_boolean='0';");
   test.ok(res, "conn.query('SELECT ... 1')");
   rows = res.numRows();
   test.equals(rows, 1, "conn.query('SELECT ... 1').numRows()");
   
   res = conn.query("SELECT random_number from " + cfg.test_table +
-                   " WHERE random_boolean='1';", 1);
+                   " WHERE random_boolean='1';");
   test.ok(res, "conn.query('SELECT ... 2')");
   rows = res.numRows();
   test.equals(rows, 2, "conn.query('SELECT ... 2').numRows()");
   
   res = conn.query("SELECT random_number from " + cfg.test_table +
-                   " WHERE random_number>'0';", 1);
+                   " WHERE random_number>'0';");
   test.ok(res, "conn.query('SELECT ... 3')");
   rows = res.numRows();
   test.equals(rows, 3, "conn.query('SELECT ... 3').numRows()");
