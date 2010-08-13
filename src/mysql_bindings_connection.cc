@@ -771,7 +771,7 @@ Handle<Value> MysqlConn::Query(const Arguments& args) {
 
     int result_mode = MYSQLSYNC_STORE_RESULT;
 
-    if (args.Length() == 1) {
+    if (args.Length() == 2) {
         result_mode = MYSQLSYNC_USE_RESULT;
     }
 
@@ -784,7 +784,6 @@ Handle<Value> MysqlConn::Query(const Arguments& args) {
     MYSQLSYNC_DISABLE_MQ;
 
     int r = mysql_real_query(conn->_conn, *query, query.length());
-
     if (r != 0) {
         return scope.Close(False());
     }
