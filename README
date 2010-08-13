@@ -5,7 +5,7 @@ Documentation lives at http://wiki.github.com/Sannis/node-mysql-libmysqlclient/
 and http://github.com/Sannis/node-mysql-libmysqlclient/tree/master/docs/.
 The code lives at http://github.com/Sannis/node-mysql-libmysqlclient/.
 
-Tested with Node version v0.1.100
+Tested with Node version v0.1.103
 
 == Build and use
 
