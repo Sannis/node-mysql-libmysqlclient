@@ -783,7 +783,7 @@ Handle<Value> MysqlConn::Query(const Arguments& args) {
 
     MYSQLSYNC_DISABLE_MQ;
 
-    int r = mysql_real_query(conn->_conn, *query, query.length());
+    int r = mysql_query(conn->_conn, *query);
     if (r != 0) {
         return scope.Close(False());
     }
