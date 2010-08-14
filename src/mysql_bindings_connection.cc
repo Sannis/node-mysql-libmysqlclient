@@ -102,7 +102,9 @@ bool MysqlConn::Connect(const char* hostname,
     connect_error = mysql_error(_conn);
 
     if (unsuccessful) {
+        mysql_close(_conn);
         connected = false;
+        _conn = NULL;
         return false;
     }
 

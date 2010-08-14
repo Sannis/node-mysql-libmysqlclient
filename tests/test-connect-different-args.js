@@ -64,3 +64,13 @@ exports.Connect_DeniedDb = function (test) {
   test.done();
 };
 
+exports.Connect_DeniedFollowedByAllowedDb = function (test) {
+  test.expect(2);
+  
+  var conn = mysql_libmysqlclient.createConnection();
+  test.ok(!conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied), "conn.connect() for denied database");
+
+  test.ok(conn.connect(cfg.host, cfg.user, cfg.password, cfg.database), "conn.connect() for allowed database");
+  test.done();
+};
+

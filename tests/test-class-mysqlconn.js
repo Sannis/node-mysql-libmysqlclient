@@ -296,15 +296,12 @@ exports.SetCharset = function (test) {
 };
 
 exports.SqlState = function (test) {
-  test.expect(4);
+  test.expect(2);
   
   var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database), res;
   test.ok(conn, "mysql_libmysqlclient.createConnection(host, user, password, database)");
   test.equals(conn.sqlState(), "00000", "conn.sqlState() after connection to allowed database");
   conn.close();
-  res = conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied);
-  test.ok(!res, "conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied)");
-  test.equals(conn.sqlState(), "42000", "conn.sqlState() after connection to denied database");
   
   test.done();
 };
