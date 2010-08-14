@@ -104,10 +104,7 @@ exports.ConnectError = function (test) {
   
   error_str = conn.connectError();
   
-  if ((error_str ===  "Access denied for user '" + cfg.user + "'@'" + cfg.host +
-              "' to database '" + cfg.database_denied + "'") ||
-      (error_str ===  "Access denied for user ''@'" + cfg.host +
-              "' to database '" + cfg.database_denied + "'")) {
+  if (error_str.match(new RegExp("Access denied for user '" + cfg.user + "'\@'.*' to database \'" + cfg.database_denied + "\'"))) {
     test.ok(true, "conn.connectError()");  
   } else {
     test.ok(false, "conn.connectError()");  
