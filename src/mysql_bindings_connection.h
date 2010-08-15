@@ -222,7 +222,7 @@ class MysqlConn : public node::EventEmitter {
         MysqlConn *conn;
         int result_mode;
         int query_length;
-        char query[1];
+        char *query;
         MYSQL_RES *my_result;
         uint32_t field_count;
     };

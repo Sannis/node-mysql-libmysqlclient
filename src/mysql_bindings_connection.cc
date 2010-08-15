@@ -855,6 +855,7 @@ int MysqlConn::EIO_After_Query(eio_req *req) {
 
     query_req->callback.Dispose();
     query_req->conn->Unref();
+    free(query_req->query);
     free(query_req);
 
     return 0;
@@ -883,7 +884,8 @@ int MysqlConn::EIO_Query(eio_req *req) {
     }
 
     req->int1 = 1;
-    if (!mysql_field_count(conn->_conn)) {
+    query_req->field_count = mysql_field_count(conn->_conn);
+    if (!query_req->field_count) {
         /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN */
         req->int1 = 0;
         req->result = 0;
@@ -907,7 +909,6 @@ int MysqlConn::EIO_Query(eio_req *req) {
     }
 
     query_req->my_result = my_result;
-    query_req->field_count = mysql_field_count(conn->_conn);
     req->result = 0;
 
     return 0;
@@ -926,11 +927,11 @@ Handle<Value> MysqlConn::QueryAsync(const Arguments& args) {
     }
 
     struct query_request *query_req = (struct query_request *)
-        calloc(1, sizeof(struct query_request) + query.length());
+        calloc(1, sizeof(struct query_request));
 
     if (!query_req) {
-      V8::LowMemoryNotification();
-      return THREXC("Could not allocate enough memory");
+        V8::LowMemoryNotification();
+        return THREXC("Could not allocate enough memory");
     }
 
     query_req->result_mode = MYSQLSYNC_STORE_RESULT;
@@ -940,10 +941,11 @@ Handle<Value> MysqlConn::QueryAsync(const Arguments& args) {
     }
 
     query_req->query_length = query.length();
+    query_req->query = (char *)calloc(query_req->query_length + 1, sizeof(char));
 
-    if (snprintf(query_req->query, query_req->query_length, "%s", *query) !=
+    if (snprintf(query_req->query, query_req->query_length + 1, "%s", *query) !=
                                                       query_req->query_length) {
-      return THREXC("Snprintf() error");
+        return THREXC("Snprintf() error");
     }
 
     query_req->callback = Persistent<Function>::New(callback);
