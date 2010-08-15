@@ -13,8 +13,8 @@ def configure(conf):
   conf.check_tool("compiler_cxx")
   conf.check_tool("node_addon")
   # http://gist.github.com/349794
-  if not conf.check_cfg(package="mysqlclient", args="--cflags --libs", uselib_store="MYSQLCLIENT"):
-    if not conf.check_cxx(lib="mysqlclient", linkflags="-L/usr/lib/mysql", uselib_store="MYSQLCLIENT"):
+  if not conf.check_cfg(package="mysqlclient_r", args="--cflags --libs", uselib_store="MYSQLCLIENT"):
+    if not conf.check_cxx(lib="mysqlclient_r", linkflags="-L/usr/lib/mysql", uselib_store="MYSQLCLIENT"):
       conf.fatal("Missing libmysqlclient library")
   if conf.check_cxx(header_name='mysql/mysql.h'):
     conf.env.MYSQL_H_PATH_FLAG = "-I/usr/include/mysql"
