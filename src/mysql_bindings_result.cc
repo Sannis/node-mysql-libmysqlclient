@@ -37,7 +37,9 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
 
 MysqlConn::MysqlResult::MysqlResult(): EventEmitter() {}
 
-MysqlConn::MysqlResult::~MysqlResult() {}
+MysqlConn::MysqlResult::~MysqlResult() {
+    this->Free();
+}
 
 void MysqlConn::MysqlResult::AddFieldProperties(
                                         Local<Object> &js_field_obj,
@@ -450,6 +452,13 @@ Handle<Value> MysqlConn::MysqlResult::FieldTell(const Arguments& args) {
     return scope.Close(js_result);
 }
 
+void MysqlConn::MysqlResult::Free() {
+    if (_res) {
+        mysql_free_result(_res);
+        _res = NULL;
+    }
+}
+
 Handle<Value> MysqlConn::MysqlResult::Free(const Arguments& args) {
     HandleScope scope;
 
@@ -460,10 +469,9 @@ Handle<Value> MysqlConn::MysqlResult::Free(const Arguments& args) {
         return scope.Close(False());
     }
 
-    mysql_free_result(res->_res);
-    res->_res = NULL;
+    res->Free();
 
-    return Undefined();
+    return scope.Close(True());
 }
 
 Handle<Value> MysqlConn::MysqlResult::NumRows(const Arguments& args) {

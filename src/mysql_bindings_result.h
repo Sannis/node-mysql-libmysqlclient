@@ -46,6 +46,8 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
                                 MYSQL_FIELD field,
                                 char* field_value);
 
+    void Free();
+
   protected:
     MYSQL_RES *_res;
 
