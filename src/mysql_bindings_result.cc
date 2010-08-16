@@ -86,6 +86,8 @@ void MysqlConn::MysqlResult::SetFieldValue(
         case MYSQL_TYPE_YEAR:  // YEAR field
             if (field_value) {
               js_field = String::New(field_value)->ToInteger();
+            } else {
+               js_field = String::New("");
             }
             break;
         case MYSQL_TYPE_DECIMAL:  // DECIMAL or NUMERIC field
@@ -95,12 +97,16 @@ void MysqlConn::MysqlResult::SetFieldValue(
             // TODO(Sannis): Read about MySQL datatypes and javascript data
             if (field_value) {
               js_field = String::New(field_value)->ToNumber();
+            } else {
+               js_field = String::New("");
             }
             break;
         case MYSQL_TYPE_TIME:  // TIME field
             // TODO(Sannis): Read about MySQL datatypes and javascript data
             if (field_value) {
               js_field = String::New(field_value);
+            } else {
+               js_field = String::New("");
             }
             break;
         case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
@@ -108,6 +114,8 @@ void MysqlConn::MysqlResult::SetFieldValue(
             // TODO(Sannis): Read about MySQL datatypes and javascript data
             if (field_value) {
               js_field = String::New(field_value);
+            } else {
+               js_field = String::New("");
             }
             break;
         case MYSQL_TYPE_DATE:  // DATE field
@@ -115,6 +123,8 @@ void MysqlConn::MysqlResult::SetFieldValue(
             // TODO(Sannis): Read about MySQL datatypes and javascript data
             if (field_value) {
               js_field = String::New(field_value);
+            } else {
+               js_field = String::New("");
             }
             break;
         case MYSQL_TYPE_TINY_BLOB:
@@ -129,8 +139,7 @@ void MysqlConn::MysqlResult::SetFieldValue(
         default:
             if (field_value) {
                 js_field = String::New(field_value);
-            }
-            else {
+            } else {
                js_field = String::New("");
             }
     }
