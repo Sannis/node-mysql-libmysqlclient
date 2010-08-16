@@ -941,7 +941,9 @@ Handle<Value> MysqlConn::QueryAsync(const Arguments& args) {
     }
 
     query_req->query_length = query.length();
-    query_req->query = (char *)calloc(query_req->query_length + 1, sizeof(char));
+    query_req->query =
+        reinterpret_cast<char *>(calloc(query_req->query_length + 1,
+        sizeof(char)));
 
     if (snprintf(query_req->query, query_req->query_length + 1, "%s", *query) !=
                                                       query_req->query_length) {
