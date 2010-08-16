@@ -130,6 +130,9 @@ void MysqlConn::MysqlResult::SetFieldValue(
             if (field_value) {
                 js_field = String::New(field_value);
             }
+            else {
+               js_field = String::New("");
+            }
     }
 }
 
