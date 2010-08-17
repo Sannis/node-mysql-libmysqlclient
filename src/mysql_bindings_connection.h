@@ -18,6 +18,8 @@ See license text in LICENSE file
 #include <string.h>
 #include <unistd.h>
 
+#include <pthread.h>
+
 #define ADD_PROTOTYPE_METHOD(class, name, method) \
 class ## _ ## name ## _symbol = NODE_PSYMBOL(#name); \
 NODE_SET_PROTOTYPE_METHOD(constructor_template, #name, method);
@@ -142,6 +144,8 @@ class MysqlConn : public node::EventEmitter {
     MYSQL *_conn;
     bool connected;
 
+    pthread_mutex_t query_lock;
+
     bool multi_query;
 
     unsigned int connect_errno;
@@ -220,7 +224,6 @@ class MysqlConn : public node::EventEmitter {
     struct query_request {
         Persistent<Function> callback;
         MysqlConn *conn;
-        int result_mode;
         int query_length;
         char *query;
         MYSQL_RES *my_result;
