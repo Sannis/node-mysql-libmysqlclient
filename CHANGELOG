@@ -1,3 +1,14 @@
+= Version 0.0.7
+  * Make asynchronous querying work
+  * Simplify javascript logic of createConnection()
+  * Allow reconnecting after failed connect
+  * Do correct conversion of NULL fields in MysqlResult::AddFieldProperties()
+  * Add test for asynchronous queries
+  * Rewrite tests config
+  * Improve build wscript
+  * Implemented methods:
+  * * MysqlResult::QueryAsync() and libeio wrapper
+
 = Version 0.0.6
   * Update package.json and make small fixes in docs and README
   * Rename MysqlResult::FetchResult method to FetchAll
