@@ -32,7 +32,11 @@ def build(bld):
   obj.uselib = "MYSQLCLIENT"
 
 def test(tst):
-  Utils.exec_command('./tests/run-tests.sh')
+  if not exists('./tests/nodeunit/lib/testrunner.js'):
+    print("\033[31mNodeunit doesn't exists.\033[39m\nYou should run `git submodule update --init` before run tests.");
+    exit(1);
+  else:
+    Utils.exec_command('./tests/run-tests.sh')
 
 def lint(lnt):
   # Bindings C++ source code
