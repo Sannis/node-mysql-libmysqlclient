@@ -8,25 +8,36 @@ VERSION = "0.0.6"
 
 def set_options(opt):
   opt.tool_options("compiler_cxx")
+  opt.add_option('--mysql-config', action='store', default='mysql_config', help='Path to mysql_config, e.g. /usr/bin/mysql_config')
 
 def configure(conf):
   conf.check_tool("compiler_cxx")
   conf.check_tool("node_addon")
-  # http://gist.github.com/349794
-  if not conf.check_cfg(package="mysqlclient_r", args="--cflags --libs", uselib_store="MYSQLCLIENT"):
-    if not conf.check_cxx(lib="mysqlclient_r", linkflags="-L/usr/lib/mysql", uselib_store="MYSQLCLIENT"):
-      conf.fatal("Missing libmysqlclient library")
-  if conf.check_cxx(header_name='mysql/mysql.h'):
-    conf.env.MYSQL_H_PATH_FLAG = "-I/usr/include/mysql"
-  else:
-    if conf.check_cxx(header_name='mysql.h'):
-      conf.env.MYSQL_H_PATH_FLAG = "-I/usr/include"
-    else:
-      conf.fatal("Missing mysql.h header from libmysqlclient-devel or mysql-devel package")
+  
+  conf.env.append_unique('CXXFLAGS', ["-g", "-D_FILE_OFFSET_BITS=64","-D_LARGEFILE_SOURCE", "-Wall"])
+  
+  conf.env.append_unique('CXXFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --include').split())
+  conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs_r').split())
+  
+  if not conf.check_cxx(header_name='mysql.h'):
+    conf.fatal("Missing mysql.h header from libmysqlclient-devel or mysql-devel package")
+  
+  if not conf.check_cxx(lib="mysqlclient_r"):
+    conf.fatal("Missing libmysqlclient library")
+  
+  #if not conf.check_cfg(package="mysqlclient_r", args="--cflags --libs", uselib_store="MYSQLCLIENT"):
+  #  if not conf.check_cxx(lib="mysqlclient_r", linkflags="-L/usr/lib/mysql", uselib_store="MYSQLCLIENT"):
+  #    conf.fatal("Missing libmysqlclient library")
+  #if conf.check_cxx(header_name='mysql/mysql.h'):
+  #  conf.env.MYSQL_H_PATH_FLAG = "-I/usr/include/mysql"
+  #else:
+  #  if conf.check_cxx(header_name='mysql.h'):
+  #    conf.env.MYSQL_H_PATH_FLAG = "-I/usr/include"
+  #  else:
+  #    conf.fatal("Missing mysql.h header from libmysqlclient-devel or mysql-devel package")
 
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
-  obj.cxxflags = ["-g", "-D_FILE_OFFSET_BITS=64","-D_LARGEFILE_SOURCE", "-Wall", bld.env.MYSQL_H_PATH_FLAG]
   obj.target = "mysql_bindings"
   obj.source = "./src/mysql_bindings_connection.cc ./src/mysql_bindings_result.cc ./src/mysql_bindings_statement.cc"
   obj.uselib = "MYSQLCLIENT"
