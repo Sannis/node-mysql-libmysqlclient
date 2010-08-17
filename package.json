@@ -1,11 +1,12 @@
 {  "name" : "mysql-libmysqlclient"
-,  "description" : "MySQL binding for Node.JS"
+,  "description" : "MySQL bindings for Node.JS"
 ,  "version" : "0.0.6"
 , "contributors" :
   [ "Oleg Efimov <efimovov@gmail.com>"
+  , "Surendra Singhi <ssinghi@kreeti.com>"
   , "Robin Duckett <robin.duckett@gmail.com>"
   , "Dan Beam <dan@danbeam.org>"
-  , "Surendra Singhi <ssinghi@kreeti.com>"
+  , "Maurits Lamers <maurits@weidestraat.nl>"
   ]
 , "repository" :
   { "type" : "git"

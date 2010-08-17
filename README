@@ -52,18 +52,39 @@ MIT License. See license text in file LICENSE.
   E-mail: <efimovov@gmail.com>
   GitHub: http://github.com/Sannis
   Site: http://sannis.ru
-
-* Robin Duckett
-  E-mail: <robin.duckett@gmail.com>
-  GitHub: http://github.com/robinduckett
   
-* Dan Beam
-  E-mail: <dan@danbeam.org>
-  GitHub: http://github.com/danbeam
-  Site: http://danbeam.org
+  Synchronouse version development.
+  First libeio asynchronouse attempts.
+  Writing tests.
+
 
 * Surendra Singhi
   E-mail: <ssinghi@kreeti.com>
   GitHub: http://github.com/ssinghi, http://github.com/kreetitech
   Site: http://ssinghi.kreeti.com
+  
+  Make asynchronouse querying work.
+  Fix segmentation faults, partialy closes #14.
+  Some other fixes.
+
+* Robin Duckett
+  E-mail: <robin.duckett@gmail.com>
+  GitHub: http://github.com/robinduckett
+  
+  Fix segfault error, partialy closes #14.
+  
+* Dan Beam
+  E-mail: <dan@danbeam.org>
+  GitHub: http://github.com/danbeam
+  Site: http://danbeam.org
+  
+  Simplify javascript logic of createConnection(),
+  see 97040c3e7a5d4673ca6f340d8a9bc69da8e398d8.
+
+* Maurits Lamers
+  E-mail: <maurits@weidestraat.nl>
+  GitHub: http://github.com/mauritslamers
+  
+  Fixing a bug where previous values were set instead of empty,
+  see c4071181404362b60b9d3a3aed9784b25459fffa
 
