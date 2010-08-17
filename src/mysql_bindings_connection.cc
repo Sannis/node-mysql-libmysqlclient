@@ -883,20 +883,19 @@ int MysqlConn::EIO_Query(eio_req *req) {
                     query_req->query_length);
     if (r) {
         req->result = 1;
-    }
-    else {
+    } else {
         req->int1 = 1;
         req->result = 0;
+
         query_req->field_count = mysql_field_count(conn->_conn);
-        if (!query_req->field_count) { /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN */
+        /* If no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN */
+        if (!query_req->field_count) {
             req->int1 = 0;
-        }
-        else {
+        } else {
             MYSQL_RES *my_result = mysql_store_result(conn->_conn);
             if (my_result) {
                 query_req->my_result = my_result;
-            }
-            else {
+            } else {
                 req->result = 1;
             }
         }
@@ -928,7 +927,7 @@ Handle<Value> MysqlConn::QueryAsync(const Arguments& args) {
     query_req->query_length = query.length();
     query_req->query =
         reinterpret_cast<char *>(calloc(query_req->query_length + 1,
-        sizeof(char)));
+        sizeof(char))); //NOLINT
 
     if (snprintf(query_req->query, query_req->query_length + 1, "%s", *query) !=
                                                       query_req->query_length) {
