@@ -4,6 +4,8 @@
 , "contributors" :
   [ "Oleg Efimov <efimovov@gmail.com>"
   , "Robin Duckett <robin.duckett@gmail.com>"
+  , "Dan Beam <dan@danbeam.org>"
+  , "Surendra Singhi <ssinghi@kreeti.com>"
   ]
 , "repository" :
   { "type" : "git"
