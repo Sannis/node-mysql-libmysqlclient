@@ -14,7 +14,7 @@ var
 
 exports.async = function (test) {
   var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database);
-  
+
   conn.async(function () {
     conn.close();
     test.done();
@@ -31,12 +31,24 @@ exports.queryAsync = function (test) {
     " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
 
   test.expect(2);
-  conn.queryAsync("SHOW TABLES", function (result) {
-    test.ok(result.fieldCount() === 1, "show results field count === 1");      
-    var res = result.fetchAll(); 
+  conn.queryAsync("SHOW TABLES", function (err, result) {
+    test.ok(result.fieldCount() === 1, "show results field count === 1");
+    var res = result.fetchAll();
     test.ok(res.some(function (r) {
       return r['Tables_in_' + cfg.database] === cfg.test_table;
-    }), "find the test table in results");      
+    }), "find the test table in results");
+    conn.close();
+    test.done();
+  });
+};
+
+exports.queryAsyncWithError = function (test) {
+  var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database), res;
+
+  test.expect(2);
+  conn.queryAsync("SHOW TABLESaagh", function (err, result) {
+    test.ok(!result, "result is not defined");
+    test.ok(err, "error object is present");
     conn.close();
     test.done();
   });

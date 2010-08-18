@@ -826,13 +826,12 @@ int MysqlConn::EIO_After_Query(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct query_request *query_req = (struct query_request *)(req->data);
 
-    int argc = 0;
+    int argc = 1; /* node.js convention, there is always one argument */
     Local<Value> argv[2];
     HandleScope scope;
 
     if (req->result) {
         argv[0] = Exception::Error(String::New("Error on query execution"));
-        argc = 1;
     } else {
         if (req->int1) {
             argv[0] = External::New(query_req->my_result);
@@ -840,12 +839,10 @@ int MysqlConn::EIO_After_Query(eio_req *req) {
             Persistent<Object> js_result(MysqlResult::constructor_template->
                                      GetFunction()->NewInstance(2, argv));
 
-            argv[0] = Local<Value>::New(scope.Close(js_result));
-            argc = 1;
-        } else {
-            /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN */
-            argc = 0;
+            argv[1] = Local<Value>::New(scope.Close(js_result));
+            argc = 2;
         }
+        argv[0] = Local<Value>::New(Null());
     }
 
     TryCatch try_catch;
