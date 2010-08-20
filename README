@@ -5,7 +5,7 @@ Documentation lives at http://wiki.github.com/Sannis/node-mysql-libmysqlclient/
 and http://github.com/Sannis/node-mysql-libmysqlclient/tree/master/docs/.
 The code lives at http://github.com/Sannis/node-mysql-libmysqlclient/.
 
-Tested with Node version v0.1.103
+Tested with Node version v0.2.0
 
 == Build and use
 
@@ -13,11 +13,15 @@ To build the bindings library you should run this command in console:
 
 $> node-waf configure build
 
+To rebuild:
+
+$> node-waf distclean configure build
+
 The two files required to use these bindings are ./mysql-libmysqlclient.js and
 ./mysql_bindings.node(build/default/mysql_bindings.node).
 Put this directory in your NODE_PATH or copy those two files where you need them.
 
-== A small message for NodeJS community
+== A small message for Node.JS community
 
 Today this library supports all basic functions for working with MySQL.
 In the near future, I plan to expand the list of methods
@@ -27,8 +31,7 @@ I also postponed the implementation of prepared statements.
 I will be happy to hear tips from the more experienced programmers.
 If you are interested in wide MySQL usage in NodeJS applications,
 leave your comments to the code.
-Unfortunately not all methods are covered by unit and functional tests,
-so I'll be glad to see your forks and commits in them :)
+I'll be glad to see your forks and commits in them :)
 
 == Node.JS
 
