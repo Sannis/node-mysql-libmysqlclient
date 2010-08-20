@@ -8,11 +8,12 @@
   , "Dan Beam <dan@danbeam.org>"
   , "Maurits Lamers <maurits@weidestraat.nl>"
   ]
+, "licenses": [{ "type": "MIT" }]
 , "repository" :
   { "type" : "git"
   , "url" : "http://github.com/Sannis/node-mysql-libmysqlclient"
   }
 , "main" : "./mysql-libmysqlclient"
 , "scripts": { "install": "node-waf configure build" }
-,  "engines": {"node":">=0.2.0"},
+, "engines": { "node":">=0.2.0" },
 }
