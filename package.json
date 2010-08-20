@@ -12,7 +12,7 @@
   { "type" : "git"
   , "url" : "http://github.com/Sannis/node-mysql-libmysqlclient"
   }
-, "main" : "mysql-libmysqlclient"
+, "main" : "./mysql-libmysqlclient"
 , "scripts": { "install": "node-waf configure build" }
 ,  "engines": {"node":">=0.2.0"},
 }
