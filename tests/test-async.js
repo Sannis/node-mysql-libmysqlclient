@@ -10,13 +10,31 @@ var cfg = require("./config").cfg;
 // Require modules
 var
   sys = require("sys"),
-  mysql_libmysqlclient = require("../mysql-libmysqlclient");
+  mysql_libmysqlclient = require("../mysql-libmysqlclient"),
+  mysql_bindings = require("../mysql_bindings");
 
-exports.async = function (test) {
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
-
-  conn.async(function () {
+exports.connect = function (test) {
+  test.expect(1);
+  
+  var conn = new mysql_bindings.MysqlConn();
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
+    test.ok(error === null, "conn.connect() for allowed database");
+    
     conn.closeSync();
+  
+    test.done();
+  });
+};
+
+exports.connectWithError = function (test) {
+  test.expect(1);
+  
+  var conn = new mysql_bindings.MysqlConn();
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (error) {
+    test.ok(error === 1044, "conn.connect() for denied database");
+    
+    conn.closeSync();
+  
     test.done();
   });
 };

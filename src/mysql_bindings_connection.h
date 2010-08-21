@@ -66,12 +66,11 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 
 using namespace v8; // NOLINT
 
-static Persistent<String> connection_async_symbol;
-
 static Persistent<String> connection_affectedRowsSync_symbol;
 static Persistent<String> connection_autoCommitSync_symbol;
 static Persistent<String> connection_changeUserSync_symbol;
 static Persistent<String> connection_commitSync_symbol;
+static Persistent<String> connection_connect_symbol;
 static Persistent<String> connection_connectSync_symbol;
 static Persistent<String> connection_connectedSync_symbol;
 static Persistent<String> connection_connectErrnoSync_symbol;
@@ -157,8 +156,15 @@ class MysqlConn : public node::EventEmitter {
 
     static Handle<Value> New(const Arguments& args);
 
-    /* Example of async function? based on libeio */
-    struct async_request {
+    static Handle<Value> AffectedRowsSync(const Arguments& args);
+
+    static Handle<Value> AutoCommitSync(const Arguments& args);
+
+    static Handle<Value> ChangeUserSync(const Arguments& args);
+
+    static Handle<Value> CommitSync(const Arguments& args);
+
+    struct connect_request {
         Persistent<Function> callback;
         MysqlConn *conn;
         String::Utf8Value *hostname;
@@ -168,18 +174,9 @@ class MysqlConn : public node::EventEmitter {
         uint32_t port;
         String::Utf8Value *socket;
     };
-    static int EIO_After_Async(eio_req *req);
-    static int EIO_Async(eio_req *req);
-    static Handle<Value> Async(const Arguments& args);
-    /* Example of async function? based on libeio [E] */
-
-    static Handle<Value> AffectedRowsSync(const Arguments& args);
-
-    static Handle<Value> AutoCommitSync(const Arguments& args);
-
-    static Handle<Value> ChangeUserSync(const Arguments& args);
-
-    static Handle<Value> CommitSync(const Arguments& args);
+    static int EIO_After_Connect(eio_req *req);
+    static int EIO_Connect(eio_req *req);
+    static Handle<Value> Connect(const Arguments& args);
 
     static Handle<Value> ConnectSync(const Arguments& args);
 

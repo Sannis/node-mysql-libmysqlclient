@@ -21,12 +21,11 @@ void MysqlConn::Init(Handle<Object> target) {
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlConn"));
 
-    ADD_PROTOTYPE_METHOD(connection, async, Async);
-
     ADD_PROTOTYPE_METHOD(connection, affectedRowsSync, AffectedRowsSync);
     ADD_PROTOTYPE_METHOD(connection, autoCommitSync, AutoCommitSync);
     ADD_PROTOTYPE_METHOD(connection, changeUserSync, ChangeUserSync);
     ADD_PROTOTYPE_METHOD(connection, commitSync, CommitSync);
+    ADD_PROTOTYPE_METHOD(connection, connect, Connect);
     ADD_PROTOTYPE_METHOD(connection, connectSync, ConnectSync);
     ADD_PROTOTYPE_METHOD(connection, connectedSync, ConnectedSync);
     ADD_PROTOTYPE_METHOD(connection, connectErrnoSync, ConnectErrnoSync);
@@ -153,94 +152,6 @@ Handle<Value> MysqlConn::New(const Arguments& args) {
     return args.This();
 }
 
-/* Example of async function based on libeio */
-int MysqlConn::EIO_After_Async(eio_req *req) {
-    ev_unref(EV_DEFAULT_UC);
-    struct async_request *async_req = (struct async_request *)(req->data);
-
-    Local<Value> argv[1];
-    int argc = 1;
-
-    if(req->result) {
-      argv[0] = Local<Value>::New(Integer::New(async_req->conn->connect_errno));
-    } 
-    else {
-      argv[0] = Local<Value>::New(Null());
-    }
-    //argv[1] = Local<Value>::New(Null());
-    //Local<Value>::New(External::New(async_req->conn));
-
-    TryCatch try_catch;
-
-    async_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
-
-    if (try_catch.HasCaught()) {
-        node::FatalException(try_catch);
-    }
-
-    async_req->callback.Dispose();
-    async_req->conn->Unref();
-    free(async_req);
-
-    return 0;
-}
-
-int MysqlConn::EIO_Async(eio_req *req) {
-    struct async_request *async_req = (struct async_request *)req->data;
-
-    req->result = async_req->conn->Connect(async_req->hostname ? **(async_req->hostname) : NULL,
-                                           async_req->user ? **(async_req->user) : NULL, 
-                                           async_req->password ? **(async_req->password) : NULL,
-                                           async_req->dbname ? **(async_req->dbname) : NULL,
-                                           async_req->port,
-                                           async_req->socket ? **(async_req->socket) : NULL) ? 0 : 1;
-
-    delete async_req->hostname;
-    delete async_req->user;
-    delete async_req->password;
-    delete async_req->socket;
-    
-    return 0;
-}
-
-Handle<Value> MysqlConn::Async(const Arguments& args) {
-    HandleScope scope;
-
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
-
-    struct async_request *async_req = (struct async_request *)
-        calloc(1, sizeof(struct async_request));
-
-    if (!async_req) {
-      V8::LowMemoryNotification();
-      return THREXC("Could not allocate enough memory");
-    }
-
-    REQ_FUN_ARG(args.Length() - 1, callback);
-    async_req->callback = Persistent<Function>::New(callback);
-    async_req->conn = conn;
-
-    async_req->hostname = args.Length() > 1 && args[0]->IsString() ? 
-        new String::Utf8Value(args[0]->ToString()) : NULL;
-    async_req->user = args.Length() > 2 && args[1]->IsString() ? 
-        new String::Utf8Value(args[1]->ToString()) : NULL;
-    async_req->password = args.Length() > 3 && args[2]->IsString() ? 
-        new String::Utf8Value(args[2]->ToString()) : NULL;
-    async_req->dbname = args.Length() > 4 && args[3]->IsString() ?
-        new String::Utf8Value(args[3]->ToString()) : NULL;
-    async_req->port = args.Length() > 5 ? args[4]->IntegerValue() : 0;
-    async_req->socket = args.Length() > 6 && args[5]->IsString() ?
-      new String::Utf8Value(args[5]->ToString()) : NULL;
-
-    eio_custom(EIO_Async, EIO_PRI_DEFAULT, EIO_After_Async, async_req);
-
-    ev_ref(EV_DEFAULT_UC);
-    conn->Ref();
-
-    return Undefined();
-}
-/* Example of async function? based on libeio [E] */
-
 Handle<Value> MysqlConn::AffectedRowsSync(const Arguments& args) {
     HandleScope scope;
 
@@ -322,6 +233,92 @@ Handle<Value> MysqlConn::CommitSync(const Arguments& args) {
     }
 
     return scope.Close(True());
+}
+
+int MysqlConn::EIO_After_Connect(eio_req *req) {
+    ev_unref(EV_DEFAULT_UC);
+    struct connect_request *connect_req = (struct connect_request *)(req->data);
+
+    Local<Value> argv[1];
+    int argc = 1;
+
+    if(req->result) {
+      argv[0] = Local<Value>::New(Integer::New(connect_req->conn->connect_errno));
+    } 
+    else {
+      argv[0] = Local<Value>::New(Null());
+    }
+
+    TryCatch try_catch;
+
+    connect_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
+
+    if (try_catch.HasCaught()) {
+        node::FatalException(try_catch);
+    }
+
+    connect_req->callback.Dispose();
+    connect_req->conn->Unref();
+    free(connect_req);
+
+    return 0;
+}
+
+int MysqlConn::EIO_Connect(eio_req *req) {
+    struct connect_request *connect_req = (struct connect_request *)(req->data);
+
+    req->result = connect_req->conn->Connect(
+    			connect_req->hostname ? **(connect_req->hostname) : NULL,
+    			connect_req->user ? **(connect_req->user) : NULL, 
+    			connect_req->password ? **(connect_req->password) : NULL,
+    			connect_req->dbname ? **(connect_req->dbname) : NULL,
+    			connect_req->port,
+    			connect_req->socket ? **(connect_req->socket) : NULL
+    		) ? 0 : 1;
+
+    delete connect_req->hostname;
+    delete connect_req->user;
+    delete connect_req->password;
+    delete connect_req->socket;
+    
+    return 0;
+}
+
+Handle<Value> MysqlConn::Connect(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+
+    struct connect_request *connect_req = (struct connect_request *)
+        calloc(1, sizeof(struct connect_request));
+
+    if (!connect_req) {
+      V8::LowMemoryNotification();
+      return THREXC("Could not allocate enough memory");
+    }
+
+    REQ_FUN_ARG(args.Length() - 1, callback);
+    connect_req->callback = Persistent<Function>::New(callback);
+    connect_req->conn = conn;
+
+    connect_req->hostname = args.Length() > 1 && args[0]->IsString() ? 
+        new String::Utf8Value(args[0]->ToString()) : NULL;
+    connect_req->user = args.Length() > 2 && args[1]->IsString() ? 
+        new String::Utf8Value(args[1]->ToString()) : NULL;
+    connect_req->password = args.Length() > 3 && args[2]->IsString() ? 
+        new String::Utf8Value(args[2]->ToString()) : NULL;
+    connect_req->dbname = args.Length() > 4 && args[3]->IsString() ?
+        new String::Utf8Value(args[3]->ToString()) : NULL;
+    connect_req->port = args.Length() > 5 ? args[4]->IntegerValue() : 0;
+    connect_req->socket = args.Length() > 6 && args[5]->IsString() ?
+      new String::Utf8Value(args[5]->ToString()) : NULL;
+
+    eio_custom(EIO_Connect, EIO_PRI_DEFAULT, EIO_After_Connect, connect_req);
+
+    ev_ref(EV_DEFAULT_UC);
+    conn->Ref();
+
+    return Undefined();
 }
 
 Handle<Value> MysqlConn::ConnectSync(const Arguments& args) {
