@@ -10,12 +10,14 @@ Tested with Node version v0.2.0
 == Build and use
 
 To build the bindings library you should run this command in console:
-
 $> node-waf configure build
 
 To rebuild:
-
 $> node-waf distclean configure build
+
+To run tests:
+$> git submodule update --init
+$> node-waf test
 
 The two files required to use these bindings are ./mysql-libmysqlclient.js and
 ./mysql_bindings.node(build/default/mysql_bindings.node).
@@ -47,9 +49,7 @@ and send a pull request to me (http://github.com/Sannis). Thanks!
 You can find other information at
 http://wiki.github.com/Sannis/node-mysql-libmysqlclient/contributing
 
-== License & Contributors
- 
-MIT License. See license text in file LICENSE.
+== Contributors
 
 * Oleg Efimov
   E-mail: <efimovov@gmail.com>
@@ -60,13 +60,12 @@ MIT License. See license text in file LICENSE.
   First libeio asynchronouse attempts.
   Writing tests.
 
-
 * Surendra Singhi
   E-mail: <ssinghi@kreeti.com>
   GitHub: http://github.com/ssinghi, http://github.com/kreetitech
   Site: http://ssinghi.kreeti.com
   
-  Make asynchronouse querying work.
+  Make asynchronouse connecting and querying work.
   Fix segmentation faults, partialy closes #14.
   Some other fixes.
 
@@ -90,4 +89,8 @@ MIT License. See license text in file LICENSE.
   
   Fixing a bug where previous values were set instead of empty,
   see c4071181404362b60b9d3a3aed9784b25459fffa
+
+== License
+ 
+MIT License. See license text in file LICENSE.
 
