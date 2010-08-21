@@ -68,47 +68,47 @@ using namespace v8; // NOLINT
 
 static Persistent<String> connection_async_symbol;
 
-static Persistent<String> connection_affectedRows_symbol;
-static Persistent<String> connection_autoCommit_symbol;
-static Persistent<String> connection_changeUser_symbol;
-static Persistent<String> connection_commit_symbol;
-static Persistent<String> connection_connect_symbol;
-static Persistent<String> connection_connected_symbol;
-static Persistent<String> connection_connectErrno_symbol;
-static Persistent<String> connection_connectError_symbol;
-static Persistent<String> connection_close_symbol;
-static Persistent<String> connection_debug_symbol;
-static Persistent<String> connection_dumpDebugInfo_symbol;
-static Persistent<String> connection_errno_symbol;
-static Persistent<String> connection_error_symbol;
-static Persistent<String> connection_escape_symbol;
-static Persistent<String> connection_fieldCount_symbol;
-static Persistent<String> connection_getCharset_symbol;
-static Persistent<String> connection_getCharsetName_symbol;
-static Persistent<String> connection_getInfo_symbol;
-static Persistent<String> connection_getInfoString_symbol;
-static Persistent<String> connection_getWarnings_symbol;
-static Persistent<String> connection_initStatement_symbol;
-static Persistent<String> connection_lastInsertId_symbol;
-static Persistent<String> connection_multiMoreResults_symbol;
-static Persistent<String> connection_multiNextResult_symbol;
-static Persistent<String> connection_multiRealQuery_symbol;
-static Persistent<String> connection_ping_symbol;
+static Persistent<String> connection_affectedRowsSync_symbol;
+static Persistent<String> connection_autoCommitSync_symbol;
+static Persistent<String> connection_changeUserSync_symbol;
+static Persistent<String> connection_commitSync_symbol;
+static Persistent<String> connection_connectSync_symbol;
+static Persistent<String> connection_connectedSync_symbol;
+static Persistent<String> connection_connectErrnoSync_symbol;
+static Persistent<String> connection_connectErrorSync_symbol;
+static Persistent<String> connection_closeSync_symbol;
+static Persistent<String> connection_debugSync_symbol;
+static Persistent<String> connection_dumpDebugInfoSync_symbol;
+static Persistent<String> connection_errnoSync_symbol;
+static Persistent<String> connection_errorSync_symbol;
+static Persistent<String> connection_escapeSync_symbol;
+static Persistent<String> connection_fieldCountSync_symbol;
+static Persistent<String> connection_getCharsetSync_symbol;
+static Persistent<String> connection_getCharsetNameSync_symbol;
+static Persistent<String> connection_getInfoSync_symbol;
+static Persistent<String> connection_getInfoStringSync_symbol;
+static Persistent<String> connection_getWarningsSync_symbol;
+static Persistent<String> connection_initStatementSync_symbol;
+static Persistent<String> connection_lastInsertIdSync_symbol;
+static Persistent<String> connection_multiMoreResultsSync_symbol;
+static Persistent<String> connection_multiNextResultSync_symbol;
+static Persistent<String> connection_multiRealQuerySync_symbol;
+static Persistent<String> connection_pingSync_symbol;
+static Persistent<String> connection_querySync_symbol;
 static Persistent<String> connection_query_symbol;
-static Persistent<String> connection_queryAsync_symbol;
-static Persistent<String> connection_realQuery_symbol;
-static Persistent<String> connection_rollback_symbol;
-static Persistent<String> connection_selectDb_symbol;
-static Persistent<String> connection_setCharset_symbol;
-static Persistent<String> connection_setSsl_symbol;
-static Persistent<String> connection_sqlState_symbol;
-static Persistent<String> connection_stat_symbol;
-static Persistent<String> connection_storeResult_symbol;
-static Persistent<String> connection_threadId_symbol;
-static Persistent<String> connection_threadKill_symbol;
-static Persistent<String> connection_threadSafe_symbol;
-static Persistent<String> connection_useResult_symbol;
-static Persistent<String> connection_warningCount_symbol;
+static Persistent<String> connection_realQuerySync_symbol;
+static Persistent<String> connection_rollbackSync_symbol;
+static Persistent<String> connection_selectDbSync_symbol;
+static Persistent<String> connection_setCharsetSync_symbol;
+static Persistent<String> connection_setSslSync_symbol;
+static Persistent<String> connection_sqlStateSync_symbol;
+static Persistent<String> connection_statSync_symbol;
+static Persistent<String> connection_storeResultSync_symbol;
+static Persistent<String> connection_threadIdSync_symbol;
+static Persistent<String> connection_threadKillSync_symbol;
+static Persistent<String> connection_threadSafeSync_symbol;
+static Persistent<String> connection_useResultSync_symbol;
+static Persistent<String> connection_warningCountSync_symbol;
 
 class MysqlConn : public node::EventEmitter {
   public:
@@ -173,59 +173,59 @@ class MysqlConn : public node::EventEmitter {
     static Handle<Value> Async(const Arguments& args);
     /* Example of async function? based on libeio [E] */
 
-    static Handle<Value> AffectedRows(const Arguments& args);
+    static Handle<Value> AffectedRowsSync(const Arguments& args);
 
-    static Handle<Value> AutoCommit(const Arguments& args);
+    static Handle<Value> AutoCommitSync(const Arguments& args);
 
-    static Handle<Value> ChangeUser(const Arguments& args);
+    static Handle<Value> ChangeUserSync(const Arguments& args);
 
-    static Handle<Value> Commit(const Arguments& args);
+    static Handle<Value> CommitSync(const Arguments& args);
 
-    static Handle<Value> Connect(const Arguments& args);
+    static Handle<Value> ConnectSync(const Arguments& args);
 
-    static Handle<Value> Connected(const Arguments& args);
+    static Handle<Value> ConnectedSync(const Arguments& args);
 
-    static Handle<Value> ConnectErrno(const Arguments& args);
+    static Handle<Value> ConnectErrnoSync(const Arguments& args);
 
-    static Handle<Value> ConnectError(const Arguments& args);
+    static Handle<Value> ConnectErrorSync(const Arguments& args);
 
-    static Handle<Value> Close(const Arguments& args);
+    static Handle<Value> CloseSync(const Arguments& args);
 
-    static Handle<Value> Debug(const Arguments& args);
+    static Handle<Value> DebugSync(const Arguments& args);
 
-    static Handle<Value> DumpDebugInfo(const Arguments& args);
+    static Handle<Value> DumpDebugInfoSync(const Arguments& args);
 
-    static Handle<Value> Errno(const Arguments& args);
+    static Handle<Value> ErrnoSync(const Arguments& args);
 
-    static Handle<Value> Error(const Arguments& args);
+    static Handle<Value> ErrorSync(const Arguments& args);
 
-    static Handle<Value> Escape(const Arguments& args);
+    static Handle<Value> EscapeSync(const Arguments& args);
 
-    static Handle<Value> FieldCount(const Arguments& args);
+    static Handle<Value> FieldCountSync(const Arguments& args);
 
-    static Handle<Value> GetCharset(const Arguments& args);
+    static Handle<Value> GetCharsetSync(const Arguments& args);
 
-    static Handle<Value> GetCharsetName(const Arguments& args);
+    static Handle<Value> GetCharsetNameSync(const Arguments& args);
 
-    static Handle<Value> GetInfo(const Arguments& args);
+    static Handle<Value> GetInfoSync(const Arguments& args);
 
-    static Handle<Value> GetInfoString(const Arguments& args);
+    static Handle<Value> GetInfoStringSync(const Arguments& args);
 
-    static Handle<Value> GetWarnings(const Arguments& args);
+    static Handle<Value> GetWarningsSync(const Arguments& args);
 
-    static Handle<Value> InitStatement(const Arguments& args);
+    static Handle<Value> InitStatementSync(const Arguments& args);
 
-    static Handle<Value> LastInsertId(const Arguments& args);
+    static Handle<Value> LastInsertIdSync(const Arguments& args);
 
-    static Handle<Value> MultiMoreResults(const Arguments& args);
+    static Handle<Value> MultiMoreResultsSync(const Arguments& args);
 
-    static Handle<Value> MultiNextResult(const Arguments& args);
+    static Handle<Value> MultiNextResultSync(const Arguments& args);
 
-    static Handle<Value> MultiRealQuery(const Arguments& args);
+    static Handle<Value> MultiRealQuerySync(const Arguments& args);
 
-    static Handle<Value> Ping(const Arguments& args);
+    static Handle<Value> PingSync(const Arguments& args);
 
-    static Handle<Value> Query(const Arguments& args);
+    static Handle<Value> QuerySync(const Arguments& args);
 
     struct query_request {
         Persistent<Function> callback;
@@ -237,33 +237,33 @@ class MysqlConn : public node::EventEmitter {
     };
     static int EIO_After_Query(eio_req *req);
     static int EIO_Query(eio_req *req);
-    static Handle<Value> QueryAsync(const Arguments& args);
+    static Handle<Value> Query(const Arguments& args);
 
-    static Handle<Value> RealQuery(const Arguments& args);
+    static Handle<Value> RealQuerySync(const Arguments& args);
 
-    static Handle<Value> Rollback(const Arguments& args);
+    static Handle<Value> RollbackSync(const Arguments& args);
 
-    static Handle<Value> SelectDb(const Arguments& args);
+    static Handle<Value> SelectDbSync(const Arguments& args);
 
-    static Handle<Value> SetCharset(const Arguments& args);
+    static Handle<Value> SetCharsetSync(const Arguments& args);
 
-    static Handle<Value> SetSsl(const Arguments& args);
+    static Handle<Value> SetSslSync(const Arguments& args);
 
-    static Handle<Value> SqlState(const Arguments& args);
+    static Handle<Value> SqlStateSync(const Arguments& args);
 
-    static Handle<Value> Stat(const Arguments& args);
+    static Handle<Value> StatSync(const Arguments& args);
 
-    static Handle<Value> StoreResult(const Arguments& args);
+    static Handle<Value> StoreResultSync(const Arguments& args);
 
-    static Handle<Value> ThreadId(const Arguments& args);
+    static Handle<Value> ThreadIdSync(const Arguments& args);
 
-    static Handle<Value> ThreadKill(const Arguments& args);
+    static Handle<Value> ThreadKillSync(const Arguments& args);
 
-    static Handle<Value> ThreadSafe(const Arguments& args);
+    static Handle<Value> ThreadSafeSync(const Arguments& args);
 
-    static Handle<Value> UseResult(const Arguments& args);
+    static Handle<Value> UseResultSync(const Arguments& args);
 
-    static Handle<Value> WarningCount(const Arguments& args);
+    static Handle<Value> WarningCountSync(const Arguments& args);
 };
 
 extern "C" void init(Handle<Object> target);

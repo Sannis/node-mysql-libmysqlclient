@@ -12,23 +12,24 @@ MysqlConn class
 
     class MysqlConn {
         /* Constructor */
-        require('mysql-sync').createConnection(servername, user, password, dbname, port, socket);
+        require('mysql-sync').createConnectionSync(servername, user, password, dbname, port, socket);
         
         /* Methods */
-        Integer affectedRows();
-        Boolean changeUser(user, password, dbname);
-        Boolean connect(hostname, user, password, dbname, port, socket);
-        Integer connectErrno();
-        String connectError();
-        Boolean close();
-        Integer errno();
-        String error();
-        String escape();
-        Object getInfo();
-        Integer lastInsertId();
-        Boolean ping();
+        Integer affectedRowsSync();
+        Boolean changeUserSync(user, password, dbname);
+        Boolean connectSync(hostname, user, password, dbname, port, socket);
+        Integer connectErrnoSync();
+        String connectErrorSync();
+        Boolean closeSync();
+        Integer errnoSync();
+        String errorSync();
+        String escapeSync();
+        Object getInfoSync();
+        Integer lastInsertIdSync();
+        Boolean pingSync();
         MysqlResult query();
-        Integer warningCount();
+        MysqlResult querySync();
+        Integer warningCountSync();
     }
 
 
@@ -37,19 +38,19 @@ Connection, options, errors and information
 
 ### Connection ###
 
-    require('mysql-sync').createConnection(servername, user, password, dbname, port, socket);
+    require('mysql-sync').createConnectionSync(servername, user, password, dbname, port, socket);
     
-    Boolean changeUser(user, password, dbname);
-    Boolean connect(hostname, user, password, dbname, port, socket);
-    Integer connectErrno();
-    String connectError();
-    Boolean close();
-    Object getCharset();
-    String getCharsetName();
-    Boolean ping();
-    Boolean selectDb (dbname);
-    Boolean setCharset (charset);
-    Undefined setSsl(key, cert, ca, capath, cipher);
+    Boolean changeUserSync(user, password, dbname);
+    Boolean connectSync(hostname, user, password, dbname, port, socket);
+    Integer connectErrnoSync();
+    String connectErrorSync();
+    Boolean closeSync();
+    Object getCharsetSync();
+    String getCharsetNameSync();
+    Boolean pingSync();
+    Boolean selectDbSync(dbname);
+    Boolean setCharsetSync(charset);
+    Undefined setSslSync(key, cert, ca, capath, cipher);
     
 
 ### Options ###
@@ -59,37 +60,38 @@ Nothing yet.
 
 ### Errors ###
 
-    Integer errno();
-    String error();
-    String sqlState;
+    Integer errnoSync();
+    String errorSync();
+    String sqlStateSync();
 
 
 ### Information ###
 
-    Object getInfo();
-    String getInfoString();
-    Array getWarnings();
-    Integer warningCount();
+    Object getInfoSync();
+    String getInfoStringSync();
+    Array getWarningsSync();
+    Integer warningCountSync();
 
-	Undefined debug(message);
-	Boolean dumpDebugInfo();
-	String stat();
+	Undefined debugSync(message);
+	Boolean dumpDebugInfoSync();
+	String statSync();
 
 
 Query
 -----
 
-    Integer affectedRows();
-    String escape(escapestr);
-    Integer fieldCount();
-    Integer lastInsertId();
-    Boolean multiMoreResults();
-    Boolean multiNextResult()
-    Boolean multiRealQuery(query);
+    Integer affectedRowsSync();
+    String escapeSync(escapestr);
+    Integer fieldCountSync();
+    Integer lastInsertIdSync();
+    Boolean multiMoreResultsSync();
+    Boolean multiNextResultSync()
+    Boolean multiRealQuerySync(query);
     MysqlResult query(query);
-    Boolean realQuery(query);
-    MysqlResult storeResult();
-    MysqlResult useResult();
+    MysqlResult querySync(query);
+    Boolean realQuerySync(query);
+    MysqlResult storeResultSync();
+    MysqlResult useResultSync();
 
 
 Statements
@@ -101,17 +103,17 @@ Statements
 Transactions
 ------------
 
-    Boolean autoCommit(mode);
-    Boolean commit();
-    Boolean rollback();
+    Boolean autoCommitSync(mode);
+    Boolean commitSync();
+    Boolean rollbackSync();
 
 
 Other
 -----
 
-    Integer threadId();
-    Boolean threadKill(pid);
-    Boolean threadSafe();
+    Integer threadIdSync();
+    Boolean threadKillSync(pid);
+    Boolean threadSafeSync();
 
 
 MysqlResult class
@@ -119,19 +121,19 @@ MysqlResult class
 
     class MysqlResult {
         /* Methods */
-        Undefined dataSeek();
-        Array fetchAll();
-        Array fetchArray();
-        Object fetchField();
-        Object fetchFieldDirect();
-        Array fetchFields();
-        Array fetchLengths();
-        Object fetchObject();
-        Integer fieldCount();
-        Undefined fieldSeek();
-        Integer fieldTell();
-        Undefined free();
-        Integer numRows();
+        Undefined dataSeekSync();
+        Array fetchAllSync();
+        Array fetchArraySync();
+        Object fetchFieldSync();
+        Object fetchFieldDirectSync();
+        Array fetchFieldsSync();
+        Array fetchLengthsSync();
+        Object fetchObjectSync();
+        Integer fieldCountSync();
+        Undefined fieldSeekSync();
+        Integer fieldTellSync();
+        Undefined freeSync();
+        Integer numRowsSync();
     }
 
 
@@ -140,7 +142,7 @@ MysqlStatement class
 
     class MysqlStatement {
         /* Methods */
-        Boolean prepare(query);
+        Boolean prepareSync(query);
     }
 
 

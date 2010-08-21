@@ -20,7 +20,7 @@ void MysqlConn::MysqlStatement::Init(Handle<Object> target) {
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlStatement"));
 
-    ADD_PROTOTYPE_METHOD(statement, prepare, Prepare);
+    ADD_PROTOTYPE_METHOD(statement, prepareSync, PrepareSync);
 }
 
 MysqlConn::MysqlStatement::MysqlStatement(): EventEmitter() {
@@ -44,13 +44,13 @@ Handle<Value> MysqlConn::MysqlStatement::New(const Arguments& args) {
     return args.This();
 }
 
-Handle<Value> MysqlConn::MysqlStatement::Prepare(const Arguments& args) {
+Handle<Value> MysqlConn::MysqlStatement::PrepareSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
 
     if (args.Length() == 0 || !args[0]->IsString()) {
-        return THREXC("First arg of stmt.prepare() must be a string");
+        return THREXC("First arg of stmt.prepareSync() must be a string");
     }
 
     String::Utf8Value query(args[0]);

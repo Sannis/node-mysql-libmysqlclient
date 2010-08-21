@@ -13,43 +13,43 @@ var
   mysql_libmysqlclient = require("../mysql-libmysqlclient");
 
 exports.async = function (test) {
-  var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database);
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
 
   conn.async(function () {
-    conn.close();
+    conn.closeSync();
     test.done();
   });
 };
 
-exports.queryAsync = function (test) {
-  var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database), res;
+exports.query = function (test) {
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), res;
 
-  res = conn.query("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  res = conn.query("CREATE TABLE " + cfg.test_table +
+  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
+  res = conn.querySync("CREATE TABLE " + cfg.test_table +
     " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
     " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
     " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
 
   test.expect(2);
-  conn.queryAsync("SHOW TABLES", function (err, result) {
-    test.ok(result.fieldCount() === 1, "show results field count === 1");
-    var res = result.fetchAll();
+  conn.query("SHOW TABLES", function (err, result) {
+    test.ok(result.fieldCountSync() === 1, "show results field count === 1");
+    var res = result.fetchAllSync();
     test.ok(res.some(function (r) {
       return r['Tables_in_' + cfg.database] === cfg.test_table;
     }), "find the test table in results");
-    conn.close();
+    conn.closeSync();
     test.done();
   });
 };
 
-exports.queryAsyncWithError = function (test) {
-  var conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database), res;
+exports.queryWithError = function (test) {
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), res;
 
   test.expect(2);
-  conn.queryAsync("SHOW TABLESaagh", function (err, result) {
+  conn.query("SHOW TABLESaagh", function (err, result) {
     test.ok(!result, "result is not defined");
     test.ok(err, "error object is present");
-    conn.close();
+    conn.closeSync();
     test.done();
   });
 };

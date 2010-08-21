@@ -14,14 +14,14 @@ Close and connect again
 
 You can use all this argument in mysql_libmysqlclient.createConnection too.
 
-    conn.close();
-    conn.connect(servername, user, password, database, port, socket);
+    conn.closeSync();
+    conn.connectSync(servername, user, password, database, port, socket);
 
 Execute query and fetch result
 ------------------------------
 
-    var res = conn.query(query_string);
-    var query_result_rows = res.fetchResult();
+    var res = conn.querySync(query_string);
+    var query_result_rows = res.fetchResultSync();
 
 fetchResult() method returns array of objects. For example, for table with structure
     
@@ -40,7 +40,7 @@ you will fetch
 Utility functions
 -----------------
 
-    var info = conn.getInfo();
+    var info = conn.getInfoSync();
     for( var i in info ) sys.puts("info['" + i + "'] = " + info[i]);
 
 This function get information about client and server versions and some other info:
@@ -55,5 +55,5 @@ This function get information about client and server versions and some other in
 escape() method escapes argument with mysql_real_escape_string() to make string safe for using in queries.
 
     var str = "test\nstring";
-    var str_esc = conn.escape(str); // => "test\\nstring"
+    var str_esc = conn.escapeSync(str); // => "test\\nstring"
 

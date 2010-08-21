@@ -14,26 +14,26 @@ var
   puts = sys.puts,
   inspect = sys.inspect,
   mysql_libmysqlclient = require("../mysql-libmysqlclient"),
-  conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database),
+  conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
   res,
   t0;
 
 
 function readTest(db) {
   var t0 = new Date();
-  conn.queryAsync("SELECT * FROM " + cfg.test_table + ";", function (result) {
+  conn.query("SELECT * FROM " + cfg.test_table + ";", function (result) {
     var
-      rows = result.fetchAll(),
+      rows = result.fetchAllSync(),
       d = ((new Date()) - t0) / 1000;
       
     puts("**** " + rows.length + " rows in " + d + "s (" + (rows.length / d) + "/s)");
       
-    conn.close();
+    conn.closeSync();
   });
 }
 
 function writeTest(db, i, callback) {
-  conn.queryAsync("INSERT INTO " + cfg.test_table + " VALUES (1);", function (result) {
+  conn.query("INSERT INTO " + cfg.test_table + " VALUES (1);", function (result) {
     i -= 1;
     if (!i) {
       // end of results
@@ -58,19 +58,19 @@ GRANT ALL ON test.* TO test@localhost IDENTIFIED BY "";
 See current connection options in ./settings.js
 */
 
-if (!conn.connected()) {
-  sys.puts("Connection error: " + conn.connectErrno() + ", " + conn.connectError());
+if (!conn.connectedSync()) {
+  sys.puts("Connection error: " + conn.connectErrnoSync() + ", " + conn.connectErrorSync());
 }
 
 sys.puts("mysql_libmysqlclient.createConnection() result: " + sys.inspect(conn));
 
-res = conn.query("DROP TABLE IF EXISTS " + cfg.test_table + ";");
+res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
 puts("'DROP TABLE IF EXISTS' result: " + inspect(res));
 
-res = conn.query("SET max_heap_table_size=128M;");
+res = conn.querySync("SET max_heap_table_size=128M;");
 puts("'SET max_heap_table_size=128M' result: " + inspect(res));
 
-conn.queryAsync("CREATE TABLE " + cfg.test_table + " (alpha INTEGER) TYPE=MEMORY;", function () {
+conn.query("CREATE TABLE " + cfg.test_table + " (alpha INTEGER) TYPE=MEMORY;", function () {
   puts("In 'CREATE TABLE' callback: " + inspect(arguments));
   t0 = new Date();
   writeTest(conn, cfg.insert_rows_count_speedtest, readTest);

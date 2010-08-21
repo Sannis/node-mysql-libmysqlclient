@@ -14,7 +14,7 @@ See license text in LICENSE file
 #include <node.h>
 #include <node_events.h>
 
-static Persistent<String> statement_prepare_symbol;
+static Persistent<String> statement_prepareSync_symbol;
 
 class MysqlConn::MysqlStatement : public node::EventEmitter {
   public:
@@ -34,7 +34,7 @@ class MysqlConn::MysqlStatement : public node::EventEmitter {
 
     static Handle<Value> New(const Arguments& args);
 
-    static Handle<Value> Prepare(const Arguments& args);
+    static Handle<Value> PrepareSync(const Arguments& args);
 };
 
 #endif  // NODE_MYSQL_STATEMENT_H  // NOLINT

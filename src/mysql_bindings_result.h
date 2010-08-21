@@ -17,19 +17,19 @@ See license text in LICENSE file
 #define mysql_result_is_unbuffered(r) \
 ((r)->handle && (r)->handle->status == MYSQL_STATUS_USE_RESULT)
 
-static Persistent<String> result_dataSeek_symbol;
-static Persistent<String> result_fetchAll_symbol;
-static Persistent<String> result_fetchArray_symbol;
-static Persistent<String> result_fetchField_symbol;
-static Persistent<String> result_fetchFieldDirect_symbol;
-static Persistent<String> result_fetchFields_symbol;
-static Persistent<String> result_fetchLengths_symbol;
-static Persistent<String> result_fetchObject_symbol;
-static Persistent<String> result_fieldCount_symbol;
-static Persistent<String> result_fieldSeek_symbol;
-static Persistent<String> result_fieldTell_symbol;
-static Persistent<String> result_free_symbol;
-static Persistent<String> result_numRows_symbol;
+static Persistent<String> result_dataSeekSync_symbol;
+static Persistent<String> result_fetchAllSync_symbol;
+static Persistent<String> result_fetchArraySync_symbol;
+static Persistent<String> result_fetchFieldSync_symbol;
+static Persistent<String> result_fetchFieldDirectSync_symbol;
+static Persistent<String> result_fetchFieldsSync_symbol;
+static Persistent<String> result_fetchLengthsSync_symbol;
+static Persistent<String> result_fetchObjectSync_symbol;
+static Persistent<String> result_fieldCountSync_symbol;
+static Persistent<String> result_fieldSeekSync_symbol;
+static Persistent<String> result_fieldTellSync_symbol;
+static Persistent<String> result_freeSync_symbol;
+static Persistent<String> result_numRowsSync_symbol;
 
 class MysqlConn::MysqlResult : public node::EventEmitter {
   public:
@@ -64,31 +64,31 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
 
     static Handle<Value> New(const Arguments& args);
 
-    static Handle<Value> DataSeek(const Arguments& args);
+    static Handle<Value> DataSeekSync(const Arguments& args);
 
-    static Handle<Value> FetchAll(const Arguments& args);
+    static Handle<Value> FetchAllSync(const Arguments& args);
 
-    static Handle<Value> FetchArray(const Arguments& args);
+    static Handle<Value> FetchArraySync(const Arguments& args);
 
-    static Handle<Value> FetchField(const Arguments& args);
+    static Handle<Value> FetchFieldSync(const Arguments& args);
 
-    static Handle<Value> FetchFieldDirect(const Arguments& args);
+    static Handle<Value> FetchFieldDirectSync(const Arguments& args);
 
-    static Handle<Value> FetchFields(const Arguments& args);
+    static Handle<Value> FetchFieldsSync(const Arguments& args);
 
-    static Handle<Value> FetchLengths(const Arguments& args);
+    static Handle<Value> FetchLengthsSync(const Arguments& args);
 
-    static Handle<Value> FetchObject(const Arguments& args);
+    static Handle<Value> FetchObjectSync(const Arguments& args);
 
-    static Handle<Value> FieldCount(const Arguments& args);
+    static Handle<Value> FieldCountSync(const Arguments& args);
 
-    static Handle<Value> FieldSeek(const Arguments& args);
+    static Handle<Value> FieldSeekSync(const Arguments& args);
 
-    static Handle<Value> FieldTell(const Arguments& args);
+    static Handle<Value> FieldTellSync(const Arguments& args);
 
-    static Handle<Value> Free(const Arguments& args);
+    static Handle<Value> FreeSync(const Arguments& args);
 
-    static Handle<Value> NumRows(const Arguments& args);
+    static Handle<Value> NumRowsSync(const Arguments& args);
 };
 
 #endif  // NODE_MYSQL_RESULT_H  // NOLINT

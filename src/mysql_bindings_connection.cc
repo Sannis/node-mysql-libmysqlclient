@@ -23,47 +23,47 @@ void MysqlConn::Init(Handle<Object> target) {
 
     ADD_PROTOTYPE_METHOD(connection, async, Async);
 
-    ADD_PROTOTYPE_METHOD(connection, affectedRows, AffectedRows);
-    ADD_PROTOTYPE_METHOD(connection, autoCommit, AutoCommit);
-    ADD_PROTOTYPE_METHOD(connection, changeUser, ChangeUser);
-    ADD_PROTOTYPE_METHOD(connection, commit, Commit);
-    ADD_PROTOTYPE_METHOD(connection, connect, Connect);
-    ADD_PROTOTYPE_METHOD(connection, connected, Connected);
-    ADD_PROTOTYPE_METHOD(connection, connectErrno, ConnectErrno);
-    ADD_PROTOTYPE_METHOD(connection, connectError, ConnectError);
-    ADD_PROTOTYPE_METHOD(connection, close, Close);
-    ADD_PROTOTYPE_METHOD(connection, debug, Debug);
-    ADD_PROTOTYPE_METHOD(connection, dumpDebugInfo, DumpDebugInfo);
-    ADD_PROTOTYPE_METHOD(connection, errno, Errno);
-    ADD_PROTOTYPE_METHOD(connection, error, Error);
-    ADD_PROTOTYPE_METHOD(connection, escape, Escape);
-    ADD_PROTOTYPE_METHOD(connection, fieldCount, FieldCount);
-    ADD_PROTOTYPE_METHOD(connection, getCharset, GetCharset);
-    ADD_PROTOTYPE_METHOD(connection, getCharsetName, GetCharsetName);
-    ADD_PROTOTYPE_METHOD(connection, getInfo, GetInfo);
-    ADD_PROTOTYPE_METHOD(connection, getInfoString, GetInfoString);
-    ADD_PROTOTYPE_METHOD(connection, getWarnings, GetWarnings);
-    ADD_PROTOTYPE_METHOD(connection, initStatement, InitStatement);
-    ADD_PROTOTYPE_METHOD(connection, lastInsertId, LastInsertId);
-    ADD_PROTOTYPE_METHOD(connection, multiMoreResults, MultiMoreResults);
-    ADD_PROTOTYPE_METHOD(connection, multiNextResult, MultiNextResult);
-    ADD_PROTOTYPE_METHOD(connection, multiRealQuery, MultiRealQuery);
-    ADD_PROTOTYPE_METHOD(connection, ping, Ping);
+    ADD_PROTOTYPE_METHOD(connection, affectedRowsSync, AffectedRowsSync);
+    ADD_PROTOTYPE_METHOD(connection, autoCommitSync, AutoCommitSync);
+    ADD_PROTOTYPE_METHOD(connection, changeUserSync, ChangeUserSync);
+    ADD_PROTOTYPE_METHOD(connection, commitSync, CommitSync);
+    ADD_PROTOTYPE_METHOD(connection, connectSync, ConnectSync);
+    ADD_PROTOTYPE_METHOD(connection, connectedSync, ConnectedSync);
+    ADD_PROTOTYPE_METHOD(connection, connectErrnoSync, ConnectErrnoSync);
+    ADD_PROTOTYPE_METHOD(connection, connectErrorSync, ConnectErrorSync);
+    ADD_PROTOTYPE_METHOD(connection, closeSync, CloseSync);
+    ADD_PROTOTYPE_METHOD(connection, debugSync, DebugSync);
+    ADD_PROTOTYPE_METHOD(connection, dumpDebugInfoSync, DumpDebugInfoSync);
+    ADD_PROTOTYPE_METHOD(connection, errnoSync, ErrnoSync);
+    ADD_PROTOTYPE_METHOD(connection, errorSync, ErrorSync);
+    ADD_PROTOTYPE_METHOD(connection, escapeSync, EscapeSync);
+    ADD_PROTOTYPE_METHOD(connection, fieldCountSync, FieldCountSync);
+    ADD_PROTOTYPE_METHOD(connection, getCharsetSync, GetCharsetSync);
+    ADD_PROTOTYPE_METHOD(connection, getCharsetNameSync, GetCharsetNameSync);
+    ADD_PROTOTYPE_METHOD(connection, getInfoSync, GetInfoSync);
+    ADD_PROTOTYPE_METHOD(connection, getInfoStringSync, GetInfoStringSync);
+    ADD_PROTOTYPE_METHOD(connection, getWarningsSync, GetWarningsSync);
+    ADD_PROTOTYPE_METHOD(connection, initStatementSync, InitStatementSync);
+    ADD_PROTOTYPE_METHOD(connection, lastInsertIdSync, LastInsertIdSync);
+    ADD_PROTOTYPE_METHOD(connection, multiMoreResultsSync, MultiMoreResultsSync); // NOLINT
+    ADD_PROTOTYPE_METHOD(connection, multiNextResultSync, MultiNextResultSync);
+    ADD_PROTOTYPE_METHOD(connection, multiRealQuerySync, MultiRealQuerySync);
+    ADD_PROTOTYPE_METHOD(connection, pingSync, PingSync);
+    ADD_PROTOTYPE_METHOD(connection, querySync, QuerySync);
     ADD_PROTOTYPE_METHOD(connection, query, Query);
-    ADD_PROTOTYPE_METHOD(connection, queryAsync, QueryAsync);
-    ADD_PROTOTYPE_METHOD(connection, realQuery, RealQuery);
-    ADD_PROTOTYPE_METHOD(connection, rollback, Rollback);
-    ADD_PROTOTYPE_METHOD(connection, selectDb, SelectDb);
-    ADD_PROTOTYPE_METHOD(connection, setCharset, SetCharset);
-    ADD_PROTOTYPE_METHOD(connection, setSsl, SetSsl);
-    ADD_PROTOTYPE_METHOD(connection, sqlState, SqlState);
-    ADD_PROTOTYPE_METHOD(connection, stat, Stat);
-    ADD_PROTOTYPE_METHOD(connection, storeResult, StoreResult);
-    ADD_PROTOTYPE_METHOD(connection, threadId, ThreadId);
-    ADD_PROTOTYPE_METHOD(connection, threadSafe, ThreadSafe);
-    ADD_PROTOTYPE_METHOD(connection, threadKill, ThreadKill);
-    ADD_PROTOTYPE_METHOD(connection, useResult, UseResult);
-    ADD_PROTOTYPE_METHOD(connection, warningCount, WarningCount);
+    ADD_PROTOTYPE_METHOD(connection, realQuerySync, RealQuerySync);
+    ADD_PROTOTYPE_METHOD(connection, rollbackSync, RollbackSync);
+    ADD_PROTOTYPE_METHOD(connection, selectDbSync, SelectDbSync);
+    ADD_PROTOTYPE_METHOD(connection, setCharsetSync, SetCharsetSync);
+    ADD_PROTOTYPE_METHOD(connection, setSslSync, SetSslSync);
+    ADD_PROTOTYPE_METHOD(connection, sqlStateSync, SqlStateSync);
+    ADD_PROTOTYPE_METHOD(connection, statSync, StatSync);
+    ADD_PROTOTYPE_METHOD(connection, storeResultSync, StoreResultSync);
+    ADD_PROTOTYPE_METHOD(connection, threadIdSync, ThreadIdSync);
+    ADD_PROTOTYPE_METHOD(connection, threadSafeSync, ThreadSafeSync);
+    ADD_PROTOTYPE_METHOD(connection, threadKillSync, ThreadKillSync);
+    ADD_PROTOTYPE_METHOD(connection, useResultSync, UseResultSync);
+    ADD_PROTOTYPE_METHOD(connection, warningCountSync, WarningCountSync);
 
     target->Set(String::NewSymbol("MysqlConn"),
                                   constructor_template->GetFunction());
@@ -241,7 +241,7 @@ Handle<Value> MysqlConn::Async(const Arguments& args) {
 }
 /* Example of async function? based on libeio [E] */
 
-Handle<Value> MysqlConn::AffectedRows(const Arguments& args) {
+Handle<Value> MysqlConn::AffectedRowsSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -261,7 +261,7 @@ Handle<Value> MysqlConn::AffectedRows(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::AutoCommit(const Arguments& args) {
+Handle<Value> MysqlConn::AutoCommitSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -281,7 +281,7 @@ Handle<Value> MysqlConn::AutoCommit(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::ChangeUser(const Arguments& args) {
+Handle<Value> MysqlConn::ChangeUserSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -308,7 +308,7 @@ Handle<Value> MysqlConn::ChangeUser(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::Commit(const Arguments& args) {
+Handle<Value> MysqlConn::CommitSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -324,7 +324,7 @@ Handle<Value> MysqlConn::Commit(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::Connect(const Arguments& args) {
+Handle<Value> MysqlConn::ConnectSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -378,7 +378,7 @@ Handle<Value> MysqlConn::Connect(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::Connected(const Arguments& args) {
+Handle<Value> MysqlConn::ConnectedSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -386,7 +386,7 @@ Handle<Value> MysqlConn::Connected(const Arguments& args) {
     return scope.Close(conn->connected ? True() : False());
 }
 
-Handle<Value> MysqlConn::ConnectErrno(const Arguments& args) {
+Handle<Value> MysqlConn::ConnectErrnoSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -396,7 +396,7 @@ Handle<Value> MysqlConn::ConnectErrno(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::ConnectError(const Arguments& args) {
+Handle<Value> MysqlConn::ConnectErrorSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -406,7 +406,7 @@ Handle<Value> MysqlConn::ConnectError(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::Close(const Arguments& args) {
+Handle<Value> MysqlConn::CloseSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -416,7 +416,7 @@ Handle<Value> MysqlConn::Close(const Arguments& args) {
     return Undefined();
 }
 
-Handle<Value> MysqlConn::Debug(const Arguments& args) {
+Handle<Value> MysqlConn::DebugSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -426,7 +426,7 @@ Handle<Value> MysqlConn::Debug(const Arguments& args) {
     }
 
     if (args.Length() == 0 || !args[0]->IsString()) {
-        return THREXC("First arg of conn.debug() must be a string");
+        return THREXC("First arg of conn.debugSync() must be a string");
     }
 
     String::Utf8Value debug(args[0]);
@@ -436,7 +436,7 @@ Handle<Value> MysqlConn::Debug(const Arguments& args) {
     return Undefined();
 }
 
-Handle<Value> MysqlConn::DumpDebugInfo(const Arguments& args) {
+Handle<Value> MysqlConn::DumpDebugInfoSync(const Arguments& args) {
     HandleScope scope;
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
 
@@ -449,7 +449,7 @@ Handle<Value> MysqlConn::DumpDebugInfo(const Arguments& args) {
     return scope.Close(r ? True() : False());
 }
 
-Handle<Value> MysqlConn::Errno(const Arguments& args) {
+Handle<Value> MysqlConn::ErrnoSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -465,7 +465,7 @@ Handle<Value> MysqlConn::Errno(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::Error(const Arguments& args) {
+Handle<Value> MysqlConn::ErrorSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -481,7 +481,7 @@ Handle<Value> MysqlConn::Error(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::Escape(const Arguments& args) {
+Handle<Value> MysqlConn::EscapeSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -510,7 +510,7 @@ Handle<Value> MysqlConn::Escape(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::FieldCount(const Arguments& args) {
+Handle<Value> MysqlConn::FieldCountSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -524,7 +524,7 @@ Handle<Value> MysqlConn::FieldCount(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::GetCharset(const Arguments& args) {
+Handle<Value> MysqlConn::GetCharsetSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -566,7 +566,7 @@ Handle<Value> MysqlConn::GetCharset(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::GetCharsetName(const Arguments& args) {
+Handle<Value> MysqlConn::GetCharsetNameSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -581,7 +581,7 @@ Handle<Value> MysqlConn::GetCharsetName(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::GetInfo(const Arguments& args) {
+Handle<Value> MysqlConn::GetInfoSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -615,7 +615,7 @@ Handle<Value> MysqlConn::GetInfo(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::GetInfoString(const Arguments& args) {
+Handle<Value> MysqlConn::GetInfoStringSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -631,7 +631,7 @@ Handle<Value> MysqlConn::GetInfoString(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::GetWarnings(const Arguments& args) {
+Handle<Value> MysqlConn::GetWarningsSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -670,7 +670,7 @@ Handle<Value> MysqlConn::GetWarnings(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::InitStatement(const Arguments& args) {
+Handle<Value> MysqlConn::InitStatementSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -688,7 +688,7 @@ Handle<Value> MysqlConn::InitStatement(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::LastInsertId(const Arguments& args) {
+Handle<Value> MysqlConn::LastInsertIdSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -711,7 +711,7 @@ Handle<Value> MysqlConn::LastInsertId(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::MultiMoreResults(const Arguments& args) {
+Handle<Value> MysqlConn::MultiMoreResultsSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -727,7 +727,7 @@ Handle<Value> MysqlConn::MultiMoreResults(const Arguments& args) {
     return scope.Close(False());
 }
 
-Handle<Value> MysqlConn::MultiNextResult(const Arguments& args) {
+Handle<Value> MysqlConn::MultiNextResultSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -738,7 +738,7 @@ Handle<Value> MysqlConn::MultiNextResult(const Arguments& args) {
 
     if (!mysql_more_results(conn->_conn)) {
         return THREXC("There is no next result set."
-                        "Please, call MultiMoreResults() to check "
+                        "Please, call MultiMoreResultsSync() to check "
                         "whether to call this function/method");
     }
 
@@ -749,13 +749,13 @@ Handle<Value> MysqlConn::MultiNextResult(const Arguments& args) {
     return scope.Close(False());
 }
 
-Handle<Value> MysqlConn::MultiRealQuery(const Arguments& args) {
+Handle<Value> MysqlConn::MultiRealQuerySync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
 
     if (args.Length() == 0 || !args[0]->IsString()) {
-        return THREXC("First arg of conn.multiRealQuery() "
+        return THREXC("First arg of conn.multiRealQuerySync() "
                         "must be a string");
     }
 
@@ -778,7 +778,7 @@ Handle<Value> MysqlConn::MultiRealQuery(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::Ping(const Arguments& args) {
+Handle<Value> MysqlConn::PingSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -796,7 +796,7 @@ Handle<Value> MysqlConn::Ping(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::Query(const Arguments& args) {
+Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -933,7 +933,7 @@ int MysqlConn::EIO_Query(eio_req *req) {
     return 0;
 }
 
-Handle<Value> MysqlConn::QueryAsync(const Arguments& args) {
+Handle<Value> MysqlConn::Query(const Arguments& args) {
     HandleScope scope;
 
     REQ_STR_ARG(0, query);
@@ -974,7 +974,7 @@ Handle<Value> MysqlConn::QueryAsync(const Arguments& args) {
     return Undefined();
 }
 
-Handle<Value> MysqlConn::Rollback(const Arguments& args) {
+Handle<Value> MysqlConn::RollbackSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -990,7 +990,7 @@ Handle<Value> MysqlConn::Rollback(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::RealQuery(const Arguments& args) {
+Handle<Value> MysqlConn::RealQuerySync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -1016,7 +1016,7 @@ Handle<Value> MysqlConn::RealQuery(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::SelectDb(const Arguments& args) {
+Handle<Value> MysqlConn::SelectDbSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -1040,7 +1040,7 @@ Handle<Value> MysqlConn::SelectDb(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::SetCharset(const Arguments& args) {
+Handle<Value> MysqlConn::SetCharsetSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -1064,7 +1064,7 @@ Handle<Value> MysqlConn::SetCharset(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::SetSsl(const Arguments& args) {
+Handle<Value> MysqlConn::SetSslSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -1093,7 +1093,7 @@ Handle<Value> MysqlConn::SetSsl(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
-Handle<Value> MysqlConn::SqlState(const Arguments& args) {
+Handle<Value> MysqlConn::SqlStateSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -1107,7 +1107,7 @@ Handle<Value> MysqlConn::SqlState(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::Stat(const Arguments& args) {
+Handle<Value> MysqlConn::StatSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -1127,7 +1127,7 @@ Handle<Value> MysqlConn::Stat(const Arguments& args) {
     }
 }
 
-Handle<Value> MysqlConn::StoreResult(const Arguments& args) {
+Handle<Value> MysqlConn::StoreResultSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -1153,7 +1153,7 @@ Handle<Value> MysqlConn::StoreResult(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::ThreadId(const Arguments& args) {
+Handle<Value> MysqlConn::ThreadIdSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -1169,7 +1169,7 @@ Handle<Value> MysqlConn::ThreadId(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::ThreadKill(const Arguments& args) {
+Handle<Value> MysqlConn::ThreadKillSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -1189,7 +1189,7 @@ Handle<Value> MysqlConn::ThreadKill(const Arguments& args) {
     }
 }
 
-Handle<Value> MysqlConn::ThreadSafe(const Arguments& args) {
+Handle<Value> MysqlConn::ThreadSafeSync(const Arguments& args) {
     HandleScope scope;
 
     if (mysql_thread_safe()) {
@@ -1199,7 +1199,7 @@ Handle<Value> MysqlConn::ThreadSafe(const Arguments& args) {
     }
 }
 
-Handle<Value> MysqlConn::UseResult(const Arguments& args) {
+Handle<Value> MysqlConn::UseResultSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
@@ -1225,7 +1225,7 @@ Handle<Value> MysqlConn::UseResult(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::WarningCount(const Arguments& args) {
+Handle<Value> MysqlConn::WarningCountSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());

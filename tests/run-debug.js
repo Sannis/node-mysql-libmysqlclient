@@ -33,14 +33,13 @@ function debug(title, obj) {
 
 sys.print("Show debug information for NodeJS MySQL/libmysqlclient bindings...\n");
 
-conn = mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database);
+conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
 
-res = conn.query("SHOW TABLES;");
+res = conn.querySync("SHOW TABLES;");
 
 debug("mysql_libmysqlclient", mysql_libmysqlclient);
 debug("conn", conn);
 debug("res", res);
-//debug("events.EventEmitter", events.EventEmitter.prototype);
 
-conn.close();
+conn.closeSync();
 
