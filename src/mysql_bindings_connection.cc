@@ -158,8 +158,17 @@ int MysqlConn::EIO_After_Async(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct async_request *async_req = (struct async_request *)(req->data);
 
-    Local<Value> argv[0];
-    int argc = 0;
+    Local<Value> argv[1];
+    int argc = 1;
+
+    if(req->result) {
+      argv[0] = Local<Value>::New(Integer::New(async_req->conn->connect_errno));
+    } 
+    else {
+      argv[0] = Local<Value>::New(Null());
+    }
+    //argv[1] = Local<Value>::New(Null());
+    //Local<Value>::New(External::New(async_req->conn));
 
     TryCatch try_catch;
 
@@ -177,8 +186,20 @@ int MysqlConn::EIO_After_Async(eio_req *req) {
 }
 
 int MysqlConn::EIO_Async(eio_req *req) {
-    req->result = 0;
+    struct async_request *async_req = (struct async_request *)req->data;
 
+    req->result = async_req->conn->Connect(async_req->hostname ? **(async_req->hostname) : NULL,
+                                           async_req->user ? **(async_req->user) : NULL, 
+                                           async_req->password ? **(async_req->password) : NULL,
+                                           async_req->dbname ? **(async_req->dbname) : NULL,
+                                           async_req->port,
+                                           async_req->socket ? **(async_req->socket) : NULL) ? 0 : 1;
+
+    delete async_req->hostname;
+    delete async_req->user;
+    delete async_req->password;
+    delete async_req->socket;
+    
     return 0;
 }
 
@@ -186,8 +207,6 @@ Handle<Value> MysqlConn::Async(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
-
-    REQ_FUN_ARG(0, callback);
 
     struct async_request *async_req = (struct async_request *)
         calloc(1, sizeof(struct async_request));
@@ -197,8 +216,21 @@ Handle<Value> MysqlConn::Async(const Arguments& args) {
       return THREXC("Could not allocate enough memory");
     }
 
+    REQ_FUN_ARG(args.Length() - 1, callback);
     async_req->callback = Persistent<Function>::New(callback);
     async_req->conn = conn;
+
+    async_req->hostname = args.Length() > 1 && args[0]->IsString() ? 
+        new String::Utf8Value(args[0]->ToString()) : NULL;
+    async_req->user = args.Length() > 2 && args[1]->IsString() ? 
+        new String::Utf8Value(args[1]->ToString()) : NULL;
+    async_req->password = args.Length() > 3 && args[2]->IsString() ? 
+        new String::Utf8Value(args[2]->ToString()) : NULL;
+    async_req->dbname = args.Length() > 4 && args[3]->IsString() ?
+        new String::Utf8Value(args[3]->ToString()) : NULL;
+    async_req->port = args.Length() > 5 ? args[4]->IntegerValue() : 0;
+    async_req->socket = args.Length() > 6 && args[5]->IsString() ?
+      new String::Utf8Value(args[5]->ToString()) : NULL;
 
     eio_custom(EIO_Async, EIO_PRI_DEFAULT, EIO_After_Async, async_req);
 

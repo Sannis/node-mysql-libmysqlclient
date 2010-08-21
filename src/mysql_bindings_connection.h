@@ -161,6 +161,12 @@ class MysqlConn : public node::EventEmitter {
     struct async_request {
         Persistent<Function> callback;
         MysqlConn *conn;
+        String::Utf8Value *hostname;
+        String::Utf8Value *user;
+        String::Utf8Value *password;
+        String::Utf8Value *dbname;
+        uint32_t port;
+        String::Utf8Value *socket;
     };
     static int EIO_After_Async(eio_req *req);
     static int EIO_Async(eio_req *req);
