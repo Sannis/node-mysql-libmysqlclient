@@ -105,6 +105,22 @@ exports.DataSeekSync = function (test) {
   test.done();
 };
 
+exports.FetchAll = function (test) {
+  test.expect(3);
+  
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  res = conn.querySync("SHOW TABLES;");
+  test.ok(res, "conn.querySync('SHOW TABLES;')");
+  res.fetchAll(function (tables) {
+    test.ok(tables, "res.fetchAll()");
+    conn.closeSync();
+  
+    test.done();
+  });
+};
+
 exports.FetchAllSync = function (test) {
   test.expect(3);
   

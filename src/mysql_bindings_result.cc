@@ -21,6 +21,7 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
     constructor_template->SetClassName(String::NewSymbol("MysqlResult"));
 
     ADD_PROTOTYPE_METHOD(result, dataSeekSync, DataSeekSync);
+    ADD_PROTOTYPE_METHOD(result, fetchAll, FetchAll);
     ADD_PROTOTYPE_METHOD(result, fetchAllSync, FetchAllSync);
     ADD_PROTOTYPE_METHOD(result, fetchArraySync, FetchArraySync);
     ADD_PROTOTYPE_METHOD(result, fetchFieldSync, FetchFieldSync);
@@ -170,6 +171,106 @@ Handle<Value> MysqlConn::MysqlResult::DataSeekSync(const Arguments& args) {
     }
 
     mysql_data_seek(res->_res, row_num);
+
+    return Undefined();
+}
+
+int MysqlConn::MysqlResult::EIO_After_FetchAll(eio_req *req) {
+    ev_unref(EV_DEFAULT_UC);
+    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
+
+    int argc = 1; /* node.js convention, there is always one argument */
+    Local<Value> argv[1];
+    HandleScope scope;
+
+    if (req->result) {
+        argv[0] = Exception::Error(String::New("Error on fetching"));
+    } else {
+        argv[0] = Local<Value>::New(scope.Close(fetchAll_req->js_result));
+    }
+
+    TryCatch try_catch;
+
+    fetchAll_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
+
+    if (try_catch.HasCaught()) {
+        node::FatalException(try_catch);
+    }
+
+    fetchAll_req->callback.Dispose();
+    fetchAll_req->res->Unref();
+    free(fetchAll_req);
+
+    return 0;
+}
+
+int MysqlConn::MysqlResult::EIO_FetchAll(eio_req *req) {
+    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
+
+    MysqlConn::MysqlResult *res = fetchAll_req->res;
+
+    if (!res->_res) {
+        req->result = 1;
+        return 0;
+    }
+
+    MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
+    uint32_t num_fields = mysql_num_fields(res->_res);
+    MYSQL_ROW result_row;
+    uint32_t i = 0, j = 0;
+
+    Local<Array> js_result = Array::New();
+    Local<Object> js_result_row;
+    Local<Value> js_field;
+
+	i = 0;
+    while ( (result_row = mysql_fetch_row(res->_res)) ) {
+        js_result_row = Object::New();
+
+        for ( j = 0; j < num_fields; j++ ) {
+            SetFieldValue(js_field, fields[j], result_row[j]);
+
+            js_result_row->Set(String::New(fields[j].name), js_field);
+        }
+
+        js_result->Set(Integer::New(i), js_result_row);
+
+        i++;
+    }
+    
+    fetchAll_req->js_result = js_result;
+    req->result = 0;
+
+    return 0;
+}
+
+Handle<Value> MysqlConn::MysqlResult::FetchAll(const Arguments& args) {
+    HandleScope scope;
+
+    REQ_FUN_ARG(0, callback);
+
+    MysqlConn::MysqlResult *res = OBJUNWRAP<MysqlConn::MysqlResult>(args.This());
+    
+    // TODO(Sannis): Is it possible?
+    if (!res->_res) {
+        return THREXC("Not valid result resource");
+    }
+
+    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)
+        calloc(1, sizeof(struct fetchAll_request));
+
+    if (!fetchAll_req) {
+        V8::LowMemoryNotification();
+        return THREXC("Could not allocate enough memory");
+    }
+
+    fetchAll_req->callback = Persistent<Function>::New(callback);
+    fetchAll_req->res = res;
+
+    eio_custom(EIO_FetchAll, EIO_PRI_DEFAULT, EIO_After_FetchAll, fetchAll_req);
+
+    ev_ref(EV_DEFAULT_UC);
+    res->Ref();
 
     return Undefined();
 }

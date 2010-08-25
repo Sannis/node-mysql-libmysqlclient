@@ -18,6 +18,7 @@ See license text in LICENSE file
 ((r)->handle && (r)->handle->status == MYSQL_STATUS_USE_RESULT)
 
 static Persistent<String> result_dataSeekSync_symbol;
+static Persistent<String> result_fetchAll_symbol;
 static Persistent<String> result_fetchAllSync_symbol;
 static Persistent<String> result_fetchArraySync_symbol;
 static Persistent<String> result_fetchFieldSync_symbol;
@@ -65,6 +66,15 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     static Handle<Value> New(const Arguments& args);
 
     static Handle<Value> DataSeekSync(const Arguments& args);
+
+    struct fetchAll_request {
+        Persistent<Function> callback;
+        MysqlConn::MysqlResult *res;
+        Local<Array> js_result;
+    };
+    static int EIO_After_FetchAll(eio_req *req);
+    static int EIO_FetchAll(eio_req *req);
+    static Handle<Value> FetchAll(const Arguments& args);
 
     static Handle<Value> FetchAllSync(const Arguments& args);
 
