@@ -1,3 +1,12 @@
+= Version 0.0.8
+  * Make asynchronous connect and fetchAll
+  * Tested with Node version v0.2.0
+  * Small improves in tests, README
+  * Move all TODO to GitHub issues tracker
+  * Implemented methods:
+  * * MysqlConn::Connect() and libeio wrapper
+  * * MysqlResult::FetchAll() and libeio wrapper
+
 = Version 0.0.7
   * Make asynchronous querying work
   * Simplify javascript logic of createConnection()
@@ -7,7 +16,7 @@
   * Rewrite tests config
   * Improve build wscript
   * Implemented methods:
-  * * MysqlResult::QueryAsync() and libeio wrapper
+  * * MysqlConn::QueryAsync() and libeio wrapper
 
 = Version 0.0.6
   * Update package.json and make small fixes in docs and README
