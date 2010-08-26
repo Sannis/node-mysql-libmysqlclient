@@ -101,3 +101,29 @@ exports.query_InsertIntoTestTableSync = function (test) {
   test.done();
 };
 
+exports.fetchDateAndTimeValues = function (test) {
+  test.expect(3);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    rows;
+  
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  rows = conn.querySync("SELECT CAST('2 2:50' AS TIME) as time;").fetchAllSync();
+  test.ok(rows[0].time instanceof Date, "SELECT CAST('2 2:50' AS TIME) is Date");
+  test.equals(rows[0].time.toUTCString(), "Sat, 03 Jan 1970 02:50:00 GMT", "SELECT CAST('2 2:50' AS TIME) is correct");
+
+  rows = conn.querySync("SELECT CAST('2000-01-01' AS DATE) as date;").fetchAllSync();
+  console.log(rows[0].date);
+  console.log("Expected 2000-01-01");
+  
+  rows = conn.querySync("SELECT CAST('2000-01-01 12:34' AS DATETIME) as datetime;").fetchAllSync();
+  console.log(rows[0].datetime);
+  console.log("Expected 2000-01-01 12:34");
+  
+  conn.closeSync();
+  
+  test.done();
+};
+

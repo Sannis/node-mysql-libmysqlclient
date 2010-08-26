@@ -77,6 +77,7 @@ void MysqlConn::MysqlResult::SetFieldValue(
     js_field = Null();
     switch (field.type) {
         case MYSQL_TYPE_NULL:  // NULL-type field
+            // Already null
             break;
         case MYSQL_TYPE_TINY:  // TINYINT field
         case MYSQL_TYPE_BIT:  // BIT field (MySQL 5.0.3 and up)
@@ -93,15 +94,16 @@ void MysqlConn::MysqlResult::SetFieldValue(
         case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
         case MYSQL_TYPE_FLOAT:  // FLOAT field
         case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
-            // TODO(Sannis): Read about MySQL datatypes and javascript data
             if (field_value) {
               js_field = String::New(field_value)->ToNumber();
             }
             break;
         case MYSQL_TYPE_TIME:  // TIME field
-            // TODO(Sannis): Read about MySQL datatypes and javascript data
             if (field_value) {
-              js_field = String::New(field_value);
+              int hours = 0, minutes = 0, seconds = 0;
+              sscanf(field_value, "%d:%d:%d", &hours, &minutes, &seconds);
+              time_t result = hours*60*60 + minutes*60 + seconds;
+              js_field = Date::New(result*1000);
             }
             break;
         case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
