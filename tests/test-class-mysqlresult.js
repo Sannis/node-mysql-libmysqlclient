@@ -106,7 +106,7 @@ exports.DataSeekSync = function (test) {
 };
 
 exports.FetchAll = function (test) {
-  test.expect(3);
+  test.expect(4);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
@@ -115,6 +115,13 @@ exports.FetchAll = function (test) {
   test.ok(res, "conn.querySync('SHOW TABLES;')");
   res.fetchAll(function (tables) {
     test.ok(tables, "res.fetchAll()");
+    res = false;
+    tables.forEach(function (table) {
+      if (table.Tables_in_test === cfg.test_table) {
+        res = true;
+      }
+    });
+    test.ok(res, "res.fetchAllSync() show test table");
     conn.closeSync();
   
     test.done();
@@ -122,7 +129,7 @@ exports.FetchAll = function (test) {
 };
 
 exports.FetchAllSync = function (test) {
-  test.expect(3);
+  test.expect(4);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
@@ -132,6 +139,13 @@ exports.FetchAllSync = function (test) {
   test.ok(res, "conn.querySync('SHOW TABLES;')");
   tables = res.fetchAllSync();
   test.ok(tables, "res.fetchAllSync()");
+  res = false;
+  tables.forEach(function (table) {
+    if (table.Tables_in_test === cfg.test_table) {
+      res = true;
+    }
+  });
+  test.ok(res, "res.fetchAllSync() show test table");
   conn.closeSync();
   
   test.done();

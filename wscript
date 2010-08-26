@@ -56,8 +56,6 @@ def lint(lnt):
   Utils.exec_command('nodelint ./mysql-libmysqlclient.js')
   # Bindings tests
   Utils.exec_command('nodelint ./tests/*.js')
-  # Bindings benchmarks
-  Utils.exec_command('nodelint ./benchmark/benchmark.js')
 
 def shutdown():
   # HACK to get bindings.node out of build directory.
