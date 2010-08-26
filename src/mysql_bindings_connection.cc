@@ -48,8 +48,8 @@ void MysqlConn::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, multiNextResultSync, MultiNextResultSync);
     ADD_PROTOTYPE_METHOD(connection, multiRealQuerySync, MultiRealQuerySync);
     ADD_PROTOTYPE_METHOD(connection, pingSync, PingSync);
-    ADD_PROTOTYPE_METHOD(connection, querySync, QuerySync);
     ADD_PROTOTYPE_METHOD(connection, query, Query);
+    ADD_PROTOTYPE_METHOD(connection, querySync, QuerySync);
     ADD_PROTOTYPE_METHOD(connection, realQuerySync, RealQuerySync);
     ADD_PROTOTYPE_METHOD(connection, rollbackSync, RollbackSync);
     ADD_PROTOTYPE_METHOD(connection, selectDbSync, SelectDbSync);
@@ -791,64 +791,6 @@ Handle<Value> MysqlConn::PingSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
-    HandleScope scope;
-
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
-
-    if (args.Length() == 0 || !args[0]->IsString()) {
-        return THREXC("First arg of conn.query() must be a string");
-    }
-
-    int result_mode = MYSQLSYNC_STORE_RESULT;
-
-    if (args.Length() == 2) {
-        result_mode = MYSQLSYNC_USE_RESULT;
-    }
-
-    String::Utf8Value query(args[0]->ToString());
-
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
-
-    MYSQLSYNC_DISABLE_MQ;
-
-    int r = mysql_query(conn->_conn, *query);
-    if (r != 0) {
-        return scope.Close(False());
-    }
-
-    if (!mysql_field_count(conn->_conn)) {
-        /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
-        return scope.Close(True());
-    }
-
-    MYSQL_RES *my_result;
-
-    switch (result_mode) {
-        case MYSQLSYNC_STORE_RESULT:
-            my_result = mysql_store_result(conn->_conn);
-            break;
-        case MYSQLSYNC_USE_RESULT:
-            my_result = mysql_use_result(conn->_conn);
-            break;
-    }
-
-    if (!my_result) {
-        return scope.Close(False());
-    }
-
-    int argc = 2;
-    Local<Value> argv[2];
-    argv[0] = External::New(my_result);
-    argv[1] = Integer::New(mysql_field_count(conn->_conn));
-    Persistent<Object> js_result(MysqlResult::constructor_template->
-                             GetFunction()->NewInstance(argc, argv));
-
-    return scope.Close(js_result);
-}
-
 int MysqlConn::EIO_After_Query(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct query_request *query_req = (struct query_request *)(req->data);
@@ -967,6 +909,64 @@ Handle<Value> MysqlConn::Query(const Arguments& args) {
     conn->Ref();
 
     return Undefined();
+}
+
+Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+
+    if (args.Length() == 0 || !args[0]->IsString()) {
+        return THREXC("First arg of conn.query() must be a string");
+    }
+
+    int result_mode = MYSQLSYNC_STORE_RESULT;
+
+    if (args.Length() == 2) {
+        result_mode = MYSQLSYNC_USE_RESULT;
+    }
+
+    String::Utf8Value query(args[0]->ToString());
+
+    if (!conn->_conn) {
+        return THREXC("Not connected");
+    }
+
+    MYSQLSYNC_DISABLE_MQ;
+
+    int r = mysql_query(conn->_conn, *query);
+    if (r != 0) {
+        return scope.Close(False());
+    }
+
+    if (!mysql_field_count(conn->_conn)) {
+        /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
+        return scope.Close(True());
+    }
+
+    MYSQL_RES *my_result;
+
+    switch (result_mode) {
+        case MYSQLSYNC_STORE_RESULT:
+            my_result = mysql_store_result(conn->_conn);
+            break;
+        case MYSQLSYNC_USE_RESULT:
+            my_result = mysql_use_result(conn->_conn);
+            break;
+    }
+
+    if (!my_result) {
+        return scope.Close(False());
+    }
+
+    int argc = 2;
+    Local<Value> argv[2];
+    argv[0] = External::New(my_result);
+    argv[1] = Integer::New(mysql_field_count(conn->_conn));
+    Persistent<Object> js_result(MysqlResult::constructor_template->
+                             GetFunction()->NewInstance(argc, argv));
+
+    return scope.Close(js_result);
 }
 
 Handle<Value> MysqlConn::RollbackSync(const Arguments& args) {

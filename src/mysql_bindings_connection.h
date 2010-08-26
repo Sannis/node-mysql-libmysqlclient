@@ -222,8 +222,6 @@ class MysqlConn : public node::EventEmitter {
 
     static Handle<Value> PingSync(const Arguments& args);
 
-    static Handle<Value> QuerySync(const Arguments& args);
-
     struct query_request {
         Persistent<Function> callback;
         MysqlConn *conn;
@@ -235,6 +233,8 @@ class MysqlConn : public node::EventEmitter {
     static int EIO_After_Query(eio_req *req);
     static int EIO_Query(eio_req *req);
     static Handle<Value> Query(const Arguments& args);
+
+    static Handle<Value> QuerySync(const Arguments& args);
 
     static Handle<Value> RealQuerySync(const Arguments& args);
 
