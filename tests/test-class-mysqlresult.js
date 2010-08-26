@@ -106,15 +106,16 @@ exports.DataSeekSync = function (test) {
 };
 
 exports.FetchAll = function (test) {
-  test.expect(4);
+  test.expect(5);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   res = conn.querySync("SHOW TABLES;");
   test.ok(res, "conn.querySync('SHOW TABLES;')");
-  res.fetchAll(function (tables) {
-    test.ok(tables, "res.fetchAll()");
+  res.fetchAll(function (err, tables) {
+    test.ok(err === null, "res.fetchAll() err===null");
+    test.ok(tables, "res.fetchAll() result");
     res = false;
     tables.forEach(function (table) {
       if (table.Tables_in_test === cfg.test_table) {

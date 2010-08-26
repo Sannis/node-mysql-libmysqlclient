@@ -795,7 +795,7 @@ int MysqlConn::EIO_After_Query(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct query_request *query_req = (struct query_request *)(req->data);
 
-    int argc = 1; /* node.js convention, there is always one argument */
+    int argc = 1;
     Local<Value> argv[2];
     HandleScope scope;
 

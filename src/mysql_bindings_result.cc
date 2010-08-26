@@ -180,13 +180,15 @@ int MysqlConn::MysqlResult::EIO_After_FetchAll(eio_req *req) {
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data); // NOLINT
 
     int argc = 1; /* node.js convention, there is always one argument */
-    Local<Value> argv[1];
+    Local<Value> argv[2];
     HandleScope scope;
 
     if (req->result) {
         argv[0] = Exception::Error(String::New("Error on fetching"));
     } else {
-        argv[0] = Local<Value>::New(scope.Close(fetchAll_req->js_result));
+        argv[1] = Local<Value>::New(scope.Close(fetchAll_req->js_result));
+        argv[0] = Local<Value>::New(Null());
+        argc = 2;
     }
 
     TryCatch try_catch;
