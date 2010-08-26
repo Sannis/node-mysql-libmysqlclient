@@ -177,7 +177,7 @@ Handle<Value> MysqlConn::MysqlResult::DataSeekSync(const Arguments& args) {
 
 int MysqlConn::MysqlResult::EIO_After_FetchAll(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
-    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
+    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data); // NOLINT
 
     int argc = 1; /* node.js convention, there is always one argument */
     Local<Value> argv[1];
@@ -205,7 +205,7 @@ int MysqlConn::MysqlResult::EIO_After_FetchAll(eio_req *req) {
 }
 
 int MysqlConn::MysqlResult::EIO_FetchAll(eio_req *req) {
-    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
+    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data); // NOLINT
 
     MysqlConn::MysqlResult *res = fetchAll_req->res;
 
@@ -223,7 +223,7 @@ int MysqlConn::MysqlResult::EIO_FetchAll(eio_req *req) {
     Local<Object> js_result_row;
     Local<Value> js_field;
 
-	i = 0;
+    i = 0;
     while ( (result_row = mysql_fetch_row(res->_res)) ) {
         js_result_row = Object::New();
 
@@ -237,7 +237,7 @@ int MysqlConn::MysqlResult::EIO_FetchAll(eio_req *req) {
 
         i++;
     }
-    
+
     fetchAll_req->js_result = js_result;
     req->result = 0;
 
@@ -249,8 +249,8 @@ Handle<Value> MysqlConn::MysqlResult::FetchAll(const Arguments& args) {
 
     REQ_FUN_ARG(0, callback);
 
-    MysqlConn::MysqlResult *res = OBJUNWRAP<MysqlConn::MysqlResult>(args.This());
-    
+    MysqlConn::MysqlResult *res = OBJUNWRAP<MysqlConn::MysqlResult>(args.This()); // NOLINT
+
     // TODO(Sannis): Is it possible?
     if (!res->_res) {
         return THREXC("Not valid result resource");

@@ -242,10 +242,9 @@ int MysqlConn::EIO_After_Connect(eio_req *req) {
     Local<Value> argv[1];
     int argc = 1;
 
-    if(req->result) {
-      argv[0] = Local<Value>::New(Integer::New(connect_req->conn->connect_errno));
-    } 
-    else {
+    if (req->result) {
+      argv[0] = Local<Value>::New(Integer::New(connect_req->conn->connect_errno)); // NOLINT
+    } else {
       argv[0] = Local<Value>::New(Null());
     }
 
@@ -268,19 +267,18 @@ int MysqlConn::EIO_Connect(eio_req *req) {
     struct connect_request *connect_req = (struct connect_request *)(req->data);
 
     req->result = connect_req->conn->Connect(
-    			connect_req->hostname ? **(connect_req->hostname) : NULL,
-    			connect_req->user ? **(connect_req->user) : NULL, 
-    			connect_req->password ? **(connect_req->password) : NULL,
-    			connect_req->dbname ? **(connect_req->dbname) : NULL,
-    			connect_req->port,
-    			connect_req->socket ? **(connect_req->socket) : NULL
-    		) ? 0 : 1;
+                connect_req->hostname ? **(connect_req->hostname) : NULL,
+                connect_req->user ? **(connect_req->user) : NULL,
+                connect_req->password ? **(connect_req->password) : NULL,
+                connect_req->dbname ? **(connect_req->dbname) : NULL,
+                connect_req->port,
+                connect_req->socket ? **(connect_req->socket) : NULL) ? 0 : 1;
 
     delete connect_req->hostname;
     delete connect_req->user;
     delete connect_req->password;
     delete connect_req->socket;
-    
+
     return 0;
 }
 
@@ -301,11 +299,11 @@ Handle<Value> MysqlConn::Connect(const Arguments& args) {
     connect_req->callback = Persistent<Function>::New(callback);
     connect_req->conn = conn;
 
-    connect_req->hostname = args.Length() > 1 && args[0]->IsString() ? 
+    connect_req->hostname = args.Length() > 1 && args[0]->IsString() ?
         new String::Utf8Value(args[0]->ToString()) : NULL;
-    connect_req->user = args.Length() > 2 && args[1]->IsString() ? 
+    connect_req->user = args.Length() > 2 && args[1]->IsString() ?
         new String::Utf8Value(args[1]->ToString()) : NULL;
-    connect_req->password = args.Length() > 3 && args[2]->IsString() ? 
+    connect_req->password = args.Length() > 3 && args[2]->IsString() ?
         new String::Utf8Value(args[2]->ToString()) : NULL;
     connect_req->dbname = args.Length() > 4 && args[3]->IsString() ?
         new String::Utf8Value(args[3]->ToString()) : NULL;
