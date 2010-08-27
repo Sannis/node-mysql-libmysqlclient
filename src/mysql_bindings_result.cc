@@ -165,9 +165,23 @@ void MysqlConn::MysqlResult::SetFieldValue(
         case MYSQL_TYPE_BLOB:
         case MYSQL_TYPE_VAR_STRING:
         case MYSQL_TYPE_VARCHAR:
+            if (field_value) {
+                js_field = String::New(field_value);
+            }
         case MYSQL_TYPE_SET:  // SET field
+            if (field_value) {
+                js_field = String::New(field_value);
+            }
         case MYSQL_TYPE_ENUM:  // ENUM field
+            if (field_value) {
+                js_field = String::New(field_value);
+            }
         case MYSQL_TYPE_GEOMETRY:  // Spatial fielda
+            // See for information:
+            // http://dev.mysql.com/doc/refman/5.1/en/spatial-extensions.html
+            if (field_value) {
+                js_field = String::New(field_value);
+            }
         default:
             if (field_value) {
                 js_field = String::New(field_value);
