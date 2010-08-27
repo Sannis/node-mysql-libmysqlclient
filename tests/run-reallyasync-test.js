@@ -21,8 +21,6 @@ var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.pas
   last_insert_id,
   i;
   
-var irc = cfg.insert_rows_count;
-  
 res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
 res = conn.querySync("CREATE TABLE " + cfg.test_table +
   " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
@@ -36,7 +34,7 @@ if (!res) {
 
 sys.puts("Start");
 
-for (i = 0; i < irc; i += 1)
+for (i = 0; i < cfg.insert_rows_count; i += 1)
 {
   random_number = Math.round(Math.random() * 1000000);
   random_boolean = (Math.random() > 0.5) ? 1 : 0;
