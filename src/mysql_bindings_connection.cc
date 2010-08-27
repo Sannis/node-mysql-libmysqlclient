@@ -850,27 +850,28 @@ int MysqlConn::EIO_Query(eio_req *req) {
     MYSQLSYNC_DISABLE_MQ;
 
     pthread_mutex_lock(&conn->query_lock);
-    int r = mysql_real_query(
-                    conn->_conn,
-                    query_req->query,
-                    query_req->query_length);
-    if (r) {
+    int r = mysql_query(conn->_conn, query_req->query);
+    if (r != 0) {
+        // Query error
         req->result = 1;
     } else {
-        req->int1 = 1;
         req->result = 0;
-
+        
+        MYSQL_RES *my_result = mysql_store_result(conn->_conn);
+        
         query_req->field_count = mysql_field_count(conn->_conn);
-        /* If no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN */
-        if (!query_req->field_count) {
-            req->int1 = 0;
-        } else {
-            MYSQL_RES *my_result = mysql_store_result(conn->_conn);
-            if (my_result) {
-                query_req->my_result = my_result;
+
+        if (!my_result) {
+            if (query_req->field_count == 0) {
+                // No result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN
+                req->int1 = 0;
             } else {
+                // Result store error
                 req->result = 1;
             }
+        } else {
+            req->int1 = 1;
+            query_req->my_result = my_result;
         }
     }
     pthread_mutex_unlock(&conn->query_lock);
@@ -897,13 +898,12 @@ Handle<Value> MysqlConn::Query(const Arguments& args) {
         return THREXC("Could not allocate enough memory");
     }
 
-    query_req->query_length = query.length();
     query_req->query =
-        reinterpret_cast<char *>(calloc(query_req->query_length + 1,
+        reinterpret_cast<char *>(calloc(query.length() + 1,
         sizeof(char))); //NOLINT
 
-    if (snprintf(query_req->query, query_req->query_length + 1, "%s", *query) !=
-                                                      query_req->query_length) {
+    if (snprintf(query_req->query, query.length() + 1, "%s", *query) !=
+                                                      query.length()) {
         return THREXC("Snprintf() error");
     }
 
@@ -937,26 +937,30 @@ Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
 
     int r = mysql_query(conn->_conn, *query);
     if (r != 0) {
+        // Query error
+        // TODO(Sannis): change this to THREXC()?
         return scope.Close(False());
     }
-
-    if (!mysql_field_count(conn->_conn)) {
-        /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
-        return scope.Close(True());
-    }
-
-    MYSQL_RES *my_result;
-
-    my_result = mysql_store_result(conn->_conn);
+    
+    MYSQL_RES *my_result = mysql_store_result(conn->_conn);
+    
+    int field_count = mysql_field_count(conn->_conn);
 
     if (!my_result) {
-        return scope.Close(False());
+        if (field_count == 0) {
+            // No result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN
+            return scope.Close(True());
+        } else {
+            // Error
+            // TODO(Sannis): change this to THREXC()?
+            return scope.Close(False());
+        }
     }
 
     int argc = 2;
     Local<Value> argv[2];
     argv[0] = External::New(my_result);
-    argv[1] = Integer::New(mysql_field_count(conn->_conn));
+    argv[1] = Integer::New(field_count);
     Persistent<Object> js_result(MysqlResult::constructor_template->
                              GetFunction()->NewInstance(argc, argv));
 

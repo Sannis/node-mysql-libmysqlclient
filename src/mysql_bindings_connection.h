@@ -228,7 +228,6 @@ class MysqlConn : public node::EventEmitter {
     struct query_request {
         Persistent<Function> callback;
         MysqlConn *conn;
-        int query_length;
         char *query;
         MYSQL_RES *my_result;
         uint32_t field_count;
