@@ -129,7 +129,7 @@ void MysqlConn::MysqlResult::SetFieldValue(
               timeinfo->tm_year = year - 1900;
               timeinfo->tm_mon = month - 1;
               timeinfo->tm_mday = day;
-              timeinfo->tm_hour = hour + (h1 - h2);
+              timeinfo->tm_hour = hour + (h1 - h2 + 24)%24;
               timeinfo->tm_min = min;
               timeinfo->tm_sec = sec;
               rawtime = mktime(timeinfo);
@@ -152,7 +152,7 @@ void MysqlConn::MysqlResult::SetFieldValue(
               timeinfo->tm_year = year - 1900;
               timeinfo->tm_mon = month - 1;
               timeinfo->tm_mday = day;
-              timeinfo->tm_hour = h1 - h2;
+              timeinfo->tm_hour = (h1 - h2 + 24)%24;
               timeinfo->tm_min = 0;
               timeinfo->tm_sec = 0;
               rawtime = mktime(timeinfo);
