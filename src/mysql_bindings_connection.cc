@@ -927,12 +927,6 @@ Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
         return THREXC("First arg of conn.query() must be a string");
     }
 
-    int result_mode = MYSQLSYNC_STORE_RESULT;
-
-    if (args.Length() == 2) {
-        result_mode = MYSQLSYNC_USE_RESULT;
-    }
-
     String::Utf8Value query(args[0]->ToString());
 
     if (!conn->_conn) {
@@ -953,14 +947,7 @@ Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
 
     MYSQL_RES *my_result;
 
-    switch (result_mode) {
-        case MYSQLSYNC_STORE_RESULT:
-            my_result = mysql_store_result(conn->_conn);
-            break;
-        case MYSQLSYNC_USE_RESULT:
-            my_result = mysql_use_result(conn->_conn);
-            break;
-    }
+    my_result = mysql_store_result(conn->_conn);
 
     if (!my_result) {
         return scope.Close(False());

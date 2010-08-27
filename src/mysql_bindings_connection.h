@@ -51,9 +51,6 @@ return ThrowException(Exception::TypeError( \
 String::New("Argument " #I " invalid"))); \
 Local<External> VAR = Local<External>::Cast(args[I]);
 
-#define MYSQLSYNC_STORE_RESULT 0
-#define MYSQLSYNC_USE_RESULT   1
-
 #define MYSQLSYNC_DISABLE_MQ if (conn->multi_query) { \
     mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_OFF); \
     conn->multi_query = false; \
