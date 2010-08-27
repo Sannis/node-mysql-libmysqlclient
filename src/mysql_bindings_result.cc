@@ -169,6 +169,13 @@ void MysqlConn::MysqlResult::SetFieldValue(
     }
 }
 
+void MysqlConn::MysqlResult::Free() {
+    if (_res) {
+        mysql_free_result(_res);
+        _res = NULL;
+    }
+}
+
 Handle<Value> MysqlConn::MysqlResult::New(const Arguments& args) {
     HandleScope scope;
 
@@ -186,9 +193,8 @@ Handle<Value> MysqlConn::MysqlResult::DataSeekSync(const Arguments& args) {
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
 
     if (args.Length() == 0 || !args[0]->IsNumber()) {
@@ -246,11 +252,6 @@ int MysqlConn::MysqlResult::EIO_FetchAll(eio_req *req) {
 
     MysqlConn::MysqlResult *res = fetchAll_req->res;
 
-    if (!res->_res) {
-        req->result = 1;
-        return 0;
-    }
-
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
     uint32_t num_fields = mysql_num_fields(res->_res);
     MYSQL_ROW result_row;
@@ -288,9 +289,8 @@ Handle<Value> MysqlConn::MysqlResult::FetchAll(const Arguments& args) {
 
     MysqlConn::MysqlResult *res = OBJUNWRAP<MysqlConn::MysqlResult>(args.This()); // NOLINT
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return THREXC("Not valid result resource");
+        return THREXC("Result has been freed.");
     }
 
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)
@@ -317,9 +317,8 @@ Handle<Value> MysqlConn::MysqlResult::FetchAllSync(const Arguments& args) {
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
 
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
@@ -354,10 +353,10 @@ Handle<Value> MysqlConn::MysqlResult::FetchArraySync(const Arguments& args) {
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
+    
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
     uint32_t num_fields = mysql_num_fields(res->_res);
     uint32_t j = 0;
@@ -387,9 +386,8 @@ Handle<Value> MysqlConn::MysqlResult::FetchFieldSync(const Arguments& args) {
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
 
     MYSQL_FIELD *field;
@@ -413,9 +411,8 @@ Handle<Value> MysqlConn::MysqlResult::FetchFieldDirectSync(const Arguments& args
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
 
     if (args.Length() == 0 || !args[0]->IsNumber()) {
@@ -445,9 +442,8 @@ Handle<Value> MysqlConn::MysqlResult::FetchFieldsSync(const Arguments& args) {
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
 
     uint32_t num_fields = mysql_num_fields(res->_res);
@@ -474,9 +470,8 @@ Handle<Value> MysqlConn::MysqlResult::FetchLengthsSync(const Arguments& args) {
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
 
     uint32_t num_fields = mysql_num_fields(res->_res);
@@ -503,9 +498,8 @@ Handle<Value> MysqlConn::MysqlResult::FetchObjectSync(const Arguments& args) {
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
 
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
@@ -538,9 +532,8 @@ Handle<Value> MysqlConn::MysqlResult::FieldCountSync(const Arguments& args) {
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
 
     if (res->field_count > 0) {
@@ -555,9 +548,8 @@ Handle<Value> MysqlConn::MysqlResult::FieldSeekSync(const Arguments& args) {
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
 
     if (args.Length() == 0 || !args[0]->IsNumber()) {
@@ -580,9 +572,8 @@ Handle<Value> MysqlConn::MysqlResult::FieldTellSync(const Arguments& args) {
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
 
     Local<Value> js_result = Integer::New(mysql_field_tell(res->_res));
@@ -590,21 +581,13 @@ Handle<Value> MysqlConn::MysqlResult::FieldTellSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-void MysqlConn::MysqlResult::Free() {
-    if (_res) {
-        mysql_free_result(_res);
-        _res = NULL;
-    }
-}
-
 Handle<Value> MysqlConn::MysqlResult::FreeSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible? Yes!
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
 
     res->Free();
@@ -617,9 +600,8 @@ Handle<Value> MysqlConn::MysqlResult::NumRowsSync(const Arguments& args) {
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
 
-    // TODO(Sannis): Is it possible?
     if (!res->_res) {
-        return scope.Close(False());
+        return THREXC("Result has been freed.");
     }
 
     if (mysql_result_is_unbuffered(res->_res)) {
