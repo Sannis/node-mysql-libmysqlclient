@@ -27,14 +27,13 @@ exports.createTestTableSimple = function (test) {
     " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
   res = conn.querySync("SHOW TABLES");
   tables = res.fetchAllSync();
-  
   test.ok(res.fieldCount === 1, "SHOW TABLES result field count === 1");
   test.ok(tables.some(function (r) {
     return r['Tables_in_' + cfg.database] === cfg.test_table;
   }), "Find the test table in result");
-  
+
   conn.closeSync();
-  
+
   test.done();
 };
 

@@ -168,24 +168,57 @@ void MysqlConn::MysqlResult::SetFieldValue(
             if (field_value) {
                 js_field = String::New(field_value);
             }
+            break;
         case MYSQL_TYPE_SET:  // SET field
+            // TODO(Sannis): Maybe memory leaks here
             if (field_value) {
-                js_field = String::New(field_value);
+                char *pch;
+                int i = 0;
+                Local<Array> js_field_array = Array::New();
+
+                pch = strtok(field_value, ",");
+                while (pch != NULL) {
+                    js_field_array->Set(Integer::New(i), String::New(pch));
+                    pch = strtok(NULL, ",");
+                    i++;
+                }
+
+                js_field = js_field_array;
             }
+            break;
         case MYSQL_TYPE_ENUM:  // ENUM field
             if (field_value) {
                 js_field = String::New(field_value);
             }
+            break;
         case MYSQL_TYPE_GEOMETRY:  // Spatial fielda
             // See for information:
             // http://dev.mysql.com/doc/refman/5.1/en/spatial-extensions.html
             if (field_value) {
                 js_field = String::New(field_value);
             }
+            break;
         default:
             if (field_value) {
                 js_field = String::New(field_value);
             }
+    }
+
+    // Proper MYSQL_TYPE_SET type handle, thanks for Mark Hechim
+    // http://www.mirrorservice.org/sites/ftp.mysql.com/doc/refman/5.1/en/c-api-datatypes.html#c10485
+    if (field_value && (field.flags & SET_FLAG)) {
+        char *pch;
+        int i = 0;
+        Local<Array> js_field_array = Array::New();
+
+        pch = strtok(field_value, ",");
+        while (pch != NULL) {
+            js_field_array->Set(Integer::New(i), String::New(pch));
+            pch = strtok(NULL, ",");
+            i++;
+        }
+
+        js_field = js_field_array;
     }
 }
 
@@ -512,12 +545,10 @@ Handle<Value> MysqlConn::MysqlResult::FetchLengthsSync(const Arguments& args) {
     }
 
     uint32_t num_fields = mysql_num_fields(res->_res);
-    unsigned long int *lengths;
+    unsigned long int *lengths = mysql_fetch_lengths(res->_res);
     uint32_t i = 0;
 
     Local<Array> js_result = Array::New();
-
-    lengths = mysql_fetch_lengths(res->_res);
 
     if (!lengths) {
         return scope.Close(False());

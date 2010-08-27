@@ -12,6 +12,43 @@ var
   sys = require("sys"),
   mysql_libmysqlclient = require("../mysql-libmysqlclient");
 
+exports.createTestTableComplex = function (test) {
+  test.expect(3);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res,
+    tables;
+
+  conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
+  conn.querySync("CREATE TABLE " + cfg.test_table +
+    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
+    " size ENUM('small', 'medium', 'large')," +
+    " colors SET('red', 'green', 'blue')," +
+    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
+  res = conn.querySync("SHOW TABLES");
+  tables = res.fetchAllSync();
+  
+  test.ok(res.fieldCount === 1, "SHOW TABLES result field count === 1");
+  test.ok(tables.some(function (r) {
+    return r['Tables_in_' + cfg.database] === cfg.test_table;
+  }), "Find the test table in result");
+  
+  res = conn.querySync("INSERT INTO " + cfg.test_table +
+                   " (size, colors) VALUES ('small', 'red');");
+  res = conn.querySync("INSERT INTO " + cfg.test_table +
+                   " (size, colors) VALUES ('medium', 'red,green,blue');") && res;
+  res = conn.querySync("INSERT INTO " + cfg.test_table +
+                    " (size, colors) VALUES ('large', 'green');") && res;
+  res = conn.querySync("INSERT INTO " + cfg.test_table +
+                   " (size, colors) VALUES ('large', 'red,blue');") && res;
+  test.ok(res, "conn.querySync('INSERT INTO test_table ...')");
+  
+  conn.closeSync();
+  
+  test.done();
+};
+
 exports.fetchDateAndTimeValues = function (test) {
   test.expect(9);
   
@@ -44,6 +81,28 @@ exports.fetchDateAndTimeValues = function (test) {
   test.equals(rows[0].datetime.toUTCString(), "Tue, 25 Oct 1988 00:00:00 GMT", "SELECT CAST('1988-10-25' AS DATETIME) is correct");
   //console.log(rows[0].datetime.toUTCString());
   //console.log("Expected Tue, 25 Oct 1988 00:00:00 GMT");
+
+  conn.closeSync();
+  
+  test.done();
+};
+
+exports.fetchSetValues = function (test) {
+  test.expect(5);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    rows;
+  
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+
+  rows = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';").fetchAllSync();
+  test.ok(rows[0].colors instanceof Array, "SET fetched result is Array");
+  test.same(rows[0].colors, ['red'], "SET fetched result is correct");
+
+  rows = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='medium';").fetchAllSync();
+  test.ok(rows[0].colors instanceof Array, "SET fetched result is Array");
+  test.same(rows[0].colors, ['red', 'green', 'blue'], "SET fetched result is correct");
 
   conn.closeSync();
   
