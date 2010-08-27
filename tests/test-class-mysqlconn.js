@@ -22,6 +22,31 @@ exports.New = function (test) {
   test.done();
 };
 
+exports.ConnectErrnoProperty = function (test) {
+  test.expect(2);
+  
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password);
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  conn.closeSync();
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
+  test.equals(conn.connectErrno, 1044, "conn.connectErrno");
+  
+  test.done();
+};
+
+exports.ConnectErrorProperty = function (test) {
+  test.expect(2);
+  
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password), error_str;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  conn.closeSync();
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
+
+  test.ok(conn.connectError.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")), "conn.connectError");
+  
+  test.done();
+};
+
 exports.AffectedRowsSync = function (test) {
   test.expect(5);
 
@@ -78,37 +103,6 @@ exports.ConnectSync = function (test) {
   conn.closeSync();
   test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password), "conn.connectSync() without database selection");
   conn.closeSync();
-  
-  test.done();
-};
-
-exports.ConnectErrnoSync = function (test) {
-  test.expect(2);
-  
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password);
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
-  conn.closeSync();
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
-  test.equals(conn.connectErrnoSync(), 1044, "conn.connectErrnoSync()");
-  
-  test.done();
-};
-
-exports.ConnectErrorSync = function (test) {
-  test.expect(2);
-  
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password), error_str;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
-  conn.closeSync();
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
-  
-  error_str = conn.connectErrorSync();
-
-  if (error_str.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'"))) {
-    test.ok(true, "conn.connectErrorSync()");  
-  } else {
-    test.ok(false, "conn.connectErrorSync()");  
-  }
   
   test.done();
 };

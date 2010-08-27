@@ -73,8 +73,6 @@ static Persistent<String> connection_commitSync_symbol;
 static Persistent<String> connection_connect_symbol;
 static Persistent<String> connection_connectSync_symbol;
 static Persistent<String> connection_connectedSync_symbol;
-static Persistent<String> connection_connectErrnoSync_symbol;
-static Persistent<String> connection_connectErrorSync_symbol;
 static Persistent<String> connection_closeSync_symbol;
 static Persistent<String> connection_debugSync_symbol;
 static Persistent<String> connection_dumpDebugInfoSync_symbol;
@@ -154,8 +152,20 @@ class MysqlConn : public node::EventEmitter {
 
     ~MysqlConn();
 
+    // Constructor
+
     static Handle<Value> New(const Arguments& args);
 
+    // Properties
+
+    static Handle<Value> ConnectErrnoGetter(Local<String> property,
+                                             const AccessorInfo &info);
+
+    static Handle<Value> ConnectErrorGetter(Local<String> property,
+                                             const AccessorInfo &info);
+    
+    // Methods
+    
     static Handle<Value> AffectedRowsSync(const Arguments& args);
 
     static Handle<Value> AutoCommitSync(const Arguments& args);
@@ -181,10 +191,6 @@ class MysqlConn : public node::EventEmitter {
     static Handle<Value> ConnectSync(const Arguments& args);
 
     static Handle<Value> ConnectedSync(const Arguments& args);
-
-    static Handle<Value> ConnectErrnoSync(const Arguments& args);
-
-    static Handle<Value> ConnectErrorSync(const Arguments& args);
 
     static Handle<Value> CloseSync(const Arguments& args);
 

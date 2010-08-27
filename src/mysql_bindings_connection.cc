@@ -16,11 +16,17 @@ void MysqlConn::Init(Handle<Object> target) {
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
 
+    // Constructor
     constructor_template = Persistent<FunctionTemplate>::New(t);
     constructor_template->Inherit(EventEmitter::constructor_template);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlConn"));
 
+    // Properties
+    constructor_template->InstanceTemplate()->SetAccessor(String::New("connectErrno"), ConnectErrnoGetter);
+    constructor_template->InstanceTemplate()->SetAccessor(String::New("connectError"), ConnectErrorGetter);
+
+    // Methods
     ADD_PROTOTYPE_METHOD(connection, affectedRowsSync, AffectedRowsSync);
     ADD_PROTOTYPE_METHOD(connection, autoCommitSync, AutoCommitSync);
     ADD_PROTOTYPE_METHOD(connection, changeUserSync, ChangeUserSync);
@@ -28,8 +34,6 @@ void MysqlConn::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, connect, Connect);
     ADD_PROTOTYPE_METHOD(connection, connectSync, ConnectSync);
     ADD_PROTOTYPE_METHOD(connection, connectedSync, ConnectedSync);
-    ADD_PROTOTYPE_METHOD(connection, connectErrnoSync, ConnectErrnoSync);
-    ADD_PROTOTYPE_METHOD(connection, connectErrorSync, ConnectErrorSync);
     ADD_PROTOTYPE_METHOD(connection, closeSync, CloseSync);
     ADD_PROTOTYPE_METHOD(connection, debugSync, DebugSync);
     ADD_PROTOTYPE_METHOD(connection, dumpDebugInfoSync, DumpDebugInfoSync);
@@ -150,6 +154,29 @@ Handle<Value> MysqlConn::New(const Arguments& args) {
     conn->Wrap(args.This());
 
     return args.This();
+}
+
+Handle<Value> MysqlConn::ConnectErrnoGetter(Local<String> property,
+                                            const AccessorInfo &info) {
+    HandleScope scope;
+
+    MysqlConn *conn = OBJUNWRAP<MysqlConn>(info.Holder());
+
+    Local<Value> js_result = Integer::New(conn->connect_errno);
+
+    return scope.Close(js_result);
+}
+
+Handle<Value> MysqlConn::ConnectErrorGetter(Local<String> property,
+                                            const AccessorInfo &info) {
+    HandleScope scope;
+    
+    MysqlConn *conn = OBJUNWRAP<MysqlConn>(info.Holder());
+
+    Local<Value> js_result = String::New(conn->connect_error);
+    
+    return scope.Close(js_result);
+
 }
 
 Handle<Value> MysqlConn::AffectedRowsSync(const Arguments& args) {
@@ -379,26 +406,6 @@ Handle<Value> MysqlConn::ConnectedSync(const Arguments& args) {
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
 
     return scope.Close(conn->connected ? True() : False());
-}
-
-Handle<Value> MysqlConn::ConnectErrnoSync(const Arguments& args) {
-    HandleScope scope;
-
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
-
-    Local<Value> js_result = Integer::New(conn->connect_errno);
-
-    return scope.Close(js_result);
-}
-
-Handle<Value> MysqlConn::ConnectErrorSync(const Arguments& args) {
-    HandleScope scope;
-
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
-
-    Local<Value> js_result = String::New(conn->connect_error);
-
-    return scope.Close(js_result);
 }
 
 Handle<Value> MysqlConn::CloseSync(const Arguments& args) {
