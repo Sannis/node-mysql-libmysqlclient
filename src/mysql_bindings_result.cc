@@ -103,21 +103,54 @@ void MysqlConn::MysqlResult::SetFieldValue(
               int hours = 0, minutes = 0, seconds = 0;
               sscanf(field_value, "%d:%d:%d", &hours, &minutes, &seconds);
               time_t result = hours*60*60 + minutes*60 + seconds;
-              js_field = Date::New(result*1000);
+              js_field = Date::New(static_cast<double>(result)*1000);
             }
             break;
         case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
         case MYSQL_TYPE_DATETIME:  // DATETIME field
-            // TODO(Sannis): Read about MySQL datatypes and javascript data
             if (field_value) {
-              js_field = String::New(field_value);
+              int year = 0, month = 0, day = 0;
+              int hour = 0, min = 0, sec = 0;
+              int h1, h2;
+              sscanf(field_value, "%d-%d-%d %d:%d:%d", &year, &month, &day, &hour, &min, &sec);
+              time_t rawtime;
+              struct tm * timeinfo;
+              time(&rawtime);
+              timeinfo = localtime(&rawtime);
+              h1 = timeinfo->tm_hour - (timeinfo->tm_isdst > 0 ? 1 : 0);
+              timeinfo = gmtime(&rawtime);
+              h2 = timeinfo->tm_hour;
+              timeinfo->tm_year = year - 1900;
+              timeinfo->tm_mon = month - 1;
+              timeinfo->tm_mday = day;
+              timeinfo->tm_hour = hour + (h1 - h2);
+              timeinfo->tm_min = min;
+              timeinfo->tm_sec = sec;
+              rawtime = mktime(timeinfo);
+              js_field = Date::New(static_cast<double>(rawtime)*1000);
             }
             break;
         case MYSQL_TYPE_DATE:  // DATE field
         case MYSQL_TYPE_NEWDATE:  // Newer const used > 5.0
-            // TODO(Sannis): Read about MySQL datatypes and javascript data
             if (field_value) {
-              js_field = String::New(field_value);
+              int year = 0, month = 0, day = 0;
+              int h1, h2;
+              sscanf(field_value, "%d-%d-%d", &year, &month, &day);
+              time_t rawtime;
+              struct tm * timeinfo;
+              time(&rawtime);
+              timeinfo = localtime(&rawtime);
+              h1 = timeinfo->tm_hour - (timeinfo->tm_isdst > 0 ? 1 : 0);
+              timeinfo = gmtime(&rawtime);
+              h2 = timeinfo->tm_hour;
+              timeinfo->tm_year = year - 1900;
+              timeinfo->tm_mon = month - 1;
+              timeinfo->tm_mday = day;
+              timeinfo->tm_hour = h1 - h2;
+              timeinfo->tm_min = 0;
+              timeinfo->tm_sec = 0;
+              rawtime = mktime(timeinfo);
+              js_field = Date::New(static_cast<double>(rawtime)*1000);
             }
             break;
         case MYSQL_TYPE_TINY_BLOB:

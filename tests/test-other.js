@@ -102,7 +102,7 @@ exports.query_InsertIntoTestTableSync = function (test) {
 };
 
 exports.fetchDateAndTimeValues = function (test) {
-  test.expect(3);
+  test.expect(9);
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
@@ -115,13 +115,17 @@ exports.fetchDateAndTimeValues = function (test) {
   test.equals(rows[0].time.toUTCString(), "Sat, 03 Jan 1970 02:50:00 GMT", "SELECT CAST('2 2:50' AS TIME) is correct");
 
   rows = conn.querySync("SELECT CAST('2000-01-01' AS DATE) as date;").fetchAllSync();
-  console.log(rows[0].date);
-  console.log("Expected 2000-01-01");
+  test.ok(rows[0].date instanceof Date, "SELECT CAST('2000-01-01' AS DATE) is Date");
+  test.equals(rows[0].date.toUTCString(), "Sat, 01 Jan 2000 00:00:00 GMT", "SELECT CAST('2000-01-01' AS DATE) is correct");
+
+  rows = conn.querySync("SELECT CAST('1988-10-25 06:34' AS DATETIME) as datetime;").fetchAllSync();
+  test.ok(rows[0].datetime instanceof Date, "SELECT CAST('1988-10-25 06:34' AS DATETIME) is Date");
+  test.equals(rows[0].datetime.toUTCString(), "Tue, 25 Oct 1988 06:34:00 GMT", "SELECT CAST('1988-10-25 06:34' AS DATETIME) is correct");
   
-  rows = conn.querySync("SELECT CAST('2000-01-01 12:34' AS DATETIME) as datetime;").fetchAllSync();
-  console.log(rows[0].datetime);
-  console.log("Expected 2000-01-01 12:34");
-  
+  rows = conn.querySync("SELECT CAST('1988-10-25' AS DATETIME) as datetime;").fetchAllSync();
+  test.ok(rows[0].datetime instanceof Date, "SELECT CAST('1988-10-25' AS DATETIME) is Date");
+  test.equals(rows[0].datetime.toUTCString(), "Tue, 25 Oct 1988 00:00:00 GMT", "SELECT CAST('1988-10-25' AS DATETIME) is correct");
+
   conn.closeSync();
   
   test.done();
