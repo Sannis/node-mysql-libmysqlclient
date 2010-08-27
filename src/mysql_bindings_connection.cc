@@ -23,8 +23,8 @@ void MysqlConn::Init(Handle<Object> target) {
     constructor_template->SetClassName(String::NewSymbol("MysqlConn"));
 
     // Properties
-    constructor_template->InstanceTemplate()->SetAccessor(String::New("connectErrno"), ConnectErrnoGetter);
-    constructor_template->InstanceTemplate()->SetAccessor(String::New("connectError"), ConnectErrorGetter);
+    constructor_template->InstanceTemplate()->SetAccessor(String::New("connectErrno"), ConnectErrnoGetter); // NOLINT
+    constructor_template->InstanceTemplate()->SetAccessor(String::New("connectError"), ConnectErrorGetter); // NOLINT
 
     // Methods
     ADD_PROTOTYPE_METHOD(connection, affectedRowsSync, AffectedRowsSync);
@@ -170,13 +170,12 @@ Handle<Value> MysqlConn::ConnectErrnoGetter(Local<String> property,
 Handle<Value> MysqlConn::ConnectErrorGetter(Local<String> property,
                                             const AccessorInfo &info) {
     HandleScope scope;
-    
+
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(info.Holder());
 
     Local<Value> js_result = String::New(conn->connect_error);
-    
-    return scope.Close(js_result);
 
+    return scope.Close(js_result);
 }
 
 Handle<Value> MysqlConn::AffectedRowsSync(const Arguments& args) {
@@ -856,9 +855,9 @@ int MysqlConn::EIO_Query(eio_req *req) {
         req->result = 1;
     } else {
         req->result = 0;
-        
+
         MYSQL_RES *my_result = mysql_store_result(conn->_conn);
-        
+
         query_req->field_count = mysql_field_count(conn->_conn);
 
         if (!my_result) {
@@ -941,9 +940,9 @@ Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
         // TODO(Sannis): change this to THREXC()?
         return scope.Close(False());
     }
-    
+
     MYSQL_RES *my_result = mysql_store_result(conn->_conn);
-    
+
     int field_count = mysql_field_count(conn->_conn);
 
     if (!my_result) {

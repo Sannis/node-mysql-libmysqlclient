@@ -273,7 +273,7 @@ exports.FetchObjectSync = function (test) {
   test.done();
 };
 
-exports.FieldCountSync = function (test) {
+exports.FieldCountGetter = function (test) {
   test.expect(6);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
@@ -298,10 +298,8 @@ exports.FieldCountSync = function (test) {
   res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table +
                    " WHERE random_boolean='0';", 1);
   test.ok(res, "conn.querySync('SELECT ... 1')");
-  field_count = conn.fieldCountSync();
-  test.equals(field_count, 2, "conn.querySync('SELECT ...') && conn.fieldCountSync()");
-  field_count = res.fieldCountSync();
-  test.equals(field_count, 2, "conn.querySync('SELECT ...') && res.fieldCountSync()");
+  test.equals(conn.fieldCountSync(), 2, "conn.querySync('SELECT ...') && conn.fieldCountSync()");
+  test.equals(res.fieldCount, 2, "conn.querySync('SELECT ...') && res.fieldCount");
 
   conn.closeSync();
   

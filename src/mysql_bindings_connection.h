@@ -160,9 +160,9 @@ class MysqlConn : public node::EventEmitter {
 
     static Handle<Value> ConnectErrorGetter(Local<String> property,
                                              const AccessorInfo &info);
-    
+
     // Methods
-    
+
     static Handle<Value> AffectedRowsSync(const Arguments& args);
 
     static Handle<Value> AutoCommitSync(const Arguments& args);

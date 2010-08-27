@@ -26,7 +26,6 @@ static Persistent<String> result_fetchFieldDirectSync_symbol;
 static Persistent<String> result_fetchFieldsSync_symbol;
 static Persistent<String> result_fetchLengthsSync_symbol;
 static Persistent<String> result_fetchObjectSync_symbol;
-static Persistent<String> result_fieldCountSync_symbol;
 static Persistent<String> result_fieldSeekSync_symbol;
 static Persistent<String> result_fieldTellSync_symbol;
 static Persistent<String> result_freeSync_symbol;
@@ -63,7 +62,16 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
 
     ~MysqlResult();
 
+    // Constructor
+
     static Handle<Value> New(const Arguments& args);
+
+    // Properties
+
+    static Handle<Value> FieldCountGetter(Local<String> property,
+                                             const AccessorInfo &info);
+
+    // Methods
 
     static Handle<Value> DataSeekSync(const Arguments& args);
 
@@ -89,8 +97,6 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     static Handle<Value> FetchLengthsSync(const Arguments& args);
 
     static Handle<Value> FetchObjectSync(const Arguments& args);
-
-    static Handle<Value> FieldCountSync(const Arguments& args);
 
     static Handle<Value> FieldSeekSync(const Arguments& args);
 

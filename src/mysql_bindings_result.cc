@@ -15,11 +15,16 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
 
+    // Constructor
     constructor_template = Persistent<FunctionTemplate>::New(t);
     constructor_template->Inherit(EventEmitter::constructor_template);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlResult"));
 
+    // Properties
+    constructor_template->InstanceTemplate()->SetAccessor(String::New("fieldCount"), FieldCountGetter);  // NOLINT
+
+    // Methods
     ADD_PROTOTYPE_METHOD(result, dataSeekSync, DataSeekSync);
     ADD_PROTOTYPE_METHOD(result, fetchAll, FetchAll);
     ADD_PROTOTYPE_METHOD(result, fetchAllSync, FetchAllSync);
@@ -29,7 +34,6 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(result, fetchFieldsSync, FetchFieldsSync);
     ADD_PROTOTYPE_METHOD(result, fetchLengthsSync, FetchLengthsSync);
     ADD_PROTOTYPE_METHOD(result, fetchObjectSync, FetchObjectSync);
-    ADD_PROTOTYPE_METHOD(result, fieldCountSync, FieldCountSync);
     ADD_PROTOTYPE_METHOD(result, fieldSeekSync, FieldSeekSync);
     ADD_PROTOTYPE_METHOD(result, fieldTellSync, FieldTellSync);
     ADD_PROTOTYPE_METHOD(result, freeSync, FreeSync);
@@ -101,7 +105,8 @@ void MysqlConn::MysqlResult::SetFieldValue(
         case MYSQL_TYPE_TIME:  // TIME field
             if (field_value) {
               int hours = 0, minutes = 0, seconds = 0;
-              sscanf(field_value, "%d:%d:%d", &hours, &minutes, &seconds);
+              sscanf(field_value, "%d:%d:%d",
+                                  &hours, &minutes, &seconds);
               time_t result = hours*60*60 + minutes*60 + seconds;
               js_field = Date::New(static_cast<double>(result)*1000);
             }
@@ -112,7 +117,8 @@ void MysqlConn::MysqlResult::SetFieldValue(
               int year = 0, month = 0, day = 0;
               int hour = 0, min = 0, sec = 0;
               int h1, h2;
-              sscanf(field_value, "%d-%d-%d %d:%d:%d", &year, &month, &day, &hour, &min, &sec);
+              sscanf(field_value, "%d-%d-%d %d:%d:%d",
+                                  &year, &month, &day, &hour, &min, &sec);
               time_t rawtime;
               struct tm * timeinfo;
               time(&rawtime);
@@ -186,6 +192,23 @@ Handle<Value> MysqlConn::MysqlResult::New(const Arguments& args) {
     my_res->Wrap(args.This());
 
     return args.This();
+}
+
+Handle<Value> MysqlConn::MysqlResult::FieldCountGetter(Local<String> property,
+                                                   const AccessorInfo &info) {
+    HandleScope scope;
+
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
+
+    if (!res->_res) {
+        return THREXC("Result has been freed.");
+    }
+
+    if (res->field_count > 0) {
+        return scope.Close(Integer::New(res->field_count));
+    } else {
+        return Undefined();
+    }
 }
 
 Handle<Value> MysqlConn::MysqlResult::DataSeekSync(const Arguments& args) {
@@ -356,7 +379,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchArraySync(const Arguments& args) {
     if (!res->_res) {
         return THREXC("Result has been freed.");
     }
-    
+
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
     uint32_t num_fields = mysql_num_fields(res->_res);
     uint32_t j = 0;
@@ -525,22 +548,6 @@ Handle<Value> MysqlConn::MysqlResult::FetchObjectSync(const Arguments& args) {
     }
 
     return scope.Close(js_result_row);
-}
-
-Handle<Value> MysqlConn::MysqlResult::FieldCountSync(const Arguments& args) {
-    HandleScope scope;
-
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
-
-    if (!res->_res) {
-        return THREXC("Result has been freed.");
-    }
-
-    if (res->field_count > 0) {
-        return scope.Close(Integer::New(res->field_count));
-    } else {
-        return Undefined();
-    }
 }
 
 Handle<Value> MysqlConn::MysqlResult::FieldSeekSync(const Arguments& args) {

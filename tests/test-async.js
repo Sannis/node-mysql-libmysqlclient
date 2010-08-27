@@ -50,7 +50,7 @@ exports.query = function (test) {
 
   test.expect(2);
   conn.query("SHOW TABLES", function (err, result) {
-    test.ok(result.fieldCountSync() === 1, "show results field count === 1");
+    test.ok(result.fieldCount === 1, "show results field count === 1");
     var res = result.fetchAllSync();
     test.ok(res.some(function (r) {
       return r['Tables_in_' + cfg.database] === cfg.test_table;
