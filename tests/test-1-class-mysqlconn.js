@@ -22,7 +22,7 @@ exports.New = function (test) {
   test.done();
 };
 
-exports.ConnectErrnoProperty = function (test) {
+exports.ConnectErrnoGetter = function (test) {
   test.expect(2);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password);
@@ -34,7 +34,7 @@ exports.ConnectErrnoProperty = function (test) {
   test.done();
 };
 
-exports.ConnectErrorProperty = function (test) {
+exports.ConnectErrorGetter = function (test) {
   test.expect(2);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password);
