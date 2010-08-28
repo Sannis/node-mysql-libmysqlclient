@@ -933,18 +933,26 @@ Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
     }
 
     MYSQLSYNC_DISABLE_MQ;
+    MYSQL_RES *my_result = NULL;
+    int field_count;
+
+
+    //only one query can be executed on a connection at a time
+    pthread_mutex_lock(&conn->query_lock);
 
     int r = mysql_query(conn->_conn, *query);
-    if (r != 0) {
+    if (r == 0) {
+        my_result = mysql_store_result(conn->_conn);
+        field_count = mysql_field_count(conn->_conn);
+    }
+
+    pthread_mutex_unlock(&conn->query_lock);
+
+    if(r != 0) {
         // Query error
         // TODO(Sannis): change this to THREXC()?
         return scope.Close(False());
     }
-
-    MYSQL_RES *my_result = mysql_store_result(conn->_conn);
-
-    int field_count = mysql_field_count(conn->_conn);
-
     if (!my_result) {
         if (field_count == 0) {
             // No result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN
@@ -999,7 +1007,10 @@ Handle<Value> MysqlConn::RealQuerySync(const Arguments& args) {
 
     MYSQLSYNC_DISABLE_MQ;
 
+
+    pthread_mutex_lock(&conn->query_lock);
     int r = mysql_real_query(conn->_conn, *query, query.length());
+    pthread_mutex_unlock(&conn->query_lock);
 
     if (r != 0) {
         return scope.Close(False());

@@ -312,6 +312,20 @@ exports.QueryWithError = function (test) {
   });
 };
 
+exports.AsyncQueryWithSyncQuery = function (test) {
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), res;
+
+  test.expect(3);
+  conn.query("select sleep(2)", function (err, result) {
+    test.ok(result, "result is defined");
+    test.ok(!err, "error object is not present");
+    test.done();
+  });
+  process.nextTick(function(){res = conn.querySync("show tables"); 
+          test.ok(res.fetchAllSync(), "synchronous result is defined");});
+
+};
+
 exports.QuerySync = function (test) {
   test.expect(2);
   
