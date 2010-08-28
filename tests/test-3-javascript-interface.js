@@ -17,7 +17,6 @@ exports.mysql_libmysqlclient_createConnectionSync_0 = function (test) {
   
   var conn = mysql_libmysqlclient.createConnectionSync();
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync()");
-  conn.closeSync();
   
   test.done();
 };

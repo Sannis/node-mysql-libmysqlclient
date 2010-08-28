@@ -419,6 +419,10 @@ Handle<Value> MysqlConn::CloseSync(const Arguments& args) {
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
 
+    if (!conn->_conn) {
+        return THREXC("Not connected");
+    }
+
     conn->Close();
 
     return Undefined();

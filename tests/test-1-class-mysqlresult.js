@@ -160,11 +160,7 @@ exports.FetchArraySync = function (test) {
     row;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  res = conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
@@ -207,11 +203,7 @@ exports.FetchLengthsSync = function (test) {
     lengths;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  res = conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
@@ -247,11 +239,7 @@ exports.FetchObjectSync = function (test) {
     row;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  res = conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
@@ -274,7 +262,7 @@ exports.FetchObjectSync = function (test) {
 };
 
 exports.FieldCountGetter = function (test) {
-  test.expect(6);
+  test.expect(5);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
@@ -282,11 +270,7 @@ exports.FieldCountGetter = function (test) {
     field_count;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  res = conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
@@ -298,7 +282,6 @@ exports.FieldCountGetter = function (test) {
   res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table +
                    " WHERE random_boolean='0';", 1);
   test.ok(res, "conn.querySync('SELECT ... 1')");
-  test.equals(conn.fieldCountSync(), 2, "conn.querySync('SELECT ...') && conn.fieldCountSync()");
   test.equals(res.fieldCount, 2, "conn.querySync('SELECT ...') && res.fieldCount");
 
   conn.closeSync();
@@ -314,6 +297,46 @@ exports.FieldTellSync = function (test) {
   testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFieldsSync(test);
 };
 
+exports.FreeSync = function (test) {
+  test.expect(6);
+  
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res,
+    rows,
+    flag;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
+  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  
+  res = conn.querySync("INSERT INTO " + cfg.test_table +
+                   " (random_number, random_boolean) VALUES ('1', '1');") && res;
+  res = conn.querySync("INSERT INTO " + cfg.test_table +
+                    " (random_number, random_boolean) VALUES ('2', '1');") && res;
+  res = conn.querySync("INSERT INTO " + cfg.test_table +
+                   " (random_number, random_boolean) VALUES ('3', '0');") && res;
+  test.ok(res, "conn.querySync('INSERT INTO cfg.test_table ...')");
+  
+  res = conn.querySync("SELECT random_number from " + cfg.test_table + ";");
+  test.ok(res, "conn.querySync('SELECT ... 1')");
+  rows = res.numRowsSync();
+  test.equals(rows, 3, "conn.querySync('SELECT * ...').numRowsSync()");
+  
+  res.freeSync();
+  
+  flag = false;
+  try {
+    rows = res.numRowsSync();
+  } catch(e) {
+    flag = true;
+  }
+  test.ok(flag, "res.numRowsSync() after res.freeSync()");
+  
+  conn.closeSync();
+  
+  test.done();
+};
+
 exports.NumRowsSync = function (test) {
   test.expect(9);
   
@@ -322,11 +345,7 @@ exports.NumRowsSync = function (test) {
     rows;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  res = conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
@@ -341,7 +360,7 @@ exports.NumRowsSync = function (test) {
                    " WHERE random_boolean='0';");
   test.ok(res, "conn.querySync('SELECT ... 1')");
   rows = res.numRowsSync();
-  test.equals(rows, 1, "conn.querySync('SELECT ... 1').numRows()");
+  test.equals(rows, 1, "conn.querySync('SELECT ... 1').numRowsSync()");
   
   res = conn.querySync("SELECT random_number from " + cfg.test_table +
                    " WHERE random_boolean='1';");
