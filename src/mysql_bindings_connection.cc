@@ -227,16 +227,23 @@ Handle<Value> MysqlConn::ChangeUserSync(const Arguments& args) {
         return THREXC("Not connected yet");
     }
 
-    if ( (args.Length() < 3 || !args[0]->IsString()) ||
-         (!args[1]->IsString() || !args[2]->IsString()) ) {
-        return THREXC("Must give user, password and database as arguments");
+    if ( (args.Length() < 2) || (!args[0]->IsString()) ||
+         (!args[1]->IsString()) ) {
+        return THREXC("Must give at least user and password as arguments");
+    }
+    
+    if ( (args.Length() == 3) && (!args[2]->IsString()) ) {
+        return THREXC("Must give string value as third argument, database");
     }
 
     String::Utf8Value user(args[0]->ToString());
     String::Utf8Value password(args[1]->ToString());
     String::Utf8Value dbname(args[2]->ToString());
 
-    bool r = mysql_change_user(conn->_conn, *user, *password, *dbname);
+    bool r = mysql_change_user(conn->_conn,
+                               *user,
+                               args[1]->IsString() ? *password : NULL,
+                               args[2]->IsString() ? *dbname : NULL);
 
     if (r) {
         return scope.Close(False());
