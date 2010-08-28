@@ -31,6 +31,8 @@ exports.createTestTableSimple = function (test) {
   test.ok(tables.some(function (r) {
     return r['Tables_in_' + cfg.database] === cfg.test_table;
   }), "Find the test table in result");
+  
+  conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table_notexists + ";");
 
   conn.closeSync();
 

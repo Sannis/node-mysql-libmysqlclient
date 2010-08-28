@@ -12,6 +12,7 @@ exports.cfg = {
   database: "test",
   database_denied: "mysql",
   test_table: "test_table",
+  test_table_notexists: "test_table_notexists",
   charset: "utf8",
 
   // Operations count for continuous tests

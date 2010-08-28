@@ -72,9 +72,9 @@ var
   notexist_tests = 0;
 
 for (i = 0; i < bindings_classes.length; i += 1) {
-  sys.puts(bindings_classes[i].name + ": test-class-" + bindings_classes[i].name.toLowerCase() + ".js");
+  sys.puts(bindings_classes[i].name + ": test-1-class-" + bindings_classes[i].name.toLowerCase() + ".js");
   
-  test_file_name = tests_dir + "/test-class-" + bindings_classes[i].name.toLowerCase() + ".js";
+  test_file_name = tests_dir + "/test-1-class-" + bindings_classes[i].name.toLowerCase() + ".js";
   
   try {
     test_require = require(test_file_name.replace(/\.js$/, ''));

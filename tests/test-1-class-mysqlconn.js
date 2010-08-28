@@ -37,7 +37,7 @@ exports.ConnectErrnoProperty = function (test) {
 exports.ConnectErrorProperty = function (test) {
   test.expect(2);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password), error_str;
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
   conn.closeSync();
   conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
@@ -129,6 +129,38 @@ exports.ConnectSync = function (test) {
   conn.closeSync();
   test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password), "conn.connectSync() without database selection");
   conn.closeSync();
+  
+  test.done();
+};
+
+exports.ErrnoSync = function (test) {
+  test.expect(3);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  res = conn.querySync("USE " + cfg.database_denied + ";");
+  test.equals(conn.errnoSync(), 1044, "conn.errnoSync");
+  res = conn.querySync("SELECT * FROM " + cfg.test_table_notexists + ";");
+  test.equals(conn.errnoSync(), 1146, "conn.errnoSync");
+
+
+  test.done();
+};
+
+exports.ErrorSync = function (test) {
+  test.expect(3);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  res = conn.querySync("USE " + cfg.database_denied + ";");
+  test.ok(conn.errorSync().match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")), "conn.errorSync");
+  res = conn.querySync("SELECT * FROM " + cfg.test_table_notexists + ";");
+  test.equals(conn.errorSync(), "Table '" + cfg.database + "." + cfg.test_table_notexists + "' doesn't exist", "conn.errorSync");
+  
   
   test.done();
 };
