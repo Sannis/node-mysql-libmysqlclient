@@ -116,47 +116,53 @@ void MysqlConn::MysqlResult::SetFieldValue(
             if (field_value) {
               int year = 0, month = 0, day = 0;
               int hour = 0, min = 0, sec = 0;
-              int h1, h2;
+              int h1 = 0, h2 = 0, m1 = 0, m2 = 0;
               sscanf(field_value, "%d-%d-%d %d:%d:%d",
                                   &year, &month, &day, &hour, &min, &sec);
-              time_t rawtime;
+              time_t rawtime, gmt_delta;
               struct tm * timeinfo;
               time(&rawtime);
               timeinfo = localtime(&rawtime);
               h1 = timeinfo->tm_hour - (timeinfo->tm_isdst > 0 ? 1 : 0);
+              m1 = timeinfo->tm_min;
               timeinfo = gmtime(&rawtime);
               h2 = timeinfo->tm_hour;
+              m2 = timeinfo->tm_min;
+              gmt_delta = (((h1 - h2 + 24)%24)*60 + (m1-m2))*60;
               timeinfo->tm_year = year - 1900;
               timeinfo->tm_mon = month - 1;
               timeinfo->tm_mday = day;
-              timeinfo->tm_hour = hour + (h1 - h2 + 24)%24;
+              timeinfo->tm_hour = hour;
               timeinfo->tm_min = min;
               timeinfo->tm_sec = sec;
               rawtime = mktime(timeinfo);
-              js_field = Date::New(static_cast<double>(rawtime)*1000);
+              js_field = Date::New(static_cast<double>(rawtime + gmt_delta)*1000);
             }
             break;
         case MYSQL_TYPE_DATE:  // DATE field
         case MYSQL_TYPE_NEWDATE:  // Newer const used > 5.0
             if (field_value) {
               int year = 0, month = 0, day = 0;
-              int h1, h2;
+              int h1 = 0, h2 = 0, m1 = 0, m2 = 0;
               sscanf(field_value, "%d-%d-%d", &year, &month, &day);
-              time_t rawtime;
+              time_t rawtime, gmt_delta;
               struct tm * timeinfo;
               time(&rawtime);
               timeinfo = localtime(&rawtime);
               h1 = timeinfo->tm_hour - (timeinfo->tm_isdst > 0 ? 1 : 0);
+              m1 = timeinfo->tm_min;
               timeinfo = gmtime(&rawtime);
               h2 = timeinfo->tm_hour;
+              m2 = timeinfo->tm_min;
+              gmt_delta = (((h1 - h2 + 24)%24)*60 + (m1-m2))*60;
               timeinfo->tm_year = year - 1900;
               timeinfo->tm_mon = month - 1;
               timeinfo->tm_mday = day;
-              timeinfo->tm_hour = (h1 - h2 + 24)%24;
+              timeinfo->tm_hour = 0;
               timeinfo->tm_min = 0;
               timeinfo->tm_sec = 0;
               rawtime = mktime(timeinfo);
-              js_field = Date::New(static_cast<double>(rawtime)*1000);
+              js_field = Date::New(static_cast<double>(rawtime + gmt_delta)*1000);
             }
             break;
         case MYSQL_TYPE_TINY_BLOB:
