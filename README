@@ -59,6 +59,7 @@ http://wiki.github.com/Sannis/node-mysql-libmysqlclient/contributing
   Synchronouse version development.
   First libeio asynchronouse attempts.
   Writing tests.
+  All commits: http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=Sannis
 
 * Surendra Singhi
   E-mail: <ssinghi@kreeti.com>
@@ -68,12 +69,14 @@ http://wiki.github.com/Sannis/node-mysql-libmysqlclient/contributing
   Make asynchronouse connecting and querying work.
   Fix segmentation faults, partialy closes #14.
   Some other fixes.
+  All commits: http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=ssinghi
 
 * Robin Duckett
   E-mail: <robin.duckett@gmail.com>
   GitHub: http://github.com/robinduckett
   
   Fix segfault error, partialy closes #14.
+  All commits: http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=robinduckett
   
 * Dan Beam
   E-mail: <dan@danbeam.org>
@@ -82,6 +85,7 @@ http://wiki.github.com/Sannis/node-mysql-libmysqlclient/contributing
   
   Simplify javascript logic of createConnection(),
   see 97040c3e7a5d4673ca6f340d8a9bc69da8e398d8.
+  All commits: http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=danbeam
 
 * Maurits Lamers
   E-mail: <maurits@weidestraat.nl>
@@ -89,6 +93,7 @@ http://wiki.github.com/Sannis/node-mysql-libmysqlclient/contributing
   
   Fixing a bug where previous values were set instead of empty,
   see c4071181404362b60b9d3a3aed9784b25459fffa
+  All commits: http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=mauritslamers
 
 == License
  
