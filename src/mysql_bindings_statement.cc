@@ -35,7 +35,9 @@ void MysqlStatement::Init(Handle<Object> target) {
         constructor_template->InstanceTemplate();
 
     // Methods
+    ADD_PROTOTYPE_METHOD(statement, closeSync, CloseSync);
     ADD_PROTOTYPE_METHOD(statement, prepareSync, PrepareSync);
+    ADD_PROTOTYPE_METHOD(statement, resetSync, ResetSync);
 
     // Make it visible in JavaScript
     target->Set(String::NewSymbol("MysqlStatement"),
@@ -68,13 +70,31 @@ Handle<Value> MysqlStatement::New(const Arguments& args) {
     return args.This();
 }
 
+Handle<Value> MysqlConn::MysqlStatement::CloseSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    if (!stmt->_stmt) {
+        return THREXC("Already closed");
+    }
+
+    if (mysql_stmt_close(stmt->_stmt)) {
+        return THREXC("Error in mysql_stmt_close");
+    }
+
+    stmt->_stmt = NULL;
+
+    return scope.Close(True());
+}
+
 /**
  * Prepare statement by given query
  *
  * @param {String} query
  * @return {Boolean}
  */
-Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
+Handle<Value> MysqlConn::MysqlStatement::PrepareSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
@@ -85,6 +105,22 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
 
     if (mysql_stmt_prepare(stmt->_stmt, *query, query_len)) {
         return scope.Close(False());
+    }
+
+    return scope.Close(True());
+}
+
+Handle<Value> MysqlConn::MysqlStatement::ResetSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    if (!stmt->_stmt) {
+        return THREXC("Statement not initialized");
+    }
+
+    if (mysql_stmt_reset(stmt->_stmt)) {
+        return THREXC("Error in mysql_stmt_reset");
     }
 
     return scope.Close(True());

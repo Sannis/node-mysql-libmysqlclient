@@ -16,7 +16,9 @@
 
 #include "./mysql_bindings.h"
 
+static Persistent<String> statement_closeSync_symbol;
 static Persistent<String> statement_prepareSync_symbol;
+static Persistent<String> statement_resetSync_symbol;
 
 class MysqlStatement : public node::EventEmitter {
   public:
@@ -36,7 +38,11 @@ class MysqlStatement : public node::EventEmitter {
 
     static Handle<Value> New(const Arguments& args);
 
+    static Handle<Value> CloseSync(const Arguments& args);
+
     static Handle<Value> PrepareSync(const Arguments& args);
+
+    static Handle<Value> ResetSync(const Arguments& args);
 };
 
 #endif  // SRC_MYSQL_BINDINGS_STATEMENT_H_
