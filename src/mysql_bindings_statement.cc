@@ -36,6 +36,8 @@ void MysqlStatement::Init(Handle<Object> target) {
 
     // Methods
     ADD_PROTOTYPE_METHOD(statement, closeSync, CloseSync);
+    ADD_PROTOTYPE_METHOD(statement, errnoSync, ErrnoSync);
+    ADD_PROTOTYPE_METHOD(statement, errorSync, ErrorSync);
     ADD_PROTOTYPE_METHOD(statement, prepareSync, PrepareSync);
     ADD_PROTOTYPE_METHOD(statement, resetSync, ResetSync);
 
@@ -70,7 +72,7 @@ Handle<Value> MysqlStatement::New(const Arguments& args) {
     return args.This();
 }
 
-Handle<Value> MysqlConn::MysqlStatement::CloseSync(const Arguments& args) {
+Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
@@ -88,13 +90,45 @@ Handle<Value> MysqlConn::MysqlStatement::CloseSync(const Arguments& args) {
     return scope.Close(True());
 }
 
+Handle<Value> MysqlStatement::ErrnoSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    if (!stmt->_stmt) {
+        return THREXC("Statement not initialized");
+    }
+
+    uint32_t errno = mysql_stmt_errno(stmt->_stmt);
+
+    Local<Value> js_result = Integer::New(errno);
+
+    return scope.Close(js_result);
+}
+
+Handle<Value> MysqlStatement::ErrorSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    if (!stmt->_stmt) {
+        return THREXC("Statement not initialized");
+    }
+
+    const char *error = mysql_stmt_error(stmt->_stmt);
+
+    Local<Value> js_result = String::New(error);
+
+    return scope.Close(js_result);
+}
+
 /**
  * Prepare statement by given query
  *
  * @param {String} query
  * @return {Boolean}
  */
-Handle<Value> MysqlConn::MysqlStatement::PrepareSync(const Arguments& args) {
+Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
@@ -110,7 +144,7 @@ Handle<Value> MysqlConn::MysqlStatement::PrepareSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::MysqlStatement::ResetSync(const Arguments& args) {
+Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
