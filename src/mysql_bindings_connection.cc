@@ -101,10 +101,10 @@ bool MysqlConn::Connect(const char* hostname,
                             socket,
                             0);
 
-    connect_errno = mysql_errno(_conn);
-    connect_error = mysql_error(_conn);
-
     if (unsuccessful) {
+        connect_errno = mysql_errno(_conn);
+        connect_error = mysql_error(_conn);
+
         mysql_close(_conn);
         connected = false;
         _conn = NULL;
