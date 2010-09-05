@@ -327,7 +327,7 @@ exports.FreeSync = function (test) {
   flag = false;
   try {
     rows = res.numRowsSync();
-  } catch(e) {
+  } catch (e) {
     flag = true;
   }
   test.ok(flag, "res.numRowsSync() after res.freeSync()");
