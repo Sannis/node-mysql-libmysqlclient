@@ -22,8 +22,9 @@ var
   regex_class_properties_setters =
     /static Handle<Value> ([a-z]*Setter)\(Local<String> property/ig;
 
-var tests_dir = fs.realpathSync(__dirname);
-var source_dir = fs.realpathSync(tests_dir + "/../src");
+var tools_dir = fs.realpathSync(__dirname);
+var source_dir = fs.realpathSync(tools_dir + "/../src");
+var tests_dir = fs.realpathSync(tools_dir + "/tests");
 
 function getBindingsClasses() {
   var

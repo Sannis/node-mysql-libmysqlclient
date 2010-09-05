@@ -43,11 +43,11 @@ def build(bld):
   obj.uselib = "MYSQLCLIENT"
 
 def test(tst):
-  if not exists('./tests/nodeunit/lib/testrunner.js'):
+  if not exists('./tools/nodeunit/lib/testrunner.js'):
     print("\033[31mNodeunit doesn't exists.\033[39m\nYou should run `git submodule update --init` before run tests.");
     exit(1);
   else:
-    Utils.exec_command('./tests/run-tests.sh')
+    Utils.exec_command('./tools/run-tests.sh')
 
 def lint(lnt):
   # Bindings C++ source code
@@ -55,7 +55,7 @@ def lint(lnt):
   # Bindings javascript code
   Utils.exec_command('nodelint ./mysql-libmysqlclient.js')
   # Bindings tests
-  Utils.exec_command('nodelint ./tests/*.js')
+  Utils.exec_command('nodelint ./tools/*.js ./tools/tests/*.js')
 
 def shutdown():
   # HACK to get bindings.node out of build directory.
