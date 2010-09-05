@@ -120,7 +120,7 @@ for (i = 0; i < bindings_classes.length; i += 1) {
   
   for (j = 0; j < bindings_classes[i].properties_getters.length; j += 1) {
     if (test_require && (typeof test_require[bindings_classes[i].properties_getters[j]] !== 'undefined')) {
-      sys.puts('✔ ' + bindings_classes[i].properties_getters[j]);
+      sys.puts(green('✔ ' + bindings_classes[i].properties_getters[j]));
     } else {
       sys.puts(red('✖ ' + bindings_classes[i].properties_getters[j]));
       notexist_tests += 1;
@@ -129,7 +129,7 @@ for (i = 0; i < bindings_classes.length; i += 1) {
   
   for (j = 0; j < bindings_classes[i].properties_setters.length; j += 1) {
     if (test_require && (typeof test_require[bindings_classes[i].properties_setters[j]] !== 'undefined')) {
-      sys.puts('✔ ' + bindings_classes[i].properties_setters[j]);
+      sys.puts(green('✔ ' + bindings_classes[i].properties_setters[j]));
     } else {
       sys.puts(red('✖ ' + bindings_classes[i].properties_setters[j]));
       notexist_tests += 1;
@@ -137,8 +137,10 @@ for (i = 0; i < bindings_classes.length; i += 1) {
   }
   
   for (j = 0; j < bindings_classes[i].methods.length; j += 1) {
-    if (test_require && (typeof test_require[bindings_classes[i].methods[j]] !== 'undefined')) {
-      sys.puts('✔ ' + bindings_classes[i].methods[j]);
+    if ((bindings_classes[i].methods[j] === "New") && (bindings_classes[i].name !== "MysqlConn")) {
+      sys.puts('  ' + bindings_classes[i].methods[j]);
+    } else if (test_require && (typeof test_require[bindings_classes[i].methods[j]] !== 'undefined')) {
+      sys.puts(green('✔ ' + bindings_classes[i].methods[j]));
     } else {
       sys.puts(red('✖ ' + bindings_classes[i].methods[j]));
       notexist_tests += 1;
