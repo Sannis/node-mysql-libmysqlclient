@@ -14,21 +14,24 @@ MysqlConn class
         /* Constructor */
         require('mysql-sync').createConnectionSync(servername, user, password, dbname, port, socket);
         
+        /* Properties */
+        Integer connectErrno;
+        String connectError;
+        
         /* Methods */
         Integer affectedRowsSync();
         Boolean changeUserSync(user, password, dbname);
+        Boolean connect(hostname, user, password, dbname, port, socket);
         Boolean connectSync(hostname, user, password, dbname, port, socket);
-        Integer connectErrnoSync();
-        String connectErrorSync();
         Boolean closeSync();
         Integer errnoSync();
         String errorSync();
-        String escapeSync();
+        String escapeSync(string);
         Object getInfoSync();
         Integer lastInsertIdSync();
         Boolean pingSync();
-        MysqlResult query();
-        MysqlResult querySync();
+        MysqlResult query(query);
+        MysqlResult querySync(query);
         Integer warningCountSync();
     }
 
@@ -40,10 +43,12 @@ Connection, options, errors and information
 
     require('mysql-sync').createConnectionSync(servername, user, password, dbname, port, socket);
     
+    Integer connectErrno;
+    String connectError;
+    
     Boolean changeUserSync(user, password, dbname);
+    Boolean connect(hostname, user, password, dbname, port, socket);
     Boolean connectSync(hostname, user, password, dbname, port, socket);
-    Integer connectErrnoSync();
-    String connectErrorSync();
     Boolean closeSync();
     Object getCharsetSync();
     String getCharsetNameSync();
@@ -120,8 +125,12 @@ MysqlResult class
 -----------------
 
     class MysqlResult {
+        /* Properties */
+        Integer fieldCount;
+        
         /* Methods */
         Undefined dataSeekSync();
+        Array fetchAll();
         Array fetchAllSync();
         Array fetchArraySync();
         Object fetchFieldSync();
@@ -129,7 +138,7 @@ MysqlResult class
         Array fetchFieldsSync();
         Array fetchLengthsSync();
         Object fetchObjectSync();
-        Integer fieldCountSync();
+        
         Undefined fieldSeekSync();
         Integer fieldTellSync();
         Undefined freeSync();
@@ -144,6 +153,4 @@ MysqlStatement class
         /* Methods */
         Boolean prepareSync(query);
     }
-
-
 
