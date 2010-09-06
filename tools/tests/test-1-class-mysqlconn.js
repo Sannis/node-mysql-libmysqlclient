@@ -345,7 +345,9 @@ exports.EscapeSync = function (test) {
     ["test\rstring", "test\\rstring"],
     ["test\"string", "test\\\"string"],
     ["test\'string", "test\\'string"],
-    ["test \x00", "test \\0"]
+    ["test \x00", "test \\0"],
+    ["utf8 test Français Größe", "utf8 test Fran\u00e7ais Gr\u00f6\u00dfe"],
+    ["çöß", "\u00e7\u00f6\u00df"]
   ],
   str,
   str_esc_theor,
@@ -362,7 +364,7 @@ exports.EscapeSync = function (test) {
       str_esc_theor = strings_to_escape[i][1];
       str_esc_real = conn.escapeSync(strings_to_escape[i][0]);
 
-      test.equals(str_esc_real, str_esc_theor, "conn.escapeSync()");
+      test.equals(str_esc_real, str_esc_theor, "conn.escapeSync(" + str + ") == " + str_esc_real + ", but must be " + str_esc_theor);
     }
   }
   
