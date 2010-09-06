@@ -21,11 +21,11 @@ void MysqlConn::Init(Handle<Object> target) {
     constructor_template->Inherit(EventEmitter::constructor_template);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlConn"));
-    
-    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate();
+
+    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate(); // NOLINT
 
     // Constants
-    NODE_DEFINE_CONSTANT(constructor_template->InstanceTemplate(), MYSQL_INIT_COMMAND);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_INIT_COMMAND);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_COMPRESS);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_CONNECT_TIMEOUT);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_LOCAL_INFILE);
@@ -39,8 +39,10 @@ void MysqlConn::Init(Handle<Object> target) {
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_SET_CHARSET_NAME);
 
     // Properties
-    instance_template->SetAccessor(String::New("connectErrno"), ConnectErrnoGetter); // NOLINT
-    instance_template->SetAccessor(String::New("connectError"), ConnectErrorGetter); // NOLINT
+    instance_template->SetAccessor(String::New("connectErrno"),
+                                   ConnectErrnoGetter);
+    instance_template->SetAccessor(String::New("connectError"),
+                                   ConnectErrorGetter);
 
     // Methods
     ADD_PROTOTYPE_METHOD(connection, affectedRowsSync, AffectedRowsSync);
@@ -86,7 +88,7 @@ void MysqlConn::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, warningCountSync, WarningCountSync);
 
     target->Set(String::NewSymbol("MysqlConn"),
-                                  constructor_template->GetFunction());
+                constructor_template->GetFunction());
 
     MysqlResult::Init(target);
     MysqlStatement::Init(target);
@@ -287,47 +289,47 @@ Handle<Value> MysqlConn::CommitSync(const Arguments& args) {
 
 int MysqlConn::EIO_After_Connect(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
-    struct connect_request *connect_req = (struct connect_request *)(req->data);
+    struct connect_request *conn_req = (struct connect_request *)(req->data);
 
     Local<Value> argv[1];
     int argc = 1;
 
     if (req->result) {
-      argv[0] = Local<Value>::New(Integer::New(connect_req->conn->connect_errno)); // NOLINT
+      argv[0] = Local<Value>::New(Integer::New(conn_req->conn->connect_errno));
     } else {
       argv[0] = Local<Value>::New(Null());
     }
 
     TryCatch try_catch;
 
-    connect_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
+    conn_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
 
     if (try_catch.HasCaught()) {
         node::FatalException(try_catch);
     }
 
-    connect_req->callback.Dispose();
-    connect_req->conn->Unref();
-    free(connect_req);
+    conn_req->callback.Dispose();
+    conn_req->conn->Unref();
+    free(conn_req);
 
     return 0;
 }
 
 int MysqlConn::EIO_Connect(eio_req *req) {
-    struct connect_request *connect_req = (struct connect_request *)(req->data);
+    struct connect_request *conn_req = (struct connect_request *)(req->data);
 
-    req->result = connect_req->conn->Connect(
-                connect_req->hostname ? **(connect_req->hostname) : NULL,
-                connect_req->user ? **(connect_req->user) : NULL,
-                connect_req->password ? **(connect_req->password) : NULL,
-                connect_req->dbname ? **(connect_req->dbname) : NULL,
-                connect_req->port,
-                connect_req->socket ? **(connect_req->socket) : NULL) ? 0 : 1;
+    req->result = conn_req->conn->Connect(
+                    conn_req->hostname ? **(conn_req->hostname) : NULL,
+                    conn_req->user ? **(conn_req->user) : NULL,
+                    conn_req->password ? **(conn_req->password) : NULL,
+                    conn_req->dbname ? **(conn_req->dbname) : NULL,
+                    conn_req->port,
+                    conn_req->socket ? **(conn_req->socket) : NULL) ? 0 : 1;
 
-    delete connect_req->hostname;
-    delete connect_req->user;
-    delete connect_req->password;
-    delete connect_req->socket;
+    delete conn_req->hostname;
+    delete conn_req->user;
+    delete conn_req->password;
+    delete conn_req->socket;
 
     return 0;
 }
@@ -337,31 +339,31 @@ Handle<Value> MysqlConn::Connect(const Arguments& args) {
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
 
-    struct connect_request *connect_req = (struct connect_request *)
-        calloc(1, sizeof(struct connect_request));
+    struct connect_request *conn_req =
+         (struct connect_request *)calloc(1, sizeof(struct connect_request));
 
-    if (!connect_req) {
+    if (!conn_req) {
       V8::LowMemoryNotification();
       return THREXC("Could not allocate enough memory");
     }
 
     REQ_FUN_ARG(args.Length() - 1, callback);
-    connect_req->callback = Persistent<Function>::New(callback);
-    connect_req->conn = conn;
+    conn_req->callback = Persistent<Function>::New(callback);
+    conn_req->conn = conn;
 
-    connect_req->hostname = args.Length() > 1 && args[0]->IsString() ?
+    conn_req->hostname = args.Length() > 1 && args[0]->IsString() ?
         new String::Utf8Value(args[0]->ToString()) : NULL;
-    connect_req->user = args.Length() > 2 && args[1]->IsString() ?
+    conn_req->user = args.Length() > 2 && args[1]->IsString() ?
         new String::Utf8Value(args[1]->ToString()) : NULL;
-    connect_req->password = args.Length() > 3 && args[2]->IsString() ?
+    conn_req->password = args.Length() > 3 && args[2]->IsString() ?
         new String::Utf8Value(args[2]->ToString()) : NULL;
-    connect_req->dbname = args.Length() > 4 && args[3]->IsString() ?
+    conn_req->dbname = args.Length() > 4 && args[3]->IsString() ?
         new String::Utf8Value(args[3]->ToString()) : NULL;
-    connect_req->port = args.Length() > 5 ? args[4]->IntegerValue() : 0;
-    connect_req->socket = args.Length() > 6 && args[5]->IsString() ?
+    conn_req->port = args.Length() > 5 ? args[4]->IntegerValue() : 0;
+    conn_req->socket = args.Length() > 6 && args[5]->IsString() ?
       new String::Utf8Value(args[5]->ToString()) : NULL;
 
-    eio_custom(EIO_Connect, EIO_PRI_DEFAULT, EIO_After_Connect, connect_req);
+    eio_custom(EIO_Connect, EIO_PRI_DEFAULT, EIO_After_Connect, conn_req);
 
     ev_ref(EV_DEFAULT_UC);
     conn->Ref();
@@ -1104,7 +1106,7 @@ Handle<Value> MysqlConn::SetOptionSync(const Arguments& args) {
         return THREXC("Not connected");
     }
 
-    REQ_INT_ARG(0, option_key);
+    //REQ_INT_ARG(0, option_key);
 
     // TODO(Sannis): write type determine and casts
     return THREXC("Not implemented");
