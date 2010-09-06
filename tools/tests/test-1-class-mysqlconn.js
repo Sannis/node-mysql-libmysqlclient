@@ -22,6 +22,31 @@ exports.New = function (test) {
   test.done();
 };
 
+function RealQueryAndUseAndStoreResultSync(test) {
+  test.expect(5);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res,
+    r1, r2, r3;
+  
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  conn.realQuerySync("SHOW TABLES;");
+  res = conn.storeResultSync();
+  test.ok(res, "conn.realQuerySync('SHOW TABLES;') and conn.storeResultSync()");
+  r1 = res.fetchAllSync();
+  conn.realQuerySync("SHOW TABLES;");
+  res = conn.useResultSync();
+  test.ok(res, "conn.realQuerySync('SHOW TABLES;') and conn.useResultSync()");
+  r2 = res.fetchAllSync();
+  r3 = conn.querySync("SHOW TABLES;").fetchAllSync();
+  test.same(r1, r3, "conn.realQuerySync('SHOW TABLES;') + conn.storeResultSync() === conn.querySync('SHOW TABLES;')");
+  test.same(r2, r3, "conn.realQuerySync('SHOW TABLES;') + conn.useResultSync() === conn.querySync('SHOW TABLES;')");
+  conn.closeSync();
+  
+  test.done();
+};
+
 exports.OptionsConstants = function (test) {
   test.expect(12);
   
@@ -387,7 +412,7 @@ exports.GetInfoStringSync = function (test) {
 exports.GetWarningsSync = function (test) {
   test.expect(2);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), res;  
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), res;
   res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
   test.same(conn.getWarningsSync(), [],
             "conn.getWarningsSync() after DROP TABLE IF EXISTS");
@@ -395,6 +420,21 @@ exports.GetWarningsSync = function (test) {
   test.same(conn.getWarningsSync(),
             [{errno: 1051, reason: "Unknown table '" + cfg.test_table + "'" }],
             "conn.getWarningsSync() after double DROP TABLE IF EXISTS");
+  conn.closeSync();
+  
+  test.done();
+};
+
+exports.InitSync = function (test) {
+  test.expect(2);
+  
+  var conn = mysql_libmysqlclient.createConnectionSync();
+  
+  conn.initSync();
+  test.ok(!conn.connectedSync(), "conn.connectedSync() after conn.initSync()");
+  conn.realConnectSync(cfg.host, cfg.user, cfg.password);
+  sys.puts(conn.connectionError);
+  test.ok(conn.connectedSync(), "conn.connectedSync() after conn.realConnectSync()");
   conn.closeSync();
   
   test.done();
@@ -475,7 +515,7 @@ exports.QueryWithError = function (test) {
   });
 };
 
-exports.AsyncQueryWithSyncQuery = function (test) {
+exports.QueryWithQuerySync = function (test) {
   test.expect(3);
   
   var
@@ -503,10 +543,29 @@ exports.QuerySync = function (test) {
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   res = conn.querySync("SHOW TABLES;");
-  test.ok(res, "conn.querySync('SHOW TABLES;'");
+  test.ok(res, "conn.querySync('SHOW TABLES;')");
   conn.closeSync();
   
   test.done();
+};
+
+exports.RealConnectSync = function (test) {
+  test.expect(2);
+  
+  var conn = mysql_libmysqlclient.createConnectionSync();
+  
+  conn.initSync();
+  test.ok(!conn.connectedSync(), "conn.connectedSync() after conn.initSync()");
+  conn.realConnectSync(cfg.host, cfg.user, cfg.password);
+  sys.puts(conn.connectionError);
+  test.ok(conn.connectedSync(), "conn.connectedSync() after conn.realConnectSync()");
+  conn.closeSync();
+  
+  test.done();
+};
+
+exports.RealQuerySync = function (test) {
+  RealQueryAndUseAndStoreResultSync(test);
 };
 
 exports.SelectDbSync = function (test) {
@@ -584,6 +643,14 @@ exports.StatSync = function (test) {
   conn.closeSync();
   
   test.done();
+};
+
+exports.StoreResultSync = function (test) {
+  RealQueryAndUseAndStoreResultSync(test);
+};
+
+exports.UseResultSync = function (test) {
+  RealQueryAndUseAndStoreResultSync(test);
 };
 
 exports.WarningCountSync = function (test) {
