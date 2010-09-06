@@ -88,14 +88,16 @@ static Persistent<String> connection_getCharsetNameSync_symbol;
 static Persistent<String> connection_getInfoSync_symbol;
 static Persistent<String> connection_getInfoStringSync_symbol;
 static Persistent<String> connection_getWarningsSync_symbol;
+static Persistent<String> connection_initSync_symbol;
 static Persistent<String> connection_initStatementSync_symbol;
 static Persistent<String> connection_lastInsertIdSync_symbol;
 static Persistent<String> connection_multiMoreResultsSync_symbol;
 static Persistent<String> connection_multiNextResultSync_symbol;
 static Persistent<String> connection_multiRealQuerySync_symbol;
 static Persistent<String> connection_pingSync_symbol;
-static Persistent<String> connection_querySync_symbol;
 static Persistent<String> connection_query_symbol;
+static Persistent<String> connection_querySync_symbol;
+static Persistent<String> connection_realConnectSync_symbol;
 static Persistent<String> connection_realQuerySync_symbol;
 static Persistent<String> connection_rollbackSync_symbol;
 static Persistent<String> connection_selectDbSync_symbol;
@@ -131,6 +133,13 @@ class MysqlConn : public node::EventEmitter {
     class MysqlStatement;
 
     bool Connect(const char* hostname,
+                 const char* user,
+                 const char* password,
+                 const char* dbname,
+                 uint32_t port,
+                 const char* socket);
+
+    bool RealConnect(const char* hostname,
                  const char* user,
                  const char* password,
                  const char* dbname,
@@ -220,6 +229,8 @@ class MysqlConn : public node::EventEmitter {
 
     static Handle<Value> GetWarningsSync(const Arguments& args);
 
+    static Handle<Value> InitSync(const Arguments& args);
+
     static Handle<Value> InitStatementSync(const Arguments& args);
 
     static Handle<Value> LastInsertIdSync(const Arguments& args);
@@ -244,6 +255,8 @@ class MysqlConn : public node::EventEmitter {
     static Handle<Value> Query(const Arguments& args);
 
     static Handle<Value> QuerySync(const Arguments& args);
+
+    static Handle<Value> RealConnectSync(const Arguments& args);
 
     static Handle<Value> RealQuerySync(const Arguments& args);
 

@@ -534,6 +534,30 @@ exports.SetCharsetSync = function (test) {
   test.done();
 };
 
+exports.SetOptionSync = function (test) {
+  test.expect(2);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(),
+    charset_map = {utf8: 'cp1251', cp1251: 'utf8', other: 'binary'},
+    default_cs,
+    other_cs;
+  
+  conn.connectSync(cfg.host, cfg.user, cfg.password);
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync().connect(host, user, password)");
+  
+  default_cs = conn.querySync("SHOW VARIABLES LIKE 'character_set_connection';").fetchAllSync()[0].Value;
+  other_cs = charset_map[default_cs] ? charset_map[default_cs] : charset_map.other;
+  conn.closeSync();
+  conn.initSync();
+  conn.setOptionSync(conn.MYSQL_INIT_COMMAND, "SET NAMES " + other_cs + ";");
+  conn.realConnectSync(cfg.host, cfg.user, cfg.password);
+  test.equals(conn.querySync("SHOW VARIABLES LIKE 'character_set_connection';").fetchAllSync()[0].Value, other_cs, "setOptionSync(MYSQL_INIT_COMMAND. 'SET NAMES')");
+  conn.closeSync();
+  
+  test.done();
+};
+
 exports.SqlStateSync = function (test) {
   test.expect(2);
   

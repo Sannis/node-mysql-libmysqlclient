@@ -64,6 +64,7 @@ void MysqlConn::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, getInfoSync, GetInfoSync);
     ADD_PROTOTYPE_METHOD(connection, getInfoStringSync, GetInfoStringSync);
     ADD_PROTOTYPE_METHOD(connection, getWarningsSync, GetWarningsSync);
+    ADD_PROTOTYPE_METHOD(connection, initSync, InitSync);
     ADD_PROTOTYPE_METHOD(connection, initStatementSync, InitStatementSync);
     ADD_PROTOTYPE_METHOD(connection, lastInsertIdSync, LastInsertIdSync);
     ADD_PROTOTYPE_METHOD(connection, multiMoreResultsSync, MultiMoreResultsSync); // NOLINT
@@ -72,6 +73,7 @@ void MysqlConn::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, pingSync, PingSync);
     ADD_PROTOTYPE_METHOD(connection, query, Query);
     ADD_PROTOTYPE_METHOD(connection, querySync, QuerySync);
+    ADD_PROTOTYPE_METHOD(connection, realConnectSync, RealConnectSync);
     ADD_PROTOTYPE_METHOD(connection, realQuerySync, RealQuerySync);
     ADD_PROTOTYPE_METHOD(connection, rollbackSync, RollbackSync);
     ADD_PROTOTYPE_METHOD(connection, selectDbSync, SelectDbSync);
@@ -95,11 +97,11 @@ void MysqlConn::Init(Handle<Object> target) {
 }
 
 bool MysqlConn::Connect(const char* hostname,
-             const char* user,
-             const char* password,
-             const char* dbname,
-             uint32_t port,
-             const char* socket) {
+                        const char* user,
+                        const char* password,
+                        const char* dbname,
+                        uint32_t port,
+                        const char* socket) {
     if (_conn) {
         return false;
     }
@@ -127,6 +129,42 @@ bool MysqlConn::Connect(const char* hostname,
         mysql_close(_conn);
         connected = false;
         _conn = NULL;
+        return false;
+    }
+
+    connected = true;
+    return true;
+}
+
+bool MysqlConn::RealConnect(const char* hostname,
+                            const char* user,
+                            const char* password,
+                            const char* dbname,
+                            uint32_t port,
+                            const char* socket) {
+    if (!_conn) {
+        return false;
+    }
+
+    if (connected) {
+        return false;
+    }
+
+    bool unsuccessful = !mysql_real_connect(_conn,
+                                            hostname,
+                                            user,
+                                            password,
+                                            dbname,
+                                            port,
+                                            socket,
+                                            0);
+
+    if (unsuccessful) {
+        connect_errno = mysql_errno(_conn);
+        connect_error = mysql_error(_conn);
+
+        mysql_close(_conn);
+        connected = false;
         return false;
     }
 
@@ -701,6 +739,24 @@ Handle<Value> MysqlConn::GetWarningsSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
+Handle<Value> MysqlConn::InitSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+
+    if (conn->_conn) {
+        return THREXC("Already initialized");
+    }
+
+    conn->_conn = mysql_init(NULL);
+
+    if (!conn->_conn) {
+        return scope.Close(False());
+    }
+    
+    return scope.Close(True());
+}
+
 Handle<Value> MysqlConn::InitStatementSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1020,6 +1076,64 @@ Handle<Value> MysqlConn::RollbackSync(const Arguments& args) {
     return scope.Close(True());
 }
 
+Handle<Value> MysqlConn::RealConnectSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+
+    if (!conn->_conn) {
+        return THREXC("Not initialized, execute conn.initSync() before conn.realConnectSync()"); // NOLINT
+    }
+
+    String::Utf8Value hostname(args[0]->ToString());
+    String::Utf8Value user(args[1]->ToString());
+    String::Utf8Value password(args[2]->ToString());
+    String::Utf8Value dbname(args[3]->ToString());
+    uint32_t port = args[4]->IntegerValue();
+    String::Utf8Value socket(args[5]->ToString());
+
+    bool r = conn->RealConnect(
+                    (
+                        args[0]->IsString() ?
+                        *hostname : NULL),
+                    (
+                        args[0]->IsString() &&
+                        args[1]->IsString() ?
+                        *user : NULL),
+                    (
+                        args[0]->IsString() &&
+                        args[1]->IsString() &&
+                        args[2]->IsString() ?
+                        *password : NULL),
+                    (
+                        args[0]->IsString() &&
+                        args[1]->IsString() &&
+                        args[2]->IsString() &&
+                        args[3]->IsString() ?
+                        *dbname : NULL),
+                    (
+                        args[0]->IsString() &&
+                        args[1]->IsString() &&
+                        args[2]->IsString() &&
+                        args[3]->IsString() &&
+                        args[4]->IsString() ?
+                        port : 0),
+                    (
+                        args[0]->IsString() &&
+                        args[1]->IsString() &&
+                        args[2]->IsString() &&
+                        args[3]->IsString() &&
+                        args[4]->IsString() &&
+                        args[5]->IsString() ?
+                        *socket : NULL));
+
+    if (!r) {
+        return scope.Close(False());
+    }
+
+    return scope.Close(True());
+}
+
 Handle<Value> MysqlConn::RealQuerySync(const Arguments& args) {
     HandleScope scope;
 
@@ -1101,10 +1215,6 @@ Handle<Value> MysqlConn::SetOptionSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
-
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
 
     REQ_INT_ARG(0, option_integer_key);
     mysql_option option_key = static_cast<mysql_option>(option_integer_key);
