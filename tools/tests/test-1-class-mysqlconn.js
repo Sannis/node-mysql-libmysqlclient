@@ -694,6 +694,17 @@ exports.StoreResultSync = function (test) {
   RealQueryAndUseAndStoreResultSync(test);
 };
 
+exports.ThreadSafeSync = function (test) {
+  test.expect(1);
+  
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+  
+  test.ok(conn.threadSafeSync(), "conn.threadSafeSync() === true");
+  conn.closeSync();
+  
+  test.done();
+};
+
 exports.UseResultSync = function (test) {
   RealQueryAndUseAndStoreResultSync(test);
 };
