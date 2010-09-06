@@ -15,11 +15,15 @@ void MysqlConn::MysqlStatement::Init(Handle<Object> target) {
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
 
+    // Constructor
     constructor_template = Persistent<FunctionTemplate>::New(t);
     constructor_template->Inherit(EventEmitter::constructor_template);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlStatement"));
 
+    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate(); // NOLINT
+
+    // Methods
     ADD_PROTOTYPE_METHOD(statement, prepareSync, PrepareSync);
 }
 
@@ -49,11 +53,7 @@ Handle<Value> MysqlConn::MysqlStatement::PrepareSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
 
-    if (args.Length() == 0 || !args[0]->IsString()) {
-        return THREXC("First arg of stmt.prepareSync() must be a string");
-    }
-
-    String::Utf8Value query(args[0]);
+    REQ_STR_ARG(0, query)
 
     int query_len = args[0]->ToString()->Utf8Length();
 

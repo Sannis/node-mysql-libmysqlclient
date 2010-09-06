@@ -14,10 +14,10 @@ See license text in LICENSE file
 #include <node.h>
 #include <node_events.h>
 
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include <cstdlib>
+#include <cstring>
 
+#include <unistd.h>
 #include <pthread.h>
 
 #define ADD_PROTOTYPE_METHOD(class, name, method) \
@@ -29,15 +29,22 @@ NODE_SET_PROTOTYPE_METHOD(constructor_template, #name, method);
 // [whitespace/line_length] [2]
 // Lines should very rarely be longer than 100 characters
 // [whitespace/line_length] [4]
+#define V8EXC(str) Exception::Error(String::New(str))
 #define THREXC(str) ThrowException(Exception::Error(String::New(str)))
-
 #define OBJUNWRAP ObjectWrap::Unwrap
+#define V8STR(str) String::New(str)
 
 #define REQ_INT_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsInt32()) \
 return ThrowException(Exception::TypeError( \
 String::New("Argument " #I " must be an integer"))); \
-int VAR = args[I]->Int32Value();
+int32_t VAR = args[I]->Int32Value();
+
+#define REQ_UINT_ARG(I, VAR) \
+if (args.Length() <= (I) || !args[I]->IsUint32()) \
+return ThrowException(Exception::TypeError( \
+String::New("Argument " #I " must be an integer"))); \
+uint32_t VAR = args[I]->Uint32Value();
 
 #define REQ_STR_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsString()) \

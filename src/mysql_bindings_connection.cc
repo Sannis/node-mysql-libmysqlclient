@@ -39,10 +39,8 @@ void MysqlConn::Init(Handle<Object> target) {
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_SET_CHARSET_NAME);
 
     // Properties
-    instance_template->SetAccessor(String::New("connectErrno"),
-                                   ConnectErrnoGetter);
-    instance_template->SetAccessor(String::New("connectError"),
-                                   ConnectErrorGetter);
+    instance_template->SetAccessor(V8STR("connectErrno"), ConnectErrnoGetter);
+    instance_template->SetAccessor(V8STR("connectError"), ConnectErrorGetter);
 
     // Methods
     ADD_PROTOTYPE_METHOD(connection, affectedRowsSync, AffectedRowsSync);
@@ -229,7 +227,7 @@ Handle<Value> MysqlConn::ConnectErrorGetter(Local<String> property,
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(info.Holder());
 
-    Local<Value> js_result = String::New(conn->connect_error);
+    Local<Value> js_result = V8STR(conn->connect_error);
 
     return scope.Close(js_result);
 }
@@ -498,11 +496,7 @@ Handle<Value> MysqlConn::DebugSync(const Arguments& args) {
         return THREXC("Not connected");
     }
 
-    if (args.Length() == 0 || !args[0]->IsString()) {
-        return THREXC("First arg of conn.debugSync() must be a string");
-    }
-
-    String::Utf8Value debug(args[0]);
+    REQ_STR_ARG(0, debug)
 
     mysql_debug(*debug);
 
@@ -549,7 +543,7 @@ Handle<Value> MysqlConn::ErrorSync(const Arguments& args) {
 
     const char *error = mysql_error(conn->_conn);
 
-    Local<Value> js_result = String::New(error);
+    Local<Value> js_result = V8STR(error);
 
     return scope.Close(js_result);
 }
@@ -563,20 +557,16 @@ Handle<Value> MysqlConn::EscapeSync(const Arguments& args) {
         return THREXC("Not connected");
     }
 
-    if (args.Length() == 0 || !args[0]->IsString()) {
-        return THREXC("Nothing to escape");
-    }
+    REQ_STR_ARG(0, str)
 
-    String::Utf8Value str(args[0]);
-
-    int len = args[0]->ToString()->Utf8Length();
+    int len = str.length();
     char *result = new char[2*len + 1];
     if (!result) {
         return THREXC("Not enough memory");
     }
 
-    int length = mysql_real_escape_string(conn->_conn, result, *str, len);
-    Local<Value> js_result = String::New(result, length);
+    mysql_real_escape_string(conn->_conn, result, *str, len);
+    Local<Value> js_result = V8STR(result);
 
     delete[] result;
 
@@ -612,29 +602,21 @@ Handle<Value> MysqlConn::GetCharsetSync(const Arguments& args) {
 
     Local<Object> js_result = Object::New();
 
-    js_result->Set(String::New("charset"),
-                   String::New(cs.csname ? cs.csname : ""));
+    js_result->Set(V8STR("charset"), V8STR(cs.csname ? cs.csname : ""));
 
-    js_result->Set(String::New("collation"),
-                   String::New(cs.name ? cs.name : ""));
+    js_result->Set(V8STR("collation"), V8STR(cs.name ? cs.name : ""));
 
-    js_result->Set(String::New("dir"),
-                   String::New(cs.dir ? cs.dir : ""));
+    js_result->Set(V8STR("dir"), V8STR(cs.dir ? cs.dir : ""));
 
-    js_result->Set(String::New("min_length"),
-                   Integer::New(cs.mbminlen));
+    js_result->Set(V8STR("min_length"), Integer::New(cs.mbminlen));
 
-    js_result->Set(String::New("max_length"),
-                   Integer::New(cs.mbmaxlen));
+    js_result->Set(V8STR("max_length"), Integer::New(cs.mbmaxlen));
 
-    js_result->Set(String::New("number"),
-                   Integer::New(cs.number));
+    js_result->Set(V8STR("number"), Integer::New(cs.number));
 
-    js_result->Set(String::New("state"),
-                   Integer::New(cs.state));
+    js_result->Set(V8STR("state"), Integer::New(cs.state));
 
-    js_result->Set(String::New("comment"),
-                   String::New(cs.comment ? cs.comment : ""));
+    js_result->Set(V8STR("comment"), V8STR(cs.comment ? cs.comment : ""));
 
     return scope.Close(js_result);
 }
@@ -648,8 +630,7 @@ Handle<Value> MysqlConn::GetCharsetNameSync(const Arguments& args) {
         return THREXC("Not connected");
     }
 
-    Local<Value> js_result = String::New(
-                                    mysql_character_set_name(conn->_conn));
+    Local<Value> js_result = V8STR(mysql_character_set_name(conn->_conn));
 
     return scope.Close(js_result);
 }
@@ -667,23 +648,17 @@ Handle<Value> MysqlConn::GetInfoSync(const Arguments& args) {
 
     Local<Object> js_result = Object::New();
 
-    js_result->Set(String::New("client_version"),
-                   Integer::New(info.client_version));
+    js_result->Set(V8STR("client_version"), Integer::New(info.client_version));
 
-    js_result->Set(String::New("client_info"),
-                   String::New(info.client_info));
+    js_result->Set(V8STR("client_info"), V8STR(info.client_info));
 
-    js_result->Set(String::New("server_version"),
-                   Integer::New(info.server_version));
+    js_result->Set(V8STR("server_version"), Integer::New(info.server_version));
 
-    js_result->Set(String::New("server_info"),
-                   String::New(info.server_info));
+    js_result->Set(V8STR("server_info"), V8STR(info.server_info));
 
-    js_result->Set(String::New("host_info"),
-                   String::New(info.host_info));
+    js_result->Set(V8STR("host_info"), V8STR(info.host_info));
 
-    js_result->Set(String::New("proto_info"),
-                   Integer::New(info.proto_info));
+    js_result->Set(V8STR("proto_info"), Integer::New(info.proto_info));
 
     return scope.Close(js_result);
 }
@@ -699,7 +674,7 @@ Handle<Value> MysqlConn::GetInfoStringSync(const Arguments& args) {
 
     const char *info = mysql_info(conn->_conn);
 
-    Local<Value> js_result = String::New(info ? info : "");
+    Local<Value> js_result = V8STR(info ? info : "");
 
     return scope.Close(js_result);
 }
@@ -725,11 +700,9 @@ Handle<Value> MysqlConn::GetWarningsSync(const Arguments& args) {
             result = mysql_store_result(conn->_conn);
 
             while ((row = mysql_fetch_row(result))) {
-                js_warning->Set(String::New("errno"),
-                                String::New(row[1])->ToInteger());
+                js_warning->Set(V8STR("errno"), V8STR(row[1])->ToInteger());
 
-                js_warning->Set(String::New("reason"),
-                                String::New(row[2]));
+                js_warning->Set(V8STR("reason"), V8STR(row[2]));
 
                 js_result->Set(Integer::New(i), js_warning);
 
@@ -845,12 +818,7 @@ Handle<Value> MysqlConn::MultiRealQuerySync(const Arguments& args) {
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
 
-    if (args.Length() == 0 || !args[0]->IsString()) {
-        return THREXC("First arg of conn.multiRealQuerySync() "
-                        "must be a string");
-    }
-
-    String::Utf8Value query(args[0]->ToString());
+    REQ_STR_ARG(0, query)
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -897,7 +865,7 @@ int MysqlConn::EIO_After_Query(eio_req *req) {
     HandleScope scope;
 
     if (req->result) {
-        argv[0] = Exception::Error(String::New("Error on query execution"));
+        argv[0] = V8EXC("Error on query execution");
     } else {
         if (req->int1) {
             argv[0] = External::New(query_req->my_result);
@@ -1017,11 +985,7 @@ Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
 
-    if (args.Length() == 0 || !args[0]->IsString()) {
-        return THREXC("First arg of conn.query() must be a string");
-    }
-
-    String::Utf8Value query(args[0]->ToString());
+    REQ_STR_ARG(0, query)
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -1091,7 +1055,7 @@ Handle<Value> MysqlConn::RealConnectSync(const Arguments& args) {
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
 
     if (!conn->_conn) {
-        return THREXC("Not initialized, execute conn.initSync() before conn.realConnectSync()"); // NOLINT
+        return THREXC("Not initialized, execute conn.initSync() before");
     }
 
     String::Utf8Value hostname(args[0]->ToString());
@@ -1148,11 +1112,7 @@ Handle<Value> MysqlConn::RealQuerySync(const Arguments& args) {
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
 
-    if (args.Length() == 0 || !args[0]->IsString()) {
-        return THREXC("First arg of conn.realQuery() must be a string");
-    }
-
-    String::Utf8Value query(args[0]->ToString());
+    REQ_STR_ARG(0, query)
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -1181,11 +1141,7 @@ Handle<Value> MysqlConn::SelectDbSync(const Arguments& args) {
         return THREXC("Not connected");
     }
 
-    if (args.Length() == 0 || !args[0]->IsString()) {
-        return THREXC("Must give database name as argument");
-    }
-
-    String::Utf8Value dbname(args[0]);
+    REQ_STR_ARG(0, dbname)
 
     bool r = mysql_select_db(conn->_conn, *dbname);
 
@@ -1205,11 +1161,7 @@ Handle<Value> MysqlConn::SetCharsetSync(const Arguments& args) {
         return THREXC("Not connected");
     }
 
-    if (args.Length() == 0 || !args[0]->IsString()) {
-        return THREXC("Must give charset name as argument");
-    }
-
-    String::Utf8Value charset(args[0]);
+    REQ_STR_ARG(0, charset)
 
     bool r = mysql_set_character_set(conn->_conn, *charset);
 
@@ -1272,20 +1224,11 @@ Handle<Value> MysqlConn::SetSslSync(const Arguments& args) {
         return THREXC("Not connected");
     }
 
-    if (args.Length() < 5 ||
-        !args[0]->IsString() ||
-        !args[1]->IsString() ||
-        !args[2]->IsString() ||
-        !args[3]->IsString() ||
-        !args[4]->IsString()) {
-        return THREXC("Must give 5 arguments");
-    }
-
-    String::Utf8Value key(args[0]->ToString());
-    String::Utf8Value cert(args[1]->ToString());
-    String::Utf8Value ca(args[2]->ToString());
-    String::Utf8Value capath(args[3]->ToString());
-    String::Utf8Value cipher(args[4]->ToString());
+    REQ_STR_ARG(0, key)
+    REQ_STR_ARG(1, cert)
+    REQ_STR_ARG(2, ca)
+    REQ_STR_ARG(3, capath)
+    REQ_STR_ARG(4, cipher)
 
     mysql_ssl_set(conn->_conn, *key, *cert, *ca, *capath, *cipher);
 
@@ -1301,7 +1244,7 @@ Handle<Value> MysqlConn::SqlStateSync(const Arguments& args) {
         return THREXC("Not connected");
     }
 
-    Local<Value> js_result = String::New(mysql_sqlstate(conn->_conn));
+    Local<Value> js_result = V8STR(mysql_sqlstate(conn->_conn));
 
     return scope.Close(js_result);
 }
@@ -1318,7 +1261,7 @@ Handle<Value> MysqlConn::StatSync(const Arguments& args) {
     const char *stat = mysql_stat(conn->_conn);
 
     if (stat) {
-        Local<Value> js_result = String::New(stat);
+        Local<Value> js_result = V8STR(stat);
 
         return scope.Close(js_result);
     } else {
