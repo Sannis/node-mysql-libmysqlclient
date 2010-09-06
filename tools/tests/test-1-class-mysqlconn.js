@@ -13,14 +13,38 @@ var
   mysql_libmysqlclient = require("../../mysql-libmysqlclient"),
   mysql_bindings = require("../../mysql_bindings");
 
-exports.New = function (test) {
-  test.expect(1);
+function MultiRealQueryAndNextAndMoreSync(test) {
+  test.expect(4);
   
-  var conn = new mysql_bindings.MysqlConn();
-  test.ok(conn, "var conn = new mysql_bindings.MysqlConn()");
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res,
+    query;
   
-  test.done();
-};
+  query  = "SELECT 1 as one;";
+  query += "SELECT 2 as two;";
+  query += "SELECT * FROM " + cfg.test_table_notexists + ";";
+  // This statement will be ignored as the test_table_notexists doesn't exist
+  // and the loop should quit
+  query += "SHOW TABLES;";
+
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  conn.multiRealQuerySync(query);
+  // SELECT 1 as one;
+  res = conn.storeResultSync().fetchAllSync();
+  test.same(res, [{one: 1}], "SELECT 1 as one;");
+  conn.multiNextResultSync();
+  // SELECT 2 as two;
+  res = conn.storeResultSync().fetchAllSync();
+  test.same(res, [{two: 2}], "SELECT 2 as two;");
+  conn.multiNextResultSync();
+  // SELECT * FROM test_table_notexists;
+  test.equals(conn.errorSync(), "Table '" + cfg.database + "." + cfg.test_table_notexists + "' doesn't exist", "right error after select from notexists table");
+  
+  conn.closeSync();
+  
+  test.done()
+}
 
 function RealQueryAndUseAndStoreResultSync(test) {
   test.expect(5);
@@ -43,6 +67,15 @@ function RealQueryAndUseAndStoreResultSync(test) {
   test.same(r1, r3, "conn.realQuerySync('SHOW TABLES;') + conn.storeResultSync() === conn.querySync('SHOW TABLES;')");
   test.same(r2, r3, "conn.realQuerySync('SHOW TABLES;') + conn.useResultSync() === conn.querySync('SHOW TABLES;')");
   conn.closeSync();
+  
+  test.done();
+}
+
+exports.New = function (test) {
+  test.expect(1);
+  
+  var conn = new mysql_bindings.MysqlConn();
+  test.ok(conn, "var conn = new mysql_bindings.MysqlConn()");
   
   test.done();
 };
@@ -111,7 +144,7 @@ exports.AffectedRowsSync = function (test) {
     " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
     " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
 
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.ok(res, "conn.querySync('DELETE FROM test_table')");
   
   for (i = 0; i < cfg.insert_rows_count; i += 1)
   {
@@ -476,6 +509,18 @@ exports.LastInsertIdSync = function (test) {
   conn.closeSync();
   
   test.done();
+};
+
+exports.MultiMoreResultsSync = function (test) {
+  MultiRealQueryAndNextAndMoreSync(test);
+};
+
+exports.MultiNextResultSync = function (test) {
+  MultiRealQueryAndNextAndMoreSync(test);
+};
+
+exports.MultiRealQuerySync = function (test) {
+  MultiRealQueryAndNextAndMoreSync(test);
 };
 
 exports.Query = function (test) {
