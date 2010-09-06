@@ -19,6 +19,7 @@
 static Persistent<String> statement_closeSync_symbol;
 static Persistent<String> statement_errnoSync_symbol;
 static Persistent<String> statement_errorSync_symbol;
+static Persistent<String> statement_executeSync_symbol;
 static Persistent<String> statement_prepareSync_symbol;
 static Persistent<String> statement_resetSync_symbol;
 
@@ -45,6 +46,8 @@ class MysqlStatement : public node::EventEmitter {
     static Handle<Value> ErrnoSync(const Arguments& args);
 
     static Handle<Value> ErrorSync(const Arguments& args);
+
+    static Handle<Value> ExecuteSync(const Arguments& args);
 
     static Handle<Value> PrepareSync(const Arguments& args);
 
