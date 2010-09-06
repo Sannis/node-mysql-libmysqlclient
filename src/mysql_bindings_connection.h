@@ -33,6 +33,12 @@ NODE_SET_PROTOTYPE_METHOD(constructor_template, #name, method);
 
 #define OBJUNWRAP ObjectWrap::Unwrap
 
+#define REQ_INT_ARG(I, VAR) \
+if (args.Length() <= (I) || !args[I]->IsInt32()) \
+return ThrowException(Exception::TypeError( \
+String::New("Argument " #I " must be an integer"))); \
+int VAR = args[I]->Int32Value();
+
 #define REQ_STR_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsString()) \
 return ThrowException(Exception::TypeError( \
@@ -94,6 +100,7 @@ static Persistent<String> connection_realQuerySync_symbol;
 static Persistent<String> connection_rollbackSync_symbol;
 static Persistent<String> connection_selectDbSync_symbol;
 static Persistent<String> connection_setCharsetSync_symbol;
+static Persistent<String> connection_setOptionSync_symbol;
 static Persistent<String> connection_setSslSync_symbol;
 static Persistent<String> connection_sqlStateSync_symbol;
 static Persistent<String> connection_statSync_symbol;
@@ -245,6 +252,8 @@ class MysqlConn : public node::EventEmitter {
     static Handle<Value> SelectDbSync(const Arguments& args);
 
     static Handle<Value> SetCharsetSync(const Arguments& args);
+
+    static Handle<Value> SetOptionSync(const Arguments& args);
 
     static Handle<Value> SetSslSync(const Arguments& args);
 

@@ -21,10 +21,26 @@ void MysqlConn::Init(Handle<Object> target) {
     constructor_template->Inherit(EventEmitter::constructor_template);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlConn"));
+    
+    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate();
+
+    // Constants
+    NODE_DEFINE_CONSTANT(constructor_template->InstanceTemplate(), MYSQL_INIT_COMMAND);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_COMPRESS);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_CONNECT_TIMEOUT);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_LOCAL_INFILE);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_PROTOCOL);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_READ_TIMEOUT);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_RECONNECT);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_WRITE_TIMEOUT);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_READ_DEFAULT_FILE);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_READ_DEFAULT_GROUP);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_SET_CHARSET_DIR);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_SET_CHARSET_NAME);
 
     // Properties
-    constructor_template->InstanceTemplate()->SetAccessor(String::New("connectErrno"), ConnectErrnoGetter); // NOLINT
-    constructor_template->InstanceTemplate()->SetAccessor(String::New("connectError"), ConnectErrorGetter); // NOLINT
+    instance_template->SetAccessor(String::New("connectErrno"), ConnectErrnoGetter); // NOLINT
+    instance_template->SetAccessor(String::New("connectError"), ConnectErrorGetter); // NOLINT
 
     // Methods
     ADD_PROTOTYPE_METHOD(connection, affectedRowsSync, AffectedRowsSync);
@@ -58,6 +74,7 @@ void MysqlConn::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, rollbackSync, RollbackSync);
     ADD_PROTOTYPE_METHOD(connection, selectDbSync, SelectDbSync);
     ADD_PROTOTYPE_METHOD(connection, setCharsetSync, SetCharsetSync);
+    ADD_PROTOTYPE_METHOD(connection, setOptionSync, SetOptionSync);
     ADD_PROTOTYPE_METHOD(connection, setSslSync, SetSslSync);
     ADD_PROTOTYPE_METHOD(connection, sqlStateSync, SqlStateSync);
     ADD_PROTOTYPE_METHOD(connection, statSync, StatSync);
@@ -1076,6 +1093,23 @@ Handle<Value> MysqlConn::SetCharsetSync(const Arguments& args) {
     }
 
     return scope.Close(True());
+}
+
+Handle<Value> MysqlConn::SetOptionSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+
+    if (!conn->_conn) {
+        return THREXC("Not connected");
+    }
+
+    REQ_INT_ARG(0, option_key);
+
+    // TODO(Sannis): write type determine and casts
+    return THREXC("Not implemented");
+
+    //int ret = mysql_options(conn->_conn, option_key, option_value);
 }
 
 Handle<Value> MysqlConn::SetSslSync(const Arguments& args) {

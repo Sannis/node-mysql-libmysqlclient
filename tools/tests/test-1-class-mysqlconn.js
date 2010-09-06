@@ -22,6 +22,27 @@ exports.New = function (test) {
   test.done();
 };
 
+exports.OptionsConstants = function (test) {
+  test.expect(12);
+  
+  var conn = mysql_libmysqlclient.createConnectionSync();
+  
+  test.equals(conn.MYSQL_INIT_COMMAND, 3);
+  test.equals(conn.MYSQL_OPT_COMPRESS, 1);
+  test.equals(conn.MYSQL_OPT_CONNECT_TIMEOUT, 0);
+  test.equals(conn.MYSQL_OPT_LOCAL_INFILE, 8);
+  test.equals(conn.MYSQL_OPT_PROTOCOL, 9);
+  test.equals(conn.MYSQL_OPT_READ_TIMEOUT, 11);
+  test.equals(conn.MYSQL_OPT_RECONNECT, 20);
+  test.equals(conn.MYSQL_OPT_WRITE_TIMEOUT, 12);
+  test.equals(conn.MYSQL_READ_DEFAULT_FILE, 4);
+  test.equals(conn.MYSQL_READ_DEFAULT_GROUP, 5);
+  test.equals(conn.MYSQL_SET_CHARSET_DIR, 6);
+  test.equals(conn.MYSQL_SET_CHARSET_NAME, 7);
+  
+  test.done();
+};
+
 exports.ConnectErrnoGetter = function (test) {
   test.expect(2);
   

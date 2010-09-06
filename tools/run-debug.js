@@ -13,7 +13,7 @@ var
   sys = require("sys"),
   events = require('events'),
   mysql_libmysqlclient = require("../mysql-libmysqlclient"),
-
+  mysql_bindings = require("../mysql_bindings"),
   conn,
   res;
 
@@ -37,6 +37,7 @@ conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.passwor
 
 res = conn.querySync("SHOW TABLES;");
 
+debug("mysql_bindings", mysql_bindings);
 debug("mysql_libmysqlclient", mysql_libmysqlclient);
 debug("conn", conn);
 debug("res", res);
