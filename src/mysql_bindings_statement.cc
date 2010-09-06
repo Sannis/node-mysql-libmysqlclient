@@ -31,10 +31,15 @@ void MysqlStatement::Init(Handle<Object> target) {
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlStatement"));
 
+<<<<<<< HEAD
     Local<ObjectTemplate> instance_template =
         constructor_template->InstanceTemplate();
 
     // Methods
+=======
+    // Methods
+    ADD_PROTOTYPE_METHOD(statement, affectedRowsSync, AffectedRowsSync);
+>>>>>>> Implement MysqlStatement::AffectedRowsSync()
     ADD_PROTOTYPE_METHOD(statement, closeSync, CloseSync);
     ADD_PROTOTYPE_METHOD(statement, errnoSync, ErrnoSync);
     ADD_PROTOTYPE_METHOD(statement, errorSync, ErrorSync);
@@ -73,7 +78,27 @@ Handle<Value> MysqlStatement::New(const Arguments& args) {
     return args.This();
 }
 
-Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
+Handle<Value> MysqlConn::MysqlStatement::AffectedRowsSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    if (!stmt->_stmt) {
+        return THREXC("Statement not initialized");
+    }
+
+    my_ulonglong affected_rows = mysql_stmt_affected_rows(stmt->_stmt);
+
+    if (affected_rows == ((my_ulonglong)-1)) {
+        return THREXC("Error occured in mysql_stmt_affected_rows(), -1 returned");
+    }
+
+    Local<Value> js_result = Integer::New(affected_rows);
+
+    return scope.Close(Integer::New(affected_rows));
+}
+
+Handle<Value> MysqlConn::MysqlStatement::CloseSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());

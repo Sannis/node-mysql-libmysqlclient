@@ -16,6 +16,7 @@
 
 #include "./mysql_bindings.h"
 
+static Persistent<String> statement_affectedRowsSync_symbol;
 static Persistent<String> statement_closeSync_symbol;
 static Persistent<String> statement_errnoSync_symbol;
 static Persistent<String> statement_errorSync_symbol;
@@ -40,6 +41,8 @@ class MysqlStatement : public node::EventEmitter {
     ~MysqlStatement();
 
     static Handle<Value> New(const Arguments& args);
+
+    static Handle<Value> AffectedRowsSync(const Arguments& args);
 
     static Handle<Value> CloseSync(const Arguments& args);
 
