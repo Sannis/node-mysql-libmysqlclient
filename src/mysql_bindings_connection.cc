@@ -1106,12 +1106,42 @@ Handle<Value> MysqlConn::SetOptionSync(const Arguments& args) {
         return THREXC("Not connected");
     }
 
-    //REQ_INT_ARG(0, option_key);
+    REQ_INT_ARG(0, option_integer_key);
+    mysql_option option_key = static_cast<mysql_option>(option_integer_key);
+    int r = 1;
 
-    // TODO(Sannis): write type determine and casts
-    return THREXC("Not implemented");
+    switch (option_key) {
+        case MYSQL_OPT_CONNECT_TIMEOUT:
+        case MYSQL_OPT_LOCAL_INFILE:
+        case MYSQL_OPT_PROTOCOL:
+        case MYSQL_OPT_READ_TIMEOUT:
+        case MYSQL_OPT_WRITE_TIMEOUT:
+        case MYSQL_OPT_RECONNECT:
+        case MYSQL_OPT_COMPRESS:
+            {
+            REQ_INT_ARG(1, option_integer_value);
+            r = mysql_options(conn->_conn, option_key, &option_integer_value);
+            }
+            break;
+        case MYSQL_READ_DEFAULT_FILE:
+        case MYSQL_READ_DEFAULT_GROUP:
+        case MYSQL_INIT_COMMAND:
+        case MYSQL_SET_CHARSET_NAME:
+        case MYSQL_SET_CHARSET_DIR:
+            {
+            REQ_STR_ARG(1, option_string_value);
+            r = mysql_options(conn->_conn, option_key, *option_string_value);
+            }
+            break;
+        default:
+            return THREXC("This option isn't supported");
+    }
 
-    //int ret = mysql_options(conn->_conn, option_key, option_value);
+    if (r) {
+        return scope.Close(False());
+    }
+
+    return scope.Close(True());
 }
 
 Handle<Value> MysqlConn::SetSslSync(const Arguments& args) {
