@@ -85,7 +85,6 @@ void MysqlConn::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, storeResultSync, StoreResultSync);
     ADD_PROTOTYPE_METHOD(connection, threadIdSync, ThreadIdSync);
     ADD_PROTOTYPE_METHOD(connection, threadSafeSync, ThreadSafeSync);
-    ADD_PROTOTYPE_METHOD(connection, threadKillSync, ThreadKillSync);
     ADD_PROTOTYPE_METHOD(connection, useResultSync, UseResultSync);
     ADD_PROTOTYPE_METHOD(connection, warningCountSync, WarningCountSync);
 
@@ -1357,26 +1356,6 @@ Handle<Value> MysqlConn::ThreadIdSync(const Arguments& args) {
     Local<Value> js_result = Integer::New(thread_id);
 
     return scope.Close(js_result);
-}
-
-Handle<Value> MysqlConn::ThreadKillSync(const Arguments& args) {
-    HandleScope scope;
-
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
-
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
-
-    if (args.Length() == 0 || !args[0]->IsNumber()) {
-        return THREXC("First arg of conn.threadKill() must be a pid");
-    }
-
-    if (mysql_kill(conn->_conn, args[0]->IntegerValue())) {
-        return scope.Close(False());
-    } else {
-        return scope.Close(True());
-    }
 }
 
 Handle<Value> MysqlConn::ThreadSafeSync(const Arguments& args) {

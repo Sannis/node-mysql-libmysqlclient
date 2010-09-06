@@ -108,7 +108,6 @@ static Persistent<String> connection_sqlStateSync_symbol;
 static Persistent<String> connection_statSync_symbol;
 static Persistent<String> connection_storeResultSync_symbol;
 static Persistent<String> connection_threadIdSync_symbol;
-static Persistent<String> connection_threadKillSync_symbol;
 static Persistent<String> connection_threadSafeSync_symbol;
 static Persistent<String> connection_useResultSync_symbol;
 static Persistent<String> connection_warningCountSync_symbol;
@@ -277,8 +276,6 @@ class MysqlConn : public node::EventEmitter {
     static Handle<Value> StoreResultSync(const Arguments& args);
 
     static Handle<Value> ThreadIdSync(const Arguments& args);
-
-    static Handle<Value> ThreadKillSync(const Arguments& args);
 
     static Handle<Value> ThreadSafeSync(const Arguments& args);
 
