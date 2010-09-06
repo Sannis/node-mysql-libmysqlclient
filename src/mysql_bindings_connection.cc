@@ -281,17 +281,18 @@ Handle<Value> MysqlConn::ChangeUserSync(const Arguments& args) {
         return THREXC("Not connected yet");
     }
 
+    REQ_STR_ARG(0, user)
+
+    // TODO(Sannis): Check logic
     if ( (args.Length() < 2) || (!args[0]->IsString()) ||
          (!args[1]->IsString()) ) {
         return THREXC("Must give at least user and password as arguments");
     }
-    
+    String::Utf8Value password(args[1]->ToString());
+
     if ( (args.Length() == 3) && (!args[2]->IsString()) ) {
         return THREXC("Must give string value as third argument, database");
     }
-
-    String::Utf8Value user(args[0]->ToString());
-    String::Utf8Value password(args[1]->ToString());
     String::Utf8Value dbname(args[2]->ToString());
 
     bool r = mysql_change_user(conn->_conn,
@@ -511,9 +512,7 @@ Handle<Value> MysqlConn::DumpDebugInfoSync(const Arguments& args) {
         return THREXC("Not connected");
     }
 
-    bool r = !mysql_dump_debug_info(conn->_conn);
-
-    return scope.Close(r ? True() : False());
+    return scope.Close(mysql_dump_debug_info(conn->_conn) ? False() : True());
 }
 
 Handle<Value> MysqlConn::ErrnoSync(const Arguments& args) {
@@ -525,9 +524,7 @@ Handle<Value> MysqlConn::ErrnoSync(const Arguments& args) {
         return THREXC("Not connected");
     }
 
-    uint32_t errno = mysql_errno(conn->_conn);
-
-    Local<Value> js_result = Integer::New(errno);
+    Local<Value> js_result = Integer::New(mysql_errno(conn->_conn));
 
     return scope.Close(js_result);
 }
@@ -603,19 +600,12 @@ Handle<Value> MysqlConn::GetCharsetSync(const Arguments& args) {
     Local<Object> js_result = Object::New();
 
     js_result->Set(V8STR("charset"), V8STR(cs.csname ? cs.csname : ""));
-
     js_result->Set(V8STR("collation"), V8STR(cs.name ? cs.name : ""));
-
     js_result->Set(V8STR("dir"), V8STR(cs.dir ? cs.dir : ""));
-
     js_result->Set(V8STR("min_length"), Integer::New(cs.mbminlen));
-
     js_result->Set(V8STR("max_length"), Integer::New(cs.mbmaxlen));
-
     js_result->Set(V8STR("number"), Integer::New(cs.number));
-
     js_result->Set(V8STR("state"), Integer::New(cs.state));
-
     js_result->Set(V8STR("comment"), V8STR(cs.comment ? cs.comment : ""));
 
     return scope.Close(js_result);
@@ -826,14 +816,12 @@ Handle<Value> MysqlConn::MultiRealQuerySync(const Arguments& args) {
 
     MYSQLSYNC_ENABLE_MQ;
 
-    int r = mysql_real_query(conn->_conn, *query, query.length());
-
-    if (r != 0) {
+    if (mysql_real_query(conn->_conn, *query, query.length()) != 0) {
         MYSQLSYNC_DISABLE_MQ;
-
         return scope.Close(False());
     }
 
+    MYSQLSYNC_DISABLE_MQ;
     return scope.Close(True());
 }
 
@@ -846,9 +834,7 @@ Handle<Value> MysqlConn::PingSync(const Arguments& args) {
         return THREXC("Not connected yet");
     }
 
-    bool r = mysql_ping(conn->_conn);
-
-    if (r) {
+    if (mysql_ping(conn->_conn)) {
         return scope.Close(False());
     }
 
@@ -996,7 +982,7 @@ Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
     int field_count;
 
 
-    //only one query can be executed on a connection at a time
+    // Only one query can be executed on a connection at a time
     pthread_mutex_lock(&conn->query_lock);
 
     int r = mysql_query(conn->_conn, *query);
@@ -1143,9 +1129,7 @@ Handle<Value> MysqlConn::SelectDbSync(const Arguments& args) {
 
     REQ_STR_ARG(0, dbname)
 
-    bool r = mysql_select_db(conn->_conn, *dbname);
-
-    if (r) {
+    if (mysql_select_db(conn->_conn, *dbname)) {
         return scope.Close(False());
     }
 
@@ -1163,9 +1147,7 @@ Handle<Value> MysqlConn::SetCharsetSync(const Arguments& args) {
 
     REQ_STR_ARG(0, charset)
 
-    bool r = mysql_set_character_set(conn->_conn, *charset);
-
-    if (r) {
+    if (mysql_set_character_set(conn->_conn, *charset)) {
         return scope.Close(False());
     }
 
