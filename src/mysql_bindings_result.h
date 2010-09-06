@@ -75,6 +75,7 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
 
     static Handle<Value> DataSeekSync(const Arguments& args);
 
+#ifndef MYSQL_NON_THREADSAFE
     struct fetchAll_request {
         Persistent<Function> callback;
         MysqlConn::MysqlResult *res;
@@ -82,6 +83,7 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     };
     static int EIO_After_FetchAll(eio_req *req);
     static int EIO_FetchAll(eio_req *req);
+#endif
     static Handle<Value> FetchAll(const Arguments& args);
 
     static Handle<Value> FetchAllSync(const Arguments& args);

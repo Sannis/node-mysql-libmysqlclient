@@ -186,6 +186,7 @@ class MysqlConn : public node::EventEmitter {
 
     static Handle<Value> CommitSync(const Arguments& args);
 
+#ifndef MYSQL_NON_THREADSAFE
     struct connect_request {
         Persistent<Function> callback;
         MysqlConn *conn;
@@ -198,6 +199,7 @@ class MysqlConn : public node::EventEmitter {
     };
     static int EIO_After_Connect(eio_req *req);
     static int EIO_Connect(eio_req *req);
+#endif
     static Handle<Value> Connect(const Arguments& args);
 
     static Handle<Value> ConnectSync(const Arguments& args);
@@ -242,6 +244,7 @@ class MysqlConn : public node::EventEmitter {
 
     static Handle<Value> PingSync(const Arguments& args);
 
+#ifndef MYSQL_NON_THREADSAFE
     struct query_request {
         Persistent<Function> callback;
         MysqlConn *conn;
@@ -251,6 +254,7 @@ class MysqlConn : public node::EventEmitter {
     };
     static int EIO_After_Query(eio_req *req);
     static int EIO_Query(eio_req *req);
+#endif
     static Handle<Value> Query(const Arguments& args);
 
     static Handle<Value> QuerySync(const Arguments& args);

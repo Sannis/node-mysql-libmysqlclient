@@ -324,6 +324,7 @@ Handle<Value> MysqlConn::CommitSync(const Arguments& args) {
     return scope.Close(True());
 }
 
+#ifndef MYSQL_NON_THREADSAFE
 int MysqlConn::EIO_After_Connect(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct connect_request *conn_req = (struct connect_request *)(req->data);
@@ -370,10 +371,13 @@ int MysqlConn::EIO_Connect(eio_req *req) {
 
     return 0;
 }
+#endif
 
 Handle<Value> MysqlConn::Connect(const Arguments& args) {
     HandleScope scope;
-
+#ifdef MYSQL_NON_THREADSAFE
+    return THREXC("Asynchronous functions works only with threadsafe libmysqlclient_r");
+#else
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
 
     struct connect_request *conn_req =
@@ -406,6 +410,7 @@ Handle<Value> MysqlConn::Connect(const Arguments& args) {
     conn->Ref();
 
     return Undefined();
+#endif
 }
 
 Handle<Value> MysqlConn::ConnectSync(const Arguments& args) {
@@ -882,6 +887,7 @@ Handle<Value> MysqlConn::PingSync(const Arguments& args) {
     return scope.Close(True());
 }
 
+#ifndef MYSQL_NON_THREADSAFE
 int MysqlConn::EIO_After_Query(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct query_request *query_req = (struct query_request *)(req->data);
@@ -961,10 +967,13 @@ int MysqlConn::EIO_Query(eio_req *req) {
     pthread_mutex_unlock(&conn->query_lock);
     return 0;
 }
+#endif
 
 Handle<Value> MysqlConn::Query(const Arguments& args) {
     HandleScope scope;
-
+#ifdef MYSQL_NON_THREADSAFE
+    return THREXC("Asynchronous functions works only with threadsafe libmysqlclient_r");
+#else
     REQ_STR_ARG(0, query);
     REQ_FUN_ARG(1, callback);
 
@@ -1000,6 +1009,7 @@ Handle<Value> MysqlConn::Query(const Arguments& args) {
     conn->Ref();
 
     return Undefined();
+#endif
 }
 
 Handle<Value> MysqlConn::QuerySync(const Arguments& args) {

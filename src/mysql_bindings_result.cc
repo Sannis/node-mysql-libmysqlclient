@@ -292,6 +292,7 @@ Handle<Value> MysqlConn::MysqlResult::DataSeekSync(const Arguments& args) {
     return Undefined();
 }
 
+#ifndef MYSQL_NON_THREADSAFE
 int MysqlConn::MysqlResult::EIO_After_FetchAll(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data); // NOLINT
@@ -357,10 +358,13 @@ int MysqlConn::MysqlResult::EIO_FetchAll(eio_req *req) {
 
     return 0;
 }
+#endif
 
 Handle<Value> MysqlConn::MysqlResult::FetchAll(const Arguments& args) {
     HandleScope scope;
-
+#ifdef MYSQL_NON_THREADSAFE
+    return THREXC("Asynchronous functions works only with threadsafe libmysqlclient_r");
+#else
     REQ_FUN_ARG(0, callback);
 
     MysqlConn::MysqlResult *res = OBJUNWRAP<MysqlConn::MysqlResult>(args.This()); // NOLINT
@@ -386,6 +390,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchAll(const Arguments& args) {
     res->Ref();
 
     return Undefined();
+#endif
 }
 
 Handle<Value> MysqlConn::MysqlResult::FetchAllSync(const Arguments& args) {

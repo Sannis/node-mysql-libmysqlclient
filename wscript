@@ -17,24 +17,18 @@ def configure(conf):
   conf.env.append_unique('CXXFLAGS', ["-g", "-D_FILE_OFFSET_BITS=64","-D_LARGEFILE_SOURCE", "-Wall"])
   
   conf.env.append_unique('CXXFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --include').split())
-  conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs_r').split())
+  
+  if conf.check_cxx(lib="mysqlclient_r", errmsg="not found, try to find nonthreadsafe libmysqlclient"):
+    conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs_r').split())
+  else:
+    if conf.check_cxx(lib="mysqlclient"):
+      conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs').split())
+      conf.env.append_unique('CXXDEFINES', ["MYSQL_NON_THREADSAFE"])
+    else:
+      conf.fatal("Missing both libmysqlclient_r and libmysqlclient from libmysqlclient-devel or mysql-devel package")
   
   if not conf.check_cxx(header_name='mysql.h'):
     conf.fatal("Missing mysql.h header from libmysqlclient-devel or mysql-devel package")
-  
-  if not conf.check_cxx(lib="mysqlclient_r"):
-    conf.fatal("Missing libmysqlclient library")
-  
-  #if not conf.check_cfg(package="mysqlclient_r", args="--cflags --libs", uselib_store="MYSQLCLIENT"):
-  #  if not conf.check_cxx(lib="mysqlclient_r", linkflags="-L/usr/lib/mysql", uselib_store="MYSQLCLIENT"):
-  #    conf.fatal("Missing libmysqlclient library")
-  #if conf.check_cxx(header_name='mysql/mysql.h'):
-  #  conf.env.MYSQL_H_PATH_FLAG = "-I/usr/include/mysql"
-  #else:
-  #  if conf.check_cxx(header_name='mysql.h'):
-  #    conf.env.MYSQL_H_PATH_FLAG = "-I/usr/include"
-  #  else:
-  #    conf.fatal("Missing mysql.h header from libmysqlclient-devel or mysql-devel package")
 
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
