@@ -13,6 +13,20 @@ var
   mysql_libmysqlclient = require("../../mysql-libmysqlclient"),
   mysql_bindings = require("../../mysql_bindings");
 
+function InitAndRealConnectSync(test) {
+  test.expect(2);
+  
+  var conn = mysql_libmysqlclient.createConnectionSync();
+  
+  conn.initSync();
+  test.ok(!conn.connectedSync(), "conn.connectedSync() after conn.initSync()");
+  conn.realConnectSync(cfg.host, cfg.user, cfg.password);
+  test.ok(conn.connectedSync(), "conn.connectedSync() after conn.realConnectSync()");
+  conn.closeSync();
+  
+  test.done();
+}
+
 function MultiRealQueryAndNextAndMoreSync(test) {
   test.expect(4);
   
@@ -459,18 +473,7 @@ exports.GetWarningsSync = function (test) {
 };
 
 exports.InitSync = function (test) {
-  test.expect(2);
-  
-  var conn = mysql_libmysqlclient.createConnectionSync();
-  
-  conn.initSync();
-  test.ok(!conn.connectedSync(), "conn.connectedSync() after conn.initSync()");
-  conn.realConnectSync(cfg.host, cfg.user, cfg.password);
-  sys.puts(conn.connectionError);
-  test.ok(conn.connectedSync(), "conn.connectedSync() after conn.realConnectSync()");
-  conn.closeSync();
-  
-  test.done();
+  InitAndRealConnectSync(test);
 };
 
 exports.LastInsertIdSync = function (test) {
@@ -595,18 +598,7 @@ exports.QuerySync = function (test) {
 };
 
 exports.RealConnectSync = function (test) {
-  test.expect(2);
-  
-  var conn = mysql_libmysqlclient.createConnectionSync();
-  
-  conn.initSync();
-  test.ok(!conn.connectedSync(), "conn.connectedSync() after conn.initSync()");
-  conn.realConnectSync(cfg.host, cfg.user, cfg.password);
-  sys.puts(conn.connectionError);
-  test.ok(conn.connectedSync(), "conn.connectedSync() after conn.realConnectSync()");
-  conn.closeSync();
-  
-  test.done();
+  InitAndRealConnectSync(test);
 };
 
 exports.RealQuerySync = function (test) {

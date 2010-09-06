@@ -192,6 +192,7 @@ MysqlConn::MysqlConnInfo MysqlConn::GetInfo() {
 
 MysqlConn::MysqlConn(): EventEmitter() {
     _conn = NULL;
+    connected = false;
     multi_query = false;
     pthread_mutex_init(&query_lock, NULL);
 }
