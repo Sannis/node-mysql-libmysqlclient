@@ -42,6 +42,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(statement, executeSync, ExecuteSync);
     ADD_PROTOTYPE_METHOD(statement, prepareSync, PrepareSync);
     ADD_PROTOTYPE_METHOD(statement, resetSync, ResetSync);
+    ADD_PROTOTYPE_METHOD(statement, storeResultSync, StoreResultSync);
     ADD_PROTOTYPE_METHOD(statement, sqlStateSync, SqlStateSync);
 
     // Make it visible in JavaScript
@@ -197,6 +198,18 @@ Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
     }
 
     return scope.Close(True());
+}
+
+Handle<Value> MysqlConn::MysqlStatement::StoreResultSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    if (!stmt->_stmt) {
+        return THREXC("Statement not initialized");
+    }
+
+    return scope.Close(mysql_stmt_store_result(stmt->_stmt) ? False() : True());
 }
 
 Handle<Value> MysqlConn::MysqlStatement::SqlStateSync(const Arguments& args) {
