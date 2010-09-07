@@ -194,6 +194,8 @@ MysqlConn::MysqlConn(): EventEmitter() {
     _conn = NULL;
     connected = false;
     multi_query = false;
+    connect_errno = 0;
+    connect_error = NULL;
     pthread_mutex_init(&query_lock, NULL);
 }
 
@@ -228,7 +230,7 @@ Handle<Value> MysqlConn::ConnectErrorGetter(Local<String> property,
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(info.Holder());
 
-    Local<Value> js_result = V8STR(conn->connect_error);
+    Local<Value> js_result = V8STR(conn->connect_error ? conn->connect_error : "");
 
     return scope.Close(js_result);
 }
@@ -327,10 +329,10 @@ Handle<Value> MysqlConn::CommitSync(const Arguments& args) {
 #ifndef MYSQL_NON_THREADSAFE
 int MysqlConn::EIO_After_Connect(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
+    HandleScope scope;
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
     Local<Value> argv[1];
-    int argc = 1;
 
     if (req->result) {
       argv[0] = Local<Value>::New(Integer::New(conn_req->conn->connect_errno));
@@ -340,7 +342,7 @@ int MysqlConn::EIO_After_Connect(eio_req *req) {
 
     TryCatch try_catch;
 
-    conn_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
+    conn_req->callback->Call(Context::GetCurrent()->Global(), 1, argv);
 
     if (try_catch.HasCaught()) {
         node::FatalException(try_catch);
@@ -400,10 +402,10 @@ Handle<Value> MysqlConn::Connect(const Arguments& args) {
         new String::Utf8Value(args[2]->ToString()) : NULL;
     conn_req->dbname = args.Length() > 4 && args[3]->IsString() ?
         new String::Utf8Value(args[3]->ToString()) : NULL;
-    conn_req->port = args.Length() > 5 ? args[4]->IntegerValue() : 0;
+    conn_req->port = args.Length() > 5 ?
+                              args[4]->IntegerValue() : 0;
     conn_req->socket = args.Length() > 6 && args[5]->IsString() ?
       new String::Utf8Value(args[5]->ToString()) : NULL;
-
     eio_custom(EIO_Connect, EIO_PRI_DEFAULT, EIO_After_Connect, conn_req);
 
     ev_ref(EV_DEFAULT_UC);
@@ -847,11 +849,11 @@ Handle<Value> MysqlConn::PingSync(const Arguments& args) {
 #ifndef MYSQL_NON_THREADSAFE
 int MysqlConn::EIO_After_Query(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
+    HandleScope scope;
     struct query_request *query_req = (struct query_request *)(req->data);
 
     int argc = 1;
     Local<Value> argv[2];
-    HandleScope scope;
 
     if (req->result) {
         argv[0] = V8EXC("Error on query execution");

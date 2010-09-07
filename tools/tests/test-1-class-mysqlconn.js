@@ -116,24 +116,18 @@ exports.OptionsConstants = function (test) {
 };
 
 exports.ConnectErrnoGetter = function (test) {
-  test.expect(2);
+  test.expect(1);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password);
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
-  conn.closeSync();
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
   test.equals(conn.connectErrno, 1044, "conn.connectErrno");
   
   test.done();
 };
 
 exports.ConnectErrorGetter = function (test) {
-  test.expect(2);
+  test.expect(1);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password);
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
-  conn.closeSync();
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
 
   test.ok(conn.connectError.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")), "conn.connectError");
   
@@ -237,7 +231,6 @@ exports.Connect = function (test) {
   var conn = new mysql_bindings.MysqlConn();
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
     test.ok(error === null, "conn.connect() for allowed database");
-    
     conn.closeSync();
   
     test.done();
