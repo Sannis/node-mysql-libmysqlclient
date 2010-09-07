@@ -20,6 +20,7 @@ static Persistent<String> statement_affectedRowsSync_symbol;
 static Persistent<String> statement_attrGetSync_symbol;
 static Persistent<String> statement_attrSetSync_symbol;
 static Persistent<String> statement_closeSync_symbol;
+static Persistent<String> statement_dataSeekSync_symbol;
 static Persistent<String> statement_errnoSync_symbol;
 static Persistent<String> statement_errorSync_symbol;
 static Persistent<String> statement_executeSync_symbol;
@@ -55,6 +56,8 @@ class MysqlStatement : public node::EventEmitter {
     static Handle<Value> AttrSetSync(const Arguments& args);
 
     static Handle<Value> CloseSync(const Arguments& args);
+
+    static Handle<Value> DataSeekSync(const Arguments& args);
 
     static Handle<Value> ErrnoSync(const Arguments& args);
 

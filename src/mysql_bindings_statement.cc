@@ -44,6 +44,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(statement, attrGetSync, AttrGetSync);
     ADD_PROTOTYPE_METHOD(statement, attrSetSync, AttrSetSync);
     ADD_PROTOTYPE_METHOD(statement, closeSync, CloseSync);
+    ADD_PROTOTYPE_METHOD(statement, dataSeekSync, DataSeekSync);
     ADD_PROTOTYPE_METHOD(statement, errnoSync, ErrnoSync);
     ADD_PROTOTYPE_METHOD(statement, errorSync, ErrorSync);
     ADD_PROTOTYPE_METHOD(statement, executeSync, ExecuteSync);
@@ -198,6 +199,31 @@ Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
     return scope.Close(True());
 }
 
+Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    if (!stmt->_stmt) {
+        return THREXC("Already closed");
+    }
+
+    REQ_UINT_ARG(0, row_num)
+
+    // TODO: Can we implement this?
+    /*if (mysql_stmt_is_unbuffered(stmt->_stmt)) {
+        return THREXC("Function cannot be used before store all results");
+    }*/
+
+    if (row_num < 0 || row_num >= mysql_stmt_num_rows(stmt->_stmt)) {
+        return THREXC("Invalid row offset");
+    }
+
+    mysql_stmt_data_seek(stmt->_stmt, row_num);
+
+    return Undefined();
+}
+
 Handle<Value> MysqlStatement::ErrnoSync(const Arguments& args) {
     HandleScope scope;
 
@@ -270,7 +296,7 @@ Handle<Value> MysqlStatement::NumRowsSync(const Arguments& args) {
     }
 
     // TODO: Can we implement this?
-    /*if (mysql_stms_is_unbuffered(stmt->_stmt)) {
+    /*if (mysql_stmt_is_unbuffered(stmt->_stmt)) {
         return THREXC("Function cannot be used before store all results");
     }*/
 
