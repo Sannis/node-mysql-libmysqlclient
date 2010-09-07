@@ -25,21 +25,31 @@ process.on('exit', function () {
 
 sys.debug("Start");
 
+sys.debug("In global scope");
 res = conn.querySync("SHOW TABLES;");
 sys.debug("After first querySync()");
+
 res.fetchAll(function (err, tables) {
   if (err) throw(err);
+  
   sys.debug("In first fetchAll()");
   res = conn.querySync("SHOW TABLES;");
   sys.debug("After second querySync()");
+  
   res.fetchAll(function (err, tables) {
-    sys.debug("In second fetchAll()");
     if (err) throw(err);
-    sys.debug("All OK");
+    
+    sys.debug("In second fetchAll()");
+    res = conn.querySync("SHOW TABLES;");
+    sys.debug("After second querySync()");
+    
+    res.fetchAll(function (err, tables) {
+      if (err) throw(err);
+      
+      sys.debug("In third fetchAll()");
+    });
   });
 });
 
 sys.debug("Finish");
-
-
 

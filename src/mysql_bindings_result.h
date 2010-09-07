@@ -56,9 +56,9 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     MysqlResult();
 
     explicit MysqlResult(MYSQL_RES *my_result, uint32_t my_field_count):
-                                    EventEmitter(),
-                                    _res(my_result),
-                                    field_count(my_field_count) {}
+                                                EventEmitter(),
+                                                _res(my_result),
+                                                field_count(my_field_count) {}
 
     ~MysqlResult();
 
@@ -69,7 +69,7 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     // Properties
 
     static Handle<Value> FieldCountGetter(Local<String> property,
-                                             const AccessorInfo &info);
+                                           const AccessorInfo &info);
 
     // Methods
 

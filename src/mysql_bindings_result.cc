@@ -283,17 +283,18 @@ Handle<Value> MysqlConn::MysqlResult::DataSeekSync(const Arguments& args) {
 
 #ifndef MYSQL_NON_THREADSAFE
 int MysqlConn::MysqlResult::EIO_After_FetchAll(eio_req *req) {
+    HandleScope scope;
+
     ev_unref(EV_DEFAULT_UC);
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data); // NOLINT
 
     int argc = 1; /* node.js convention, there is always one argument */
     Local<Value> argv[2];
-    HandleScope scope;
 
     if (req->result) {
         argv[0] = V8EXC("Error on fetching");
     } else {
-        argv[1] = Local<Value>::New(scope.Close(fetchAll_req->js_result));
+        argv[1] = Local<Value>::New(fetchAll_req->js_result);
         argv[0] = Local<Value>::New(Null());
         argc = 2;
     }
@@ -314,8 +315,9 @@ int MysqlConn::MysqlResult::EIO_After_FetchAll(eio_req *req) {
 }
 
 int MysqlConn::MysqlResult::EIO_FetchAll(eio_req *req) {
-    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data); // NOLINT
+    HandleScope scope;
 
+    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data); // NOLINT
     MysqlConn::MysqlResult *res = fetchAll_req->res;
 
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
@@ -342,7 +344,7 @@ int MysqlConn::MysqlResult::EIO_FetchAll(eio_req *req) {
         i++;
     }
 
-    fetchAll_req->js_result = js_result;
+    fetchAll_req->js_result = scope.Close(js_result);
     req->result = 0;
 
     return 0;
