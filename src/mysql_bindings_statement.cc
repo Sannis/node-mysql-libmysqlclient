@@ -31,21 +31,18 @@ void MysqlStatement::Init(Handle<Object> target) {
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlStatement"));
 
-<<<<<<< HEAD
     Local<ObjectTemplate> instance_template =
         constructor_template->InstanceTemplate();
 
     // Methods
-=======
-    // Methods
     ADD_PROTOTYPE_METHOD(statement, affectedRowsSync, AffectedRowsSync);
->>>>>>> Implement MysqlStatement::AffectedRowsSync()
     ADD_PROTOTYPE_METHOD(statement, closeSync, CloseSync);
     ADD_PROTOTYPE_METHOD(statement, errnoSync, ErrnoSync);
     ADD_PROTOTYPE_METHOD(statement, errorSync, ErrorSync);
     ADD_PROTOTYPE_METHOD(statement, executeSync, ExecuteSync);
     ADD_PROTOTYPE_METHOD(statement, prepareSync, PrepareSync);
     ADD_PROTOTYPE_METHOD(statement, resetSync, ResetSync);
+    ADD_PROTOTYPE_METHOD(statement, sqlStateSync, SqlStateSync);
 
     // Make it visible in JavaScript
     target->Set(String::NewSymbol("MysqlStatement"),
@@ -200,5 +197,19 @@ Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
     }
 
     return scope.Close(True());
+}
+
+Handle<Value> MysqlConn::MysqlStatement::SqlStateSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    if (!stmt->_stmt) {
+        return THREXC("Statement not initialized");
+    }
+
+    Local<Value> js_result = String::New(mysql_stmt_sqlstate(stmt->_stmt));
+
+    return scope.Close(js_result);
 }
 
