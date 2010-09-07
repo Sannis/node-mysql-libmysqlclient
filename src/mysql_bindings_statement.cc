@@ -34,8 +34,15 @@ void MysqlStatement::Init(Handle<Object> target) {
     Local<ObjectTemplate> instance_template =
         constructor_template->InstanceTemplate();
 
+    // Constants
+    NODE_DEFINE_CONSTANT(instance_template, STMT_ATTR_UPDATE_MAX_LENGTH);
+    NODE_DEFINE_CONSTANT(instance_template, STMT_ATTR_CURSOR_TYPE);
+    NODE_DEFINE_CONSTANT(instance_template, STMT_ATTR_PREFETCH_ROWS);
+
     // Methods
     ADD_PROTOTYPE_METHOD(statement, affectedRowsSync, AffectedRowsSync);
+    ADD_PROTOTYPE_METHOD(statement, attrGetSync, AttrGetSync);
+    ADD_PROTOTYPE_METHOD(statement, attrSetSync, AttrSetSync);
     ADD_PROTOTYPE_METHOD(statement, closeSync, CloseSync);
     ADD_PROTOTYPE_METHOD(statement, errnoSync, ErrnoSync);
     ADD_PROTOTYPE_METHOD(statement, errorSync, ErrorSync);
@@ -76,7 +83,7 @@ Handle<Value> MysqlStatement::New(const Arguments& args) {
     return args.This();
 }
 
-Handle<Value> MysqlConn::MysqlStatement::AffectedRowsSync(const Arguments& args) {
+Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
@@ -96,7 +103,82 @@ Handle<Value> MysqlConn::MysqlStatement::AffectedRowsSync(const Arguments& args)
     return scope.Close(Integer::New(affected_rows));
 }
 
-Handle<Value> MysqlConn::MysqlStatement::CloseSync(const Arguments& args) {
+Handle<Value> MysqlStatement::AttrGetSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    if (!stmt->_stmt) {
+        return THREXC("Statement not initialized");
+    }
+
+    REQ_INT_ARG(0, attr_integer_key)
+    enum_stmt_attr_type attr_key =
+                        static_cast<enum_stmt_attr_type>(attr_integer_key);
+
+    // TODO(Sannis): Possible error, see Integer::NewFromUnsigned, 32/64
+    unsigned long attr_value;
+
+    if (mysql_stmt_attr_get(stmt->_stmt, attr_key, &attr_value)) {
+        return THREXC("This attribute isn't supported by libmysqlclient");
+    }
+
+    switch (attr_key) {
+        case STMT_ATTR_UPDATE_MAX_LENGTH:
+            return scope.Close(Boolean::New(attr_value));
+            break;
+        case STMT_ATTR_CURSOR_TYPE:
+        case STMT_ATTR_PREFETCH_ROWS:
+            return scope.Close(Integer::NewFromUnsigned(attr_value));
+            break;
+        default:
+            return THREXC("This attribute isn't supported yet");
+    }
+
+    return THREXC("Control reaches end of non-void function :-D");
+}
+
+Handle<Value> MysqlStatement::AttrSetSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    if (!stmt->_stmt) {
+        return THREXC("Statement not initialized");
+    }
+
+    REQ_INT_ARG(0, attr_integer_key)
+    enum_stmt_attr_type attr_key =
+                        static_cast<enum_stmt_attr_type>(attr_integer_key);
+    int r = 1;
+
+    switch (attr_key) {
+        case STMT_ATTR_UPDATE_MAX_LENGTH:
+            {
+            REQ_BOOL_ARG(1, attr_bool_value);
+            r = mysql_stmt_attr_set(stmt->_stmt, attr_key, &attr_bool_value);
+            }
+            break;
+        case STMT_ATTR_CURSOR_TYPE:
+        case STMT_ATTR_PREFETCH_ROWS:
+            {
+            REQ_UINT_ARG(1, attr_uint_value);
+            r = mysql_stmt_attr_set(stmt->_stmt, attr_key, &attr_uint_value);
+            }
+            break;
+        default:
+            return THREXC("This attribute isn't supported yet");
+    }
+
+    if (r) {
+        return THREXC("This attribute isn't supported by libmysqlclient");
+    }
+
+    return scope.Close(True());
+}
+
+
+Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
@@ -200,7 +282,7 @@ Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::MysqlStatement::StoreResultSync(const Arguments& args) {
+Handle<Value> MysqlStatement::StoreResultSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
@@ -212,7 +294,7 @@ Handle<Value> MysqlConn::MysqlStatement::StoreResultSync(const Arguments& args) 
     return scope.Close(mysql_stmt_store_result(stmt->_stmt) ? False() : True());
 }
 
-Handle<Value> MysqlConn::MysqlStatement::SqlStateSync(const Arguments& args) {
+Handle<Value> MysqlStatement::SqlStateSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
