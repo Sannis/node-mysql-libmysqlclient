@@ -48,6 +48,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(statement, errnoSync, ErrnoSync);
     ADD_PROTOTYPE_METHOD(statement, errorSync, ErrorSync);
     ADD_PROTOTYPE_METHOD(statement, executeSync, ExecuteSync);
+    ADD_PROTOTYPE_METHOD(statement, fieldCountSync, FieldCountSync);
     ADD_PROTOTYPE_METHOD(statement, freeSync, FreeSync);
     ADD_PROTOTYPE_METHOD(statement, lastInsertIdSync, LastInsertIdSync);
     ADD_PROTOTYPE_METHOD(statement, numRowsSync, NumRowsSync);
@@ -272,6 +273,18 @@ Handle<Value> MysqlStatement::ExecuteSync(const Arguments& args) {
     }
 
     return scope.Close(True());
+}
+
+Handle<Value> MysqlStatement::FieldCountSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    if (!stmt->_stmt) {
+        return THREXC("Statement not initialized");
+    }
+
+    return scope.Close(Integer::New(mysql_stmt_field_count(stmt->_stmt)));
 }
 
 Handle<Value> MysqlStatement::FreeSync(const Arguments& args) {
