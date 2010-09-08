@@ -43,11 +43,9 @@ class MysqlStatement : public node::EventEmitter {
 
   protected:
     MYSQL_STMT *_stmt;
+    bool prepared;
 
-    MysqlStatement();
-
-    explicit MysqlStatement(MYSQL_STMT *my_stmt):
-                                    EventEmitter(), _stmt(my_stmt) {}
+    MysqlStatement(MYSQL_STMT *my_stmt);
 
     ~MysqlStatement();
 

@@ -65,8 +65,9 @@ void MysqlStatement::Init(Handle<Object> target) {
                 constructor_template->GetFunction());
 }
 
-MysqlStatement::MysqlStatement(): EventEmitter() {
-    _stmt = NULL;
+MysqlStatement::MysqlStatement (MYSQL_STMT *my_stmt): EventEmitter() {
+    this->_stmt = my_stmt;
+    this->prepared = false;
 }
 
 MysqlStatement::~MysqlStatement() {
@@ -405,7 +406,7 @@ Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
     Local<Value> argv[2];
     argv[0] = External::New(my_result);
     argv[1] = Integer::New(mysql_stmt_field_count(stmt->_stmt));
-    Persistent<Object> js_result(MysqlConn::MysqlResult::constructor_template->
+    Persistent<Object> js_result(MysqlResult::constructor_template->
                              GetFunction()->NewInstance(argc, argv));
 
     return scope.Close(js_result);
