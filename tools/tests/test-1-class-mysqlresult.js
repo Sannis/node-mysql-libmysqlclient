@@ -127,7 +127,8 @@ exports.FetchAllSync = function (test) {
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
-    tables;
+    tables,
+    rows;
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   res = conn.querySync("SHOW TABLES;");
