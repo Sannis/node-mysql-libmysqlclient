@@ -230,7 +230,8 @@ Handle<Value> MysqlConn::ConnectErrorGetter(Local<String> property,
 
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(info.Holder());
 
-    Local<Value> js_result = V8STR(conn->connect_error ? conn->connect_error : "");
+    Local<Value> js_result = V8STR(conn->connect_error ?
+                                   conn->connect_error : "");
 
     return scope.Close(js_result);
 }
@@ -378,7 +379,7 @@ int MysqlConn::EIO_Connect(eio_req *req) {
 Handle<Value> MysqlConn::Connect(const Arguments& args) {
     HandleScope scope;
 #ifdef MYSQL_NON_THREADSAFE
-    return THREXC("Asynchronous functions works only with threadsafe libmysqlclient_r");
+    return THREXC(MYSQL_NON_THREADSAFE_ERRORSTRING);
 #else
     MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
 
@@ -725,7 +726,7 @@ Handle<Value> MysqlConn::InitSync(const Arguments& args) {
     if (!conn->_conn) {
         return scope.Close(False());
     }
-    
+
     return scope.Close(True());
 }
 
@@ -931,7 +932,7 @@ int MysqlConn::EIO_Query(eio_req *req) {
 Handle<Value> MysqlConn::Query(const Arguments& args) {
     HandleScope scope;
 #ifdef MYSQL_NON_THREADSAFE
-    return THREXC("Asynchronous functions works only with threadsafe libmysqlclient_r");
+    return THREXC(MYSQL_NON_THREADSAFE_ERRORSTRING);
 #else
     REQ_STR_ARG(0, query);
     REQ_FUN_ARG(1, callback);
@@ -998,11 +999,12 @@ Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
 
     pthread_mutex_unlock(&conn->query_lock);
 
-    if(r != 0) {
+    if (r != 0) {
         // Query error
         // TODO(Sannis): change this to THREXC()?
         return scope.Close(False());
     }
+
     if (!my_result) {
         if (field_count == 0) {
             // No result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN
@@ -1178,7 +1180,11 @@ Handle<Value> MysqlConn::SetOptionSync(const Arguments& args) {
         case MYSQL_OPT_COMPRESS:
             {
             REQ_INT_ARG(1, option_integer_value);
-            r = mysql_options(conn->_conn, option_key, static_cast<const char *>(static_cast<const void *>(&option_integer_value)));
+            r = mysql_options(conn->_conn,
+                              option_key,
+                              static_cast<const char *>(
+                                static_cast<const void *>(
+                                  &option_integer_value)));
             }
             break;
         case MYSQL_READ_DEFAULT_FILE:

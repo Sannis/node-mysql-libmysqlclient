@@ -135,7 +135,8 @@ void MysqlConn::MysqlResult::SetFieldValue(
               timeinfo.tm_min = min;
               timeinfo.tm_sec = sec;
               rawtime = mktime(&timeinfo);
-              js_field = Date::New(static_cast<double>(rawtime + gmt_delta)*1000);
+              js_field = Date::New(
+                             static_cast<double>(rawtime + gmt_delta)*1000);
             }
             break;
         case MYSQL_TYPE_DATE:  // DATE field
@@ -167,7 +168,8 @@ void MysqlConn::MysqlResult::SetFieldValue(
               timeinfo.tm_min = 0;
               timeinfo.tm_sec = 0;
               rawtime = mktime(&timeinfo);
-              js_field = Date::New(static_cast<double>(rawtime + gmt_delta)*1000);
+              js_field = Date::New(
+                             static_cast<double>(rawtime + gmt_delta)*1000);
             }
             break;
         case MYSQL_TYPE_TINY_BLOB:
@@ -366,7 +368,7 @@ int MysqlConn::MysqlResult::EIO_FetchAll(eio_req *req) {
 Handle<Value> MysqlConn::MysqlResult::FetchAll(const Arguments& args) {
     HandleScope scope;
 #ifdef MYSQL_NON_THREADSAFE
-    return THREXC("Asynchronous functions works only with threadsafe libmysqlclient_r");
+    return THREXC(MYSQL_NON_THREADSAFE_ERRORSTRING);
 #else
     REQ_FUN_ARG(0, callback);
 

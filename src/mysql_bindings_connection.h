@@ -74,6 +74,9 @@ Local<External> VAR = Local<External>::Cast(args[I]);
     conn->multi_query = true; \
 }
 
+#define MYSQL_NON_THREADSAFE_ERRORSTRING \
+        "Asynchronous functions works only with threadsafe libmysqlclient_r"
+
 using namespace v8; // NOLINT
 
 static Persistent<String> connection_affectedRowsSync_symbol;
