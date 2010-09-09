@@ -19,7 +19,7 @@ var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.pas
   random_number,
   random_boolean,
   last_insert_id,
-  i;
+  i, ti = 0;
   
 res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
 res = conn.querySync("CREATE TABLE " + cfg.test_table +
@@ -49,6 +49,7 @@ for (i = 0; i < cfg.insert_rows_count; i += 1)
         if (result !== null) {
           result.freeSync();
         }
+        ti += 1;
       });
   })();
 }
@@ -56,7 +57,7 @@ for (i = 0; i < cfg.insert_rows_count; i += 1)
 sys.puts("Finish");
 
 process.on('exit', function () {
-  sys.puts("onExit");
+  sys.puts("onExit callbacks done: " + ti);
   last_insert_id = conn.lastInsertIdSync();
   if (last_insert_id !== cfg.insert_rows_count) {
     sys.puts("\u001B[31mFAIL: " + last_insert_id + " !== " + cfg.insert_rows_count + "\u001B[39m");
