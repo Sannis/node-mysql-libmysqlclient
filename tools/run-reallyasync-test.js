@@ -38,15 +38,17 @@ for (i = 0; i < cfg.insert_rows_count; i += 1)
 {
   random_number = Math.round(Math.random() * 1000000);
   random_boolean = (Math.random() > 0.5) ? 1 : 0;
-  sys.puts("\033[1ABefore queryAsync #" + (i + 1));
+  sys.puts("\u001B[1ABefore queryAsync #" + (i + 1));
   
   (function () {
     var j = i;
     conn.query("INSERT INTO " + cfg.test_table +
       " (random_number, random_boolean) VALUES ('" + random_number +
       "', '" + random_boolean + "');", function (result) {
-        sys.puts("\033[1ACallback #" + (j + 1));
-        result.freeSync();
+        sys.puts("\u001B[1ACallback #" + (j + 1));
+        if (result !== null) {
+          result.freeSync();
+		}
       });
   })();
 }
@@ -57,9 +59,9 @@ process.on('exit', function () {
   sys.puts("onExit");
   last_insert_id = conn.lastInsertIdSync();
   if (last_insert_id !== cfg.insert_rows_count) {
-    sys.puts("\033[31mFAIL: " + last_insert_id + " !== " + cfg.insert_rows_count + "\033[39m");
+    sys.puts("\u001B[31mFAIL: " + last_insert_id + " !== " + cfg.insert_rows_count + "\u001B[39m");
   } else {
-    sys.puts("\033[32mOK: last_insert_id == cfg.insert_rows_count\033[39m");
+    sys.puts("\u001B[32mOK: last_insert_id == cfg.insert_rows_count\u001B[39m");
   }
   conn.closeSync();
 });
