@@ -57,7 +57,7 @@ function MultiRealQueryAndNextAndMoreSync(test) {
   
   conn.closeSync();
   
-  test.done()
+  test.done();
 }
 
 function RealQueryAndUseAndStoreResultSync(test) {

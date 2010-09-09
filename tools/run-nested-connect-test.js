@@ -33,19 +33,28 @@ conn.closeSync();
 sys.debug("After second closeSync()");
 
 conn.connect(cfg.host, cfg.user, cfg.password, function (err) {
-  if (err) throw(err);
+  if (err)
+  {
+    throw err;
+  }
   sys.debug("In first connect()");
   conn.closeSync();
   sys.debug("After first connect().closeSync()");
   
   conn.connect(cfg.host, cfg.user, cfg.password, function (err) {
-    if (err) throw(err);
+    if (err)
+    {
+      throw err;
+    }
     sys.debug("In second connect()");
     conn.closeSync();
     sys.debug("After second connect().closeSync()");
     
     conn.connect(cfg.host, cfg.user, cfg.password, function (err) {
-      if (err) throw(err);
+      if (err)
+      {
+        throw err;
+      }
       sys.debug("In third connect()");
       conn.closeSync();
       sys.debug("After third connect().closeSync()");
@@ -54,6 +63,4 @@ conn.connect(cfg.host, cfg.user, cfg.password, function (err) {
 });
 
 sys.debug("Finish");
-
-
 

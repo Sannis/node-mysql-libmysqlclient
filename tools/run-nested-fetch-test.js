@@ -30,22 +30,30 @@ res = conn.querySync("SHOW TABLES;");
 sys.debug("After first querySync()");
 
 res.fetchAll(function (err, tables) {
-  if (err) throw(err);
+  if (err)
+  {
+    throw err;
+  }
   
   sys.debug("In first fetchAll()");
   res = conn.querySync("SHOW TABLES;");
   sys.debug("After second querySync()");
   
   res.fetchAll(function (err, tables) {
-    if (err) throw(err);
-    
+    if (err)
+    {
+      throw err;
+    }
+
     sys.debug("In second fetchAll()");
     res = conn.querySync("SHOW TABLES;");
     sys.debug("After second querySync()");
     
     res.fetchAll(function (err, tables) {
-      if (err) throw(err);
-      
+      if (err)
+      {
+        throw err;
+      }
       sys.debug("In third fetchAll()");
     });
   });

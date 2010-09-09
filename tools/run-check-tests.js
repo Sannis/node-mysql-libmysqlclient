@@ -70,7 +70,7 @@ function getBindingsClasses() {
         regex_class_methods.lastIndex += 1;
       }
 
-      classes.push({name: class_name, properties_getters: class_properties_getters, properties_setters: class_properties_setters, methods: class_methods,});
+      classes.push({name: class_name, properties_getters: class_properties_getters, properties_setters: class_properties_setters, methods: class_methods});
     }
   }
   
