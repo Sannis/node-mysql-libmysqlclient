@@ -56,10 +56,10 @@ sys.puts("Finish");
 process.on('exit', function () {
   sys.puts("onExit");
   last_insert_id = conn.lastInsertIdSync();
-  if (last_insert_id !== irc) {
-    sys.puts("\033[31mFAIL: " + last_insert_id + " !== " + irc + "\033[39m");
+  if (last_insert_id !== cfg.insert_rows_count) {
+    sys.puts("\033[31mFAIL: " + last_insert_id + " !== " + cfg.insert_rows_count + "\033[39m");
   } else {
-    sys.puts("\033[32mOK: last_insert_id == irc\033[39m");
+    sys.puts("\033[32mOK: last_insert_id == cfg.insert_rows_count\033[39m");
   }
   conn.closeSync();
 });

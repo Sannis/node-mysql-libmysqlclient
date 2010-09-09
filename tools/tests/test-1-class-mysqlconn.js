@@ -13,7 +13,7 @@ var
   mysql_libmysqlclient = require("../../mysql-libmysqlclient"),
   mysql_bindings = require("../../mysql_bindings");
 
-function InitAndRealConnectSync(test) {
+var initAndRealConnectSync = function (test) {
   test.expect(2);
   
   var conn = mysql_libmysqlclient.createConnectionSync();
@@ -25,9 +25,9 @@ function InitAndRealConnectSync(test) {
   conn.closeSync();
   
   test.done();
-}
+};
 
-function MultiRealQueryAndNextAndMoreSync(test) {
+var multiRealQueryAndNextAndMoreSync = function (test) {
   test.expect(4);
   
   var
@@ -58,9 +58,9 @@ function MultiRealQueryAndNextAndMoreSync(test) {
   conn.closeSync();
   
   test.done();
-}
+};
 
-function RealQueryAndUseAndStoreResultSync(test) {
+var realQueryAndUseAndStoreResultSync = function (test) {
   test.expect(5);
   
   var
@@ -83,7 +83,7 @@ function RealQueryAndUseAndStoreResultSync(test) {
   conn.closeSync();
   
   test.done();
-}
+};
 
 exports.New = function (test) {
   test.expect(1);
@@ -468,7 +468,7 @@ exports.GetWarningsSync = function (test) {
 };
 
 exports.InitSync = function (test) {
-  InitAndRealConnectSync(test);
+  initAndRealConnectSync(test);
 };
 
 exports.LastInsertIdSync = function (test) {
@@ -510,15 +510,15 @@ exports.LastInsertIdSync = function (test) {
 };
 
 exports.MultiMoreResultsSync = function (test) {
-  MultiRealQueryAndNextAndMoreSync(test);
+  multiRealQueryAndNextAndMoreSync(test);
 };
 
 exports.MultiNextResultSync = function (test) {
-  MultiRealQueryAndNextAndMoreSync(test);
+  multiRealQueryAndNextAndMoreSync(test);
 };
 
 exports.MultiRealQuerySync = function (test) {
-  MultiRealQueryAndNextAndMoreSync(test);
+  multiRealQueryAndNextAndMoreSync(test);
 };
 
 exports.Query = function (test) {
@@ -593,11 +593,11 @@ exports.QuerySync = function (test) {
 };
 
 exports.RealConnectSync = function (test) {
-  InitAndRealConnectSync(test);
+  initAndRealConnectSync(test);
 };
 
 exports.RealQuerySync = function (test) {
-  RealQueryAndUseAndStoreResultSync(test);
+  realQueryAndUseAndStoreResultSync(test);
 };
 
 exports.SelectDbSync = function (test) {
@@ -678,7 +678,7 @@ exports.StatSync = function (test) {
 };
 
 exports.StoreResultSync = function (test) {
-  RealQueryAndUseAndStoreResultSync(test);
+  realQueryAndUseAndStoreResultSync(test);
 };
 
 exports.ThreadSafeSync = function (test) {
@@ -693,7 +693,7 @@ exports.ThreadSafeSync = function (test) {
 };
 
 exports.UseResultSync = function (test) {
-  RealQueryAndUseAndStoreResultSync(test);
+  realQueryAndUseAndStoreResultSync(test);
 };
 
 exports.WarningCountSync = function (test) {
