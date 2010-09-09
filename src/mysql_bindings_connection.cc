@@ -1178,7 +1178,7 @@ Handle<Value> MysqlConn::SetOptionSync(const Arguments& args) {
         case MYSQL_OPT_COMPRESS:
             {
             REQ_INT_ARG(1, option_integer_value);
-            r = mysql_options(conn->_conn, option_key, &option_integer_value);
+            r = mysql_options(conn->_conn, option_key, static_cast<const char *>(static_cast<const void *>(&option_integer_value)));
             }
             break;
         case MYSQL_READ_DEFAULT_FILE:
