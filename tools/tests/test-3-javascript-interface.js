@@ -17,8 +17,7 @@ exports.mysql_libmysqlclient_createConnectionSync_0 = function (test) {
   
   var conn = mysql_libmysqlclient.createConnectionSync();
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync()");
-  if (conn.connectedSync())
-  {
+  if (conn.connectedSync()) {
     conn.closeSync();
   }
   test.done();
@@ -32,9 +31,7 @@ exports.mysql_libmysqlclient_createConnectionSync_1 = function (test) {
   test.ok(conn.connectedSync(), "mysql_libmysqlclient.createConnectionSync(host).connectedSync()");
   if (!conn.connectedSync()) {
     sys.puts("Error:" + conn.connectError);
-  }
-  else
-  {
+  } else {
     conn.closeSync();
   }
   test.done();
@@ -45,12 +42,17 @@ exports.mysql_libmysqlclient_createConnectionSync_2 = function (test) {
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user)");
-  test.ok(conn.connectedSync(), "mysql_libmysqlclient.createConnectionSync(host, user).connectedSync()");
-  if (!conn.connectedSync()) {
-    sys.puts("Error:" + conn.connectError);
+  
+  // This depends on password, connect(host, user) === connect(host, user, NULL)
+  if (!cfg.password) {
+    test.ok(conn.connectedSync(), "mysql_libmysqlclient.createConnectionSync(host, user).connectedSync()");
+  } else {
+    test.equals(conn.connectError,
+                "Access denied for user '" + cfg.user + "'@'" + cfg.host + "' (using password: NO)",
+                "mysql_libmysqlclient.createConnectionSync(host, user).connectedSync()");
   }
-  else
-  {
+  
+  if (conn.connectedSync()) {
     conn.closeSync();
   }
   test.done();
@@ -64,9 +66,7 @@ exports.mysql_libmysqlclient_createConnectionSync_3 = function (test) {
   test.ok(conn.connectedSync(), "mysql_libmysqlclient.createConnectionSync(host, user, password).connectedSync()");
   if (!conn.connectedSync()) {
     sys.puts("Error:" + conn.connectError);
-  }
-  else
-  {
+  } else {
     conn.closeSync();
   }
   test.done();
@@ -80,9 +80,7 @@ exports.mysql_libmysqlclient_createConnectionSync_4_allowed = function (test) {
   test.ok(conn.connectedSync(), "mysql_libmysqlclient.createConnectionSync(host, user, password, database).connectedSync()");
   if (!conn.connectedSync()) {
     sys.puts("Error:" + conn.connectError);
-  }
-  else
-  {
+  } else {
     conn.closeSync();
   }
   test.done();
