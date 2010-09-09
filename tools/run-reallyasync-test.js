@@ -48,7 +48,7 @@ for (i = 0; i < cfg.insert_rows_count; i += 1)
         sys.puts("\u001B[1ACallback #" + (j + 1));
         if (result !== null) {
           result.freeSync();
-		}
+        }
       });
   })();
 }
