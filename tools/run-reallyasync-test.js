@@ -45,11 +45,11 @@ for (i = 0; i < cfg.insert_rows_count; i += 1)
     conn.query("INSERT INTO " + cfg.test_table +
       " (random_number, random_boolean) VALUES ('" + random_number +
       "', '" + random_boolean + "');", function (result) {
-        sys.puts("\u001B[1ACallback #" + (j + 1));
-        if (result !== null) {
-          result.freeSync();
-        }
-      });
+      sys.puts("\u001B[1ACallback #" + (j + 1));
+      if (result !== null) {
+        result.freeSync();
+      }
+    });
   })();
 }
 
