@@ -47,7 +47,7 @@ def lint(lnt):
   # Bindings C++ source code
   Utils.exec_command('cpplint ./src/*.h ./src/*.cc')
   # Bindings javascript code, tools and tests
-  Utils.exec_command('nodelint --config ./nodelint.cfg ./mysql-libmysqlclient.js ./tools/*.js ./tools/tests/*.js')
+  Utils.exec_command('nodelint --config ./nodelint.cfg ./package.json ./mysql-libmysqlclient.js ./tools/*.js ./tools/tests/*.js')
 
 def shutdown():
   # HACK to get bindings.node out of build directory.
