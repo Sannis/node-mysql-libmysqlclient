@@ -1,6 +1,7 @@
 #!/usr/bin/env node_g
 /*
-Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
+Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
+See contributors list in README
 
 See license text in LICENSE file
 */

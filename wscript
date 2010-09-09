@@ -1,3 +1,10 @@
+####
+# Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
+# See contributors list in README
+#
+# See license text in LICENSE file
+####
+
 import Options, Utils
 from os import unlink, symlink, chdir
 from os.path import exists
@@ -41,7 +48,7 @@ def test(tst):
     print("\033[31mNodeunit doesn't exists.\033[39m\nYou should run `git submodule update --init` before run tests.")
     exit(1)
   else:
-    Utils.exec_command('./tools/run-tests.sh')
+    Utils.exec_command('node ./tools/nodeunit/lib/testrunner.js tools/tests/*.js')
 
 def lint(lnt):
   # Bindings C++ source code

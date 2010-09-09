@@ -1,5 +1,5 @@
 /*
-Copyright by node-mysql-libmysqlclient contributors.
+Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
 See contributors list in README
 
 See license text in LICENSE file
