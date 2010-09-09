@@ -17,7 +17,10 @@ exports.mysql_libmysqlclient_createConnectionSync_0 = function (test) {
   
   var conn = mysql_libmysqlclient.createConnectionSync();
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync()");
-  
+  if (conn.connectedSync())
+  {
+    conn.closeSync();
+  }
   test.done();
 };
 
@@ -30,8 +33,10 @@ exports.mysql_libmysqlclient_createConnectionSync_1 = function (test) {
   if (!conn.connectedSync()) {
     sys.puts("Error:" + conn.connectError);
   }
-  conn.closeSync();
-  
+  else
+  {
+    conn.closeSync();
+  }
   test.done();
 };
 
@@ -44,8 +49,10 @@ exports.mysql_libmysqlclient_createConnectionSync_2 = function (test) {
   if (!conn.connectedSync()) {
     sys.puts("Error:" + conn.connectError);
   }
-  conn.closeSync();
-  
+  else
+  {
+    conn.closeSync();
+  }
   test.done();
 };
 
@@ -58,8 +65,10 @@ exports.mysql_libmysqlclient_createConnectionSync_3 = function (test) {
   if (!conn.connectedSync()) {
     sys.puts("Error:" + conn.connectError);
   }
-  conn.closeSync();
-  
+  else
+  {
+    conn.closeSync();
+  }
   test.done();
 };
 
@@ -72,8 +81,10 @@ exports.mysql_libmysqlclient_createConnectionSync_4_allowed = function (test) {
   if (!conn.connectedSync()) {
     sys.puts("Error:" + conn.connectError);
   }
-  conn.closeSync();
-  
+  else
+  {
+    conn.closeSync();
+  }
   test.done();
 };
 
@@ -82,6 +93,6 @@ exports.mysql_libmysqlclient_createConnectionSync_4_denied = function (test) {
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
   test.ok(!conn.connectedSync(), "!mysql_libmysqlclient.createConnectionSync(host, user, password, database_denied).connectedSync()");
-  
+
   test.done();
 };
