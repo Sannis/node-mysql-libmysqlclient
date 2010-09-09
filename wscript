@@ -38,18 +38,16 @@ def build(bld):
 
 def test(tst):
   if not exists('./tools/nodeunit/lib/testrunner.js'):
-    print("\033[31mNodeunit doesn't exists.\033[39m\nYou should run `git submodule update --init` before run tests.");
-    exit(1);
+    print("\033[31mNodeunit doesn't exists.\033[39m\nYou should run `git submodule update --init` before run tests.")
+    exit(1)
   else:
     Utils.exec_command('./tools/run-tests.sh')
 
 def lint(lnt):
   # Bindings C++ source code
   Utils.exec_command('cpplint ./src/*.h ./src/*.cc')
-  # Bindings javascript code
-  Utils.exec_command('nodelint ./mysql-libmysqlclient.js')
-  # Bindings tests
-  Utils.exec_command('nodelint ./tools/*.js ./tools/tests/*.js')
+  # Bindings javascript code, tools and tests
+  Utils.exec_command('nodelint --config ./nodelint.cfg ./mysql-libmysqlclient.js ./tools/*.js ./tools/tests/*.js')
 
 def shutdown():
   # HACK to get bindings.node out of build directory.
