@@ -87,10 +87,15 @@ exports.mysql_libmysqlclient_createConnectionSync_4_allowed = function (test) {
 };
 
 exports.mysql_libmysqlclient_createConnectionSync_4_denied = function (test) {
-  test.expect(1);
+  test.expect(2);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
   test.ok(!conn.connectedSync(), "!mysql_libmysqlclient.createConnectionSync(host, user, password, database_denied).connectedSync()");
-
+  test.equals(conn.connectError,
+              "Access denied for user '" + cfg.user + "'@'" + cfg.host + "' to database '" + cfg.database_denied + "'",
+              "mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied).connectError");
+  if (conn.connectedSync()) {
+    conn.closeSync();
+  }
   test.done();
 };

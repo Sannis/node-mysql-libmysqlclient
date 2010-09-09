@@ -31,11 +31,7 @@ var testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFieldsSync = function (tes
     field_tell;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  res = conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
@@ -75,11 +71,7 @@ exports.DataSeekSync = function (test) {
     row;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  res = conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;") && res;
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +

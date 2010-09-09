@@ -23,8 +23,7 @@ exports.ManyInsertsIntoTestTableSync = function (test) {
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  for (i = 0; i < cfg.insert_rows_count; i += 1)
-  {
+  for (i = 0; i < cfg.insert_rows_count; i += 1) {
     random_number = Math.round(Math.random() * 1000000);
     random_boolean = (Math.random() > 0.5) ? 1 : 0;
     res = conn.querySync("INSERT INTO " + cfg.test_table +

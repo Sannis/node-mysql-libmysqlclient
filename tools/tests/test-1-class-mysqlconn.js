@@ -146,16 +146,10 @@ exports.AffectedRowsSync = function (test) {
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  res = conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
-
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.ok(res, "conn.querySync('DELETE FROM test_table')");
   
-  for (i = 0; i < cfg.insert_rows_count; i += 1)
-  {
+  for (i = 0; i < cfg.insert_rows_count; i += 1) {
     random_number = Math.round(Math.random() * 1000000);
     random_boolean = (Math.random() > 0.5) ? 1 : 0;
     res = conn.querySync("INSERT INTO " + cfg.test_table +
@@ -432,15 +426,10 @@ exports.GetInfoSync = function (test) {
 };
 
 exports.GetInfoStringSync = function (test) {
-  test.expect(4);
+  test.expect(3);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), res;
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  test.equals(res, true);
-  res = conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.equals(res, true);
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " ADD INDEX (random_number)");
   test.equals(res, true);
@@ -452,16 +441,13 @@ exports.GetInfoStringSync = function (test) {
 };
 
 exports.GetWarningsSync = function (test) {
-  test.expect(2);
+  test.expect(1);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), res;
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  test.same(conn.getWarningsSync(), [],
-            "conn.getWarningsSync() after DROP TABLE IF EXISTS");
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
+  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table_notexists + ";");
   test.same(conn.getWarningsSync(),
-            [{errno: 1051, reason: "Unknown table '" + cfg.test_table + "'" }],
-            "conn.getWarningsSync() after double DROP TABLE IF EXISTS");
+            [{errno: 1051, reason: "Unknown table '" + cfg.test_table_notexists + "'" }],
+            "conn.getWarningsSync() after DROP TABLE IF EXISTS test_table_notexists");
   conn.closeSync();
   
   test.done();
@@ -472,7 +458,7 @@ exports.InitSync = function (test) {
 };
 
 exports.LastInsertIdSync = function (test) {
-  test.expect(4);
+  test.expect(6);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res = true,
@@ -483,27 +469,27 @@ exports.LastInsertIdSync = function (test) {
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  res = conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
-  
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
   
-  for (i = 0; i < cfg.insert_rows_count; i += 1)
-  {
+  res = conn.querySync("ALTER TABLE " + cfg.test_table + " ADD id BIGINT AUTO_INCREMENT, ADD INDEX (id);");
+  test.ok(res, "conn.querySync('ALTER TABLE cfg.test_table ADD id BIGINT AUTO_INCREMENT, ADD INDEX (id)')");
+  
+  for (i = 0; i < cfg.insert_rows_count; i += 1) {
     random_number = Math.round(Math.random() * 1000000);
     random_boolean = (Math.random() > 0.5) ? 1 : 0;
     res = conn.querySync("INSERT INTO " + cfg.test_table +
       " (random_number, random_boolean) VALUES ('" + random_number +
       "', '" + random_boolean + "');") && res;
   }
-
+  
   test.equals(res, true, "Insert " + cfg.insert_rows_count + " rows into table " + cfg.test_table);
   last_insert_id = conn.lastInsertIdSync();
   test.equals(last_insert_id, cfg.insert_rows_count, "conn.lastInsertIdSync()");
+  
+  res = conn.querySync("ALTER TABLE " + cfg.test_table + " DROP id;");
+  test.ok(res, "conn.querySync('ALTER TABLE cfg.test_table  DROP id')");
+  
   conn.closeSync();
   
   test.done();
@@ -528,11 +514,7 @@ exports.Query = function (test) {
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  res = conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-    " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-    " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   conn.query("SHOW TABLES", function (err, result) {
     test.ok(result.fieldCount === 1, "show results field count === 1");
     var res = result.fetchAllSync();
@@ -703,9 +685,8 @@ exports.WarningCountSync = function (test) {
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  test.equals(conn.warningCountSync(), 1, "conn.getWarningsSync() after double DROP TABLE IF EXISTS");
+  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table_notexists + ";");
+  test.equals(conn.warningCountSync(), 1, "conn.getWarningsSync() after DROP TABLE IF EXISTS test_table_notexists");
   conn.closeSync();
   
   test.done();
