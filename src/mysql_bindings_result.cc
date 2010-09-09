@@ -171,14 +171,14 @@ void MysqlConn::MysqlResult::SetFieldValue(
         case MYSQL_TYPE_SET:  // SET field
             // TODO(Sannis): Maybe memory leaks here
             if (field_value) {
-                char *pch;
+                char *pch, *last;
                 int i = 0;
                 Local<Array> js_field_array = Array::New();
 
-                pch = strtok(field_value, ",");
+                pch = strtok_r(field_value, ",", &last);
                 while (pch != NULL) {
                     js_field_array->Set(Integer::New(i), V8STR(pch));
-                    pch = strtok(NULL, ",");
+                    pch = strtok_r(NULL, ",", &last);
                     i++;
                 }
 
@@ -206,14 +206,14 @@ void MysqlConn::MysqlResult::SetFieldValue(
     // Proper MYSQL_TYPE_SET type handle, thanks for Mark Hechim
     // http://www.mirrorservice.org/sites/ftp.mysql.com/doc/refman/5.1/en/c-api-datatypes.html#c10485
     if (field_value && (field.flags & SET_FLAG)) {
-        char *pch;
+        char *pch, *last;
         int i = 0;
         Local<Array> js_field_array = Array::New();
 
-        pch = strtok(field_value, ",");
+        pch = strtok_r(field_value, ",", &last);
         while (pch != NULL) {
             js_field_array->Set(Integer::New(i), V8STR(pch));
-            pch = strtok(NULL, ",");
+            pch = strtok_r(NULL, ",", &last);
             i++;
         }
 
