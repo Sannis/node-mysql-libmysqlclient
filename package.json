@@ -7,8 +7,14 @@
     }
   ]
 , "contributors" :
-  [ { "name": "Surendra Singhi"
+  [ { "name": "Oleg Efimov"
+    , "email": "efimovov@gmail.com"
+    }
+  , { "name": "Surendra Singhi"
     , "email": "ssinghi@kreeti.com",
+    }
+  , { "name": "Akzhan Abdulin"
+    , "email": "akzhan.abdulin@gmail.com",
     }
   , { "name": "Robin Duckett"
     , "email": "robin.duckett@gmail.com",
