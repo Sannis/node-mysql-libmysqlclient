@@ -113,22 +113,28 @@ void MysqlConn::MysqlResult::SetFieldValue(
               sscanf(field_value, "%d-%d-%d %d:%d:%d",
                                   &year, &month, &day, &hour, &min, &sec);
               time_t rawtime, gmt_delta;
-              struct tm * timeinfo;
+              struct tm timeinfo;
               time(&rawtime);
-              timeinfo = localtime(&rawtime);
-              h1 = timeinfo->tm_hour - (timeinfo->tm_isdst > 0 ? 1 : 0);
-              m1 = timeinfo->tm_min;
-              timeinfo = gmtime(&rawtime);
-              h2 = timeinfo->tm_hour;
-              m2 = timeinfo->tm_min;
+              if (!localtime_r(&rawtime, &timeinfo)) {
+                  js_field = V8STR(field_value);
+                  return;
+              }
+              h1 = timeinfo.tm_hour - (timeinfo.tm_isdst > 0 ? 1 : 0);
+              m1 = timeinfo.tm_min;
+              if (!gmtime_r(&rawtime, &timeinfo)) {
+                  js_field = V8STR(field_value);
+                  return;
+              }
+              h2 = timeinfo.tm_hour;
+              m2 = timeinfo.tm_min;
               gmt_delta = (((h1 - h2 + 24)%24)*60 + (m1-m2))*60;
-              timeinfo->tm_year = year - 1900;
-              timeinfo->tm_mon = month - 1;
-              timeinfo->tm_mday = day;
-              timeinfo->tm_hour = hour;
-              timeinfo->tm_min = min;
-              timeinfo->tm_sec = sec;
-              rawtime = mktime(timeinfo);
+              timeinfo.tm_year = year - 1900;
+              timeinfo.tm_mon = month - 1;
+              timeinfo.tm_mday = day;
+              timeinfo.tm_hour = hour;
+              timeinfo.tm_min = min;
+              timeinfo.tm_sec = sec;
+              rawtime = mktime(&timeinfo);
               js_field = Date::New(static_cast<double>(rawtime + gmt_delta)*1000);
             }
             break;
@@ -139,22 +145,28 @@ void MysqlConn::MysqlResult::SetFieldValue(
               int h1 = 0, h2 = 0, m1 = 0, m2 = 0;
               sscanf(field_value, "%d-%d-%d", &year, &month, &day);
               time_t rawtime, gmt_delta;
-              struct tm * timeinfo;
+              struct tm timeinfo;
               time(&rawtime);
-              timeinfo = localtime(&rawtime);
-              h1 = timeinfo->tm_hour - (timeinfo->tm_isdst > 0 ? 1 : 0);
-              m1 = timeinfo->tm_min;
-              timeinfo = gmtime(&rawtime);
-              h2 = timeinfo->tm_hour;
-              m2 = timeinfo->tm_min;
+              if (!localtime_r(&rawtime, &timeinfo)) {
+                  js_field = V8STR(field_value);
+                  return;
+              }
+              h1 = timeinfo.tm_hour - (timeinfo.tm_isdst > 0 ? 1 : 0);
+              m1 = timeinfo.tm_min;
+              if (!gmtime_r(&rawtime, &timeinfo)) {
+                  js_field = V8STR(field_value);
+                  return;
+              }
+              h2 = timeinfo.tm_hour;
+              m2 = timeinfo.tm_min;
               gmt_delta = (((h1 - h2 + 24)%24)*60 + (m1-m2))*60;
-              timeinfo->tm_year = year - 1900;
-              timeinfo->tm_mon = month - 1;
-              timeinfo->tm_mday = day;
-              timeinfo->tm_hour = 0;
-              timeinfo->tm_min = 0;
-              timeinfo->tm_sec = 0;
-              rawtime = mktime(timeinfo);
+              timeinfo.tm_year = year - 1900;
+              timeinfo.tm_mon = month - 1;
+              timeinfo.tm_mday = day;
+              timeinfo.tm_hour = 0;
+              timeinfo.tm_min = 0;
+              timeinfo.tm_sec = 0;
+              rawtime = mktime(&timeinfo);
               js_field = Date::New(static_cast<double>(rawtime + gmt_delta)*1000);
             }
             break;
