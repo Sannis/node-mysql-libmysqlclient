@@ -23,30 +23,16 @@ The two files required to use these bindings are ./mysql-libmysqlclient.js and
 ./mysql_bindings.node(build/default/mysql_bindings.node).
 Put this directory in your NODE_PATH or copy those two files where you need them.
 
-== A small message for Node.JS community
-
-Today this library supports all basic functions for working with MySQL.
-In the near future, I plan to expand the list of methods
-that can be invoked in an asynchronous NodeJS style.
-I also postponed the implementation of prepared statements.
+== Contributing
 
 I will be happy to hear tips from the more experienced programmers.
-If you are interested in wide MySQL usage in NodeJS applications,
+If you are interested in wide MySQL usage in Node.JS applications,
 leave your comments to the code.
 I'll be glad to see your forks and commits in them :)
 
-== Node.JS
-
-Node is the evented I/O for V8 javascript.
-Node's goal is to provide an easy way to build scalable network programs,
-it is similar in design to and influenced by systems like Ruby's Event Machine or Python's Twisted.
-Website: http://nodejs.org
-
-== Contributing
-
 To contribute any patches, simply fork this repository using GitHub
 and send a pull request to me (http://github.com/Sannis). Thanks!
-You can find other information at
+You can find other information about contribution and code style guide at
 http://wiki.github.com/Sannis/node-mysql-libmysqlclient/contributing
 
 == Contributors
