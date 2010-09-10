@@ -40,6 +40,9 @@ void MysqlStatement::Init(Handle<Object> target) {
     NODE_DEFINE_CONSTANT(instance_template, STMT_ATTR_CURSOR_TYPE);
     NODE_DEFINE_CONSTANT(instance_template, STMT_ATTR_PREFETCH_ROWS);
 
+    // Properties
+    instance_template->SetAccessor(String::New("paramCount"), ParamCountGetter);
+
     // Methods
     ADD_PROTOTYPE_METHOD(statement, affectedRowsSync, AffectedRowsSync);
     ADD_PROTOTYPE_METHOD(statement, attrGetSync, AttrGetSync);
@@ -67,12 +70,22 @@ void MysqlStatement::Init(Handle<Object> target) {
 
 MysqlStatement::MysqlStatement (MYSQL_STMT *my_stmt): EventEmitter() {
     this->_stmt = my_stmt;
+    this->binds = NULL;
+    this->param_count = 0;
     this->prepared = false;
     this->stored = false;
 }
 
 MysqlStatement::~MysqlStatement() {
     if (this->_stmt) {
+        if (this->prepared) {
+            for (unsigned long i = 0; i < this->param_count; i++) {
+                //TODO(Sannis): Or delete_[]_ ?
+                // warning: deleting ‘void*’ is undefined
+                delete this->binds[i].buffer;
+            }
+            delete[] this->binds;
+        }
         mysql_stmt_free_result(this->_stmt);
         mysql_stmt_close(this->_stmt);
     }
@@ -92,6 +105,18 @@ Handle<Value> MysqlStatement::New(const Arguments& args) {
     binding_stmt->Wrap(args.This());
 
     return args.This();
+}
+
+Handle<Value> MysqlStatement::ParamCountGetter(Local<String> property,
+                                                       const AccessorInfo &info) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
+
+    MYSQLSTMT_MUSTBE_INITIALIZED;
+    MYSQLSTMT_MUSTBE_PREPARED;
+
+    return scope.Close(Integer::New(stmt->param_count));
 }
 
 Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
@@ -348,11 +373,32 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
 
     REQ_STR_ARG(0, query)
 
+    //TODO(Sannis): Smth else? close/reset
+    stmt->prepared = false;
+
     unsigned long int query_len = args[0]->ToString()->Utf8Length();
 
     if (mysql_stmt_prepare(stmt->_stmt, *query, query_len)) {
         return scope.Close(False());
     }
+
+    if (stmt->binds) {
+        delete[] stmt->binds;
+    }
+
+    stmt->param_count = mysql_stmt_param_count(stmt->_stmt);
+
+    if (stmt->param_count > 0) {
+        stmt->binds = new MYSQL_BIND[stmt->param_count];
+        if (!stmt->binds) {
+            V8::LowMemoryNotification();
+            return THREXC("Could not allocate enough memory");
+        }
+
+        //TODO(Sannis): Smth else?
+    }
+
+    stmt->prepared = true;
 
     return scope.Close(True());
 }
