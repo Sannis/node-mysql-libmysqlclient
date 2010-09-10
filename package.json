@@ -38,5 +38,5 @@
   { "build" : "node-waf configure build"
   , "test" : "node-waf test"
   }
-, "engines" : { "node" : ">=0.2.0" }
+, "engines" : { "node" : ">=0.2.1" }
 }
