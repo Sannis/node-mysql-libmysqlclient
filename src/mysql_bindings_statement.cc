@@ -81,9 +81,18 @@ MysqlStatement::~MysqlStatement() {
     if (this->_stmt) {
         if (this->prepared) {
             for (unsigned long i = 0; i < this->param_count; i++) {
-                //TODO(Sannis): Or delete_[]_ ?
                 if (this->binds[i].buffer_type == MYSQL_TYPE_LONG) {
-                    delete static_cast<int *>(this->binds[i].buffer);
+                    if (this->binds[i].is_unsigned) {
+                        delete static_cast<unsigned int *>(this->binds[i].buffer); // NOLINT
+                    } else {
+                        delete static_cast<int *>(this->binds[i].buffer);
+                    }
+                } else if (this->binds[i].buffer_type == MYSQL_TYPE_DOUBLE) {
+                    delete static_cast<double *>(this->binds[i].buffer);
+                } else if (this->binds[i].buffer_type == MYSQL_TYPE_STRING) {
+                    //TODO(Sannis): Or delete?
+                    delete[] static_cast<char *>(this->binds[i].buffer);
+                    delete static_cast<unsigned long *>(this->binds[i].length);
                 } else {
                     printf("MysqlConn::MysqlStatement::~MysqlStatement: o_0\n");
                 }
@@ -237,19 +246,62 @@ Handle<Value> MysqlConn::MysqlStatement::BindParamsSync(const Arguments& args) {
     }
 
     int *int_data;
+    unsigned int *uint_data;
+    double *double_data;
+
+    unsigned long *str_length;
+    char *str_data;
 
     for (i = 0; i < js_params->Length(); i++) {
-        js_param = js_params->Get(Integer::New(i));
+        js_param = js_params->Get(i);
 
-        if (js_param->IsInt32()) {
+        if (js_param->IsUndefined()) {
+            return THREXC("All arguments must be defined");
+        }
+
+        if (js_param->IsNull()) {
+            int_data = new int;
+            *int_data = 0;
+
+            stmt->binds[i].buffer_type = MYSQL_TYPE_NULL;
+            stmt->binds[i].buffer = int_data;
+            // TODO(Sannis): Fix this error
+            stmt->binds[i].is_null = 0;
+        } else if (js_param->IsInt32()) {
             int_data = new int;
             *int_data = js_param->Int32Value();
 
             stmt->binds[i].buffer_type = MYSQL_TYPE_LONG;
             stmt->binds[i].buffer = int_data;
-            stmt->binds[i].is_null = false;
+            stmt->binds[i].is_null = 0;
             stmt->binds[i].is_unsigned = false;
-            stmt->binds[i].length = 0;
+        } else if (js_param->IsUint32()) {
+            uint_data = new unsigned int;
+            *uint_data = js_param->Uint32Value();
+
+            stmt->binds[i].buffer_type = MYSQL_TYPE_LONG;
+            stmt->binds[i].buffer = uint_data;
+            stmt->binds[i].is_null = 0;
+            stmt->binds[i].is_unsigned = true;
+        } else if (js_param->IsNumber()) {
+            double_data = new double;
+            *double_data = js_param->NumberValue();
+
+            stmt->binds[i].buffer_type = MYSQL_TYPE_DOUBLE;
+            stmt->binds[i].buffer = double_data;
+            stmt->binds[i].is_null = 0;
+        } else if (js_param->IsString()) {
+            // TODO(Sannis): Simplify this if possible
+            str_data = strdup(**(new String::Utf8Value(js_param->ToString())));
+            str_length = new unsigned long;
+            *str_length = js_param->ToString()->Length();
+
+            stmt->binds[i].buffer_type = MYSQL_TYPE_STRING;
+            stmt->binds[i].buffer =  str_data;
+            stmt->binds[i].is_null = 0;
+            stmt->binds[i].length = str_length;
+        } else if (js_param->IsDate()) {
+            return THREXC("Date? o_0");
         } else {
             return THREXC("o_0");
         }

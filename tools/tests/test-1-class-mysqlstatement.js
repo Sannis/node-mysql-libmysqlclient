@@ -86,15 +86,18 @@ exports.SqlStateSync = function (test) {
   test.done();
 };
 
-exports.XXXTest = function (test) {
-  test.expect(13);
+exports.BindParamsSync = function (test) {
+  test.expect(22);
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     stmt,
+    stmt2,
     res,
     rows,
-    row;
+    row,
+    test_string = "1234",
+    test_double = 1e30;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
@@ -121,6 +124,28 @@ exports.XXXTest = function (test) {
   res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table + " WHERE random_boolean=0;");
   row = res.fetchArraySync();
   test.same(row, [3, 0], "conn.querySync('SELECT ... WHERE random_boolean=0').fetchArraySync()");
+  
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
+  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  
+  res = conn.querySync("ALTER TABLE " + cfg.test_table + " ADD title VARCHAR(255), ADD number DOUBLE, ADD for_null INT;");
+  test.ok(res, "conn.querySync('ALTER TABLE test_table ADD title VARCHAR(255)'), ADD number DOUBLE, ADD for_null INT");
+  
+  stmt2 = conn.initStatementSync();
+  test.ok(stmt2);
+  
+  test.ok(stmt2.prepareSync("INSERT INTO " + cfg.test_table + " (title, number, for_null) VALUES (?, ?, ?);"));
+  test.equals(stmt2.paramCount, 3, "Param count in INSERT INTO test_table (title, number, for_null) VALUES (?, ?, ?) query");
+  
+  test.ok(stmt2.bindParamsSync([test_string, test_double, null]), "stmt.bindParamSync(string)");
+  test.ok(stmt2.executeSync(), "stmt.bindParamSync([test_string, test_double]).executeSync()");
+  
+  res = conn.querySync("SELECT title, number, for_null from " + cfg.test_table + ";");
+  rows = res.fetchAllSync();
+  test.same(rows, [{title: test_string, number: test_double, for_null: null}], "conn.querySync('SELECT title, number, for_null ... ').fetchAllSync()");
+  
+  res = conn.querySync("ALTER TABLE " + cfg.test_table + " DROP title, DROP number, DROP for_null;");
+  test.ok(res, "conn.querySync('ALTER TABLE test_table  DROP title, DROP number, DROP for_null')");
   
   conn.closeSync();
   
