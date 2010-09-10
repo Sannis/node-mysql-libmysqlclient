@@ -12,7 +12,7 @@ var
   sys = require("sys"),
   mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
-function AttrGetAndSetSync(test) {
+var AttrGetAndSetSync = function(test) {
   test.expect(7);
   
   var
@@ -37,7 +37,29 @@ function AttrGetAndSetSync(test) {
   conn.closeSync();
   
   test.done();
-}
+};
+
+exports.ParamCountGetter = function (test) {
+  test.expect(5);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    stmt;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
+  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  
+  stmt = conn.initStatementSync();
+  test.ok(stmt);
+  test.ok(stmt.prepareSync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES (?, ?);"));
+  test.equals(stmt.paramCount, 2, "Param count in INSERT INTO test_table + (random_number, random_boolean) VALUES (?, ?) query");
+  stmt.closeSync();
+  
+  conn.closeSync();
+  
+  test.done();
+};
 
 exports.AttrGetSync = function (test) {
   AttrGetAndSetSync(test);
@@ -65,12 +87,13 @@ exports.SqlStateSync = function (test) {
 };
 
 exports.XXXTest = function (test) {
-  test.expect(5);
+  test.expect(13);
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     stmt,
     res,
+    rows,
     row;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
@@ -79,20 +102,25 @@ exports.XXXTest = function (test) {
   
   stmt = conn.initStatementSync();
   test.ok(stmt);
-  test.ok(stmt.prepareSync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('?', '?');"));
+  test.ok(stmt.prepareSync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES (?, ?);"));
+  test.equals(stmt.paramCount, 2, "Param count in INSERT INTO test_table + (random_number, random_boolean) VALUES (?, ?) query");
   
-  test.ok(stmt.bindParamSync(1, 1), "stmt.bindParamSync(1, 1)");
+  test.ok(stmt.bindParamsSync([1, 1]), "stmt.bindParamSync(1, 1)");
   test.ok(stmt.executeSync(), "stmt.bindParamSync(1, 1).executeSync()");
   
-  test.ok(stmt.bindParamSync(2, 1), "stmt.bindParamSync(2, 1)");
+  test.ok(stmt.bindParamsSync([2, 1]), "stmt.bindParamSync(2, 1)");
   test.ok(stmt.executeSync(), "stmt.bindParamSync(1, 1).executeSync()");
   
-  test.ok(stmt.bindParamSync(3, 0), "stmt.bindParamSync(3, 0)");
+  test.ok(stmt.bindParamsSync([3, 0]), "stmt.bindParamSync(3, 0)");
   test.ok(stmt.executeSync(), "stmt.bindParamSync(1, 1).executeSync()");
   
-  res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table + " WHERE random_boolean='0';");
+  res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table + " WHERE random_boolean=1;");
+  rows = res.fetchAllSync();
+  test.same(rows, [{random_number: 1, random_boolean: 1}, {random_number: 2, random_boolean: 1}], "conn.querySync('SELECT ... WHERE random_boolean=1').fetchAllSync()");
+  
+  res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table + " WHERE random_boolean=0;");
   row = res.fetchArraySync();
-  test.same(row, [3, 0], "conn.querySync('SELECT ...').fetchArraySync()");
+  test.same(row, [3, 0], "conn.querySync('SELECT ... WHERE random_boolean=0').fetchArraySync()");
   
   conn.closeSync();
   

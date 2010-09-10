@@ -47,6 +47,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(statement, affectedRowsSync, AffectedRowsSync);
     ADD_PROTOTYPE_METHOD(statement, attrGetSync, AttrGetSync);
     ADD_PROTOTYPE_METHOD(statement, attrSetSync, AttrSetSync);
+    ADD_PROTOTYPE_METHOD(statement, bindParamsSync, BindParamsSync);
     ADD_PROTOTYPE_METHOD(statement, closeSync, CloseSync);
     ADD_PROTOTYPE_METHOD(statement, dataSeekSync, DataSeekSync);
     ADD_PROTOTYPE_METHOD(statement, errnoSync, ErrnoSync);
@@ -81,8 +82,11 @@ MysqlStatement::~MysqlStatement() {
         if (this->prepared) {
             for (unsigned long i = 0; i < this->param_count; i++) {
                 //TODO(Sannis): Or delete_[]_ ?
-                // warning: deleting ‘void*’ is undefined
-                delete this->binds[i].buffer;
+                if (this->binds[i].buffer_type == MYSQL_TYPE_LONG) {
+                    delete static_cast<int *>(this->binds[i].buffer);
+                } else {
+                    printf("MysqlConn::MysqlStatement::~MysqlStatement: o_0\n");
+                }
             }
             delete[] this->binds;
         }
@@ -207,6 +211,57 @@ Handle<Value> MysqlStatement::AttrSetSync(const Arguments& args) {
 
     return scope.Close(True());
 }
+
+Handle<Value> MysqlConn::MysqlStatement::BindParamsSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    MYSQLSTMT_MUSTBE_INITIALIZED;
+    MYSQLSTMT_MUSTBE_PREPARED;
+
+    REQ_ARRAY_ARG(0, js_params);
+
+    uint32_t i = 0;
+    Local<Value> js_param;
+
+    // For debug
+    /*String::Utf8Value *str;
+    for (i = 0; i < js_params->Length(); i++) {
+        str = new String::Utf8Value(js_params->Get(Integer::New(i))->ToString());
+        printf("%d: %s\n", i, **str);
+    }*/
+
+    if (js_params->Length() != stmt->param_count) {
+        return THREXC("Array length doesn't match number of parameters in prepared statement"); // NOLINT
+    }
+
+    int *int_data;
+
+    for (i = 0; i < js_params->Length(); i++) {
+        js_param = js_params->Get(Integer::New(i));
+
+        if (js_param->IsInt32()) {
+            int_data = new int;
+            *int_data = js_param->Int32Value();
+
+            stmt->binds[i].buffer_type = MYSQL_TYPE_LONG;
+            stmt->binds[i].buffer = int_data;
+            stmt->binds[i].is_null = false;
+            stmt->binds[i].is_unsigned = false;
+            stmt->binds[i].length = 0;
+        } else {
+            return THREXC("o_0");
+        }
+    }
+
+    if (mysql_stmt_bind_param(stmt->_stmt, stmt->binds)) {
+      return THREXC("mysql_stmt_bind_param() failed");
+    }
+
+    return scope.Close(True());
+}
+
 
 Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
     HandleScope scope;
@@ -394,6 +449,7 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
             V8::LowMemoryNotification();
             return THREXC("Could not allocate enough memory");
         }
+        memset(stmt->binds, 0, stmt->param_count*sizeof(MYSQL_BIND));
 
         //TODO(Sannis): Smth else?
     }
