@@ -24,6 +24,9 @@ For openSUSE:
 For Ubuntu:
 #> aptitude install libmysqlclient-dev
 
+For Debian:
+#> apt-get install libmysqlclient-dev
+
 Build and use
 -------------
 
