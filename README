@@ -5,7 +5,23 @@ Documentation lives at http://wiki.github.com/Sannis/node-mysql-libmysqlclient/
 and http://github.com/Sannis/node-mysql-libmysqlclient/tree/master/docs/.
 The code lives at http://github.com/Sannis/node-mysql-libmysqlclient/.
 
-Tested with Node version v0.2.1
+== Dependencies
+
+This module tested with Node version v0.2.1.
+
+To build it you must install libmysqlclient library and development files for it.
+Node-waf use mysql_config to determine the paths to the library and header files.
+
+To install these dependencies, you can use the console.
+
+For CentOS:
+#> yum install mysql-devel
+
+For openSUSE:
+#> zypper install libmysqlclient-devel
+
+For Ubuntu:
+#> aptitude install libmysqlclient-dev
 
 == Build and use
 
