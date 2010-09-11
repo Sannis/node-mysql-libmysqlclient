@@ -5,7 +5,8 @@ Documentation lives at http://wiki.github.com/Sannis/node-mysql-libmysqlclient/
 and http://github.com/Sannis/node-mysql-libmysqlclient/tree/master/docs/.
 The code lives at http://github.com/Sannis/node-mysql-libmysqlclient/.
 
-== Dependencies
+Dependencies
+------------
 
 This module tested with Node version v0.2.1.
 
@@ -23,7 +24,8 @@ For openSUSE:
 For Ubuntu:
 #> aptitude install libmysqlclient-dev
 
-== Build and use
+Build and use
+-------------
 
 To build the bindings library you should run this command in console:
 $> node-waf configure build
@@ -37,9 +39,10 @@ $> node-waf test
 
 The two files required to use these bindings are ./mysql-libmysqlclient.js and
 ./mysql_bindings.node(build/default/mysql_bindings.node).
-Put this directory in your NODE_PATH or copy those two files where you need them.
+Put module directory in your NODE_PATH or copy those two files where you need them.
 
-== Contributing
+Contributing
+------------
 
 I will be happy to hear tips from the more experienced programmers.
 If you are interested in wide MySQL usage in Node.JS applications,
@@ -51,7 +54,8 @@ and send a pull request to me (http://github.com/Sannis). Thanks!
 You can find other information about contribution and code style guide at
 http://wiki.github.com/Sannis/node-mysql-libmysqlclient/contributing
 
-== Contributors
+Contributors
+------------
 
 * Oleg Efimov
   E-mail: <efimovov@gmail.com>
@@ -104,7 +108,8 @@ http://wiki.github.com/Sannis/node-mysql-libmysqlclient/contributing
   see c4071181404362b60b9d3a3aed9784b25459fffa
   All commits: http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=mauritslamers
 
-== License
- 
-MIT License. See license text in file LICENSE.
+License
+-------
+
+MIT license. See license text in file LICENSE.
 
