@@ -1,3 +1,22 @@
+= Version 0.0.9
+  * Add MYSQL_TYPE_TIME and MYSQL_TYPE_SET handling
+  * Rename MysqlConn to MysqlConnection
+  * Change some methods to read-only properties:
+  * * MysqlConnection::ConnectErrnoSync()
+  * * MysqlConnection::ConnectErrorSync()
+  * * MysqlResult::FieldCountSync()
+  * Make it possible to interleave
+    sync and async queries on same connection
+  * Improve package.json, fdd 'Dependencies' section into README
+  * Rework nested C++ classes into separate
+  * Fix lint errors (all, except sscanf)
+  * Implemented methods:
+  * * MysqlConnection::InitSync()
+  * * MysqlConnection::RealConnectSync()
+  * * MysqlConnection::SetOptionSync()
+  
+  Special thanks for Akzhan Abdulin and Surendra Singhi
+
 = Version 0.0.8
   * Make asynchronous connect and fetchAll
   * Tested with Node version v0.2.0
@@ -6,6 +25,8 @@
   * Implemented methods:
   * * MysqlConn::Connect() and libeio wrapper
   * * MysqlResult::FetchAll() and libeio wrapper
+  
+  Special thanks for Surendra Singhi
 
 = Version 0.0.7
   * Make asynchronous querying work
@@ -17,6 +38,8 @@
   * Improve build wscript
   * Implemented methods:
   * * MysqlConn::QueryAsync() and libeio wrapper
+  
+  Special thanks for Surendra Singhi
 
 = Version 0.0.6
   * Update package.json and make small fixes in docs and README
