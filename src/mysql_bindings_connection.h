@@ -14,11 +14,11 @@ See license text in LICENSE file
 #include <node.h>
 #include <node_events.h>
 
-#include <cstdlib>
-#include <cstring>
-
 #include <unistd.h>
 #include <pthread.h>
+
+#include <cstdlib>
+#include <cstring>
 
 #define ADD_PROTOTYPE_METHOD(class, name, method) \
 class ## _ ## name ## _symbol = NODE_PSYMBOL(#name); \
