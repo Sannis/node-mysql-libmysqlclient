@@ -10,7 +10,8 @@ var cfg = require("../config").cfg;
 // Require modules
 var
   sys = require("sys"),
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient");
+  mysql_libmysqlclient = require("../../mysql-libmysqlclient"),
+  mysql_bindings = require("../../mysql_bindings");
 
 /*
 Complex test for methods:
@@ -59,6 +60,20 @@ var testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFieldsSync = function (tes
   test.same(field1, field2, "res.fetchFieldDirectSync() same check");
   
   conn.closeSync();
+  
+  test.done();
+};
+
+exports.New = function (test) {
+  test.expect(1);
+  
+  var res;
+  
+  try {
+    res = new mysql_bindings.MysqlResult();
+  } catch (e) {
+    test.equals(e.toString(), "TypeError: Argument 0 invalid");
+  }
   
   test.done();
 };

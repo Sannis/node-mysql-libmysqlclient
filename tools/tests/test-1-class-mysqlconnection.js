@@ -88,8 +88,8 @@ var realQueryAndUseAndStoreResultSync = function (test) {
 exports.New = function (test) {
   test.expect(1);
   
-  var conn = new mysql_bindings.MysqlConn();
-  test.ok(conn, "var conn = new mysql_bindings.MysqlConn()");
+  var conn = new mysql_bindings.MysqlConnection();
+  test.ok(conn, "var conn = new mysql_bindings.MysqlConnection()");
   
   test.done();
 };
@@ -222,7 +222,7 @@ exports.ChangeUserSync = function (test) {
 exports.Connect = function (test) {
   test.expect(1);
   
-  var conn = new mysql_bindings.MysqlConn();
+  var conn = new mysql_bindings.MysqlConnection();
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
     test.ok(error === null, "conn.connect() for allowed database");
     conn.closeSync();
@@ -234,7 +234,7 @@ exports.Connect = function (test) {
 exports.ConnectWithError = function (test) {
   test.expect(1);
   
-  var conn = new mysql_bindings.MysqlConn();
+  var conn = new mysql_bindings.MysqlConnection();
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (error) {
     test.ok(error === 1044, "conn.connect() for denied database");
   
@@ -514,7 +514,6 @@ exports.Query = function (test) {
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   
-  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   conn.query("SHOW TABLES", function (err, result) {
     test.ok(result.fieldCount === 1, "show results field count === 1");
     var res = result.fetchAllSync();
@@ -527,14 +526,15 @@ exports.Query = function (test) {
 };
 
 exports.QueryWithError = function (test) {
+  test.expect(2);
+  
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   
-  test.expect(2);
   conn.query("SHOW TABLESaagh", function (err, result) {
-    test.ok(!result, "result is not defined");
-    test.ok(err, "error object is present");
+    test.ok(err, "Error object is present");
+    test.ok(!result, "Result is not defined");
     conn.closeSync();
     test.done();
   });
@@ -547,15 +547,15 @@ exports.QueryWithQuerySync = function (test) {
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   
-  conn.query("select sleep(2)", function (err, result) {
-    test.ok(result, "result is defined");
-    test.ok(!err, "error object is not present");
+  conn.query("SELECT SLEEP(2)", function (err, result) {
+    test.ok(result, "Result is defined");
+    test.ok(!err, "Error object is not present");
     test.done();
   });
   
   process.nextTick(function () {
-    res = conn.querySync("show tables");
-    test.ok(res.fetchAllSync(), "synchronous result is defined");
+    res = conn.querySync("SHOW TABLES");
+    test.ok(res.fetchAllSync(), "Synchronous result is defined");
   });
 };
 
@@ -567,8 +567,23 @@ exports.QuerySync = function (test) {
     res;
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  res = conn.querySync("SHOW TABLES;");
-  test.ok(res, "conn.querySync('SHOW TABLES;')");
+  res = conn.querySync("SHOW TABLES");
+  test.ok(res, "conn.querySync('SHOW query')");
+  
+  conn.closeSync();
+  
+  test.done();
+};
+
+exports.QuerySyncWithError = function (test) {
+  test.expect(1);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res;
+  
+  res = conn.querySync("SHOW TABLESaagh");
+  test.equals(res, false, "False returned");
   conn.closeSync();
   
   test.done();

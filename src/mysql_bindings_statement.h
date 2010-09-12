@@ -16,7 +16,7 @@ See license text in LICENSE file
 
 static Persistent<String> statement_prepareSync_symbol;
 
-class MysqlConn::MysqlStatement : public node::EventEmitter {
+class MysqlStatement : public node::EventEmitter {
   public:
     static Persistent<FunctionTemplate> constructor_template;
 

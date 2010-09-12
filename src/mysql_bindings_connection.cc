@@ -9,9 +9,9 @@ See license text in LICENSE file
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
 
-Persistent<FunctionTemplate> MysqlConn::constructor_template;
+Persistent<FunctionTemplate> MysqlConnection::constructor_template;
 
-void MysqlConn::Init(Handle<Object> target) {
+void MysqlConnection::Init(Handle<Object> target) {
     HandleScope scope;
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
@@ -20,7 +20,7 @@ void MysqlConn::Init(Handle<Object> target) {
     constructor_template = Persistent<FunctionTemplate>::New(t);
     constructor_template->Inherit(EventEmitter::constructor_template);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
-    constructor_template->SetClassName(String::NewSymbol("MysqlConn"));
+    constructor_template->SetClassName(String::NewSymbol("MysqlConnection"));
 
     Local<ObjectTemplate> instance_template =
         constructor_template->InstanceTemplate();
@@ -88,14 +88,12 @@ void MysqlConn::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, useResultSync, UseResultSync);
     ADD_PROTOTYPE_METHOD(connection, warningCountSync, WarningCountSync);
 
-    target->Set(String::NewSymbol("MysqlConn"),
+    // Make it visible in JavaScript
+    target->Set(String::NewSymbol("MysqlConnection"),
                 constructor_template->GetFunction());
-
-    MysqlResult::Init(target);
-    MysqlStatement::Init(target);
 }
 
-bool MysqlConn::Connect(const char* hostname,
+bool MysqlConnection::Connect(const char* hostname,
                         const char* user,
                         const char* password,
                         const char* dbname,
@@ -135,7 +133,7 @@ bool MysqlConn::Connect(const char* hostname,
     return true;
 }
 
-bool MysqlConn::RealConnect(const char* hostname,
+bool MysqlConnection::RealConnect(const char* hostname,
                             const char* user,
                             const char* password,
                             const char* dbname,
@@ -171,7 +169,7 @@ bool MysqlConn::RealConnect(const char* hostname,
     return true;
 }
 
-void MysqlConn::Close() {
+void MysqlConnection::Close() {
     if (_conn) {
         mysql_close(_conn);
         connected = false;
@@ -179,8 +177,8 @@ void MysqlConn::Close() {
     }
 }
 
-MysqlConn::MysqlConnInfo MysqlConn::GetInfo() {
-    MysqlConnInfo info;
+MysqlConnection::MysqlConnectionInfo MysqlConnection::GetInfo() {
+    MysqlConnectionInfo info;
 
     info.client_version = mysql_get_client_version();
     info.client_info = mysql_get_client_info();
@@ -192,7 +190,7 @@ MysqlConn::MysqlConnInfo MysqlConn::GetInfo() {
     return info;
 }
 
-MysqlConn::MysqlConn(): EventEmitter() {
+MysqlConnection::MysqlConnection(): EventEmitter() {
     _conn = NULL;
     connected = false;
     multi_query = false;
@@ -201,36 +199,36 @@ MysqlConn::MysqlConn(): EventEmitter() {
     pthread_mutex_init(&query_lock, NULL);
 }
 
-MysqlConn::~MysqlConn() {
+MysqlConnection::~MysqlConnection() {
     this->Close();
     pthread_mutex_destroy(&query_lock);
 }
 
-Handle<Value> MysqlConn::New(const Arguments& args) {
+Handle<Value> MysqlConnection::New(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = new MysqlConn();
+    MysqlConnection *conn = new MysqlConnection();
     conn->Wrap(args.This());
 
     return args.This();
 }
 
-Handle<Value> MysqlConn::ConnectErrnoGetter(Local<String> property,
+Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property,
                                             const AccessorInfo &info) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(info.Holder());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     Local<Value> js_result = Integer::New(conn->connect_errno);
 
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::ConnectErrorGetter(Local<String> property,
+Handle<Value> MysqlConnection::ConnectErrorGetter(Local<String> property,
                                             const AccessorInfo &info) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(info.Holder());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     Local<Value> js_result = V8STR(conn->connect_error ?
                                    conn->connect_error : "");
@@ -238,10 +236,10 @@ Handle<Value> MysqlConn::ConnectErrorGetter(Local<String> property,
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::AffectedRowsSync(const Arguments& args) {
+Handle<Value> MysqlConnection::AffectedRowsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -258,10 +256,10 @@ Handle<Value> MysqlConn::AffectedRowsSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::AutoCommitSync(const Arguments& args) {
+Handle<Value> MysqlConnection::AutoCommitSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -278,10 +276,10 @@ Handle<Value> MysqlConn::AutoCommitSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::ChangeUserSync(const Arguments& args) {
+Handle<Value> MysqlConnection::ChangeUserSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected yet");
@@ -313,10 +311,10 @@ Handle<Value> MysqlConn::ChangeUserSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::CommitSync(const Arguments& args) {
+Handle<Value> MysqlConnection::CommitSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -330,7 +328,7 @@ Handle<Value> MysqlConn::CommitSync(const Arguments& args) {
 }
 
 #ifndef MYSQL_NON_THREADSAFE
-int MysqlConn::EIO_After_Connect(eio_req *req) {
+int MysqlConnection::EIO_After_Connect(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     HandleScope scope;
     struct connect_request *conn_req = (struct connect_request *)(req->data);
@@ -358,7 +356,7 @@ int MysqlConn::EIO_After_Connect(eio_req *req) {
     return 0;
 }
 
-int MysqlConn::EIO_Connect(eio_req *req) {
+int MysqlConnection::EIO_Connect(eio_req *req) {
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
     req->result = conn_req->conn->Connect(
@@ -378,12 +376,12 @@ int MysqlConn::EIO_Connect(eio_req *req) {
 }
 #endif
 
-Handle<Value> MysqlConn::Connect(const Arguments& args) {
+Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     HandleScope scope;
 #ifdef MYSQL_NON_THREADSAFE
     return THREXC(MYSQL_NON_THREADSAFE_ERRORSTRING);
 #else
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     struct connect_request *conn_req =
          (struct connect_request *)calloc(1, sizeof(struct connect_request));
@@ -418,10 +416,10 @@ Handle<Value> MysqlConn::Connect(const Arguments& args) {
 #endif
 }
 
-Handle<Value> MysqlConn::ConnectSync(const Arguments& args) {
+Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     String::Utf8Value hostname(args[0]->ToString());
     String::Utf8Value user(args[1]->ToString());
@@ -472,18 +470,18 @@ Handle<Value> MysqlConn::ConnectSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::ConnectedSync(const Arguments& args) {
+Handle<Value> MysqlConnection::ConnectedSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     return scope.Close(conn->connected ? True() : False());
 }
 
-Handle<Value> MysqlConn::CloseSync(const Arguments& args) {
+Handle<Value> MysqlConnection::CloseSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -494,10 +492,10 @@ Handle<Value> MysqlConn::CloseSync(const Arguments& args) {
     return Undefined();
 }
 
-Handle<Value> MysqlConn::DebugSync(const Arguments& args) {
+Handle<Value> MysqlConnection::DebugSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -510,9 +508,9 @@ Handle<Value> MysqlConn::DebugSync(const Arguments& args) {
     return Undefined();
 }
 
-Handle<Value> MysqlConn::DumpDebugInfoSync(const Arguments& args) {
+Handle<Value> MysqlConnection::DumpDebugInfoSync(const Arguments& args) {
     HandleScope scope;
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -521,10 +519,10 @@ Handle<Value> MysqlConn::DumpDebugInfoSync(const Arguments& args) {
     return scope.Close(mysql_dump_debug_info(conn->_conn) ? False() : True());
 }
 
-Handle<Value> MysqlConn::ErrnoSync(const Arguments& args) {
+Handle<Value> MysqlConnection::ErrnoSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -535,10 +533,10 @@ Handle<Value> MysqlConn::ErrnoSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::ErrorSync(const Arguments& args) {
+Handle<Value> MysqlConnection::ErrorSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -551,10 +549,10 @@ Handle<Value> MysqlConn::ErrorSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::EscapeSync(const Arguments& args) {
+Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -578,10 +576,10 @@ Handle<Value> MysqlConn::EscapeSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::FieldCountSync(const Arguments& args) {
+Handle<Value> MysqlConnection::FieldCountSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -592,10 +590,10 @@ Handle<Value> MysqlConn::FieldCountSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::GetCharsetSync(const Arguments& args) {
+Handle<Value> MysqlConnection::GetCharsetSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -619,10 +617,10 @@ Handle<Value> MysqlConn::GetCharsetSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::GetCharsetNameSync(const Arguments& args) {
+Handle<Value> MysqlConnection::GetCharsetNameSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -633,16 +631,16 @@ Handle<Value> MysqlConn::GetCharsetNameSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::GetInfoSync(const Arguments& args) {
+Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
     }
 
-    MysqlConnInfo info = conn->GetInfo();
+    MysqlConnectionInfo info = conn->GetInfo();
 
     Local<Object> js_result = Object::New();
 
@@ -661,10 +659,10 @@ Handle<Value> MysqlConn::GetInfoSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::GetInfoStringSync(const Arguments& args) {
+Handle<Value> MysqlConnection::GetInfoStringSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -677,10 +675,10 @@ Handle<Value> MysqlConn::GetInfoStringSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::GetWarningsSync(const Arguments& args) {
+Handle<Value> MysqlConnection::GetWarningsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -714,10 +712,10 @@ Handle<Value> MysqlConn::GetWarningsSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::InitSync(const Arguments& args) {
+Handle<Value> MysqlConnection::InitSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (conn->_conn) {
         return THREXC("Already initialized");
@@ -732,10 +730,10 @@ Handle<Value> MysqlConn::InitSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::InitStatementSync(const Arguments& args) {
+Handle<Value> MysqlConnection::InitStatementSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     MYSQL_STMT *my_statement = mysql_stmt_init(conn->_conn);
 
@@ -750,10 +748,10 @@ Handle<Value> MysqlConn::InitStatementSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::LastInsertIdSync(const Arguments& args) {
+Handle<Value> MysqlConnection::LastInsertIdSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -773,10 +771,10 @@ Handle<Value> MysqlConn::LastInsertIdSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::MultiMoreResultsSync(const Arguments& args) {
+Handle<Value> MysqlConnection::MultiMoreResultsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -789,10 +787,10 @@ Handle<Value> MysqlConn::MultiMoreResultsSync(const Arguments& args) {
     return scope.Close(False());
 }
 
-Handle<Value> MysqlConn::MultiNextResultSync(const Arguments& args) {
+Handle<Value> MysqlConnection::MultiNextResultSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -811,10 +809,10 @@ Handle<Value> MysqlConn::MultiNextResultSync(const Arguments& args) {
     return scope.Close(False());
 }
 
-Handle<Value> MysqlConn::MultiRealQuerySync(const Arguments& args) {
+Handle<Value> MysqlConnection::MultiRealQuerySync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     REQ_STR_ARG(0, query)
 
@@ -833,10 +831,10 @@ Handle<Value> MysqlConn::MultiRealQuerySync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::PingSync(const Arguments& args) {
+Handle<Value> MysqlConnection::PingSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected yet");
@@ -850,7 +848,7 @@ Handle<Value> MysqlConn::PingSync(const Arguments& args) {
 }
 
 #ifndef MYSQL_NON_THREADSAFE
-int MysqlConn::EIO_After_Query(eio_req *req) {
+int MysqlConnection::EIO_After_Query(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     HandleScope scope;
     struct query_request *query_req = (struct query_request *)(req->data);
@@ -889,10 +887,10 @@ int MysqlConn::EIO_After_Query(eio_req *req) {
     return 0;
 }
 
-int MysqlConn::EIO_Query(eio_req *req) {
+int MysqlConnection::EIO_Query(eio_req *req) {
     struct query_request *query_req = (struct query_request *)(req->data);
 
-    MysqlConn *conn = query_req->conn;
+    MysqlConnection *conn = query_req->conn;
 
     if (!conn->_conn) {
         req->result = 1;
@@ -931,7 +929,7 @@ int MysqlConn::EIO_Query(eio_req *req) {
 }
 #endif
 
-Handle<Value> MysqlConn::Query(const Arguments& args) {
+Handle<Value> MysqlConnection::Query(const Arguments& args) {
     HandleScope scope;
 #ifdef MYSQL_NON_THREADSAFE
     return THREXC(MYSQL_NON_THREADSAFE_ERRORSTRING);
@@ -939,7 +937,7 @@ Handle<Value> MysqlConn::Query(const Arguments& args) {
     REQ_STR_ARG(0, query);
     REQ_FUN_ARG(1, callback);
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -974,10 +972,10 @@ Handle<Value> MysqlConn::Query(const Arguments& args) {
 #endif
 }
 
-Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
+Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     REQ_STR_ARG(0, query)
 
@@ -1028,10 +1026,10 @@ Handle<Value> MysqlConn::QuerySync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::RollbackSync(const Arguments& args) {
+Handle<Value> MysqlConnection::RollbackSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -1044,10 +1042,10 @@ Handle<Value> MysqlConn::RollbackSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::RealConnectSync(const Arguments& args) {
+Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not initialized, execute conn.initSync() before");
@@ -1102,10 +1100,10 @@ Handle<Value> MysqlConn::RealConnectSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::RealQuerySync(const Arguments& args) {
+Handle<Value> MysqlConnection::RealQuerySync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     REQ_STR_ARG(0, query)
 
@@ -1127,10 +1125,10 @@ Handle<Value> MysqlConn::RealQuerySync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::SelectDbSync(const Arguments& args) {
+Handle<Value> MysqlConnection::SelectDbSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -1145,10 +1143,10 @@ Handle<Value> MysqlConn::SelectDbSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::SetCharsetSync(const Arguments& args) {
+Handle<Value> MysqlConnection::SetCharsetSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -1163,10 +1161,10 @@ Handle<Value> MysqlConn::SetCharsetSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::SetOptionSync(const Arguments& args) {
+Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     REQ_INT_ARG(0, option_integer_key);
     mysql_option option_key = static_cast<mysql_option>(option_integer_key);
@@ -1210,10 +1208,10 @@ Handle<Value> MysqlConn::SetOptionSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::SetSslSync(const Arguments& args) {
+Handle<Value> MysqlConnection::SetSslSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -1230,10 +1228,10 @@ Handle<Value> MysqlConn::SetSslSync(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
-Handle<Value> MysqlConn::SqlStateSync(const Arguments& args) {
+Handle<Value> MysqlConnection::SqlStateSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -1244,10 +1242,10 @@ Handle<Value> MysqlConn::SqlStateSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::StatSync(const Arguments& args) {
+Handle<Value> MysqlConnection::StatSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -1264,10 +1262,10 @@ Handle<Value> MysqlConn::StatSync(const Arguments& args) {
     }
 }
 
-Handle<Value> MysqlConn::StoreResultSync(const Arguments& args) {
+Handle<Value> MysqlConnection::StoreResultSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!mysql_field_count(conn->_conn)) {
         /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
@@ -1290,10 +1288,10 @@ Handle<Value> MysqlConn::StoreResultSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::ThreadIdSync(const Arguments& args) {
+Handle<Value> MysqlConnection::ThreadIdSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -1306,7 +1304,7 @@ Handle<Value> MysqlConn::ThreadIdSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::ThreadSafeSync(const Arguments& args) {
+Handle<Value> MysqlConnection::ThreadSafeSync(const Arguments& args) {
     HandleScope scope;
 
     if (mysql_thread_safe()) {
@@ -1316,10 +1314,10 @@ Handle<Value> MysqlConn::ThreadSafeSync(const Arguments& args) {
     }
 }
 
-Handle<Value> MysqlConn::UseResultSync(const Arguments& args) {
+Handle<Value> MysqlConnection::UseResultSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!mysql_field_count(conn->_conn)) {
         /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
@@ -1342,10 +1340,10 @@ Handle<Value> MysqlConn::UseResultSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::WarningCountSync(const Arguments& args) {
+Handle<Value> MysqlConnection::WarningCountSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConn *conn = OBJUNWRAP<MysqlConn>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     if (!conn->_conn) {
         return THREXC("Not connected");
@@ -1356,9 +1354,5 @@ Handle<Value> MysqlConn::WarningCountSync(const Arguments& args) {
     Local<Value> js_result = Integer::New(warning_count);
 
     return scope.Close(js_result);
-}
-
-extern "C" void init(Handle<Object> target) {
-    MysqlConn::Init(target);
 }
 

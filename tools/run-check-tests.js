@@ -109,7 +109,7 @@ var
   test_file_name,
   test_require,
   notexist_tests = 0;
-
+sys.debug(sys.inspect(bindings_classes));
 for (i = 0; i < bindings_classes.length; i += 1) {
   sys.puts(bold(bindings_classes[i].name + ": test-1-class-" + bindings_classes[i].name.toLowerCase() + ".js"));
   
@@ -141,9 +141,7 @@ for (i = 0; i < bindings_classes.length; i += 1) {
   }
   
   for (j = 0; j < bindings_classes[i].methods.length; j += 1) {
-    if ((bindings_classes[i].methods[j] === "New") && (bindings_classes[i].name !== "MysqlConn")) {
-      sys.puts('  ' + bindings_classes[i].methods[j]);
-    } else if (test_require && (typeof test_require[bindings_classes[i].methods[j]] !== 'undefined')) {
+    if (test_require && (typeof test_require[bindings_classes[i].methods[j]] !== 'undefined')) {
       sys.puts(green('✔ ' + bindings_classes[i].methods[j]));
     } else {
       sys.puts(red('✖ ' + bindings_classes[i].methods[j]));

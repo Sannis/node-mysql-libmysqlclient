@@ -8,9 +8,9 @@ See license text in LICENSE file
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 
-Persistent<FunctionTemplate> MysqlConn::MysqlResult::constructor_template;
+Persistent<FunctionTemplate> MysqlResult::constructor_template;
 
-void MysqlConn::MysqlResult::Init(Handle<Object> target) {
+void MysqlResult::Init(Handle<Object> target) {
     HandleScope scope;
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
@@ -21,7 +21,8 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlResult"));
 
-    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate(); // NOLINT
+    Local<ObjectTemplate> instance_template =
+        constructor_template->InstanceTemplate();
 
     // Properties
     instance_template->SetAccessor(V8STR("fieldCount"), FieldCountGetter);
@@ -40,15 +41,19 @@ void MysqlConn::MysqlResult::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(result, fieldTellSync, FieldTellSync);
     ADD_PROTOTYPE_METHOD(result, freeSync, FreeSync);
     ADD_PROTOTYPE_METHOD(result, numRowsSync, NumRowsSync);
+
+    // Make it visible in JavaScript
+    target->Set(String::NewSymbol("MysqlResult"),
+                constructor_template->GetFunction());
 }
 
-MysqlConn::MysqlResult::MysqlResult(): EventEmitter() {}
+MysqlResult::MysqlResult(): EventEmitter() {}
 
-MysqlConn::MysqlResult::~MysqlResult() {
+MysqlResult::~MysqlResult() {
     this->Free();
 }
 
-void MysqlConn::MysqlResult::AddFieldProperties(
+void MysqlResult::AddFieldProperties(
                                         Local<Object> &js_field_obj,
                                         MYSQL_FIELD *field) {
     js_field_obj->Set(V8STR("name"), V8STR(field->name ? field->name : ""));
@@ -67,7 +72,7 @@ void MysqlConn::MysqlResult::AddFieldProperties(
     js_field_obj->Set(V8STR("decimals"), Integer::New(field->decimals));
 }
 
-void MysqlConn::MysqlResult::SetFieldValue(
+void MysqlResult::SetFieldValue(
                                         Handle<Value> &js_field,
                                         MYSQL_FIELD field,
                                         char* field_value) {
@@ -235,14 +240,14 @@ void MysqlConn::MysqlResult::SetFieldValue(
     }
 }
 
-void MysqlConn::MysqlResult::Free() {
+void MysqlResult::Free() {
     if (_res) {
         mysql_free_result(_res);
         _res = NULL;
     }
 }
 
-Handle<Value> MysqlConn::MysqlResult::New(const Arguments& args) {
+Handle<Value> MysqlResult::New(const Arguments& args) {
     HandleScope scope;
 
     REQ_EXT_ARG(0, js_res);
@@ -254,7 +259,7 @@ Handle<Value> MysqlConn::MysqlResult::New(const Arguments& args) {
     return args.This();
 }
 
-Handle<Value> MysqlConn::MysqlResult::FieldCountGetter(Local<String> property,
+Handle<Value> MysqlResult::FieldCountGetter(Local<String> property,
                                                    const AccessorInfo &info) {
     HandleScope scope;
 
@@ -271,7 +276,7 @@ Handle<Value> MysqlConn::MysqlResult::FieldCountGetter(Local<String> property,
     }
 }
 
-Handle<Value> MysqlConn::MysqlResult::DataSeekSync(const Arguments& args) {
+Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
@@ -296,7 +301,7 @@ Handle<Value> MysqlConn::MysqlResult::DataSeekSync(const Arguments& args) {
 }
 
 #ifndef MYSQL_NON_THREADSAFE
-int MysqlConn::MysqlResult::EIO_After_FetchAll(eio_req *req) {
+int MysqlResult::EIO_After_FetchAll(eio_req *req) {
     HandleScope scope;
 
     ev_unref(EV_DEFAULT_UC);
@@ -329,12 +334,12 @@ int MysqlConn::MysqlResult::EIO_After_FetchAll(eio_req *req) {
     return 0;
 }
 
-int MysqlConn::MysqlResult::EIO_FetchAll(eio_req *req) {
+int MysqlResult::EIO_FetchAll(eio_req *req) {
     HandleScope scope;
 
     struct fetchAll_request *fetchAll_req =
         reinterpret_cast<struct fetchAll_request *>(req->data);
-    MysqlConn::MysqlResult *res = fetchAll_req->res;
+    MysqlResult *res = fetchAll_req->res;
 
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
     uint32_t num_fields = mysql_num_fields(res->_res);
@@ -367,14 +372,14 @@ int MysqlConn::MysqlResult::EIO_FetchAll(eio_req *req) {
 }
 #endif
 
-Handle<Value> MysqlConn::MysqlResult::FetchAll(const Arguments& args) {
+Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     HandleScope scope;
 #ifdef MYSQL_NON_THREADSAFE
     return THREXC(MYSQL_NON_THREADSAFE_ERRORSTRING);
 #else
     REQ_FUN_ARG(0, callback);
 
-    MysqlConn::MysqlResult *res = OBJUNWRAP<MysqlConn::MysqlResult>(args.This()); // NOLINT
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This()); // NOLINT
 
     if (!res->_res) {
         return THREXC("Result has been freed.");
@@ -400,7 +405,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchAll(const Arguments& args) {
 #endif
 }
 
-Handle<Value> MysqlConn::MysqlResult::FetchAllSync(const Arguments& args) {
+Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
@@ -436,7 +441,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchAllSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::MysqlResult::FetchArraySync(const Arguments& args) {
+Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
@@ -469,7 +474,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchArraySync(const Arguments& args) {
     return scope.Close(js_result_row);
 }
 
-Handle<Value> MysqlConn::MysqlResult::FetchFieldSync(const Arguments& args) {
+Handle<Value> MysqlResult::FetchFieldSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
@@ -494,7 +499,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchFieldSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLINT
+Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLINT
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
@@ -521,7 +526,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchFieldDirectSync(const Arguments& args
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::MysqlResult::FetchFieldsSync(const Arguments& args) {
+Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
@@ -549,7 +554,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchFieldsSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::MysqlResult::FetchLengthsSync(const Arguments& args) {
+Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
@@ -575,7 +580,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchLengthsSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::MysqlResult::FetchObjectSync(const Arguments& args) {
+Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
@@ -609,7 +614,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchObjectSync(const Arguments& args) {
     return scope.Close(js_result_row);
 }
 
-Handle<Value> MysqlConn::MysqlResult::FieldSeekSync(const Arguments& args) {
+Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
@@ -629,7 +634,7 @@ Handle<Value> MysqlConn::MysqlResult::FieldSeekSync(const Arguments& args) {
     return Undefined();
 }
 
-Handle<Value> MysqlConn::MysqlResult::FieldTellSync(const Arguments& args) {
+Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
@@ -643,7 +648,7 @@ Handle<Value> MysqlConn::MysqlResult::FieldTellSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-Handle<Value> MysqlConn::MysqlResult::FreeSync(const Arguments& args) {
+Handle<Value> MysqlResult::FreeSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
@@ -657,7 +662,7 @@ Handle<Value> MysqlConn::MysqlResult::FreeSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::MysqlResult::NumRowsSync(const Arguments& args) {
+Handle<Value> MysqlResult::NumRowsSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());

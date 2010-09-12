@@ -8,9 +8,9 @@ See license text in LICENSE file
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_statement.h"
 
-Persistent<FunctionTemplate> MysqlConn::MysqlStatement::constructor_template;
+Persistent<FunctionTemplate> MysqlStatement::constructor_template;
 
-void MysqlConn::MysqlStatement::Init(Handle<Object> target) {
+void MysqlStatement::Init(Handle<Object> target) {
     HandleScope scope;
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
@@ -21,23 +21,28 @@ void MysqlConn::MysqlStatement::Init(Handle<Object> target) {
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlStatement"));
 
-    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate(); // NOLINT
+    Local<ObjectTemplate> instance_template =
+        constructor_template->InstanceTemplate();
 
     // Methods
     ADD_PROTOTYPE_METHOD(statement, prepareSync, PrepareSync);
+
+    // Make it visible in JavaScript
+    target->Set(String::NewSymbol("MysqlStatement"),
+                constructor_template->GetFunction());
 }
 
-MysqlConn::MysqlStatement::MysqlStatement(): EventEmitter() {
+MysqlStatement::MysqlStatement(): EventEmitter() {
     _stmt = NULL;
 }
 
-MysqlConn::MysqlStatement::~MysqlStatement() {
+MysqlStatement::~MysqlStatement() {
     if (_stmt) {
         mysql_stmt_close(_stmt);
     }
 }
 
-Handle<Value> MysqlConn::MysqlStatement::New(const Arguments& args) {
+Handle<Value> MysqlStatement::New(const Arguments& args) {
     HandleScope scope;
 
     REQ_EXT_ARG(0, js_stmt);
@@ -48,7 +53,7 @@ Handle<Value> MysqlConn::MysqlStatement::New(const Arguments& args) {
     return args.This();
 }
 
-Handle<Value> MysqlConn::MysqlStatement::PrepareSync(const Arguments& args) {
+Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());

@@ -122,13 +122,13 @@ static Persistent<String> connection_threadSafeSync_symbol;
 static Persistent<String> connection_useResultSync_symbol;
 static Persistent<String> connection_warningCountSync_symbol;
 
-class MysqlConn : public node::EventEmitter {
+class MysqlConnection : public node::EventEmitter {
   public:
     static Persistent<FunctionTemplate> constructor_template;
 
     static void Init(Handle<Object> target);
 
-    struct MysqlConnInfo {
+    struct MysqlConnectionInfo {
         uint64_t client_version;
         const char *client_info;
         uint64_t server_version;
@@ -136,10 +136,6 @@ class MysqlConn : public node::EventEmitter {
         const char *host_info;
         uint32_t proto_info;
     };
-
-    class MysqlResult;
-
-    class MysqlStatement;
 
     bool Connect(const char* hostname,
                  const char* user,
@@ -157,7 +153,7 @@ class MysqlConn : public node::EventEmitter {
 
     void Close();
 
-    MysqlConnInfo GetInfo();
+    MysqlConnectionInfo GetInfo();
 
   protected:
     MYSQL *_conn;
@@ -170,9 +166,9 @@ class MysqlConn : public node::EventEmitter {
     unsigned int connect_errno;
     const char *connect_error;
 
-    MysqlConn();
+    MysqlConnection();
 
-    ~MysqlConn();
+    ~MysqlConnection();
 
     // Constructor
 
@@ -199,7 +195,7 @@ class MysqlConn : public node::EventEmitter {
 #ifndef MYSQL_NON_THREADSAFE
     struct connect_request {
         Persistent<Function> callback;
-        MysqlConn *conn;
+        MysqlConnection *conn;
         String::Utf8Value *hostname;
         String::Utf8Value *user;
         String::Utf8Value *password;
@@ -257,7 +253,7 @@ class MysqlConn : public node::EventEmitter {
 #ifndef MYSQL_NON_THREADSAFE
     struct query_request {
         Persistent<Function> callback;
-        MysqlConn *conn;
+        MysqlConnection *conn;
         char *query;
         MYSQL_RES *my_result;
         uint32_t field_count;
@@ -297,8 +293,6 @@ class MysqlConn : public node::EventEmitter {
 
     static Handle<Value> WarningCountSync(const Arguments& args);
 };
-
-extern "C" void init(Handle<Object> target);
 
 #endif  // NODE_MYSQL_CONNECTION_H  // NOLINT
 

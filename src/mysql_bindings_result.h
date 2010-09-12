@@ -31,7 +31,7 @@ static Persistent<String> result_fieldTellSync_symbol;
 static Persistent<String> result_freeSync_symbol;
 static Persistent<String> result_numRowsSync_symbol;
 
-class MysqlConn::MysqlResult : public node::EventEmitter {
+class MysqlResult : public node::EventEmitter {
   public:
     static Persistent<FunctionTemplate> constructor_template;
 
@@ -78,7 +78,7 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
 #ifndef MYSQL_NON_THREADSAFE
     struct fetchAll_request {
         Persistent<Function> callback;
-        MysqlConn::MysqlResult *res;
+        MysqlResult *res;
         Local<Array> js_result;
     };
     static int EIO_After_FetchAll(eio_req *req);
