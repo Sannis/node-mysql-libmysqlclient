@@ -28,11 +28,12 @@ var initAndRealConnectSync = function (test) {
 };
 
 var multiRealQueryAndNextAndMoreSync = function (test) {
-  test.expect(4);
+  test.expect(5);
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
+    rows,
     query;
   
   query  = "SELECT 1 as one;";
@@ -45,12 +46,14 @@ var multiRealQueryAndNextAndMoreSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
   conn.multiRealQuerySync(query);
   // SELECT 1 as one;
-  res = conn.storeResultSync().fetchAllSync();
-  test.same(res, [{one: 1}], "SELECT 1 as one;");
+  res = conn.storeResultSync();
+  test.ok(res instanceof mysql_bindings.MysqlResult, "SELECT query res instanceof mysql_bindings.MysqlResult");
+  rows = res.fetchAllSync();
+  test.same(rows, [{one: 1}], "SELECT 1 as one;");
   conn.multiNextResultSync();
   // SELECT 2 as two;
-  res = conn.storeResultSync().fetchAllSync();
-  test.same(res, [{two: 2}], "SELECT 2 as two;");
+  rows = conn.storeResultSync().fetchAllSync();
+  test.same(rows, [{two: 2}], "SELECT 2 as two;");
   conn.multiNextResultSync();
   // SELECT * FROM test_table_notexists;
   test.equals(conn.errorSync(), "Table '" + cfg.database + "." + cfg.test_table_notexists + "' doesn't exist", "right error after select from notexists table");
@@ -61,7 +64,7 @@ var multiRealQueryAndNextAndMoreSync = function (test) {
 };
 
 var realQueryAndUseAndStoreResultSync = function (test) {
-  test.expect(5);
+  test.expect(6);
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
@@ -71,6 +74,7 @@ var realQueryAndUseAndStoreResultSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
   conn.realQuerySync("SHOW TABLES;");
   res = conn.storeResultSync();
+  test.ok(res instanceof mysql_bindings.MysqlResult, "SHOW TABLES query res instanceof mysql_bindings.MysqlResult");
   test.ok(res, "conn.realQuerySync('SHOW TABLES;') and conn.storeResultSync()");
   r1 = res.fetchAllSync();
   conn.realQuerySync("SHOW TABLES;");
@@ -560,7 +564,7 @@ exports.QueryWithQuerySync = function (test) {
 };
 
 exports.QuerySync = function (test) {
-  test.expect(2);
+  test.expect(4);
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
@@ -568,22 +572,14 @@ exports.QuerySync = function (test) {
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   res = conn.querySync("SHOW TABLES");
-  test.ok(res, "conn.querySync('SHOW query')");
-  
-  conn.closeSync();
-  
-  test.done();
-};
-
-exports.QuerySyncWithError = function (test) {
-  test.expect(1);
-  
-  var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res;
+  test.ok(res instanceof mysql_bindings.MysqlResult, "SHOW TABLES query res instanceof mysql_bindings.MysqlResult");
   
   res = conn.querySync("SHOW TABLESaagh");
-  test.equals(res, false, "False returned");
+  test.equals(res, false, "SHOW TABLESaagh wrong query res === false");
+  
+  res = conn.querySync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES (0, 1);");
+  test.equals(res, true, "INSERT query res === true");
+  
   conn.closeSync();
   
   test.done();
