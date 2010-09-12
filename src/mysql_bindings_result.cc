@@ -300,7 +300,8 @@ int MysqlConn::MysqlResult::EIO_After_FetchAll(eio_req *req) {
     HandleScope scope;
 
     ev_unref(EV_DEFAULT_UC);
-    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data); // NOLINT
+    struct fetchAll_request *fetchAll_req =
+        reinterpret_cast<struct fetchAll_request *>(req->data);
 
     int argc = 1; /* node.js convention, there is always one argument */
     Local<Value> argv[2];
@@ -331,7 +332,8 @@ int MysqlConn::MysqlResult::EIO_After_FetchAll(eio_req *req) {
 int MysqlConn::MysqlResult::EIO_FetchAll(eio_req *req) {
     HandleScope scope;
 
-    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data); // NOLINT
+    struct fetchAll_request *fetchAll_req =
+        reinterpret_cast<struct fetchAll_request *>(req->data);
     MysqlConn::MysqlResult *res = fetchAll_req->res;
 
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
@@ -557,7 +559,7 @@ Handle<Value> MysqlConn::MysqlResult::FetchLengthsSync(const Arguments& args) {
     }
 
     uint32_t num_fields = mysql_num_fields(res->_res);
-    unsigned long int *lengths = mysql_fetch_lengths(res->_res);
+    unsigned long int *lengths = mysql_fetch_lengths(res->_res); // NOLINT (unsigned long required by API)
     uint32_t i = 0;
 
     Local<Array> js_result = Array::New();
