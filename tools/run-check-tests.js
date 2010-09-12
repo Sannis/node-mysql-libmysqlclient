@@ -15,7 +15,7 @@ var
 
 var
   regex_class_name =
-    /class .*?([a-z]*) :.*\{/i,
+    /class [a-z:\s]*?([a-z]*) :[a-z:\s]*\{/i,
   regex_class_methods =
     /static Handle<Value> ([a-z]*)\(const Arguments& args\);/ig,
   regex_class_properties_getters =
