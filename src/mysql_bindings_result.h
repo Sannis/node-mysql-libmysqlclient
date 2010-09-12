@@ -5,8 +5,8 @@ See contributors list in README
 See license text in LICENSE file
 */
 
-#ifndef NODE_MYSQL_RESULT_H  // NOLINT
-#define NODE_MYSQL_RESULT_H
+#ifndef SRC_MYSQL_BINDINGS_RESULT_H_
+#define SRC_MYSQL_BINDINGS_RESULT_H_
 
 #include <mysql.h>
 
@@ -109,5 +109,5 @@ class MysqlConn::MysqlResult : public node::EventEmitter {
     static Handle<Value> NumRowsSync(const Arguments& args);
 };
 
-#endif  // NODE_MYSQL_RESULT_H  // NOLINT
+#endif  // SRC_MYSQL_BINDINGS_RESULT_H_
 

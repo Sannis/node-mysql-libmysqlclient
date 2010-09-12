@@ -22,7 +22,8 @@ void MysqlConn::Init(Handle<Object> target) {
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlConn"));
 
-    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate(); // NOLINT
+    Local<ObjectTemplate> instance_template =
+        constructor_template->InstanceTemplate();
 
     // Constants
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_INIT_COMMAND);
@@ -65,7 +66,8 @@ void MysqlConn::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, initSync, InitSync);
     ADD_PROTOTYPE_METHOD(connection, initStatementSync, InitStatementSync);
     ADD_PROTOTYPE_METHOD(connection, lastInsertIdSync, LastInsertIdSync);
-    ADD_PROTOTYPE_METHOD(connection, multiMoreResultsSync, MultiMoreResultsSync); // NOLINT
+    ADD_PROTOTYPE_METHOD(connection, multiMoreResultsSync,
+        MultiMoreResultsSync);
     ADD_PROTOTYPE_METHOD(connection, multiNextResultSync, MultiNextResultSync);
     ADD_PROTOTYPE_METHOD(connection, multiRealQuerySync, MultiRealQuerySync);
     ADD_PROTOTYPE_METHOD(connection, pingSync, PingSync);
@@ -953,7 +955,7 @@ Handle<Value> MysqlConn::Query(const Arguments& args) {
 
     query_req->query =
         reinterpret_cast<char *>(calloc(query.length() + 1,
-        sizeof(char))); //NOLINT
+        sizeof(char))); // NOLINT (have no char var)
 
     if (snprintf(query_req->query, query.length() + 1, "%s", *query) !=
                                                       query.length()) {
