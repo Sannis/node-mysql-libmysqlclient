@@ -16,6 +16,8 @@
   * * MysqlConnection::SetOptionSync()
   
   Special thanks for Akzhan Abdulin and Surendra Singhi
+  
+  Statistics: 83 commits, 2354 additions and 1539 deletions
 
 = Version 0.0.8
   * Make asynchronous connect and fetchAll
@@ -27,6 +29,8 @@
   * * MysqlResult::FetchAll() and libeio wrapper
   
   Special thanks for Surendra Singhi
+  
+  Statistics: 13 commits, 993 additions and 1167 deletions
 
 = Version 0.0.7
   * Make asynchronous querying work
@@ -40,6 +44,8 @@
   * * MysqlConn::QueryAsync() and libeio wrapper
   
   Special thanks for Surendra Singhi
+  
+  Statistics: 56 commits, 561 additions and 582 deletions
 
 = Version 0.0.6
   * Update package.json and make small fixes in docs and README
@@ -58,6 +64,8 @@
   * * MysqlResult::FieldTell()
   * * MysqlResult::Free()
   * MysqlResult class finished
+  
+  Statistics: 16 commits, 1011 additions and 190 deletions
 
 = Version 0.0.5
   * Remove 'Sync' from classes names,
@@ -66,6 +74,8 @@
   * Add a script to verify the existence of unittests for each function
   * Reorganize tests files for new think and add some tests
   * Add speedtest
+  
+  Statistics: 35 commits, 1525 additions and 793 deletions
 
 = Version 0.0.4
   * Split source code into separate files for database connection,
@@ -93,6 +103,8 @@
   * * MysqlSyncConn::useResult()
   * * MysqlSyncStmt::prepare()
   * Decrease number of cpplint warnings (dirty hack? maybe)
+  
+  Statistics: 43 commits, 2118 additions and 1228 deletions
 
 = Version 0.0.3
   * Add 'lint' target for node-waf
@@ -110,11 +122,15 @@
   * * MysqlSyncConn::SetCharset()
   * * MysqlSyncConn::SetSsl()
   * Improve MysqlSyncConn::Connect() functionality, see d2d9ae2
+  
+  Statistics: 15 commits, 768 additions and 21 deletions
 
 = Version 0.0.2
   * Split MysqlDbSync into MysqlSyncConn and MysqlSyncRes
   * Add unit tests suite
   * Query() API is more clear to PHP MySQLi
+  
+  Statistics: 9 commits, 903 additions and 622 deletions
 
 = Version 0.0.1
   * Basic functionality: connect/close/query/fenchAll/getInfo/error/etc.
@@ -130,4 +146,6 @@
   * * MysqlDbSync::LastInsertId()
   * * MysqlDbSync::Query()
   * * MysqlDbSync::WarningCount()
+  
+  Statistics: 10 commits, 979 additions and 161 deletions
 
