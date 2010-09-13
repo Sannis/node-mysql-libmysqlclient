@@ -80,7 +80,7 @@ MysqlStatement::MysqlStatement (MYSQL_STMT *my_stmt): EventEmitter() {
 MysqlStatement::~MysqlStatement() {
     if (this->_stmt) {
         if (this->prepared) {
-            for (unsigned long i = 0; i < this->param_count; i++) {
+            for (uint64_t i = 0; i < this->param_count; i++) {
                 if (this->binds[i].buffer_type == MYSQL_TYPE_LONG) {
                     if (this->binds[i].is_unsigned) {
                         delete static_cast<unsigned int *>(this->binds[i].buffer); // NOLINT
@@ -90,9 +90,9 @@ MysqlStatement::~MysqlStatement() {
                 } else if (this->binds[i].buffer_type == MYSQL_TYPE_DOUBLE) {
                     delete static_cast<double *>(this->binds[i].buffer);
                 } else if (this->binds[i].buffer_type == MYSQL_TYPE_STRING) {
-                    //TODO(Sannis): Or delete?
+                    // TODO(Sannis): Or delete?
                     delete[] static_cast<char *>(this->binds[i].buffer);
-                    delete static_cast<unsigned long *>(this->binds[i].length);
+                    delete static_cast<unsigned long *>(this->binds[i].length); // NOLINT
                 } else if (this->binds[i].buffer_type == MYSQL_TYPE_DATETIME) {
                     delete static_cast<MYSQL_TIME *>(this->binds[i].buffer);
                 } else {
@@ -145,7 +145,7 @@ Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
     my_ulonglong affected_rows = mysql_stmt_affected_rows(stmt->_stmt);
 
     if (affected_rows == ((my_ulonglong)-1)) {
-        return THREXC("Error occured in mysql_stmt_affected_rows(), -1 returned");
+        return THREXC("Error occured in mysql_stmt_affected_rows()");
     }
 
     Local<Value> js_result = Integer::New(affected_rows);
@@ -165,7 +165,7 @@ Handle<Value> MysqlStatement::AttrGetSync(const Arguments& args) {
                         static_cast<enum_stmt_attr_type>(attr_integer_key);
 
     // TODO(Sannis): Possible error, see Integer::NewFromUnsigned, 32/64
-    unsigned long attr_value;
+    unsigned long attr_value; // NOLINT
 
     if (mysql_stmt_attr_get(stmt->_stmt, attr_key, &attr_value)) {
         return THREXC("This attribute isn't supported by libmysqlclient");
@@ -250,10 +250,10 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
     int *int_data;
     unsigned int *uint_data;
     double *double_data;
-    unsigned long *str_length;
+    unsigned long *str_length; // NOLINT
     char *str_data;
     time_t date_timet;
-    struct tm *date_timeinfo;
+    struct tm date_timeinfo;
     MYSQL_TIME *date_data;
 
     for (i = 0; i < js_params->Length(); i++) {
@@ -297,7 +297,7 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
         } else if (js_param->IsString()) {
             // TODO(Sannis): Simplify this if possible
             str_data = strdup(**(new String::Utf8Value(js_param->ToString())));
-            str_length = new unsigned long;
+            str_length = new unsigned long; // NOLINT
             *str_length = js_param->ToString()->Length();
 
             stmt->binds[i].buffer_type = MYSQL_TYPE_STRING;
@@ -307,13 +307,15 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
         } else if (js_param->IsDate()) {
             date_data = new MYSQL_TIME;
             date_timet = static_cast<time_t>(js_param->NumberValue()/1000);
-            date_timeinfo = gmtime(&date_timet);
-            date_data->year = date_timeinfo->tm_year + 1900;
-            date_data->month = date_timeinfo->tm_mon + 1;
-            date_data->day = date_timeinfo->tm_mday;
-            date_data->hour = date_timeinfo->tm_hour;
-            date_data->minute = date_timeinfo->tm_min;
-            date_data->second = date_timeinfo->tm_sec;
+            if (!gmtime_r(&date_timet, &date_timeinfo)) {
+                return THREXC("Error occured in gmtime_r()");
+            }
+            date_data->year = date_timeinfo.tm_year + 1900;
+            date_data->month = date_timeinfo.tm_mon + 1;
+            date_data->day = date_timeinfo.tm_mday;
+            date_data->hour = date_timeinfo.tm_hour;
+            date_data->minute = date_timeinfo.tm_min;
+            date_data->second = date_timeinfo.tm_sec;
 
             stmt->binds[i].buffer_type = MYSQL_TYPE_DATETIME;
             stmt->binds[i].buffer = date_data;
@@ -358,7 +360,7 @@ Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
 
     REQ_UINT_ARG(0, row_num)
 
-    // TODO: Can we implement this?
+    // TODO(Sannis): Can we implement this?
     /*if (mysql_stmt_is_unbuffered(stmt->_stmt)) {
         return THREXC("Function cannot be used before store all results");
     }*/
@@ -433,7 +435,7 @@ Handle<Value> MysqlStatement::FreeSync(const Arguments& args) {
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
-    return scope.Close((mysql_stmt_free_result(stmt->_stmt) == 0) ? True() : False());
+    return scope.Close(!mysql_stmt_free_result(stmt->_stmt) ? True() : False());
 }
 
 Handle<Value> MysqlStatement::LastInsertIdSync(const Arguments& args) {
@@ -456,9 +458,9 @@ Handle<Value> MysqlStatement::NumRowsSync(const Arguments& args) {
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
-    MYSQLSTMT_MUSTBE_STORED;  //TODO(Sannis): Or all result already fetched!
+    MYSQLSTMT_MUSTBE_STORED;  // TODO(Sannis): Or all result already fetched!
 
-    // TODO: Can we implement this?
+    // TODO(Sannis): Can we implement this?
     /*if (mysql_stmt_is_unbuffered(stmt->_stmt)) {
         return THREXC("Function cannot be used before store all results");
     }*/
@@ -496,7 +498,7 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
 
     REQ_STR_ARG(0, query)
 
-    //TODO(Sannis): Smth else? close/reset
+    // TODO(Sannis): Smth else? close/reset
     stmt->prepared = false;
 
     unsigned long int query_len = args[0]->ToString()->Utf8Length();
@@ -519,7 +521,7 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
         }
         memset(stmt->binds, 0, stmt->param_count*sizeof(MYSQL_BIND));
 
-        //TODO(Sannis): Smth else?
+        // TODO(Sannis): Smth else?
     }
 
     stmt->prepared = true;
