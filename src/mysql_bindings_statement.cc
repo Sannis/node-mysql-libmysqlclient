@@ -93,8 +93,10 @@ MysqlStatement::~MysqlStatement() {
                     //TODO(Sannis): Or delete?
                     delete[] static_cast<char *>(this->binds[i].buffer);
                     delete static_cast<unsigned long *>(this->binds[i].length);
+                } else if (this->binds[i].buffer_type == MYSQL_TYPE_DATETIME) {
+                    delete static_cast<MYSQL_TIME *>(this->binds[i].buffer);
                 } else {
-                    printf("MysqlConn::MysqlStatement::~MysqlStatement: o_0\n");
+                    printf("MysqlStatement::~MysqlStatement: o_0\n");
                 }
             }
             delete[] this->binds;
@@ -221,7 +223,7 @@ Handle<Value> MysqlStatement::AttrSetSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-Handle<Value> MysqlConn::MysqlStatement::BindParamsSync(const Arguments& args) {
+Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
@@ -248,9 +250,11 @@ Handle<Value> MysqlConn::MysqlStatement::BindParamsSync(const Arguments& args) {
     int *int_data;
     unsigned int *uint_data;
     double *double_data;
-
     unsigned long *str_length;
     char *str_data;
+    time_t date_timet;
+    struct tm *date_timeinfo;
+    MYSQL_TIME *date_data;
 
     for (i = 0; i < js_params->Length(); i++) {
         js_param = js_params->Get(i);
@@ -301,7 +305,19 @@ Handle<Value> MysqlConn::MysqlStatement::BindParamsSync(const Arguments& args) {
             stmt->binds[i].is_null = 0;
             stmt->binds[i].length = str_length;
         } else if (js_param->IsDate()) {
-            return THREXC("Date? o_0");
+            date_data = new MYSQL_TIME;
+            date_timet = static_cast<time_t>(js_param->NumberValue()/1000);
+            date_timeinfo = gmtime(&date_timet);
+            date_data->year = date_timeinfo->tm_year + 1900;
+            date_data->month = date_timeinfo->tm_mon + 1;
+            date_data->day = date_timeinfo->tm_mday;
+            date_data->hour = date_timeinfo->tm_hour;
+            date_data->minute = date_timeinfo->tm_min;
+            date_data->second = date_timeinfo->tm_sec;
+
+            stmt->binds[i].buffer_type = MYSQL_TYPE_DATETIME;
+            stmt->binds[i].buffer = date_data;
+            stmt->binds[i].is_null = 0;
         } else {
             return THREXC("o_0");
         }

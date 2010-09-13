@@ -53,6 +53,12 @@ return ThrowException(Exception::TypeError( \
 String::New("Argument " #I " must be a boolean"))); \
 bool VAR = args[I]->BooleanValue();
 
+#define REQ_ARRAY_ARG(I, VAR) \
+if (args.Length() <= (I) || !args[I]->IsArray()) \
+return ThrowException(Exception::TypeError( \
+String::New("Argument " #I " must be an array"))); \
+Local<Array> VAR = Local<Array>::Cast(args[I]);
+
 #define REQ_EXT_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsExternal()) \
 return ThrowException(Exception::TypeError( \
