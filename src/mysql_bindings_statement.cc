@@ -5,9 +5,19 @@
  * See license text in LICENSE file
  */
 
+/**
+ * Include headers
+ *
+ * @ignore
+ */
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_statement.h"
 
+/**
+ * Init V8 structures for MysqlStatement class
+ *
+ * @ignore
+ */
 Persistent<FunctionTemplate> MysqlStatement::constructor_template;
 
 void MysqlStatement::Init(Handle<Object> target) {
