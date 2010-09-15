@@ -1,9 +1,9 @@
-/*
-Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
-See contributors list in README
-
-See license text in LICENSE file
-*/
+/*!
+ * Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
+ * See contributors list in README
+ *
+ * See license text in LICENSE file
+ */
 
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_statement.h"
@@ -42,6 +42,11 @@ MysqlStatement::~MysqlStatement() {
     }
 }
 
+/**
+ * Create new MySQL statement object
+ *
+ * @constructor
+ */
 Handle<Value> MysqlStatement::New(const Arguments& args) {
     HandleScope scope;
 
@@ -53,6 +58,12 @@ Handle<Value> MysqlStatement::New(const Arguments& args) {
     return args.This();
 }
 
+/**
+ * Prepare statement by given query
+ *
+ * @param {String} query
+ * @return {Boolean}
+ */
 Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
     HandleScope scope;
 

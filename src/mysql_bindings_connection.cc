@@ -1,9 +1,9 @@
-/*
-Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
-See contributors list in README
-
-See license text in LICENSE file
-*/
+/*!
+ * Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
+ * See contributors list in README
+ *
+ * See license text in LICENSE file
+ */
 
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
@@ -204,6 +204,11 @@ MysqlConnection::~MysqlConnection() {
     pthread_mutex_destroy(&query_lock);
 }
 
+/**
+ * Create new MySQL connection object
+ *
+ * @constructor
+ */
 Handle<Value> MysqlConnection::New(const Arguments& args) {
     HandleScope scope;
 
@@ -213,6 +218,12 @@ Handle<Value> MysqlConnection::New(const Arguments& args) {
     return args.This();
 }
 
+/**
+ * Get last connect error number
+ *
+ * @getter
+ * @return Integer
+ */
 Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property,
                                             const AccessorInfo &info) {
     HandleScope scope;
@@ -224,6 +235,12 @@ Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property,
     return scope.Close(js_result);
 }
 
+/**
+ * Get last connect error string
+ *
+ * @getter
+ * @return Integer
+ */
 Handle<Value> MysqlConnection::ConnectErrorGetter(Local<String> property,
                                             const AccessorInfo &info) {
     HandleScope scope;
@@ -236,6 +253,11 @@ Handle<Value> MysqlConnection::ConnectErrorGetter(Local<String> property,
     return scope.Close(js_result);
 }
 
+/**
+ * Get affected rows count
+ *
+ * @return Integer
+ */
 Handle<Value> MysqlConnection::AffectedRowsSync(const Arguments& args) {
     HandleScope scope;
 

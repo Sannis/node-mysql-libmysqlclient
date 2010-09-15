@@ -56,6 +56,13 @@ def lint(lnt):
   # Bindings javascript code, tools and tests
   Utils.exec_command('nodelint --config ./nodelint.cfg ./package.json ./mysql-libmysqlclient.js ./tools/*.js ./tools/tests/*.js')
 
+def docs(dcs):
+  Utils.exec_command('dox --title "Node-mysql-libmysqlclient API" ' +
+                     '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
+                     'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide." ' +
+                     '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" ' +
+                     './mysql-libmysqlclient.js $(find ./src/*.cc | grep -v "mysql_bindings.cc") > ./docs/api.html')
+
 def shutdown():
   # HACK to get bindings.node out of build directory.
   # better way to do this?
