@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Sannis/node-mysql-libmysqlclient @ GitHub</title>
+    <style>body {
+    margin: 0;
+    padding: 0;
+    font: 14px/1.5 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+    color: #252519;
+}
+a {
+    color: #252519;
+}
+a:hover {
+    text-decoration: underline;
+    color: #19469D;
+}
+p {
+    margin: 12px 0;
+}
+h1, h2, h3 {
+    margin: 0;
+    padding: 0;
+}
+table#source {
+    width: 100%;
+    border-collapse: collapse;
+}
+table#source td:first-child {
+    padding: 30px 40px 30px 40px;
+    vertical-align: top;
+}
+table#source td:first-child,
+table#source td:first-child pre {
+    width: 450px;
+}
+table#source td:last-child {
+    padding: 30px 0 30px 40px;
+    border-left: 1px solid #E5E5EE;
+    background: #F5F5FF;
+}
+table#source tr {
+    border-bottom: 1px solid #E5E5EE;
+}
+table#source tr.filename {
+    padding-top: 40px;
+    border-top: 1px solid #E5E5EE;
+}
+table#source tr.filename td:first-child {
+    text-transform: capitalize;
+}
+table#source tr.filename td:last-child {
+    font-size: 12px;
+}
+table#source tr.filename h2 {
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+}
+table#source tr.code h1,
+table#source tr.code h2,
+table#source tr.code h3 {
+    margin-top: 30px;
+    font-family: "Lucida Grande", "Helvetica Nueue", Arial, sans-serif;
+    font-size: 18px;
+}
+table#source tr.code h2 {
+    font-size: 16px;
+}
+table#source tr.code h3 {
+    font-size: 14px;
+}
+table#source tr.code ul {
+    margin: 15px 0 15px 35px;
+    padding: 0;
+}
+table#source tr.code ul li {
+    margin: 0;
+    padding: 1px 0;
+}
+table#source tr.code ul li p {
+    margin: 0;
+    padding: 0;
+}
+table#source tr.code td:first-child pre {
+    padding: 20px;
+}
+#ribbon {
+    position: fixed;
+    top: 0;
+    right: 0;
+}
+</style>
+</head>
+
+<body>
+  <a href="http://github.com/Sannis/node-mysql-libmysqlclient"><img alt="Fork me on GitHub" id="ribbon" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+<table id="source"><tbody>
+<tr>
+  <td>
+    <h1>Node-mysql-libmysqlclient by <a href="http://github.com/Sannis">Sannis</a></h1>
+    <p>MySQL bindings for <a href="http://nodejs.org">Node.js</a> using libmysqlclient.</p>
+    <p>Check out the <a href="http://github.com/Sannis/node-mysql-libmysqlclient">Github repo</a> for the source and installation guide.</p>
+  </td>
+  <td>
+    <a href="http://github.com/Sannis/node-mysql-libmysqlclient/zipball/master">
+      <img border="0" width="90" src="http://github.com/images/modules/download/zip.png">
+    </a>
+    <a href="http://github.com/Sannis/node-mysql-libmysqlclient/tarball/master">
+      <img border="0" width="90" src="http://github.com/images/modules/download/tar.png">
+    </a>
+  </td>
+</tr>
+<tr>
+  <td>
+    <h2>API documentation</h2>
+  </td>
+  <td>
+    <a href="./api.html">API.html</a>
+  </td>
+</tr>
+<tr>
+  <td>
+    <h2>Dependencies</h2>
+  </td>
+  <td>
+<pre>This module tested with Node version v0.2.1.
+
+To build it you must install libmysqlclient library and development files for it.
+Node-waf use mysql_config to determine the paths to the library and header files.
+
+To install these dependencies, you can use the console.
+
+For CentOS:
+#> yum install mysql-devel
+
+For openSUSE:
+#> zypper install libmysqlclient-devel
+
+For Ubuntu:
+#> aptitude install libmysqlclient-dev
+
+For Debian:
+#> apt-get install libmysqlclient-dev</pre>
+  </td>
+</tr>
+<tr>
+  <td>
+    <h2>Install</h2>
+  </td>
+  <td>
+<pre>To build the bindings library you should run this command in console:
+$> node-waf configure build
+
+To rebuild:
+$> node-waf distclean configure build
+
+To run tests:
+$> git submodule update --init
+$> node-waf test
+
+The two files required to use these bindings are ./mysql-libmysqlclient.js and
+./mysql_bindings.node(build/default/mysql_bindings.node).
+Put module directory in your NODE_PATH or copy those two files where you need them.</pre>
+  </td>
+</tr>
+<tr>
+  <td>
+    <h2>Authors</h2>
+  </td>
+  <td>
+<pre>Akzhan Abdulin (akzhan.abdulin@gmail.com)
+Dan Beam (dan@danbeam.org)
+Oleg Efimov (efimovov@gmail.com)
+Maurits Lamers (maurits@weidestraat.nl)
+Robin Duckett (robin.duckett@gmail.com)
+Surendra Singhi (ssinghi@kreeti.com)</pre>
+  </td>
+</tr>
+<tr>
+  <td>
+    <h2>License</h2>
+  </td>
+  <td>
+<pre>MIT license. See license text in file LICENSE.</pre>
+  </td>
+</tr>
+</tbody></table>
+</body>
+</html>
