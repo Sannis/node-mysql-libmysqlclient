@@ -15,12 +15,12 @@ var binding = require(require('path').join(__dirname, "mysql_bindings"));
 /**
  * Create connection to database
  *
- * @param {String} hostname
- * @param {String} user
- * @param {String} password
- * @param {String} database
- * @param {Integer} port
- * @param {String} socket
+ * @param {String|null} hostname
+ * @param {String|null} user
+ * @param {String|null} password
+ * @param {String|null} database
+ * @param {Integer|null} port
+ * @param {String|null} socket
  * @return {MysqlConnection}
  */
 exports.createConnectionSync = function () {
