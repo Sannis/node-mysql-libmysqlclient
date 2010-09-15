@@ -12,7 +12,7 @@ var
   sys = require("sys"),
   mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
-var AttrGetAndSetSync = function(test) {
+var testAttrGetAndSetSync = function (test) {
   test.expect(7);
   
   var
@@ -28,11 +28,10 @@ var AttrGetAndSetSync = function(test) {
   test.equals(typeof stmt.attrGetSync(stmt.STMT_ATTR_PREFETCH_ROWS), "number", "Value of STMT_ATTR_PREFETCH_ROWS attribute is number");
   
   test.equals(stmt.attrGetSync(stmt.STMT_ATTR_PREFETCH_ROWS), 1, "Get default value of STMT_ATTR_PREFETCH_ROWS");
-  stmt.attrSetSync(stmt.STMT_ATTR_PREFETCH_ROWS, 100)
+  stmt.attrSetSync(stmt.STMT_ATTR_PREFETCH_ROWS, 100);
   test.equals(stmt.attrGetSync(stmt.STMT_ATTR_PREFETCH_ROWS), 100, "Get new value of STMT_ATTR_PREFETCH_ROWS");
-  stmt.attrSetSync(stmt.STMT_ATTR_PREFETCH_ROWS, 4294967295)
+  stmt.attrSetSync(stmt.STMT_ATTR_PREFETCH_ROWS, 4294967295);
   test.equals(stmt.attrGetSync(stmt.STMT_ATTR_PREFETCH_ROWS), 4294967295, "Get new value of STMT_ATTR_PREFETCH_ROWS");
-  
   
   conn.closeSync();
   
@@ -44,7 +43,9 @@ exports.ParamCountGetter = function (test) {
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res,
     stmt;
+  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
@@ -62,11 +63,11 @@ exports.ParamCountGetter = function (test) {
 };
 
 exports.AttrGetSync = function (test) {
-  AttrGetAndSetSync(test);
+  testAttrGetAndSetSync(test);
 };
 
 exports.AttrSetSync = function (test) {
-  AttrGetAndSetSync(test);
+  testAttrGetAndSetSync(test);
 };
 
 exports.SqlStateSync = function (test) {
@@ -98,7 +99,13 @@ exports.BindParamsSync = function (test) {
     rows,
     row,
     test_string = "1234",
-    test_double = 1e30;
+    test_double = 1e30,
+    date = new Date("Sat, 01 Jan 2000 00:00:00 GMT"),
+    time_in = new Date("Sat, 03 Jan 1970 02:50:00 GMT"),
+    time_out = new Date("Sat, 01 Jan 1970 02:50:00 GMT"),
+    datetime = new Date("Tue, 25 Oct 1988 06:34:00 GMT"),
+    timestamp = new Date("Tue, 25 Oct 1988 00:00:00 GMT");
+  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   // Check inserting for INT
@@ -165,12 +172,6 @@ exports.BindParamsSync = function (test) {
   
   test.ok(stmt3.prepareSync("INSERT INTO " + cfg.test_table + " (date, time, datetime, timestamp) VALUES (?, ?, ?, ?);"));
   test.equals(stmt3.paramCount, 4, "Param count in INSERT INTO test_table (date, time, datetime, timestamp) VALUES (?, ?, ?, ?) query");
-  
-  date = new Date("Sat, 01 Jan 2000 00:00:00 GMT");
-  time_in = new Date("Sat, 03 Jan 1970 02:50:00 GMT");
-  time_out = new Date("Sat, 01 Jan 1970 02:50:00 GMT");
-  datetime = new Date("Tue, 25 Oct 1988 06:34:00 GMT");
-  timestamp = new Date("Tue, 25 Oct 1988 00:00:00 GMT");
   
   test.ok(stmt3.bindParamsSync([date, time_in, datetime, timestamp]), "stmt.bindParamSync([date, time_in, datetime, timestamp])");
   test.ok(stmt3.executeSync(), "stmt.bindParamSync([date, time_in, datetime, timestamp]).executeSync()");
