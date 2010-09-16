@@ -1,9 +1,15 @@
-MySQL bindings for Node.JS using libmysqlclient
-===============================================
+Node-mysql-libmysqlclient
+=========================
 
-Documentation lives at http://wiki.github.com/Sannis/node-mysql-libmysqlclient/
-and http://github.com/Sannis/node-mysql-libmysqlclient/tree/master/docs/.
-The code lives at http://github.com/Sannis/node-mysql-libmysqlclient/.
+MySQL bindings for [Node.js] using libmysqlclient.
+
+Check out the [Github repo] for the source code.
+
+Extra information available in [wiki].
+
+[Node.js]: http://nodejs.org/
+[Github repo]: http://github.com/Sannis/node-mysql-libmysqlclient
+[wiki]: http://github.com/Sannis/node-mysql-libmysqlclient/wiki
 
 
 Dependencies
@@ -43,7 +49,7 @@ $> git submodule update --init
 $> node-waf test
 
 The two files required to use these bindings are ./mysql-libmysqlclient.js and
-./mysql_bindings.node(build/default/mysql_bindings.node).
+./mysql_bindings.node (build/default/mysql_bindings.node).
 Put module directory in your NODE_PATH or copy those two files where you need them.
 
 
