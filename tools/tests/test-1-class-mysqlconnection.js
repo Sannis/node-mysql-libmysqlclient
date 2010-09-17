@@ -530,11 +530,13 @@ exports.Query = function (test) {
 };
 
 exports.QueryWithError = function (test) {
-  test.expect(2);
+  test.expect(3);
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
+  
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   conn.query("SHOW TABLESaagh", function (err, result) {
     test.ok(err, "Error object is present");
@@ -545,11 +547,11 @@ exports.QueryWithError = function (test) {
 };
 
 exports.QueryWithQuerySync = function (test) {
-  test.expect(3);
+  test.expect(4);
   
-  var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res;
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+  
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   conn.query("SELECT SLEEP(2)", function (err, result) {
     test.ok(result, "Result is defined");
@@ -558,7 +560,7 @@ exports.QueryWithQuerySync = function (test) {
   });
   
   process.nextTick(function () {
-    res = conn.querySync("SHOW TABLES");
+    var res = conn.querySync("SHOW TABLES");
     test.ok(res.fetchAllSync(), "Synchronous result is defined");
   });
 };
