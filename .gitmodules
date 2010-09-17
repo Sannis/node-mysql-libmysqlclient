@@ -1,0 +1,3 @@
+[submodule "tools/nodeunit"]
+	path = tools/nodeunit
+	url = git://github.com/Sannis/nodeunit.git
