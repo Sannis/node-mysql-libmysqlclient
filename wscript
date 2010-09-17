@@ -52,11 +52,14 @@ def test(tst):
 
 def lint(lnt):
   # Bindings C++ source code
+  print("Run CPPLint:")
   Utils.exec_command('cpplint ./src/*.h ./src/*.cc')
   # Bindings javascript code, tools and tests
-  Utils.exec_command('nodelint --config ./nodelint.cfg ./package.json ./mysql-libmysqlclient.js ./tools/*.js ./tools/tests/*.js')
+  print("Run Nodeint:")
+  Utils.exec_command('nodelint --config ./nodelint.cfg ./package.json ./mysql-libmysqlclient.js ./docs/*.js ./tools/*.js ./tools/tests/*.js')
 
 def docs(dcs):
+  print("Parse API docs:")
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient API" ' +
                      '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
                      'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide." ' +
@@ -66,6 +69,13 @@ def docs(dcs):
                      './src/mysql_bindings_result.cc ' +
                      './src/mysql_bindings_statement.cc ' +
                      ' > ./docs/api.html')
+  print("Parse examples:")
+  Utils.exec_command('dox --title "Node-mysql-libmysqlclient examples" ' +
+                     '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
+                     'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide." ' +
+                     '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" ' +
+                     './docs/examples.js ' +
+                     ' > ./docs/examples.html')
 
 def shutdown():
   # HACK to get bindings.node out of build directory.
