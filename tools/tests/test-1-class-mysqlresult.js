@@ -320,8 +320,8 @@ exports.FreeSync = function (test) {
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
-    rows,
-    flag;
+    rows;
+  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
@@ -342,13 +342,7 @@ exports.FreeSync = function (test) {
   
   res.freeSync();
   
-  flag = false;
-  try {
-    rows = res.numRowsSync();
-  } catch (e) {
-    flag = true;
-  }
-  test.ok(flag, "res.numRowsSync() after res.freeSync()");
+  test.throws(function () {rows = res.numRowsSync();},  "res.numRowsSync() after res.freeSync()");
   
   conn.closeSync();
   

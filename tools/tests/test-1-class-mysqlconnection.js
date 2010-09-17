@@ -177,46 +177,21 @@ exports.AffectedRowsSync = function (test) {
 exports.ChangeUserSync = function (test) {
   test.expect(9);
   
-  var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password),
-    flag;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password);
+  
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
   test.ok(conn.changeUserSync(cfg.user, cfg.password, cfg.database), "conn.changeUserSync() with database selection 1");
   test.ok(conn.changeUserSync(cfg.user, cfg.password), "conn.changeUserSync() without database selection");
   test.ok(!conn.changeUserSync(cfg.user, cfg.password, cfg.database_denied), "conn.changeUserSync() with denied database selection");
   test.ok(conn.changeUserSync(cfg.user, cfg.password, cfg.database), "conn.changeUserSync() with database selection 2");
-
-  flag = false;
-  try {
-    conn.changeUserSync(1, cfg.password);
-  } catch (e1) {
-    flag = true;
-  }
-  test.ok(flag, "conn.changeUserSync() with not string user argument");
   
-  flag = false;
-  try {
-    conn.changeUserSync(cfg.user, 2);
-  } catch (e2) {
-    flag = true;
-  }
-  test.ok(flag, "conn.changeUserSync() with not string password argument");
+  test.throws(function () {conn.changeUserSync(1, cfg.password);},  "conn.changeUserSync() with not string user argument");
   
-  flag = false;
-  try {
-    conn.changeUserSync(cfg.user, cfg.password, 3);
-  } catch (e3) {
-    flag = true;
-  }
-  test.ok(flag, "conn.changeUserSync() with not string database argument");
+  test.throws(function () {conn.changeUserSync(cfg.user, 2);},  "conn.changeUserSync() with not string password argument");
   
-  flag = false;
-  try {
-    conn.changeUserSync(cfg.user);
-  } catch (e4) {
-    flag = true;
-  }
-  test.ok(flag, "conn.changeUserSync() without password argument");
+  test.throws(function () {conn.changeUserSync(cfg.user, cfg.password, 3);},  "conn.changeUserSync() with not string database argument");
+  
+  test.throws(function () {conn.changeUserSync(cfg.user);},  "conn.changeUserSync() without password argument");
   
   conn.closeSync();
   
@@ -276,21 +251,14 @@ exports.ConnectedSync = function (test) {
 exports.CloseSync = function (test) {
   test.expect(4);
   
-  var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    flag;
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   test.ok(conn.connectedSync(), "conn.connectedSync() after connect");
   conn.closeSync();
   test.ok(!conn.connectedSync(), "conn.connectedSync() after close");
   
-  flag = false;
-  try {
-    conn.closeSync();
-  } catch (e) {
-    flag = true;
-  }
-  test.ok(flag, "conn.closeSync() with closed connection");
+  test.throws(function () {conn.closeSync();},  "conn.closeSync() with closed connection");
   
   test.done();
 };
