@@ -1,6 +1,6 @@
 {  "name" : "mysql-libmysqlclient"
 ,  "description" : "MySQL bindings for Node.JS"
-,  "version" : "0.0.9"
+,  "version" : "0.0.10"
 , "maintainers" :
   [ { "name": "Oleg Efimov"
     , "email": "efimovov@gmail.com"

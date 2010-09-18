@@ -1,3 +1,13 @@
+= Version 0.0.10
+  * Add JSDocs ito bindings code
+  * Add API documentation page
+  * Add examples.js and Dox-generated examples.html
+  * Change caolan/nodeunit by Sannis/nodeunit
+  * Update tests to use test.throws()
+  * Other cleanup in tests and files
+  
+  Statistics: 23 commits, 3696 additions and 476 deletions.
+
 = Version 0.0.9
   * Add MYSQL_TYPE_TIME and MYSQL_TYPE_SET handling
   * Rename MysqlConn to MysqlConnection
