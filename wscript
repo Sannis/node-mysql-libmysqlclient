@@ -65,6 +65,7 @@ def docs(dcs):
                      'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide." ' +
                      '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" ' +
                      './mysql-libmysqlclient.js ' +
+                     './src/mysql_bindings.cc ' +
                      './src/mysql_bindings_connection.cc ' +
                      './src/mysql_bindings_result.cc ' +
                      './src/mysql_bindings_statement.cc ' +
