@@ -20,12 +20,15 @@ Node-waf use mysql_config to determine the paths to the library and header files
 To install these dependencies, you can use the console.
 
 For CentOS:
+
     #> yum install mysql-devel
 
 For openSUSE:
+
     #> zypper install libmysqlclient-devel
 
 For Debian/Ubuntu:
+
     #> apt-get install libmysqlclient-dev
 
 Yes, you would use aptitude if you want.
@@ -35,17 +38,20 @@ Build and use
 -------------
 
 To build the bindings library you should run this command in console:
+
     $> node-waf configure build
 
 To rebuild:
+
     $> node-waf distclean configure build
 
 To run tests:
+
     $> git submodule update --init
     $> node-waf test
 
 The two files required to use these bindings are ./mysql-libmysqlclient.js and
-./mysql_bindings.node (build/default/mysql_bindings.node).
+./mysql\_bindings.node (build/default/mysql\_bindings.node).
 Put module directory in your NODE_PATH or copy those two files where you need them.
 
 
@@ -66,57 +72,39 @@ You can find other information about [contributing and code style guide in wiki]
 Contributors
 ------------
 
-* Oleg Efimov  
-  [E-mail](efimovov@gmail.com),
-  [GitHub](http://github.com/Sannis),
-  [site](http://sannis.ru).
-  
+* **Oleg Efimov** ( [E-mail](efimovov@gmail.com), [GitHub](http://github.com/Sannis), [site](http://sannis.ru) \)
+
   Author and maintainer.
   Synchronouse version development.
   First libeio asynchronouse attempts.
   Writing tests, docs and so on.
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=Sannis).
 
-* Surendra Singhi  
-  [E-mail](<ssinghi@kreeti.com),
-  [GitHub](http://github.com/ssinghi),
-  [GitHub2](http://github.com/kreetitech),
-  [site](http://ssinghi.kreeti.com).
-  
+* **Surendra Singhi** ( [E-mail](<ssinghi@kreeti.com), [GitHub](http://github.com/ssinghi), [GitHub2](http://github.com/kreetitech), [site](http://ssinghi.kreeti.com) \)
+
   Make asynchronouse connecting and querying work.
   Fix segmentation faults, partialy closes #14.
   Some other fixes.
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=ssinghi).
 
-* Akzhan Abdulin  
-  [E-mail](akzhan.abdulin@gmail.com),
-  [GitHub](http://github.com/akzhan).
-  
+* **Akzhan Abdulin** ( [E-mail](akzhan.abdulin@gmail.com), [GitHub](http://github.com/akzhan) \)
+
   Tests and code style fixes.
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=akzhan).
 
-* Robin Duckett  
-  [E-mail](robin.duckett@gmail.com),
-  [GitHub](http://github.com/robinduckett).
-  
-  Fix segfault error, partialy closes #14.
+* **Robin Duckett** ( [E-mail](robin.duckett@gmail.com), [GitHub](http://github.com/robinduckett) \)
+
+  Fix segfault error, partialy closes [#14](http://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find).
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=robinduckett).
   
-* Dan Beam  
-  [E-mail](dan@danbeam.org),
-  [GitHub](http://github.com/danbeam),
-  [site](http://danbeam.org).
-  
-  Simplify javascript logic of createConnection(),
-  see 97040c3e7a5d4673ca6f340d8a9bc69da8e398d8.
+* **Dan Beam** ( [E-mail](dan@danbeam.org), [GitHub](http://github.com/danbeam), [site](http://danbeam.org) \)
+
+  [Simplify javascript logic](http://github.com/Sannis/node-mysql-libmysqlclient/commit/97040c3e7a5d4673ca6f340d8a9bc69da8e398d8) of createConnection().
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=danbeam).
 
-* Maurits Lamers  
-  [E-mail](maurits@weidestraat.nl),
-  [GitHub](http://github.com/mauritslamers).
-  
-  Fixing a bug where previous values were set instead of empty,
-  see c4071181404362b60b9d3a3aed9784b25459fffa
+* **Maurits Lamers** ( [E-mail](maurits@weidestraat.nl), [GitHub](http://github.com/mauritslamers) \)
+
+  Fixing a [bug](http://github.com/Sannis/node-mysql-libmysqlclient/commit/c4071181404362b60b9d3a3aed9784b25459fffa) where previous values were set instead of empty.
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=mauritslamers).
 
 [Full contributors list](http://github.com/Sannis/node-mysql-libmysqlclient/contributors).

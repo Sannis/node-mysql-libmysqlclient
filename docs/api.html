@@ -98,12 +98,14 @@ code .comment { color: #bbb; }
 code .this { color: #19469D; }</style>
         <script>
             $(function(){
-                $('tr.code').hide();
-                $('tr.filename').toggle(function(){
-                    $(this).nextUntil('.filename').fadeIn();
-                }, function(){
-                    $(this).nextUntil('.filename').fadeOut();
-                });
+                if ($('tr.filename').length) {
+                    $('tr.code').hide();
+                    $('tr.filename').toggle(function(){
+                        $(this).nextUntil('.filename').fadeIn();
+                    }, function(){
+                        $(this).nextUntil('.filename').fadeOut();
+                    });
+                }
             });
         </script>
     </head>
@@ -120,20 +122,8 @@ code .this { color: #19469D; }</style>
                 </td><td></td>
             </tr>
             <tr class="filename">
-                <td><h2 id="./mysql-libmysqlclient.js"><a href="#">mysql-libmysqlclient</a></h2></td>
+                <td><h2 id="mysql-libmysqlclient"><a href="#">mysql-libmysqlclient</a></h2></td>
                 <td>./mysql-libmysqlclient.js</td>
-            </tr>
-            <tr class="code">
-                <td class="docs">
-<p>Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
-See contributors list in README</p>
-
-<p>See license text in LICENSE file
- </p>
-                </td>
-                <td class="code">
-
-                </td>
             </tr>
             <tr class="code">
                 <td class="docs">
@@ -153,15 +143,16 @@ See contributors list in README</p>
 };
 </code></pre>
                 </td>
-            </tr>            <tr class="filename">
-                <td><h2 id="./src/mysql_bindings.cc"><a href="#">mysql_bindings.cc</a></h2></td>
+            </tr>
+            <tr class="filename">
+                <td><h2 id="mysql_bindings"><a href="#">mysql_bindings</a></h2></td>
                 <td>./src/mysql_bindings.cc</td>
             </tr>
             <tr class="code">
                 <td class="docs">
 <p>Init V8 structures</p>
 
-<p>Classes to populate to JavaScript:</p>
+<p>Classes to populate in JavaScript:</p>
 
 <ul><li>MysqlConnection</li><li>MysqlResult</li><li>MysqlStatement</li></ul>
                 </td>
@@ -174,8 +165,9 @@ See contributors list in README</p>
 
 </code></pre>
                 </td>
-            </tr>            <tr class="filename">
-                <td><h2 id="./src/mysql_bindings_connection.cc"><a href="#">mysql_bindings_connection.cc</a></h2></td>
+            </tr>
+            <tr class="filename">
+                <td><h2 id="mysql_bindings_connection"><a href="#">mysql_bindings_connection</a></h2></td>
                 <td>./src/mysql_bindings_connection.cc</td>
             </tr>
             <tr class="code">
@@ -1824,8 +1816,9 @@ Used for establishing secure connections</p>
 
 </code></pre>
                 </td>
-            </tr>            <tr class="filename">
-                <td><h2 id="./src/mysql_bindings_result.cc"><a href="#">mysql_bindings_result.cc</a></h2></td>
+            </tr>
+            <tr class="filename">
+                <td><h2 id="mysql_bindings_result"><a href="#">mysql_bindings_result</a></h2></td>
                 <td>./src/mysql_bindings_result.cc</td>
             </tr>
             <tr class="code">
@@ -2431,8 +2424,9 @@ Used for establishing secure connections</p>
 
 </code></pre>
                 </td>
-            </tr>            <tr class="filename">
-                <td><h2 id="./src/mysql_bindings_statement.cc"><a href="#">mysql_bindings_statement.cc</a></h2></td>
+            </tr>
+            <tr class="filename">
+                <td><h2 id="mysql_bindings_statement"><a href="#">mysql_bindings_statement</a></h2></td>
                 <td>./src/mysql_bindings_statement.cc</td>
             </tr>
             <tr class="code">
@@ -2481,6 +2475,7 @@ Used for establishing secure connections</p>
 
 </code></pre>
                 </td>
-            </tr>        </tbody></table>
+            </tr>
+        </tbody></table>
     </body>
 </html>

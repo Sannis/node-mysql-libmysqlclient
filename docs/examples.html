@@ -98,12 +98,14 @@ code .comment { color: #bbb; }
 code .this { color: #19469D; }</style>
         <script>
             $(function(){
-                $('tr.code').hide();
-                $('tr.filename').toggle(function(){
-                    $(this).nextUntil('.filename').fadeIn();
-                }, function(){
-                    $(this).nextUntil('.filename').fadeOut();
-                });
+                if ($('tr.filename').length) {
+                    $('tr.code').hide();
+                    $('tr.filename').toggle(function(){
+                        $(this).nextUntil('.filename').fadeIn();
+                    }, function(){
+                        $(this).nextUntil('.filename').fadeOut();
+                    });
+                }
             });
         </script>
     </head>
@@ -120,7 +122,7 @@ code .this { color: #19469D; }</style>
                 </td><td></td>
             </tr>
             <tr class="filename">
-                <td><h2 id="./docs/examples.js"><a href="#">examples</a></h2></td>
+                <td><h2 id="examples"><a href="#">examples</a></h2></td>
                 <td>./docs/examples.js</td>
             </tr>
             <tr class="code">
@@ -249,6 +251,7 @@ Use high-level functions
 
 </code></pre>
                 </td>
-            </tr>        </tbody></table>
+            </tr>
+        </tbody></table>
     </body>
 </html>

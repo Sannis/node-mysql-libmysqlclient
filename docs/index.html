@@ -1,7 +1,8 @@
 <html>
-<head>
-    <title>Sannis/node-mysql-libmysqlclient @ GitHub</title>
-    <style>body {
+    <head>
+        <title>Node-mysql-libmysqlclient</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+        <style>body {
     margin: 0;
     padding: 0;
     font: 14px/1.5 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
@@ -89,102 +90,131 @@ table#source tr.code td:first-child pre {
     top: 0;
     right: 0;
 }
-</style>
-</head>
+code .string { color: #219161; }
+code .regexp { color: #219161; }
+code .keyword { color: #954121; }
+code .number { color: #19469D; }
+code .comment { color: #bbb; }
+code .this { color: #19469D; }</style>
+        <script>
+            $(function(){
+                if ($('tr.filename').length) {
+                    $('tr.code').hide();
+                    $('tr.filename').toggle(function(){
+                        $(this).nextUntil('.filename').fadeIn();
+                    }, function(){
+                        $(this).nextUntil('.filename').fadeOut();
+                    });
+                }
+            });
+        </script>
+    </head>
+    <body>
+        <a href="http://github.com/Sannis/node-mysql-libmysqlclient"><img alt="Fork me on GitHub" id="ribbon" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+        <table id="source"><tbody>
+            <tr>
+                <td><h1>Node-mysql-libmysqlclient</h1>
+<p>MySQL bindings for <a href="http://nodejs.org">Node.js</a> using libmysqlclient.</p>
 
-<body>
-  <a href="http://github.com/Sannis/node-mysql-libmysqlclient"><img alt="Fork me on GitHub" id="ribbon" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
-<table id="source"><tbody>
-<tr>
-  <td>
-    <h1>Node-mysql-libmysqlclient by <a href="http://github.com/Sannis">Sannis</a></h1>
-    <p>MySQL bindings for <a href="http://nodejs.org">Node.js</a> using libmysqlclient.</p>
-    <p>Check out the <a href="http://github.com/Sannis/node-mysql-libmysqlclient">Github repo</a> for the source and installation guide.</p>
-    <p><a href="./index.html">Home</a>, <a href="./api.html">API</a>, <a href="./examples.html">Examples</a>.</p>
-  </td>
-  <td>
-    <a href="http://github.com/Sannis/node-mysql-libmysqlclient/zipball/master">
-      <img border="0" width="90" src="http://github.com/images/modules/download/zip.png">
-    </a>
-    <a href="http://github.com/Sannis/node-mysql-libmysqlclient/tarball/master">
-      <img border="0" width="90" src="http://github.com/images/modules/download/tar.png">
-    </a>
-  </td>
-</tr>
-<tr>
-  <td>
-    <h2>API documentation</h2>
-  </td>
-  <td>
-    <a href="./api.html">API.html</a>
-  </td>
-</tr>
-<tr>
-  <td>
-    <h2>Dependencies</h2>
-  </td>
-  <td>
-<pre>This module tested with Node version v0.2.1.
+<p>Check out the <a href="http://github.com/Sannis/node-mysql-libmysqlclient">Github repo</a> for the source and installation guide.</p>
 
-To build it you must install libmysqlclient library and development files for it.
+<p><a href="./index.html">Home</a>, <a href="./api.html">API</a>, <a href="./examples.html">Examples</a>.</p>
+                </td><td></td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
+<h2>Dependencies</h2>
+                </td>
+                <td class="code">
+<p>This module tested with Node version v0.2.2.</p>
+
+<p>To build it you must install libmysqlclient library and development files for it.
 Node-waf use mysql_config to determine the paths to the library and header files.
+To install these dependencies, you can use the console.</p>
 
-To install these dependencies, you can use the console.
+<p>For CentOS:</p>
 
-For CentOS:
-#> yum install mysql-devel
+<pre><code>#&gt; yum install mysql-devel</code></pre>
 
-For openSUSE:
-#> zypper install libmysqlclient-devel
+<p>For openSUSE:</p>
 
-For Ubuntu:
-#> aptitude install libmysqlclient-dev
+<pre><code>#&gt; zypper install libmysqlclient-devel</code></pre>
 
-For Debian:
-#> apt-get install libmysqlclient-dev</pre>
-  </td>
-</tr>
-<tr>
-  <td>
-    <h2>Install</h2>
-  </td>
-  <td>
-<pre>To build the bindings library you should run this command in console:
-$> node-waf configure build
+<p>For Debian/Ubuntu:</p>
 
-To rebuild:
-$> node-waf distclean configure build
+<pre><code>#&gt; apt-get install libmysqlclient-dev</code></pre>
 
-To run tests:
-$> git submodule update --init
-$> node-waf test
+<p>Yes, you would use aptitude if you want.</p>
+                </td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
+<h2>Build and use</h2>
+                </td>
+                <td class="code">
+<p>To build the bindings library you should run this command in console:</p>
 
-The two files required to use these bindings are ./mysql-libmysqlclient.js and
-./mysql_bindings.node(build/default/mysql_bindings.node).
-Put module directory in your NODE_PATH or copy those two files where you need them.</pre>
-  </td>
-</tr>
-<tr>
-  <td>
-    <h2>Authors</h2>
-  </td>
-  <td>
-<pre>Akzhan Abdulin (akzhan.abdulin@gmail.com)
-Dan Beam (dan@danbeam.org)
-Oleg Efimov (efimovov@gmail.com)
-Maurits Lamers (maurits@weidestraat.nl)
-Robin Duckett (robin.duckett@gmail.com)
-Surendra Singhi (ssinghi@kreeti.com)</pre>
-  </td>
-</tr>
-<tr>
-  <td>
-    <h2>License</h2>
-  </td>
-  <td>
-<pre>MIT license. See license text in file LICENSE.</pre>
-  </td>
-</tr>
-</tbody></table>
-</body>
+<pre><code>$&gt; node-waf configure build</code></pre>
+
+<p>To rebuild:</p>
+
+<pre><code>$&gt; node-waf distclean configure build</code></pre>
+
+<p>To run tests:</p>
+
+<pre><code>$&gt; git submodule update --init
+$&gt; node-waf test</code></pre>
+
+<p>The two files required to use these bindings are ./mysql-libmysqlclient.js and
+./mysql_bindings.node (build/default/mysql_bindings.node).
+Put module directory in your NODE_PATH or copy those two files where you need them.</p>
+                </td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
+<h2>Contributing</h2>
+                </td>
+                <td class="code">
+<p>I will be happy to hear tips from the more experienced programmers.
+If you are interested in wide MySQL usage in Node.JS applications,
+leave your comments to the code.
+I'll be glad to see your forks and commits in them :)</p>
+
+<p>To contribute any patches, simply fork this repository using GitHub
+and send a pull request to <a href="http://github.com/Sannis">me</a>. Thanks!</p>
+
+<p>You can find other information about <a href="http://wiki.github.com/Sannis/node-mysql-libmysqlclient/contributing">contributing and code style guide in wiki</a>.</p>
+                </td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
+<h2>Contributors</h2>
+                </td>
+                <td class="code">
+<ul><li><p><strong>Oleg Efimov</strong> ( <a href="efimovov@gmail.com">E-mail</a>, <a href="http://github.com/Sannis">GitHub</a>, <a href="http://sannis.ru">site</a> )</p><p>Author and maintainer.
+Synchronouse version development.
+First libeio asynchronouse attempts.
+Writing tests, docs and so on.
+<a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=Sannis">All commits</a>.</p></li><li><p><strong>Surendra Singhi</strong> ( <a href="<ssinghi@kreeti.com">E-mail</a>, <a href="http://github.com/ssinghi">GitHub</a>, <a href="http://github.com/kreetitech">GitHub2</a>, <a href="http://ssinghi.kreeti.com">site</a> )</p><p>Make asynchronouse connecting and querying work.
+Fix segmentation faults, partialy closes #14.
+Some other fixes.
+<a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=ssinghi">All commits</a>.</p></li><li><p><strong>Akzhan Abdulin</strong> ( <a href="akzhan.abdulin@gmail.com">E-mail</a>, <a href="http://github.com/akzhan">GitHub</a> )</p><p>Tests and code style fixes.
+<a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=akzhan">All commits</a>.</p></li><li><p><strong>Robin Duckett</strong> ( <a href="robin.duckett@gmail.com">E-mail</a>, <a href="http://github.com/robinduckett">GitHub</a> )</p><p>Fix segfault error, partialy closes <a href="http://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find">#14</a>.
+<a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=robinduckett">All commits</a>.</p></li><li><p><strong>Dan Beam</strong> ( <a href="dan@danbeam.org">E-mail</a>, <a href="http://github.com/danbeam">GitHub</a>, <a href="http://danbeam.org">site</a> )</p><p><a href="http://github.com/Sannis/node-mysql-libmysqlclient/commit/97040c3e7a5d4673ca6f340d8a9bc69da8e398d8">Simplify javascript logic</a> of createConnection().
+<a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=danbeam">All commits</a>.</p></li><li><p><strong>Maurits Lamers</strong> ( <a href="maurits@weidestraat.nl">E-mail</a>, <a href="http://github.com/mauritslamers">GitHub</a> )</p><p>Fixing a <a href="http://github.com/Sannis/node-mysql-libmysqlclient/commit/c4071181404362b60b9d3a3aed9784b25459fffa">bug</a> where previous values were set instead of empty.
+<a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=mauritslamers">All commits</a>.</p></li></ul>
+
+<p><a href="http://github.com/Sannis/node-mysql-libmysqlclient/contributors">Full contributors list</a>.</p>
+                </td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
+<h2>License</h2>
+                </td>
+                <td class="code">
+<p>MIT license. See license text in file LICENSE.</p>
+                </td>
+            </tr>
+        </tbody></table>
+    </body>
 </html>

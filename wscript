@@ -59,6 +59,15 @@ def lint(lnt):
   Utils.exec_command('nodelint --config ./nodelint.cfg ./package.json ./mysql-libmysqlclient.js ./docs/*.js ./tools/*.js ./tools/tests/*.js')
 
 def docs(dcs):
+  print("Parse README:")
+  Utils.exec_command('dox --title "Node-mysql-libmysqlclient" ' +
+                     '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
+                     'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide.\n\n' +
+                     '[Home](./index.html), [API](./api.html), [Examples](./examples.html)." ' +
+                     '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" '  +
+                     '--ignore-filenames ' +
+                     './README.markdown ' +
+                     '> ./docs/index.html')
   print("Parse API docs:")
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient API" ' +
                      '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
