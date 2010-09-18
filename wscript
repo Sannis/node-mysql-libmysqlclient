@@ -64,13 +64,13 @@ def docs(dcs):
                      '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
                      'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide.\n\n' +
                      '[Home](./index.html), [API](./api.html), [Examples](./examples.html)." ' +
-                     '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient"  +
+                     '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" '  +
                      './mysql-libmysqlclient.js ' +
                      './src/mysql_bindings.cc ' +
                      './src/mysql_bindings_connection.cc ' +
                      './src/mysql_bindings_result.cc ' +
                      './src/mysql_bindings_statement.cc ' +
-                     ' > ./docs/api.html')
+                     '> ./docs/api.html')
   print("Parse examples:")
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient examples" ' +
                      '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
@@ -79,7 +79,7 @@ def docs(dcs):
                      '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" ' +
                      '--ignore-shabang ' +
                      './docs/examples.js ' +
-                     ' > ./docs/examples.html')
+                     '> ./docs/examples.html')
 
 def shutdown():
   # HACK to get bindings.node out of build directory.
