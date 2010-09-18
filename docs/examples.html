@@ -1,8 +1,8 @@
-<a href="http://github.com/Sannis/node-mysql-libmysqlclient"><img alt="Fork me on GitHub" id="ribbon" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a><html>
-	<head>
-		<title>Node-mysql-libmysqlclient examples</title>
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-		<style>body {
+<html>
+    <head>
+        <title>Node-mysql-libmysqlclient examples</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+        <style>body {
     margin: 0;
     padding: 0;
     font: 14px/1.5 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
@@ -96,26 +96,39 @@ code .keyword { color: #954121; }
 code .number { color: #19469D; }
 code .comment { color: #bbb; }
 code .this { color: #19469D; }</style>
-		<script>
-			$(function(){
-				$('tr.code').hide();
-				$('tr.filename').toggle(function(){
-					$(this).nextUntil('.filename').fadeIn();
-				}, function(){
-					$(this).nextUntil('.filename').fadeOut();
-				});
-			});
-		</script>
-	</head>
-	<body>
-<table id="source"><tbody><tr><td><h1>Node-mysql-libmysqlclient examples</h1><p>MySQL bindings for <a href="http://nodejs.org">Node.js</a> using libmysqlclient.</p>
+        <script>
+            $(function(){
+                $('tr.code').hide();
+                $('tr.filename').toggle(function(){
+                    $(this).nextUntil('.filename').fadeIn();
+                }, function(){
+                    $(this).nextUntil('.filename').fadeOut();
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <a href="http://github.com/Sannis/node-mysql-libmysqlclient"><img alt="Fork me on GitHub" id="ribbon" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+        <table id="source"><tbody>
+            <tr>
+                <td><h1>Node-mysql-libmysqlclient examples</h1>
+<p>MySQL bindings for <a href="http://nodejs.org">Node.js</a> using libmysqlclient.</p>
 
-<p>Check out the <a href="http://github.com/Sannis/node-mysql-libmysqlclient">Github repo</a> for the source and installation guide.</p></td><td></td></tr><tr class="filename"><td><h2 id="./docs/examples.js"><a href="#">examples</a></h2></td><td>./docs/examples.js</td></tr><tr class="code">
-<td class="docs">
-<p>Require modules
+<p>Check out the <a href="http://github.com/Sannis/node-mysql-libmysqlclient">Github repo</a> for the source and installation guide.</p>
+
+<p><a href="./index.html">Home</a>, <a href="./api.html">API</a>, <a href="./examples.html">Examples</a>.</p>
+                </td><td></td>
+            </tr>
+            <tr class="filename">
+                <td><h2 id="./docs/examples.js"><a href="#">examples</a></h2></td>
+                <td>./docs/examples.js</td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
+<p>Require modules and define variables
  </p>
-</td>
-<td class="code">
+                </td>
+                <td class="code">
 <pre><code><span class="keyword">var</span>
   <span class="variable">sys</span> = <span class="variable">require</span>(<span class="string">'sys'</span>),
   <span class="variable">mysql</span> = <span class="variable">require</span>(<span class="string">'../mysql-libmysqlclient'</span>),
@@ -123,51 +136,51 @@ code .this { color: #19469D; }</style>
   <span class="variable">result</span>,
   <span class="variable">row</span>,
   <span class="variable">rows</span>;</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Database connection settings
+                </td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
+<p>Set database connection settings
  </p>
-</td>
-<td class="code">
+                </td>
+                <td class="code">
 <pre><code><span class="keyword">var</span>
   <span class="variable">host</span> = <span class="string">&quot;localhost&quot;</span>,
   <span class="variable">user</span> = <span class="string">&quot;test&quot;</span>,
   <span class="variable">password</span> = <span class="string">&quot;&quot;</span>,
   <span class="variable">database</span> = <span class="string">&quot;test&quot;</span>,
   <span class="variable">test_table</span> = <span class="string">&quot;test_table&quot;</span>;</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
+                </td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
 <p>Create connection
  </p>
-</td>
-<td class="code">
+                </td>
+                <td class="code">
 <pre><code><span class="variable">conn</span> = <span class="variable">mysql</span>.<span class="variable">createConnectionSync</span>();
 <span class="variable">conn</span>.<span class="variable">connectSync</span>(<span class="variable">host</span>, <span class="variable">user</span>, <span class="variable">password</span>, <span class="variable">database</span>);</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
+                </td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
 <p>Check connection status
  </p>
-</td>
-<td class="code">
+                </td>
+                <td class="code">
 <pre><code><span class="keyword">if</span> (!<span class="variable">conn</span>.<span class="variable">connectedSync</span>()) {
   <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;Connection error &quot;</span> + <span class="variable">conn</span>.<span class="variable">connectionErrno</span> + <span class="string">&quot;: &quot;</span> + <span class="variable">conn</span>.<span class="variable">connectionError</span>);
   <span class="variable">process</span>.<span class="variable">exit</span>(<span class="number integer">1</span>);
 }</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
+                </td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
 <p>Show tables in test database
 Use low-level functions
  </p>
-</td>
-<td class="code">
+                </td>
+                <td class="code">
 <pre><code><span class="variable">conn</span>.<span class="variable">realQuerySync</span>(<span class="string">&quot;SHOW TABLES;&quot;</span>);
 <span class="variable">result</span> = <span class="variable">conn</span>.<span class="variable">storeResultSync</span>();
 
@@ -176,38 +189,38 @@ Use low-level functions
   <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="variable">row</span>[<span class="number integer">0</span>]);
 }
 <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;&quot;</span>);</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
+                </td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
 <p>Show tables in test database
 Use high-level functions
  </p>
-</td>
-<td class="code">
+                </td>
+                <td class="code">
 <pre><code><span class="variable">result</span> = <span class="variable">conn</span>.<span class="variable">querySync</span>(<span class="string">&quot;SHOW TABLES;&quot;</span>);
 <span class="variable">rows</span> = <span class="variable">result</span>.<span class="variable">fetchAllSync</span>();
 
 <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;Tables in database '&quot;</span> + <span class="variable">database</span> + <span class="string">&quot;':&quot;</span>);
 <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="variable">sys</span>.<span class="variable">inspect</span>(<span class="variable">rows</span>) + <span class="string">&quot;\n&quot;</span>);</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
+                </td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
 <p>Show information about connection
  </p>
-</td>
-<td class="code">
+                </td>
+                <td class="code">
 <pre><code><span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;Information:&quot;</span>);
 <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="variable">sys</span>.<span class="variable">inspect</span>(<span class="variable">conn</span>.<span class="variable">getInfoSync</span>()) + <span class="string">&quot;\n&quot;</span>);</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
+                </td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
 <p>Run asynchronous queries and get results
  </p>
-</td>
-<td class="code">
+                </td>
+                <td class="code">
 <pre><code><span class="variable">conn</span>.<span class="variable">query</span>(<span class="string">&quot;SELECT * FROM &quot;</span> + <span class="variable">test_table</span> + <span class="string">&quot;;&quot;</span>, <span class="keyword">function</span> (<span class="variable">err</span>, <span class="variable">res</span>) {
   <span class="keyword">if</span> (<span class="variable">err</span>) {
     <span class="keyword">throw</span> <span class="variable">err</span>;
@@ -222,19 +235,20 @@ Use high-level functions
     <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="variable">sys</span>.<span class="variable">inspect</span>(<span class="variable">rows</span>));
   });
 });</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
+                </td>
+            </tr>
+            <tr class="code">
+                <td class="docs">
 <p>Close connection on exit
  </p>
-</td>
-<td class="code">
+                </td>
+                <td class="code">
 <pre><code><span class="variable">process</span>.<span class="variable">on</span>(<span class="string">'exit'</span>, <span class="keyword">function</span> () {
   <span class="variable">conn</span>.<span class="variable">closeSync</span>();
 });
 
 </code></pre>
-</td>
-</tr>	</body>
-</html></tbody></table>
+                </td>
+            </tr>        </tbody></table>
+    </body>
+</html>
