@@ -16,13 +16,7 @@ var
 exports.New = function (test) {
   test.expect(1);
   
-  var stmt;
-  
-  try {
-    stmt = new mysql_bindings.MysqlStatement();
-  } catch (e) {
-    test.equals(e.toString(), "TypeError: Argument 0 invalid");
-  }
+  test.throws(function () {var stmt = new mysql_bindings.MysqlStatement();}, TypeError, "new mysql_bindings.MysqlStatement() should throw exception from JS code");
   
   test.done();
 };

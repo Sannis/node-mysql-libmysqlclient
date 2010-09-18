@@ -336,12 +336,12 @@ Handle<Value> MysqlConnection::ChangeUserSync(const Arguments& args) {
     // TODO(Sannis): Check logic
     if ( (args.Length() < 2) || (!args[0]->IsString()) ||
          (!args[1]->IsString()) ) {
-        return THREXC("Must give at least user and password as arguments");
+        return THRTYPEEXC("Must give at least user and password as arguments");
     }
     String::Utf8Value password(args[1]->ToString());
 
     if ( (args.Length() == 3) && (!args[2]->IsString()) ) {
-        return THREXC("Must give string value as third argument, database");
+        return THRTYPEEXC("Must give string value as third argument, dbname");
     }
     String::Utf8Value dbname(args[2]->ToString());
 

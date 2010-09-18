@@ -67,13 +67,7 @@ var testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFieldsSync = function (tes
 exports.New = function (test) {
   test.expect(1);
   
-  var res;
-  
-  try {
-    res = new mysql_bindings.MysqlResult();
-  } catch (e) {
-    test.equals(e.toString(), "TypeError: Argument 0 invalid");
-  }
+  test.throws(function () {var res = new mysql_bindings.MysqlResult();}, TypeError, "new mysql_bindings.MysqlResult() should throw exception from JS code");
   
   test.done();
 };
@@ -342,7 +336,7 @@ exports.FreeSync = function (test) {
   
   res.freeSync();
   
-  test.throws(function () {rows = res.numRowsSync();},  "res.numRowsSync() after res.freeSync()");
+  test.throws(function () {rows = res.numRowsSync();}, "res.numRowsSync() after res.freeSync()");
   
   conn.closeSync();
   

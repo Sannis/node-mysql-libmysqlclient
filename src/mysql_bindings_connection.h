@@ -31,6 +31,7 @@ NODE_SET_PROTOTYPE_METHOD(constructor_template, #name, method);
 // [whitespace/line_length] [4]
 #define V8EXC(str) Exception::Error(String::New(str))
 #define THREXC(str) ThrowException(Exception::Error(String::New(str)))
+#define THRTYPEEXC(str) ThrowException(Exception::TypeError(String::New(str)))
 #define OBJUNWRAP ObjectWrap::Unwrap
 #define V8STR(str) String::New(str)
 
