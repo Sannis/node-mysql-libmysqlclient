@@ -62,8 +62,9 @@ def docs(dcs):
   print("Parse API docs:")
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient API" ' +
                      '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
-                     'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide." ' +
-                     '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" ' +
+                     'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide.\n\n' +
+                     '[Home](./index.html), [API](./api.html), [Examples](./examples.html)." ' +
+                     '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient"  +
                      './mysql-libmysqlclient.js ' +
                      './src/mysql_bindings.cc ' +
                      './src/mysql_bindings_connection.cc ' +
@@ -73,8 +74,10 @@ def docs(dcs):
   print("Parse examples:")
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient examples" ' +
                      '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
-                     'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide." ' +
+                     'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide.\n\n' +
+                     '[Home](./index.html), [API](./api.html), [Examples](./examples.html)." ' +
                      '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" ' +
+                     '--ignore-shabang ' +
                      './docs/examples.js ' +
                      ' > ./docs/examples.html')
 
