@@ -1,4 +1,4 @@
-/**
+/*!
  * Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
  * See contributors list in README
  *
