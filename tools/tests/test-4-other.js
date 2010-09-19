@@ -32,6 +32,10 @@ exports.ManyInsertsIntoTestTableSync = function (test) {
   }
 
   test.ok(res, "Insert " + cfg.insert_rows_count + " rows into table " + cfg.test_table);
+  if (!res) {
+    sys.puts("Error: " + conn.errorSync());
+  }
+  
   conn.closeSync();
   
   test.done();
