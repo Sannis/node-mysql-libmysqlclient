@@ -53,6 +53,12 @@ return ThrowException(Exception::TypeError( \
 String::New("Argument " #I " must be a string"))); \
 String::Utf8Value VAR(args[I]->ToString());
 
+#define REQ_BOOL_ARG(I, VAR) \
+if (args.Length() <= (I) || !args[I]->IsBoolean()) \
+return ThrowException(Exception::TypeError( \
+String::New("Argument " #I " must be a boolean"))); \
+bool VAR = args[I]->BooleanValue();
+
 #define REQ_FUN_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsFunction()) \
 return ThrowException(Exception::TypeError( \

@@ -273,7 +273,7 @@ Handle<Value> MysqlConnection::AffectedRowsSync(const Arguments& args) {
     my_ulonglong affected_rows = mysql_affected_rows(conn->_conn);
 
     if (affected_rows == ((my_ulonglong)-1)) {
-        return THREXC("Error occured in mysql_affected_rows(), -1 returned");
+        return scope.Close(Integer::New(-1));
     }
 
     return scope.Close(Integer::New(affected_rows));
@@ -292,11 +292,9 @@ Handle<Value> MysqlConnection::AutoCommitSync(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    if ( args.Length() < 1 ) {
-        return THREXC("Must give boolean automode flag as argument");
-    }
+    REQ_BOOL_ARG(0, autocomit)
 
-    if (mysql_autocommit(conn->_conn, args[0]->BooleanValue())) {
+    if (mysql_autocommit(conn->_conn, autocomit)) {
         return scope.Close(False());
     }
 
@@ -316,9 +314,7 @@ Handle<Value> MysqlConnection::ChangeUserSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected yet");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     REQ_STR_ARG(0, user)
 
@@ -951,9 +947,7 @@ Handle<Value> MysqlConnection::PingSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected yet");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     if (mysql_ping(conn->_conn)) {
         return scope.Close(False());
@@ -1126,7 +1120,6 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
 
     if (r != 0) {
         // Query error
-        // TODO(Sannis): change this to THREXC()?
         return scope.Close(False());
     }
 
@@ -1136,7 +1129,6 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
             return scope.Close(True());
         } else {
             // Error
-            // TODO(Sannis): change this to THREXC()?
             return scope.Close(False());
         }
     }
@@ -1186,9 +1178,7 @@ Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not initialized, execute conn.initSync() before");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     String::Utf8Value hostname(args[0]->ToString());
     String::Utf8Value user(args[1]->ToString());
