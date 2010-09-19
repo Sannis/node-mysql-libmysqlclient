@@ -17,6 +17,11 @@ See license text in LICENSE file
 #define mysql_result_is_unbuffered(r) \
 ((r)->handle && (r)->handle->status == MYSQL_STATUS_USE_RESULT)
 
+#define MYSQLRES_MUSTBE_VALID \
+    if (!res->_res) { \
+        return THREXC("Result has been freed."); \
+    }
+
 static Persistent<String> result_dataSeekSync_symbol;
 static Persistent<String> result_fetchAll_symbol;
 static Persistent<String> result_fetchAllSync_symbol;
