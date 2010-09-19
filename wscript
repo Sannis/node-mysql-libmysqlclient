@@ -63,7 +63,7 @@ def docs(dcs):
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient" ' +
                      '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
                      'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide.\n\n' +
-                     '[Home](./index.html), [API](./api.html), [Examples](./examples.html)." ' +
+                     'Extra information: [API](./api.html), [Examples](./examples.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
                      '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" '  +
                      '--ignore-filenames ' +
                      './README.markdown ' +
@@ -72,7 +72,7 @@ def docs(dcs):
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient API" ' +
                      '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
                      'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide.\n\n' +
-                     '[Home](./index.html), [API](./api.html), [Examples](./examples.html)." ' +
+                     'Extra information: [Homepage](./index.html), [Examples](./examples.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
                      '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" '  +
                      './mysql-libmysqlclient.js ' +
                      './src/mysql_bindings.cc ' +
@@ -84,7 +84,7 @@ def docs(dcs):
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient examples" ' +
                      '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
                      'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide.\n\n' +
-                     '[Home](./index.html), [API](./api.html), [Examples](./examples.html)." ' +
+                     'Extra information: [Homepage](./index.html), [API](./api.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
                      '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" ' +
                      '--ignore-shabang ' +
                      './docs/examples.js ' +
