@@ -1,3 +1,4 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
     <head>
         <title>Node-mysql-libmysqlclient API</title>
@@ -22,12 +23,15 @@ h1, h2, h3 {
     margin: 0;
     padding: 0;
 }
+ul {
+    padding-left: 20px;
+}
 table#source {
     width: 100%;
     border-collapse: collapse;
 }
 table#source td:first-child {
-    padding: 30px 40px 30px 40px;
+    padding: 30px;
     vertical-align: top;
 }
 table#source td:first-child,
@@ -35,7 +39,7 @@ table#source td:first-child pre {
     width: 450px;
 }
 table#source td:last-child {
-    padding: 30px 0 30px 40px;
+    padding: 30px;
     border-left: 1px solid #E5E5EE;
     background: #F5F5FF;
 }
@@ -47,6 +51,7 @@ table#source tr.filename {
     border-top: 1px solid #E5E5EE;
 }
 table#source tr.filename td:first-child {
+    cursor: pointer;
     text-transform: capitalize;
 }
 table#source tr.filename td:last-child {
@@ -55,7 +60,7 @@ table#source tr.filename td:last-child {
 table#source tr.filename h2 {
     margin: 0;
     padding: 0;
-    cursor: pointer;
+    text-decoration: underline;
 }
 table#source tr.code h1,
 table#source tr.code h2,
@@ -89,21 +94,28 @@ table#source tr.code td:first-child pre {
     position: fixed;
     top: 0;
     right: 0;
+    border: 0;
 }
 code .string { color: #219161; }
 code .regexp { color: #219161; }
 code .keyword { color: #954121; }
 code .number { color: #19469D; }
 code .comment { color: #bbb; }
-code .this { color: #19469D; }</style>
+code .this { color: #19469D; }
+pre.shell code .prompt-user { color: #219121; }
+pre.shell code .prompt-root { color: #912121; }
+
+</style>
         <script>
             $(function(){
-                $('tr.code').hide();
-                $('tr.filename').toggle(function(){
-                    $(this).nextUntil('.filename').fadeIn();
-                }, function(){
-                    $(this).nextUntil('.filename').fadeOut();
-                });
+                if ($('tr.filename').length) {
+                    $('tr.code').hide();
+                    $('tr.filename').toggle(function(){
+                        $(this).nextUntil('.filename').fadeIn();
+                    }, function(){
+                        $(this).nextUntil('.filename').fadeOut();
+                    });
+                }
             });
         </script>
     </head>
@@ -116,34 +128,26 @@ code .this { color: #19469D; }</style>
 
 <p>Check out the <a href="http://github.com/Sannis/node-mysql-libmysqlclient">Github repo</a> for the source and installation guide.</p>
 
-<p><a href="./index.html">Home</a>, <a href="./api.html">API</a>, <a href="./examples.html">Examples</a>.</p>
+<p>Extra information: <a href="./index.html">Homepage</a>, <a href="./examples.html">Examples</a>, <a href="http://github.com/Sannis/node-mysql-libmysqlclient/wiki">Wiki</a>.</p>
                 </td><td></td>
             </tr>
             <tr class="filename">
-                <td><h2 id="./mysql-libmysqlclient.js"><a href="#">mysql-libmysqlclient</a></h2></td>
-                <td>./mysql-libmysqlclient.js</td>
-            </tr>
-            <tr class="code">
-                <td class="docs">
-<p>Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
-See contributors list in README</p>
-
-<p>See license text in LICENSE file
- </p>
+                <td>
+<h2 id="mysql-libmysqlclient">mysql-libmysqlclient</h2>
                 </td>
-                <td class="code">
-
+                <td>
+./mysql-libmysqlclient.js
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Create connection to database</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String | null</em>  hostname</p></li><li><p><strong>param</strong>: <em>String | null</em>  user</p></li><li><p><strong>param</strong>: <em>String | null</em>  password</p></li><li><p><strong>param</strong>: <em>String | null</em>  database</p></li><li><p><strong>param</strong>: <em>Integer | null</em>  port</p></li><li><p><strong>param</strong>: <em>String | null</em>  socket</p></li><li><p><strong>return</strong>: <em>MysqlConnection</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="variable">exports</span>.<span class="variable">createConnectionSync</span> = <span class="keyword">function</span> () {
   <span class="keyword">var</span> <span class="variable">db</span> = <span class="keyword">new</span> <span class="variable">binding</span>.<span class="class">MysqlConnection</span>();
   <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> &gt; <span class="number integer">0</span>) {
@@ -153,19 +157,24 @@ See contributors list in README</p>
 };
 </code></pre>
                 </td>
-            </tr>            <tr class="filename">
-                <td><h2 id="./src/mysql_bindings.cc"><a href="#">mysql_bindings.cc</a></h2></td>
-                <td>./src/mysql_bindings.cc</td>
+            </tr>
+            <tr class="filename">
+                <td>
+<h2 id="mysql_bindings">mysql_bindings</h2>
+                </td>
+                <td>
+./src/mysql_bindings.cc
+                </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Init V8 structures</p>
 
-<p>Classes to populate to JavaScript:</p>
+<p>Classes to populate in JavaScript:</p>
 
 <ul><li>MysqlConnection</li><li>MysqlResult</li><li>MysqlStatement</li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="keyword">void</span> <span class="variable">init</span>(<span class="class">Handle</span>&lt;<span class="class">Object</span>&gt; <span class="variable">target</span>) {
     <span class="class">MysqlConnection</span>::<span class="class">Init</span>(<span class="variable">target</span>);
     <span class="class">MysqlResult</span>::<span class="class">Init</span>(<span class="variable">target</span>);
@@ -174,17 +183,22 @@ See contributors list in README</p>
 
 </code></pre>
                 </td>
-            </tr>            <tr class="filename">
-                <td><h2 id="./src/mysql_bindings_connection.cc"><a href="#">mysql_bindings_connection.cc</a></h2></td>
-                <td>./src/mysql_bindings_connection.cc</td>
+            </tr>
+            <tr class="filename">
+                <td>
+<h2 id="mysql_bindings_connection">mysql_bindings_connection</h2>
+                </td>
+                <td>
+./src/mysql_bindings_connection.cc
+                </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Creates new MysqlConnection object</p>
 
 <ul><li><p><strong>constructor</strong></p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">New</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -196,7 +210,7 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Gets last connect error number</p>
 
 <ul><li><strong>getter</strong></li></ul>
@@ -205,7 +219,7 @@ See contributors list in README</p>
 
 <ul><li><p><strong>return</strong>: <em>Integer</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">ConnectErrnoGetter</span>(<span class="class">Local</span>&lt;<span class="class">String</span>&gt; <span class="variable">property</span>,
                                             <span class="keyword">const</span> <span class="class">AccessorInfo</span> &amp;<span class="variable">info</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
@@ -219,7 +233,7 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Gets last connect error string</p>
 
 <ul><li><strong>getter</strong></li></ul>
@@ -228,7 +242,7 @@ See contributors list in README</p>
 
 <ul><li><p><strong>return</strong>: <em>Integer</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">ConnectErrorGetter</span>(<span class="class">Local</span>&lt;<span class="class">String</span>&gt; <span class="variable">property</span>,
                                             <span class="keyword">const</span> <span class="class">AccessorInfo</span> &amp;<span class="variable">info</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
@@ -243,14 +257,14 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Gets number of affected rows in previous operation</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Integer</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">AffectedRowsSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -273,14 +287,14 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Sets autocommit mode</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>Boolean</em>  mode</p></li><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">AutoCommitSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -303,14 +317,14 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Changes the user and causes the database to become the default</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String</em>  user</p></li><li><p><strong>param</strong>: <em>String | null</em>  password</p></li><li><p><strong>param</strong>: <em>String | null</em>  database</p></li><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">ChangeUserSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -348,14 +362,14 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Commits the current transaction</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">CommitSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -374,11 +388,11 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>EIO wrapper functions for MysqlConnection::Connect
  </p>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="directive">#ifndef MYSQL_NON_THREADSAFE</span>
 <span class="keyword">int</span> <span class="class">MysqlConnection</span>::<span class="class">EIO_After_Connect</span>(<span class="variable">eio_req</span> *<span class="variable">req</span>) {
     <span class="variable">ev_unref</span>(<span class="class">EV_DEFAULT_UC</span>);
@@ -430,14 +444,14 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Opens a new connection to the MySQL server</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String | null</em>  hostname</p></li><li><p><strong>param</strong>: <em>String | null</em>  user</p></li><li><p><strong>param</strong>: <em>String | null</em>  password</p></li><li><p><strong>param</strong>: <em>String | null</em>  database</p></li><li><p><strong>param</strong>: <em>Integer | null</em>  port</p></li><li><p><strong>param</strong>: <em>String | null</em>  socket</p></li><li><p><strong>param</strong>: <em>Function(error)</em>  callback</p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">Connect</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 <span class="directive">#ifdef MYSQL_NON_THREADSAFE</span>
@@ -480,14 +494,14 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Opens a new connection to the MySQL server</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String | null</em>  hostname</p></li><li><p><strong>param</strong>: <em>String | null</em>  user</p></li><li><p><strong>param</strong>: <em>String | null</em>  password</p></li><li><p><strong>param</strong>: <em>String | null</em>  database</p></li><li><p><strong>param</strong>: <em>Integer | null</em>  port</p></li><li><p><strong>param</strong>: <em>String | null</em>  socket</p></li><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">ConnectSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -544,14 +558,14 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns current connected status</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">ConnectedSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -562,11 +576,11 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Closes database connection
  </p>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">CloseSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -583,14 +597,14 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Performs debugging operations</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String</em>  debug message</p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">DebugSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -609,14 +623,14 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Dump debugging information into the log</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">DumpDebugInfoSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
@@ -630,14 +644,14 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns the last error code</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Integer</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">ErrnoSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -654,14 +668,14 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns a string description of the last error</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>String</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">ErrorSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -680,7 +694,7 @@ See contributors list in README</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Escapes special characters in a string for use in an SQL statement,
 taking into account the current charset of the connection</p>
 
@@ -688,7 +702,7 @@ taking into account the current charset of the connection</p>
 
 <ul><li><p><strong>param</strong>: <em>String</em>  string</p></li><li><p><strong>return</strong>: <em>String</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">EscapeSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -718,14 +732,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns the number of columns for the most recent query</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Integer</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">FieldCountSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -742,14 +756,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns a character set object</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Object</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">GetCharsetSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -779,14 +793,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns a character set name</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>String</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">GetCharsetNameSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -803,14 +817,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns the MySQL client and server version and information</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Object</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">GetInfoSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -841,14 +855,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Retrieves information about the most recently executed query</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>String</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">GetInfoStringSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -867,14 +881,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Gets result of SHOW WARNINGS</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Array</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">GetWarningsSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -914,7 +928,7 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Initializes MysqlConnection</p>
 
 <ul><li><strong>deprecated</strong></li></ul>
@@ -923,7 +937,7 @@ taking into account the current charset of the connection</p>
 
 <ul><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">InitSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -944,14 +958,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Initializes a statement and returns it</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>MysqlStatement | Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">InitStatementSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -972,14 +986,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns the auto generated id used in the last query</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Integer</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">LastInsertIdSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1005,14 +1019,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Checks if there are any more query results from a multi query</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">MultiMoreResultsSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1031,14 +1045,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Prepare next result from multi_query</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">MultiNextResultSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1063,14 +1077,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Performs a multi_query on the database</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String</em>  multi_query</p></li><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">MultiRealQuerySync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1094,14 +1108,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Pings a server connection, or tries to reconnect if the connection has gone down</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">PingSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1120,11 +1134,11 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>EIO wrapper functions for MysqlConnection::Query
  </p>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="directive">#ifndef MYSQL_NON_THREADSAFE</span>
 <span class="keyword">int</span> <span class="class">MysqlConnection</span>::<span class="class">EIO_After_Query</span>(<span class="variable">eio_req</span> *<span class="variable">req</span>) {
     <span class="variable">ev_unref</span>(<span class="class">EV_DEFAULT_UC</span>);
@@ -1209,14 +1223,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Performs a query on the database</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String</em>  query</p></li><li><p><strong>param</strong>: <em>Function(error, result)</em>  callback</p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">Query</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 <span class="directive">#ifdef MYSQL_NON_THREADSAFE</span>
@@ -1262,14 +1276,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Performs a query on the database</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String</em>  query</p></li><li><p><strong>param</strong>: <em>MysqlResult</em>  result</p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">QuerySync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1325,14 +1339,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Rolls back current transaction</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">RollbackSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1351,14 +1365,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Opens a new connection to the MySQL server</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String | null</em>  hostname</p></li><li><p><strong>param</strong>: <em>String | null</em>  user</p></li><li><p><strong>param</strong>: <em>String | null</em>  password</p></li><li><p><strong>param</strong>: <em>String | null</em>  database</p></li><li><p><strong>param</strong>: <em>Integer | null</em>  port</p></li><li><p><strong>param</strong>: <em>String | null</em>  socket</p></li><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">RealConnectSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1419,14 +1433,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Executes an SQL query</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String</em>  query</p></li><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">RealQuerySync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1454,14 +1468,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Selects the default database for database queries</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String</em>  database</p></li><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">SelectDbSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1482,14 +1496,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Sets the default client character set</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String</em>  charset</p></li><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">SetCharsetSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1510,14 +1524,14 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Sets options</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>Integer</em>  option key</p></li><li><p><strong>param</strong>: <em>Integer | String</em>  option value</p></li><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">SetOptionSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1567,7 +1581,7 @@ taking into account the current charset of the connection</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Sets SSL options
 Used for establishing secure connections</p>
 
@@ -1575,7 +1589,7 @@ Used for establishing secure connections</p>
 
 <ul><li><p><strong>param</strong>: <em>String</em>  key file</p></li><li><p><strong>param</strong>: <em>String</em>  certificate file</p></li><li><p><strong>param</strong>: <em>String</em>  certificate authority file</p></li><li><p><strong>param</strong>: <em>String</em>  CA certificates in PEM directory</p></li><li><p><strong>param</strong>: <em>String</em>  allowable ciphers</p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">SetSslSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1598,14 +1612,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns the SQLSTATE error from previous MySQL operation</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>String</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">SqlStateSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1622,14 +1636,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Gets the current system status</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>String</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">StatSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1652,14 +1666,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Transfers a result set from the last query</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>MysqlResult</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">StoreResultSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1669,18 +1683,18 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 
                 </td>
-                <td class="code">
+                <td>
 <pre><code> <span class="variable">no</span> <span class="variable">result</span> <span class="variable">set</span> - <span class="variable">not</span> <span class="variable">a</span> <span class="class">SELECT</span>, <span class="class">SHOW</span>, <span class="class">DESCRIBE</span> <span class="variable">or</span> <span class="class">EXPLAIN</span>, </code></pre>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">True</span>());
     }
 
@@ -1702,14 +1716,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns the thread ID for the current connection</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Integer</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">ThreadIdSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1728,14 +1742,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns whether thread safety is given or not</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">ThreadSafeSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1748,14 +1762,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Initiates a result set retrieval</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>MysqlResult</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">UseResultSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1765,18 +1779,18 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 
                 </td>
-                <td class="code">
+                <td>
 <pre><code> <span class="variable">no</span> <span class="variable">result</span> <span class="variable">set</span> - <span class="variable">not</span> <span class="variable">a</span> <span class="class">SELECT</span>, <span class="class">SHOW</span>, <span class="class">DESCRIBE</span> <span class="variable">or</span> <span class="class">EXPLAIN</span>, </code></pre>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">True</span>());
     }
 
@@ -1798,14 +1812,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns the number of warnings from the last query for the given link</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Integer</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlConnection</span>::<span class="class">WarningCountSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1824,17 +1838,22 @@ Used for establishing secure connections</p>
 
 </code></pre>
                 </td>
-            </tr>            <tr class="filename">
-                <td><h2 id="./src/mysql_bindings_result.cc"><a href="#">mysql_bindings_result.cc</a></h2></td>
-                <td>./src/mysql_bindings_result.cc</td>
+            </tr>
+            <tr class="filename">
+                <td>
+<h2 id="mysql_bindings_result">mysql_bindings_result</h2>
+                </td>
+                <td>
+./src/mysql_bindings_result.cc
+                </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Creates new MysqlResult object</p>
 
 <ul><li><p><strong>constructor</strong></p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">New</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1849,7 +1868,7 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Get the number of fields in a result</p>
 
 <ul><li><strong>getter</strong></li></ul>
@@ -1858,7 +1877,7 @@ Used for establishing secure connections</p>
 
 <ul><li><p><strong>return</strong>: <em>Integer | Undefined</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FieldCountGetter</span>(<span class="class">Local</span>&lt;<span class="class">String</span>&gt; <span class="variable">property</span>,
                                                    <span class="keyword">const</span> <span class="class">AccessorInfo</span> &amp;<span class="variable">info</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
@@ -1878,14 +1897,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Adjusts the result pointer to an arbitary row in the result</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>Integer</em>  The field offset</p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">DataSeekSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -1912,11 +1931,11 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>EIO wrapper functions for MysqlResult::FetchAll
  </p>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="directive">#ifndef MYSQL_NON_THREADSAFE</span>
 <span class="keyword">int</span> <span class="class">MysqlResult</span>::<span class="class">EIO_After_FetchAll</span>(<span class="variable">eio_req</span> *<span class="variable">req</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
@@ -1929,18 +1948,18 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 
                 </td>
-                <td class="code">
+                <td>
 <pre><code> <span class="variable">node</span>.<span class="variable">js</span> <span class="variable">convention</span>, <span class="variable">there</span> <span class="variable">is</span> <span class="variable">always</span> <span class="variable">one</span> <span class="variable">argument</span> </code></pre>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">argv</span>[<span class="number integer">2</span>];
 
     <span class="keyword">if</span> (<span class="variable">req</span>-&gt;<span class="variable">result</span>) {
@@ -2006,14 +2025,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Fetches all result rows as an array</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>Function(error, rows)</em>  callback</p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FetchAll</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 <span class="directive">#ifdef MYSQL_NON_THREADSAFE</span>
@@ -2049,14 +2068,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Fetches all result rows as an array</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Array</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FetchAllSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2095,14 +2114,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Fetch a result row as an array</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Array</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FetchArraySync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2138,14 +2157,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns meta-data of the next field in the result set</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Object</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FetchFieldSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2173,14 +2192,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Fetch meta-data for a single field</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>Integer</em>  field number</p></li><li><p><strong>return</strong>: <em>Array</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FetchFieldDirectSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) { <span class="comment">// NOLINT</span>
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2210,14 +2229,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns an array of objects representing the fields in a result set</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Array</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FetchFieldsSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2248,14 +2267,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns the lengths of the columns of the current row in the result set</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Array</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FetchLengthsSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2284,14 +2303,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Fetch a result row as an object</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Object</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FetchObjectSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2328,14 +2347,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Set result pointer to a specified field offset</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>Integer</em>  field number</p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FieldSeekSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2358,14 +2377,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Returns the position of the field cursor</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Integer</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FieldTellSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2382,11 +2401,11 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Frees the memory associated with a result
  </p>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FreeSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2403,14 +2422,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Gets the number of rows in a result</p>
 
 <h2></h2>
 
 <ul><li><p><strong>return</strong>: <em>Integer</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">NumRowsSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2431,17 +2450,22 @@ Used for establishing secure connections</p>
 
 </code></pre>
                 </td>
-            </tr>            <tr class="filename">
-                <td><h2 id="./src/mysql_bindings_statement.cc"><a href="#">mysql_bindings_statement.cc</a></h2></td>
-                <td>./src/mysql_bindings_statement.cc</td>
+            </tr>
+            <tr class="filename">
+                <td>
+<h2 id="mysql_bindings_statement">mysql_bindings_statement</h2>
+                </td>
+                <td>
+./src/mysql_bindings_statement.cc
+                </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Create new MySQL statement object</p>
 
 <ul><li><p><strong>constructor</strong></p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlStatement</span>::<span class="class">New</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2455,14 +2479,14 @@ Used for establishing secure connections</p>
                 </td>
             </tr>
             <tr class="code">
-                <td class="docs">
+                <td>
 <p>Prepare statement by given query</p>
 
 <h2></h2>
 
 <ul><li><p><strong>param</strong>: <em>String</em>  query</p></li><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
                 </td>
-                <td class="code">
+                <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlStatement</span>::<span class="class">PrepareSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
 
@@ -2481,6 +2505,7 @@ Used for establishing secure connections</p>
 
 </code></pre>
                 </td>
-            </tr>        </tbody></table>
+            </tr>
+        </tbody></table>
     </body>
 </html>
