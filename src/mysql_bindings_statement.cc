@@ -41,7 +41,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     NODE_DEFINE_CONSTANT(instance_template, STMT_ATTR_PREFETCH_ROWS);
 
     // Properties
-    instance_template->SetAccessor(String::New("paramCount"), ParamCountGetter);
+    instance_template->SetAccessor(V8STR("paramCount"), ParamCountGetter);
 
     // Methods
     ADD_PROTOTYPE_METHOD(statement, affectedRowsSync, AffectedRowsSync);
@@ -157,8 +157,6 @@ Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
     if (affected_rows == ((my_ulonglong)-1)) {
         return THREXC("Error occured in mysql_stmt_affected_rows()");
     }
-
-    Local<Value> js_result = Integer::New(affected_rows);
 
     return scope.Close(Integer::New(affected_rows));
 }
@@ -396,18 +394,13 @@ Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
     MYSQLSTMT_MUSTBE_PREPARED;
     MYSQLSTMT_MUSTBE_STORED;
 
-    REQ_UINT_ARG(0, row_num)
+    REQ_UINT_ARG(0, offset)
 
-    // TODO(Sannis): Can we implement this?
-    /*if (mysql_stmt_is_unbuffered(stmt->_stmt)) {
-        return THREXC("Function cannot be used before store all results");
-    }*/
-
-    if (row_num < 0 || row_num >= mysql_stmt_num_rows(stmt->_stmt)) {
+    if (offset < 0 || offset >= mysql_stmt_num_rows(stmt->_stmt)) {
         return THREXC("Invalid row offset");
     }
 
-    mysql_stmt_data_seek(stmt->_stmt, row_num);
+    mysql_stmt_data_seek(stmt->_stmt, offset);
 
     return Undefined();
 }
@@ -426,9 +419,7 @@ Handle<Value> MysqlStatement::ErrnoSync(const Arguments& args) {
 
     uint32_t errno = mysql_stmt_errno(stmt->_stmt);
 
-    Local<Value> js_result = Integer::New(errno);
-
-    return scope.Close(js_result);
+    return scope.Close(Integer::New(errno));
 }
 
 /**
@@ -445,9 +436,7 @@ Handle<Value> MysqlStatement::ErrorSync(const Arguments& args) {
 
     const char *error = mysql_stmt_error(stmt->_stmt);
 
-    Local<Value> js_result = String::New(error);
-
-    return scope.Close(js_result);
+    return scope.Close(V8STR(error));
 }
 
 /**
@@ -514,9 +503,7 @@ Handle<Value> MysqlStatement::LastInsertIdSync(const Arguments& args) {
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
 
-    Local<Value> js_result = Integer::New(mysql_stmt_insert_id(stmt->_stmt));
-
-    return scope.Close(js_result);
+    return scope.Close(Integer::New(mysql_stmt_insert_id(stmt->_stmt)));
 }
 
 /**
@@ -533,14 +520,7 @@ Handle<Value> MysqlStatement::NumRowsSync(const Arguments& args) {
     MYSQLSTMT_MUSTBE_PREPARED;
     MYSQLSTMT_MUSTBE_STORED;  // TODO(Sannis): Or all result already fetched!
 
-    // TODO(Sannis): Can we implement this?
-    /*if (mysql_stmt_is_unbuffered(stmt->_stmt)) {
-        return THREXC("Function cannot be used before store all results");
-    }*/
-
-    Local<Value> js_result = Integer::New(mysql_stmt_num_rows(stmt->_stmt));
-
-    return scope.Close(js_result);
+    return scope.Close(Integer::New(mysql_stmt_num_rows(stmt->_stmt)));
 }
 
 /**
@@ -640,6 +620,21 @@ Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
 }
 
 /**
+ * Returns SQLSTATE error from previous statement operation
+ *
+ * @return {String}
+ */
+Handle<Value> MysqlStatement::SqlStateSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    MYSQLSTMT_MUSTBE_INITIALIZED;
+
+    return scope.Close(V8STR(mysql_stmt_sqlstate(stmt->_stmt)));
+}
+
+/**
  * Transfers a result set from a prepared statement
  *
  * @return {Boolean}
@@ -659,22 +654,5 @@ Handle<Value> MysqlStatement::StoreResultSync(const Arguments& args) {
     stmt->stored = true;
 
     return scope.Close(True());
-}
-
-/**
- * Returns SQLSTATE error from previous statement operation
- *
- * @return {String}
- */
-Handle<Value> MysqlStatement::SqlStateSync(const Arguments& args) {
-    HandleScope scope;
-
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
-
-    MYSQLSTMT_MUSTBE_INITIALIZED;
-
-    Local<Value> js_result = String::New(mysql_stmt_sqlstate(stmt->_stmt));
-
-    return scope.Close(js_result);
 }
 
