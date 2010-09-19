@@ -38,7 +38,7 @@ static Persistent<String> statement_errnoSync_symbol;
 static Persistent<String> statement_errorSync_symbol;
 static Persistent<String> statement_executeSync_symbol;
 static Persistent<String> statement_fieldCountSync_symbol;
-static Persistent<String> statement_freeSync_symbol;
+static Persistent<String> statement_freeResultSync_symbol;
 static Persistent<String> statement_lastInsertIdSync_symbol;
 static Persistent<String> statement_numRowsSync_symbol;
 static Persistent<String> statement_paramCountSync_symbol;
@@ -98,7 +98,7 @@ class MysqlStatement : public node::EventEmitter {
 
     static Handle<Value> FieldCountSync(const Arguments& args);
 
-    static Handle<Value> FreeSync(const Arguments& args);
+    static Handle<Value> FreeResultSync(const Arguments& args);
 
     static Handle<Value> LastInsertIdSync(const Arguments& args);
 

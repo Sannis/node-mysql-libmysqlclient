@@ -54,7 +54,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(statement, errorSync, ErrorSync);
     ADD_PROTOTYPE_METHOD(statement, executeSync, ExecuteSync);
     ADD_PROTOTYPE_METHOD(statement, fieldCountSync, FieldCountSync);
-    ADD_PROTOTYPE_METHOD(statement, freeSync, FreeSync);
+    ADD_PROTOTYPE_METHOD(statement, freeResultSync, FreeResultSync);
     ADD_PROTOTYPE_METHOD(statement, lastInsertIdSync, LastInsertIdSync);
     ADD_PROTOTYPE_METHOD(statement, numRowsSync, NumRowsSync);
     ADD_PROTOTYPE_METHOD(statement, paramCountSync, ParamCountSync);
@@ -428,7 +428,12 @@ Handle<Value> MysqlStatement::FieldCountSync(const Arguments& args) {
     return scope.Close(Integer::New(mysql_stmt_field_count(stmt->_stmt)));
 }
 
-Handle<Value> MysqlStatement::FreeSync(const Arguments& args) {
+/**
+ * Frees stored result memory for the given statement handle
+ *
+ * @return {Boolean}
+ */
+Handle<Value> MysqlStatement::FreeResultSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
