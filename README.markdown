@@ -113,5 +113,5 @@ Contributors
 License
 -------
 
-MIT license. See license text in file LICENSE.
+MIT license. See license text in file [LICENSE](http://github.com/Sannis/node-mysql-libmysqlclient/blob/master/LICENSE).
 
