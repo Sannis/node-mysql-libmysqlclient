@@ -723,9 +723,7 @@ Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
         return THREXC("Result has been freed.");
     }
 
-    Local<Value> js_result = Integer::New(mysql_field_tell(res->_res));
-
-    return scope.Close(js_result);
+    return scope.Close(Integer::New(mysql_field_tell(res->_res)));
 }
 
 /**
@@ -763,8 +761,6 @@ Handle<Value> MysqlResult::NumRowsSync(const Arguments& args) {
         return THREXC("Function cannot be used with MYSQL_USE_RESULT");
     }
 
-    Local<Value> js_result = Integer::New(mysql_num_rows(res->_res));
-
-    return scope.Close(js_result);
+    return scope.Close(Integer::New(mysql_num_rows(res->_res)));
 }
 

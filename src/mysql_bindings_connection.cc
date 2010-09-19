@@ -240,9 +240,7 @@ Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property,
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
-    Local<Value> js_result = Integer::New(conn->connect_errno);
-
-    return scope.Close(js_result);
+    return scope.Close(Integer::New(conn->connect_errno));
 }
 
 /**
@@ -257,10 +255,7 @@ Handle<Value> MysqlConnection::ConnectErrorGetter(Local<String> property,
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
-    Local<Value> js_result = V8STR(conn->connect_error ?
-                                   conn->connect_error : "");
-
-    return scope.Close(js_result);
+    return scope.Close(V8STR(conn->connect_error ? conn->connect_error : ""));
 }
 
 /**
@@ -281,9 +276,7 @@ Handle<Value> MysqlConnection::AffectedRowsSync(const Arguments& args) {
         return THREXC("Error occured in mysql_affected_rows(), -1 returned");
     }
 
-    Local<Value> js_result = Integer::New(affected_rows);
-
-    return scope.Close(js_result);
+    return scope.Close(Integer::New(affected_rows));
 }
 
 /**
@@ -613,9 +606,7 @@ Handle<Value> MysqlConnection::ErrnoSync(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    Local<Value> js_result = Integer::New(mysql_errno(conn->_conn));
-
-    return scope.Close(js_result);
+    return scope.Close(Integer::New(mysql_errno(conn->_conn)));
 }
 
 /**
@@ -632,9 +623,7 @@ Handle<Value> MysqlConnection::ErrorSync(const Arguments& args) {
 
     const char *error = mysql_error(conn->_conn);
 
-    Local<Value> js_result = V8STR(error);
-
-    return scope.Close(js_result);
+    return scope.Close(V8STR(error));
 }
 
 /**
@@ -681,9 +670,7 @@ Handle<Value> MysqlConnection::FieldCountSync(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    Local<Value> js_result = Integer::New(mysql_field_count(conn->_conn));
-
-    return scope.Close(js_result);
+    return scope.Close(Integer::New(mysql_field_count(conn->_conn)));
 }
 
 /**
@@ -728,9 +715,7 @@ Handle<Value> MysqlConnection::GetCharsetNameSync(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    Local<Value> js_result = V8STR(mysql_character_set_name(conn->_conn));
-
-    return scope.Close(js_result);
+    return scope.Close(V8STR(mysql_character_set_name(conn->_conn)));
 }
 
 /**
@@ -750,15 +735,10 @@ Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
     Local<Object> js_result = Object::New();
 
     js_result->Set(V8STR("client_version"), Integer::New(info.client_version));
-
     js_result->Set(V8STR("client_info"), V8STR(info.client_info));
-
     js_result->Set(V8STR("server_version"), Integer::New(info.server_version));
-
     js_result->Set(V8STR("server_info"), V8STR(info.server_info));
-
     js_result->Set(V8STR("host_info"), V8STR(info.host_info));
-
     js_result->Set(V8STR("proto_info"), Integer::New(info.proto_info));
 
     return scope.Close(js_result);
@@ -778,9 +758,7 @@ Handle<Value> MysqlConnection::GetInfoStringSync(const Arguments& args) {
 
     const char *info = mysql_info(conn->_conn);
 
-    Local<Value> js_result = V8STR(info ? info : "");
-
-    return scope.Close(js_result);
+    return scope.Close(V8STR(info ? info : ""));
 }
 
 /**
@@ -891,9 +869,7 @@ Handle<Value> MysqlConnection::LastInsertIdSync(const Arguments& args) {
         insert_id = mysql_insert_id(conn->_conn);
     }
 
-    Local<Value> js_result = Integer::New(insert_id);
-
-    return scope.Close(js_result);
+    return scope.Close(Integer::New(insert_id));
 }
 
 /**
@@ -1430,9 +1406,7 @@ Handle<Value> MysqlConnection::SqlStateSync(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    Local<Value> js_result = V8STR(mysql_sqlstate(conn->_conn));
-
-    return scope.Close(js_result);
+    return scope.Close(V8STR(mysql_sqlstate(conn->_conn)));
 }
 
 /**
@@ -1449,13 +1423,7 @@ Handle<Value> MysqlConnection::StatSync(const Arguments& args) {
 
     const char *stat = mysql_stat(conn->_conn);
 
-    if (stat) {
-        Local<Value> js_result = V8STR(stat);
-
-        return scope.Close(js_result);
-    } else {
-        return scope.Close(False());
-    }
+    return scope.Close(V8STR(stat ? stat : ""));
 }
 
 /**
@@ -1503,9 +1471,7 @@ Handle<Value> MysqlConnection::ThreadIdSync(const Arguments& args) {
 
     uint64_t thread_id = mysql_thread_id(conn->_conn);
 
-    Local<Value> js_result = Integer::New(thread_id);
-
-    return scope.Close(js_result);
+    return scope.Close(Integer::New(thread_id));
 }
 
 /**
@@ -1568,8 +1534,6 @@ Handle<Value> MysqlConnection::WarningCountSync(const Arguments& args) {
 
     uint32_t warning_count = mysql_warning_count(conn->_conn);
 
-    Local<Value> js_result = Integer::New(warning_count);
-
-    return scope.Close(js_result);
+    return scope.Close(Integer::New(warning_count));
 }
 
