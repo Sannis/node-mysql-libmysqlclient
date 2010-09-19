@@ -155,7 +155,7 @@ Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
     my_ulonglong affected_rows = mysql_stmt_affected_rows(stmt->_stmt);
 
     if (affected_rows == ((my_ulonglong)-1)) {
-        return THREXC("Error occured in mysql_stmt_affected_rows()");
+        return scope.Close(Integer::New(-1));
     }
 
     return scope.Close(Integer::New(affected_rows));
@@ -321,16 +321,6 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
             stmt->binds[i].buffer_type = MYSQL_TYPE_DOUBLE;
             stmt->binds[i].buffer = double_data;
             stmt->binds[i].is_null = 0;
-        } else if (js_param->IsString()) {
-            // TODO(Sannis): Simplify this if possible
-            str_data = strdup(**(new String::Utf8Value(js_param->ToString())));
-            str_length = new unsigned long; // NOLINT
-            *str_length = js_param->ToString()->Length();
-
-            stmt->binds[i].buffer_type = MYSQL_TYPE_STRING;
-            stmt->binds[i].buffer =  str_data;
-            stmt->binds[i].is_null = 0;
-            stmt->binds[i].length = str_length;
         } else if (js_param->IsDate()) {
             date_data = new MYSQL_TIME;
             date_timet = static_cast<time_t>(js_param->NumberValue()/1000);
@@ -347,13 +337,21 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
             stmt->binds[i].buffer_type = MYSQL_TYPE_DATETIME;
             stmt->binds[i].buffer = date_data;
             stmt->binds[i].is_null = 0;
-        } else {
-            return THREXC("o_0");
+        } else {  // js_param->IsString() and other
+            // TODO(Sannis): Simplify this if possible
+            str_data = strdup(**(new String::Utf8Value(js_param->ToString())));
+            str_length = new unsigned long; // NOLINT
+            *str_length = js_param->ToString()->Length();
+
+            stmt->binds[i].buffer_type = MYSQL_TYPE_STRING;
+            stmt->binds[i].buffer =  str_data;
+            stmt->binds[i].is_null = 0;
+            stmt->binds[i].length = str_length;
         }
     }
 
     if (mysql_stmt_bind_param(stmt->_stmt, stmt->binds)) {
-      return THREXC("mysql_stmt_bind_param() failed");
+      return scope.Close(False());
     }
 
     return scope.Close(True());
@@ -372,7 +370,7 @@ Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
     if (mysql_stmt_close(stmt->_stmt)) {
-        return THREXC("Error in mysql_stmt_close");
+        return scope.Close(False());
     }
 
     stmt->_stmt = NULL;
@@ -584,7 +582,7 @@ Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
 
 
     if (mysql_stmt_reset(stmt->_stmt)) {
-        return THREXC("Error in mysql_stmt_reset");
+        return scope.Close(False());
     }
 
     return scope.Close(True());
