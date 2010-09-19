@@ -74,37 +74,37 @@ Contributors
 
 * **Oleg Efimov** ( [E-mail](efimovov@gmail.com), [GitHub](http://github.com/Sannis), [site](http://sannis.ru) \)
 
-  Author and maintainer.
-  Synchronouse version development.
-  First libeio asynchronouse attempts.
-  Writing tests, docs and so on.
+  Author and maintainer.  
+  Synchronouse version development.  
+  First libeio asynchronouse attempts.  
+  Writing tests, docs and so on.  
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=Sannis).
 
 * **Surendra Singhi** ( [E-mail](<ssinghi@kreeti.com), [GitHub](http://github.com/ssinghi), [GitHub2](http://github.com/kreetitech), [site](http://ssinghi.kreeti.com) \)
 
-  Make asynchronouse connecting and querying work.
-  Fix segmentation faults, partialy closes #14.
-  Some other fixes.
+  Make asynchronouse connecting and querying work.  
+  Fix segmentation faults, partialy closes [#14](http://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find).  
+  Some other fixes.  
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=ssinghi).
 
 * **Akzhan Abdulin** ( [E-mail](akzhan.abdulin@gmail.com), [GitHub](http://github.com/akzhan) \)
 
-  Tests and code style fixes.
+  Tests and code style fixes.  
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=akzhan).
 
 * **Robin Duckett** ( [E-mail](robin.duckett@gmail.com), [GitHub](http://github.com/robinduckett) \)
 
-  Fix segfault error, partialy closes [#14](http://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find).
+  Fix segfault error, partialy closes [#14](http://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find).  
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=robinduckett).
   
 * **Dan Beam** ( [E-mail](dan@danbeam.org), [GitHub](http://github.com/danbeam), [site](http://danbeam.org) \)
 
-  [Simplify javascript logic](http://github.com/Sannis/node-mysql-libmysqlclient/commit/97040c3e7a5d4673ca6f340d8a9bc69da8e398d8) of createConnection().
+  [Simplify javascript logic](http://github.com/Sannis/node-mysql-libmysqlclient/commit/97040c3e7a5d4673ca6f340d8a9bc69da8e398d8) of createConnection().  
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=danbeam).
 
 * **Maurits Lamers** ( [E-mail](maurits@weidestraat.nl), [GitHub](http://github.com/mauritslamers) \)
 
-  Fixing a [bug](http://github.com/Sannis/node-mysql-libmysqlclient/commit/c4071181404362b60b9d3a3aed9784b25459fffa) where previous values were set instead of empty.
+  Fixing a [bug](http://github.com/Sannis/node-mysql-libmysqlclient/commit/c4071181404362b60b9d3a3aed9784b25459fffa) where previous values were set instead of empty.  
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=mauritslamers).
 
 [Full contributors list](http://github.com/Sannis/node-mysql-libmysqlclient/contributors).
