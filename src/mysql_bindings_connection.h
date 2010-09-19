@@ -78,6 +78,11 @@ Local<External> VAR = Local<External>::Cast(args[I]);
 #define MYSQL_NON_THREADSAFE_ERRORSTRING \
         "Asynchronous functions works only with threadsafe libmysqlclient_r"
 
+#define MYSQLCONN_MUSTBE_CONNECTED \
+   if (!conn->_conn) { \
+        return THREXC("Not connected"); \
+    }
+
 using namespace v8; // NOLINT
 
 static Persistent<String> connection_affectedRowsSync_symbol;

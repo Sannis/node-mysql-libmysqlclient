@@ -273,9 +273,7 @@ Handle<Value> MysqlConnection::AffectedRowsSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     my_ulonglong affected_rows = mysql_affected_rows(conn->_conn);
 
@@ -299,9 +297,7 @@ Handle<Value> MysqlConnection::AutoCommitSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     if ( args.Length() < 1 ) {
         return THREXC("Must give boolean automode flag as argument");
@@ -367,9 +363,7 @@ Handle<Value> MysqlConnection::CommitSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     if (mysql_commit(conn->_conn)) {
         return scope.Close(False());
@@ -567,9 +561,7 @@ Handle<Value> MysqlConnection::CloseSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     conn->Close();
 
@@ -586,9 +578,7 @@ Handle<Value> MysqlConnection::DebugSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     REQ_STR_ARG(0, debug)
 
@@ -606,9 +596,7 @@ Handle<Value> MysqlConnection::DumpDebugInfoSync(const Arguments& args) {
     HandleScope scope;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     return scope.Close(mysql_dump_debug_info(conn->_conn) ? False() : True());
 }
@@ -623,9 +611,7 @@ Handle<Value> MysqlConnection::ErrnoSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     Local<Value> js_result = Integer::New(mysql_errno(conn->_conn));
 
@@ -642,9 +628,7 @@ Handle<Value> MysqlConnection::ErrorSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     const char *error = mysql_error(conn->_conn);
 
@@ -665,9 +649,7 @@ Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     REQ_STR_ARG(0, str)
 
@@ -697,9 +679,7 @@ Handle<Value> MysqlConnection::FieldCountSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     Local<Value> js_result = Integer::New(mysql_field_count(conn->_conn));
 
@@ -716,9 +696,7 @@ Handle<Value> MysqlConnection::GetCharsetSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     MY_CHARSET_INFO cs;
 
@@ -748,9 +726,7 @@ Handle<Value> MysqlConnection::GetCharsetNameSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     Local<Value> js_result = V8STR(mysql_character_set_name(conn->_conn));
 
@@ -767,9 +743,7 @@ Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     MysqlConnectionInfo info = conn->GetInfo();
 
@@ -800,9 +774,7 @@ Handle<Value> MysqlConnection::GetInfoStringSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     const char *info = mysql_info(conn->_conn);
 
@@ -821,9 +793,7 @@ Handle<Value> MysqlConnection::GetWarningsSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     MYSQL_RES *result;
     MYSQL_ROW row;
@@ -910,9 +880,7 @@ Handle<Value> MysqlConnection::LastInsertIdSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     MYSQL_RES *result;
     my_ulonglong insert_id = 0;
@@ -938,9 +906,7 @@ Handle<Value> MysqlConnection::MultiMoreResultsSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     if (mysql_more_results(conn->_conn)) {
         return scope.Close(True());
@@ -959,9 +925,7 @@ Handle<Value> MysqlConnection::MultiNextResultSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     if (!mysql_more_results(conn->_conn)) {
         return THREXC("There is no next result set."
@@ -989,9 +953,7 @@ Handle<Value> MysqlConnection::MultiRealQuerySync(const Arguments& args) {
 
     REQ_STR_ARG(0, query)
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     MYSQLSYNC_ENABLE_MQ;
     if (mysql_real_query(conn->_conn, *query, query.length()) != 0) {
@@ -1125,9 +1087,7 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     struct query_request *query_req = (struct query_request *)
         calloc(1, sizeof(struct query_request));
@@ -1171,9 +1131,7 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
 
     REQ_STR_ARG(0, query)
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     MYSQLSYNC_DISABLE_MQ;
     MYSQL_RES *my_result = NULL;
@@ -1227,9 +1185,7 @@ Handle<Value> MysqlConnection::RollbackSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     if (mysql_rollback(conn->_conn)) {
         return scope.Close(False());
@@ -1320,9 +1276,7 @@ Handle<Value> MysqlConnection::RealQuerySync(const Arguments& args) {
 
     REQ_STR_ARG(0, query)
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     MYSQLSYNC_DISABLE_MQ;
 
@@ -1349,9 +1303,7 @@ Handle<Value> MysqlConnection::SelectDbSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     REQ_STR_ARG(0, dbname)
 
@@ -1373,9 +1325,7 @@ Handle<Value> MysqlConnection::SetCharsetSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     REQ_STR_ARG(0, charset)
 
@@ -1455,9 +1405,7 @@ Handle<Value> MysqlConnection::SetSslSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     REQ_STR_ARG(0, key)
     REQ_STR_ARG(1, cert)
@@ -1480,9 +1428,7 @@ Handle<Value> MysqlConnection::SqlStateSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     Local<Value> js_result = V8STR(mysql_sqlstate(conn->_conn));
 
@@ -1499,9 +1445,7 @@ Handle<Value> MysqlConnection::StatSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     const char *stat = mysql_stat(conn->_conn);
 
@@ -1555,9 +1499,7 @@ Handle<Value> MysqlConnection::ThreadIdSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     uint64_t thread_id = mysql_thread_id(conn->_conn);
 
@@ -1622,9 +1564,7 @@ Handle<Value> MysqlConnection::WarningCountSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    if (!conn->_conn) {
-        return THREXC("Not connected");
-    }
+    MYSQLCONN_MUSTBE_CONNECTED;
 
     uint32_t warning_count = mysql_warning_count(conn->_conn);
 
