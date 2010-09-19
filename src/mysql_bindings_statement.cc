@@ -57,7 +57,6 @@ void MysqlStatement::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(statement, freeResultSync, FreeResultSync);
     ADD_PROTOTYPE_METHOD(statement, lastInsertIdSync, LastInsertIdSync);
     ADD_PROTOTYPE_METHOD(statement, numRowsSync, NumRowsSync);
-    ADD_PROTOTYPE_METHOD(statement, paramCountSync, ParamCountSync);
     ADD_PROTOTYPE_METHOD(statement, prepareSync, PrepareSync);
     ADD_PROTOTYPE_METHOD(statement, resetSync, ResetSync);
     ADD_PROTOTYPE_METHOD(statement, resultMetadataSync, ResultMetadataSync);
@@ -471,19 +470,6 @@ Handle<Value> MysqlStatement::NumRowsSync(const Arguments& args) {
     }*/
 
     Local<Value> js_result = Integer::New(mysql_stmt_num_rows(stmt->_stmt));
-
-    return scope.Close(js_result);
-}
-
-Handle<Value> MysqlStatement::ParamCountSync(const Arguments& args) {
-    HandleScope scope;
-
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
-
-    MYSQLSTMT_MUSTBE_INITIALIZED;
-    MYSQLSTMT_MUSTBE_PREPARED;
-
-    Local<Value> js_result = Integer::New(mysql_stmt_param_count(stmt->_stmt));
 
     return scope.Close(js_result);
 }
