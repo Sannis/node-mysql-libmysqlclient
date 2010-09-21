@@ -1,3 +1,6 @@
 [submodule "tools/nodeunit"]
 	path = tools/nodeunit
 	url = git://github.com/caolan/nodeunit.git
+[submodule "tools/node-gc"]
+	path = tools/node-gc
+	url = git://github.com/billywhizz/node-gc.git
