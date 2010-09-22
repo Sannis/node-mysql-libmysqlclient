@@ -78,7 +78,8 @@ var
         conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
         str;
       
-      str = conn.escape("some string");
+      str = conn.escapeSync("some string");
+      conn.closeSync();
     }
   }
 
