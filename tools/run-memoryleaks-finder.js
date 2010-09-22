@@ -11,21 +11,74 @@ var
   sys = require("sys"),
   stdin = process.openStdin(),
   node_gc = require("./node-gc/gc"),
-  gc = new node_gc.GC();
+  gc = new node_gc.GC(),
+  mysql_libmysqlclient = require("../mysql-libmysqlclient"),
+  mysql_bindings = require("../mysql_bindings"),
+  cfg = require("./config").cfg;
 
 var
   initial_mu;
 
 var
   commands = {
-    q: function () {
+    quit: function () {
       process.exit(0);
     },
-    s: function () {
+    show: function () {
       show_memory_usage();
     },
     gc: function () {
       gc.collect();
+    },
+    help: function () {
+      sys.puts("List of commands:");
+      for (var i in commands) {
+        sys.puts(i);
+      }
+    },
+    create: function () {
+      var conn = new mysql_bindings.MysqlConnection();
+    },
+    error_c: function () {
+      var
+        conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied),
+        error = conn.connectionError;
+    },
+    error_q: function () {
+      var
+        conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password),
+        error;
+      
+      conn.querySync("USE " + cfg.database_denied + ";");
+      error = conn.errorSync();
+    },
+    fetch: function () {
+      var
+        conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+        res,
+        rows;
+      
+      res = conn.querySync("SELECT 'some string' as str;");
+      rows = res.fetchAllSync();
+      conn.closeSync();
+    },
+    fetch_f: function () {
+      var
+        conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+        res,
+        rows;
+      
+      res = conn.querySync("SELECT 'some string' as str;");
+      rows = res.fetchAllSync();
+      res.freeSync();
+      conn.closeSync();
+    },
+    escape: function () {
+      var
+        conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+        str;
+      
+      str = conn.escape("some string");
     }
   }
 
@@ -38,7 +91,8 @@ function show_memory_usage() {
   
   if (!initial_mu) {
     initial_mu = process.memoryUsage();
-    sys.puts("Initial memory usage: " + sys.inspect(initial_mu));
+    sys.puts("Initial memory usage:");
+    sys.puts(sys.inspect(initial_mu));
   } else {
     mu = process.memoryUsage();
     
@@ -49,7 +103,6 @@ function show_memory_usage() {
   }
 }
 
-
 process.on('exit', function () {
   show_memory_usage();
 });
@@ -57,6 +110,7 @@ process.on('exit', function () {
 // Main program
 
 sys.puts("Welcome to the memory leaks finder!");
+sys.puts("Type 'help' for options.");
 gc.collect();
 show_memory_usage();
 sys.print("mlf> ");
@@ -69,9 +123,15 @@ stdin.addListener("data", function(str) {
   pair[1] = parseInt(pair[1]) > 0 ? parseInt(pair[1]) : 1;
   
   if (commands[pair[0]]) {
-    for (var i = 0; i < pair[1]; i += 1) {
-      commands[pair[0]].apply();
+    try {
+        for (var i = 0; i < pair[1]; i += 1) {
+          commands[pair[0]].apply();
+        }
+    } catch (e) {
+      sys.puts("Exception caused!");
+      sys.puts(sys.inspect(e.stack));
     }
+    show_memory_usage();
   } else {
     sys.puts("Unrecognized command: " + pair[0]);
   }

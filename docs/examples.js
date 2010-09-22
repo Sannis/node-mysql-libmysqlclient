@@ -53,6 +53,8 @@ while ((row = result.fetchArraySync())) {
 }
 sys.puts("");
 
+result.freeSync();
+
 /**
  * Show tables in test database
  * Use high-level functions
@@ -84,6 +86,8 @@ conn.query("SELECT * FROM " + test_table + ";", function (err, res) {
     
     sys.puts("Rows in table '" + database + "." + test_table + "':");
     sys.puts(sys.inspect(rows));
+    
+    res.freeSync();
   });
 });
 
