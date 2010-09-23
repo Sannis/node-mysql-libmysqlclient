@@ -3,10 +3,12 @@ Node-mysql-libmysqlclient
 
 MySQL bindings for [Node.js] using libmysqlclient.  
 Check out the [Github repo] for the source code.  
+Visit [module site] for API docs and examples.  
 Extra information available in [wiki].
 
 [Node.js]: http://nodejs.org/
 [Github repo]: http://github.com/Sannis/node-mysql-libmysqlclient
+[module site]: http://sannis.github.com/node-mysql-libmysqlclient
 [wiki]: http://github.com/Sannis/node-mysql-libmysqlclient/wiki
 
 
@@ -66,7 +68,7 @@ I'll be glad to see your forks and commits in them :)
 To contribute any patches, simply fork this repository using GitHub
 and send a pull request to [me](http://github.com/Sannis). Thanks!
 
-You can find other information about [contributing and code style guide in wiki](http://wiki.github.com/Sannis/node-mysql-libmysqlclient/contributing).
+You can find other information about [contributing and code style guide in wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki/contributing).
 
 
 Contributors
