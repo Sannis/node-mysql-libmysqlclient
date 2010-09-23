@@ -24,7 +24,7 @@ var
     quit: function () {
       process.exit(0);
     },
-    show: function () {
+    show_memory_usage: function () {
       show_memory_usage();
     },
     gc: function () {
@@ -36,15 +36,15 @@ var
         sys.puts(i);
       }
     },
-    create: function () {
+    new_connection: function () {
       var conn = new mysql_bindings.MysqlConnection();
     },
-    error_c: function () {
+    error_in_connect: function () {
       var
         conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied),
         error = conn.connectionError;
     },
-    error_q: function () {
+    error_in_query: function () {
       var
         conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password),
         error;
@@ -52,7 +52,7 @@ var
       conn.querySync("USE " + cfg.database_denied + ";");
       error = conn.errorSync();
     },
-    fetch: function () {
+    fetch_all: function () {
       var
         conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
         res,
@@ -62,7 +62,7 @@ var
       rows = res.fetchAllSync();
       conn.closeSync();
     },
-    fetch_f: function () {
+    fetch_all_and_free: function () {
       var
         conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
         res,
