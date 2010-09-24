@@ -57,6 +57,8 @@ var
       
       conn.querySync("USE " + cfg.database_denied + ";");
       error = conn.errorSync();
+      
+      conn.closeSync();
     },
     fetch_all: function () {
       var
@@ -66,6 +68,7 @@ var
       
       res = conn.querySync("SELECT 'some string' as str;");
       rows = res.fetchAllSync();
+      
       conn.closeSync();
     },
     fetch_all_and_free: function () {
@@ -76,6 +79,34 @@ var
       
       res = conn.querySync("SELECT 'some string' as str;");
       rows = res.fetchAllSync();
+      
+      res.freeSync();
+      conn.closeSync();
+    },
+    fetch_lowlevel: function () {
+      var
+        conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+        res,
+        row;
+      
+      conn.realQuerySync("SHOW TABLES;");
+      res = conn.storeResultSync();
+      
+      while ((row = res.fetchArraySync())) {}
+      
+      conn.closeSync();
+    },
+    fetch_lowlevel_and_free: function () {
+      var
+        conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+        res,
+        row;
+      
+      conn.realQuerySync("SHOW TABLES;");
+      res = conn.storeResultSync();
+      
+      while ((row = res.fetchArraySync())) {}
+      
       res.freeSync();
       conn.closeSync();
     },
@@ -85,6 +116,7 @@ var
         str;
       
       str = conn.escapeSync("some string");
+      
       conn.closeSync();
     }
   }
