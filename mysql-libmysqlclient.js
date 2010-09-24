@@ -10,7 +10,7 @@
  *
  * @ignore
  */
-var binding = require(require('path').join(__dirname, "mysql_bindings"));
+var binding = require("./mysql_bindings");
 
 /**
  * Create connection to database
