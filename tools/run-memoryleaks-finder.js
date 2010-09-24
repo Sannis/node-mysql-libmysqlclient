@@ -9,12 +9,18 @@ See license text in LICENSE file
 // Require modules
 var
   sys = require("sys"),
-  stdin = process.openStdin(),
-  node_gc = require("./node-gc/gc"),
+  stdin,
+  readline = require('readline'),
+  rli,
+  node_gc = require("./node-gc/gc");
   gc = new node_gc.GC(),
   mysql_libmysqlclient = require("../mysql-libmysqlclient"),
   mysql_bindings = require("../mysql_bindings"),
   cfg = require("./config").cfg;
+
+var
+  prompt = "mlf> ",
+  buffered_cmd;
 
 var
   initial_mu;
@@ -31,9 +37,9 @@ var
       gc.collect();
     },
     help: function () {
-      sys.puts("List of commands:");
+      stdin.write("List of commands:\n");
       for (var i in commands) {
-        sys.puts(i);
+        stdin.write(i + "\n");
       }
     },
     new_connection: function () {
@@ -84,7 +90,11 @@ var
   }
 
 function show_memory_usage_line(title, value0, value1) {
-  sys.puts(title + ": " + value1 + (value1 > value0 ? " (+" : " (") + (100*(value1 - value0)/value0).toFixed(2) + "%)");
+  if (value1) {
+    stdin.write(title + ": " + value1 + (value1 > value0 ? " (+" : " (") + (100*(value1 - value0)/value0).toFixed(2) + "%)\n");
+  } else {
+    sys.puts(title + ": " + value0 + "\n");
+  }
 }
 
 function show_memory_usage() {
@@ -92,51 +102,83 @@ function show_memory_usage() {
   
   if (!initial_mu) {
     initial_mu = process.memoryUsage();
+    
     sys.puts("Initial memory usage:");
-    sys.puts(sys.inspect(initial_mu));
+    sys.puts("rss: " + initial_mu.rss);
+    sys.puts("vsize: " + initial_mu.vsize);
+    sys.puts("heapUsed: " + initial_mu.heapUsed);
   } else {
     mu = process.memoryUsage();
     
-    sys.puts("Currect memory usage:");
+    stdin.write("Currect memory usage:\n");
     show_memory_usage_line("rss", initial_mu.rss, mu.rss);
     show_memory_usage_line("vsize", initial_mu.vsize, mu.vsize);
     show_memory_usage_line("heapUsed", initial_mu.heapUsed, mu.heapUsed);
   }
 }
 
-process.on('exit', function () {
-  show_memory_usage();
-});
-
 // Main program
-
 sys.puts("Welcome to the memory leaks finder!");
 sys.puts("Type 'help' for options.");
 gc.collect();
 show_memory_usage();
-sys.print("mlf> ");
-stdin.setEncoding('ascii');
-stdin.addListener("data", function(str) {
-  str = str.trim();
+
+stdin = process.openStdin();
+rli = readline.createInterface(stdin, function (text) {
+  //return complete(text);
+  var
+    completions =[],
+    completeOn;
   
-  var pair = str.split(' ');
+  completeOn = text;
+  for (var i in commands) {
+    if (i.match(new RegExp("^" + text))) {
+      completions.push(i);
+    }
+  }
   
+  return [completions, completeOn];
+});
+
+rli.on("SIGINT", function () {
+  rli.close();
+});
+
+rli.addListener('close', function () {
+  show_memory_usage();
+  stdin.destroy();
+});
+
+rli.addListener('line', function (cmd) {
+  var flushed = true;
+
+  var pair = cmd.trim().split(/\s+/);
+
+  pair[0] = pair[0].trim();
   pair[1] = parseInt(pair[1]) > 0 ? parseInt(pair[1]) : 1;
-  
+
   if (commands[pair[0]]) {
     try {
         for (var i = 0; i < pair[1]; i += 1) {
           commands[pair[0]].apply();
         }
     } catch (e) {
-      sys.puts("Exception caused!");
-      sys.puts(sys.inspect(e.stack));
+      stdin.write("Exception caused!\n");
+      stdin.write(sys.inspect(e.stack) + "\n");
     }
-    show_memory_usage();
-  } else {
-    sys.puts("Unrecognized command: " + pair[0]);
+    if (pair[0] != "help") {
+      show_memory_usage();
+    }
+  } else if (pair[0] != "") {
+    stdin.write("Unrecognized command: " + pair[0] + "\n");
+    commands['help']();
   }
-  
-  sys.print("mlf> ");
+
+  rli.prompt();
 });
+stdin.addListener("data", function (chunk) {
+  rli.write(chunk);
+});
+rli.setPrompt(prompt);
+rli.prompt();
 
