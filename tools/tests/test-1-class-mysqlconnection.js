@@ -185,13 +185,21 @@ exports.ChangeUserSync = function (test) {
   test.ok(!conn.changeUserSync(cfg.user, cfg.password, cfg.database_denied), "conn.changeUserSync() with denied database selection");
   test.ok(conn.changeUserSync(cfg.user, cfg.password, cfg.database), "conn.changeUserSync() with database selection 2");
   
-  test.throws(function () {conn.changeUserSync(1, cfg.password);}, TypeError, "conn.changeUserSync() with not string user argument");
+  test.throws(function () {
+    conn.changeUserSync(1, cfg.password);
+  }, TypeError, "conn.changeUserSync() with not string user argument");
   
-  test.throws(function () {conn.changeUserSync(cfg.user, 2);}, TypeError, "conn.changeUserSync() with not string password argument");
+  test.throws(function () {
+    conn.changeUserSync(cfg.user, 2);
+  }, TypeError, "conn.changeUserSync() with not string password argument");
   
-  test.throws(function () {conn.changeUserSync(cfg.user, cfg.password, 3);}, TypeError, "conn.changeUserSync() with not string database argument");
+  test.throws(function () {
+    conn.changeUserSync(cfg.user, cfg.password, 3);
+  }, TypeError, "conn.changeUserSync() with not string database argument");
   
-  test.throws(function () {conn.changeUserSync(cfg.user);}, TypeError, "conn.changeUserSync() without password argument");
+  test.throws(function () {
+    conn.changeUserSync(cfg.user);
+  }, TypeError, "conn.changeUserSync() without password argument");
   
   conn.closeSync();
   
@@ -258,7 +266,9 @@ exports.CloseSync = function (test) {
   conn.closeSync();
   test.ok(!conn.connectedSync(), "conn.connectedSync() after close");
   
-  test.throws(function () {conn.closeSync();}, "conn.closeSync() with closed connection");
+  test.throws(function () {
+    conn.closeSync();
+  }, "conn.closeSync() with closed connection");
   
   test.done();
 };

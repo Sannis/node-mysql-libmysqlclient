@@ -71,21 +71,23 @@ return ThrowException(Exception::TypeError( \
 String::New("Argument " #I " invalid"))); \
 Local<External> VAR = Local<External>::Cast(args[I]);
 
-#define MYSQLSYNC_DISABLE_MQ if (conn->multi_query) { \
+#define MYSQLSYNC_DISABLE_MQ \
+if (conn->multi_query) { \
     mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_OFF); \
     conn->multi_query = false; \
 }
 
-#define MYSQLSYNC_ENABLE_MQ if (!conn->multi_query) { \
+#define MYSQLSYNC_ENABLE_MQ \
+if (!conn->multi_query) { \
     mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_ON); \
     conn->multi_query = true; \
 }
 
 #define MYSQL_NON_THREADSAFE_ERRORSTRING \
-        "Asynchronous functions works only with threadsafe libmysqlclient_r"
+    "Asynchronous functions works only with threadsafe libmysqlclient_r"
 
 #define MYSQLCONN_MUSTBE_CONNECTED \
-   if (!conn->_conn) { \
+    if (!conn->_conn) { \
         return THREXC("Not connected"); \
     }
 
