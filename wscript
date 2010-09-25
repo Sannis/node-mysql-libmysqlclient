@@ -56,7 +56,7 @@ def lint(lnt):
   Utils.exec_command('cpplint ./src/*.h ./src/*.cc')
   # Bindings javascript code, tools and tests
   print("Run Nodeint:")
-  Utils.exec_command('nodelint --config ./nodelint.cfg ./package.json ./mysql-libmysqlclient.js ./docs/*.js ./tools/*.js ./tools/tests/*.js')
+  Utils.exec_command('nodelint ./package.json ./mysql-libmysqlclient.js ./docs/*.js ./tools/*.js ./tools/tests/*.js')
 
 def docs(dcs):
   print("Parse README:")
