@@ -226,9 +226,7 @@ pre.shell code .prompt-root { color: #912121; }
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">info</span>.<span class="class">Holder</span>());
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">conn</span>-&gt;<span class="variable">connect_errno</span>);
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">conn</span>-&gt;<span class="variable">connect_errno</span>));
 }</code></pre>
                 </td>
             </tr>
@@ -249,10 +247,7 @@ pre.shell code .prompt-root { color: #912121; }
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">info</span>.<span class="class">Holder</span>());
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">V8STR</span>(<span class="variable">conn</span>-&gt;<span class="variable">connect_error</span> ?
-                                   <span class="variable">conn</span>-&gt;<span class="variable">connect_error</span> : <span class="string">&quot;&quot;</span>);
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">V8STR</span>(<span class="variable">conn</span>-&gt;<span class="variable">connect_error</span> ? <span class="variable">conn</span>-&gt;<span class="variable">connect_error</span> : <span class="string">&quot;&quot;</span>));
 }</code></pre>
                 </td>
             </tr>
@@ -270,19 +265,15 @@ pre.shell code .prompt-root { color: #912121; }
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="variable">my_ulonglong</span> <span class="variable">affected_rows</span> = <span class="variable">mysql_affected_rows</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>);
 
     <span class="keyword">if</span> (<span class="variable">affected_rows</span> == ((<span class="variable">my_ulonglong</span>)-<span class="number integer">1</span>)) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Error occured in mysql_affected_rows(), -1 returned&quot;</span>);
+        <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">Integer</span>::<span class="class">New</span>(-<span class="number integer">1</span>));
     }
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">affected_rows</span>);
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">affected_rows</span>));
 }</code></pre>
                 </td>
             </tr>
@@ -300,15 +291,11 @@ pre.shell code .prompt-root { color: #912121; }
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
-    <span class="keyword">if</span> ( <span class="variable">args</span>.<span class="class">Length</span>() &lt; <span class="number integer">1</span> ) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Must give boolean automode flag as argument&quot;</span>);
-    }
+    <span class="class">REQ_BOOL_ARG</span>(<span class="number integer">0</span>, <span class="variable">autocomit</span>)
 
-    <span class="keyword">if</span> (<span class="variable">mysql_autocommit</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>, <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">BooleanValue</span>())) {
+    <span class="keyword">if</span> (<span class="variable">mysql_autocommit</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>, <span class="variable">autocomit</span>)) {
         <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">False</span>());
     }
 
@@ -330,9 +317,7 @@ pre.shell code .prompt-root { color: #912121; }
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected yet&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">REQ_STR_ARG</span>(<span class="number integer">0</span>, <span class="variable">user</span>)
 
@@ -375,9 +360,7 @@ pre.shell code .prompt-root { color: #912121; }
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="keyword">if</span> (<span class="variable">mysql_commit</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>)) {
         <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">False</span>());
@@ -586,9 +569,7 @@ pre.shell code .prompt-root { color: #912121; }
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="variable">conn</span>-&gt;<span class="class">Close</span>();
 
@@ -610,9 +591,7 @@ pre.shell code .prompt-root { color: #912121; }
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">REQ_STR_ARG</span>(<span class="number integer">0</span>, <span class="variable">debug</span>)
 
@@ -635,9 +614,7 @@ pre.shell code .prompt-root { color: #912121; }
     <span class="class">HandleScope</span> <span class="variable">scope</span>;
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">mysql_dump_debug_info</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) ? <span class="class">False</span>() : <span class="class">True</span>());
 }</code></pre>
@@ -657,13 +634,9 @@ pre.shell code .prompt-root { color: #912121; }
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">mysql_errno</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>));
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">mysql_errno</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>)));
 }</code></pre>
                 </td>
             </tr>
@@ -681,15 +654,11 @@ pre.shell code .prompt-root { color: #912121; }
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="keyword">const</span> <span class="keyword">char</span> *<span class="variable">error</span> = <span class="variable">mysql_error</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>);
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">V8STR</span>(<span class="variable">error</span>);
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">V8STR</span>(<span class="variable">error</span>));
 }</code></pre>
                 </td>
             </tr>
@@ -708,9 +677,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">REQ_STR_ARG</span>(<span class="number integer">0</span>, <span class="variable">str</span>)
 
@@ -745,13 +712,9 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">mysql_field_count</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>));
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">mysql_field_count</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>)));
 }</code></pre>
                 </td>
             </tr>
@@ -769,9 +732,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">MY_CHARSET_INFO</span> <span class="variable">cs</span>;
 
@@ -806,13 +767,9 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">V8STR</span>(<span class="variable">mysql_character_set_name</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>));
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">V8STR</span>(<span class="variable">mysql_character_set_name</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>)));
 }</code></pre>
                 </td>
             </tr>
@@ -830,24 +787,17 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">MysqlConnectionInfo</span> <span class="variable">info</span> = <span class="variable">conn</span>-&gt;<span class="class">GetInfo</span>();
 
     <span class="class">Local</span>&lt;<span class="class">Object</span>&gt; <span class="variable">js_result</span> = <span class="class">Object</span>::<span class="class">New</span>();
 
     <span class="variable">js_result</span>-&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="string">&quot;client_version&quot;</span>), <span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">info</span>.<span class="variable">client_version</span>));
-
     <span class="variable">js_result</span>-&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="string">&quot;client_info&quot;</span>), <span class="class">V8STR</span>(<span class="variable">info</span>.<span class="variable">client_info</span>));
-
     <span class="variable">js_result</span>-&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="string">&quot;server_version&quot;</span>), <span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">info</span>.<span class="variable">server_version</span>));
-
     <span class="variable">js_result</span>-&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="string">&quot;server_info&quot;</span>), <span class="class">V8STR</span>(<span class="variable">info</span>.<span class="variable">server_info</span>));
-
     <span class="variable">js_result</span>-&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="string">&quot;host_info&quot;</span>), <span class="class">V8STR</span>(<span class="variable">info</span>.<span class="variable">host_info</span>));
-
     <span class="variable">js_result</span>-&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="string">&quot;proto_info&quot;</span>), <span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">info</span>.<span class="variable">proto_info</span>));
 
     <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
@@ -868,15 +818,11 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="keyword">const</span> <span class="keyword">char</span> *<span class="variable">info</span> = <span class="variable">mysql_info</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>);
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">V8STR</span>(<span class="variable">info</span> ? <span class="variable">info</span> : <span class="string">&quot;&quot;</span>);
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">V8STR</span>(<span class="variable">info</span> ? <span class="variable">info</span> : <span class="string">&quot;&quot;</span>));
 }</code></pre>
                 </td>
             </tr>
@@ -894,9 +840,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">MYSQL_RES</span> *<span class="variable">result</span>;
     <span class="class">MYSQL_ROW</span> <span class="variable">row</span>;
@@ -999,9 +943,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">MYSQL_RES</span> *<span class="variable">result</span>;
     <span class="variable">my_ulonglong</span> <span class="variable">insert_id</span> = <span class="number integer">0</span>;
@@ -1012,9 +954,7 @@ taking into account the current charset of the connection</p>
         <span class="variable">insert_id</span> = <span class="variable">mysql_insert_id</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>);
     }
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">insert_id</span>);
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">insert_id</span>));
 }</code></pre>
                 </td>
             </tr>
@@ -1032,9 +972,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="keyword">if</span> (<span class="variable">mysql_more_results</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>)) {
         <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">True</span>());
@@ -1058,9 +996,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="keyword">if</span> (!<span class="variable">mysql_more_results</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>)) {
         <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;There is no next result set.&quot;</span>
@@ -1092,9 +1028,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">REQ_STR_ARG</span>(<span class="number integer">0</span>, <span class="variable">query</span>)
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">MYSQLSYNC_ENABLE_MQ</span>;
     <span class="keyword">if</span> (<span class="variable">mysql_real_query</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>, *<span class="variable">query</span>, <span class="variable">query</span>.<span class="variable">length</span>()) != <span class="number integer">0</span>) {
@@ -1121,9 +1055,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected yet&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="keyword">if</span> (<span class="variable">mysql_ping</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>)) {
         <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">False</span>());
@@ -1241,9 +1173,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="keyword">struct</span> <span class="variable">query_request</span> *<span class="variable">query_req</span> = (<span class="keyword">struct</span> <span class="variable">query_request</span> *)
         <span class="variable">calloc</span>(<span class="number integer">1</span>, <span class="keyword">sizeof</span>(<span class="keyword">struct</span> <span class="variable">query_request</span>));
@@ -1291,9 +1221,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">REQ_STR_ARG</span>(<span class="number integer">0</span>, <span class="variable">query</span>)
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">MYSQLSYNC_DISABLE_MQ</span>;
     <span class="class">MYSQL_RES</span> *<span class="variable">my_result</span> = <span class="class">NULL</span>;
@@ -1312,7 +1240,6 @@ taking into account the current charset of the connection</p>
 
     <span class="keyword">if</span> (<span class="variable">r</span> != <span class="number integer">0</span>) {
         <span class="comment">// Query error</span>
-        <span class="comment">// TODO(Sannis): change this to THREXC()?</span>
         <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">False</span>());
     }
 
@@ -1322,7 +1249,6 @@ taking into account the current charset of the connection</p>
             <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">True</span>());
         } <span class="keyword">else</span> {
             <span class="comment">// Error</span>
-            <span class="comment">// TODO(Sannis): change this to THREXC()?</span>
             <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">False</span>());
         }
     }
@@ -1352,9 +1278,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="keyword">if</span> (<span class="variable">mysql_rollback</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>)) {
         <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">False</span>());
@@ -1378,9 +1302,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not initialized, execute conn.initSync() before&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">String</span>::<span class="class">Utf8Value</span> <span class="variable">hostname</span>(<span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">ToString</span>());
     <span class="class">String</span>::<span class="class">Utf8Value</span> <span class="variable">user</span>(<span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">ToString</span>());
@@ -1448,9 +1370,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">REQ_STR_ARG</span>(<span class="number integer">0</span>, <span class="variable">query</span>)
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">MYSQLSYNC_DISABLE_MQ</span>;
 
@@ -1481,9 +1401,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">REQ_STR_ARG</span>(<span class="number integer">0</span>, <span class="variable">dbname</span>)
 
@@ -1509,9 +1427,7 @@ taking into account the current charset of the connection</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">REQ_STR_ARG</span>(<span class="number integer">0</span>, <span class="variable">charset</span>)
 
@@ -1595,9 +1511,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="class">REQ_STR_ARG</span>(<span class="number integer">0</span>, <span class="variable">key</span>)
     <span class="class">REQ_STR_ARG</span>(<span class="number integer">1</span>, <span class="variable">cert</span>)
@@ -1625,13 +1539,9 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">V8STR</span>(<span class="variable">mysql_sqlstate</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>));
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">V8STR</span>(<span class="variable">mysql_sqlstate</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>)));
 }</code></pre>
                 </td>
             </tr>
@@ -1649,19 +1559,11 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="keyword">const</span> <span class="keyword">char</span> *<span class="variable">stat</span> = <span class="variable">mysql_stat</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>);
 
-    <span class="keyword">if</span> (<span class="variable">stat</span>) {
-        <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">V8STR</span>(<span class="variable">stat</span>);
-
-        <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
-    } <span class="keyword">else</span> {
-        <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">False</span>());
-    }
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">V8STR</span>(<span class="variable">stat</span> ? <span class="variable">stat</span> : <span class="string">&quot;&quot;</span>));
 }</code></pre>
                 </td>
             </tr>
@@ -1729,15 +1631,11 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="variable">uint64_t</span> <span class="variable">thread_id</span> = <span class="variable">mysql_thread_id</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>);
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">thread_id</span>);
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">thread_id</span>));
 }</code></pre>
                 </td>
             </tr>
@@ -1825,15 +1723,11 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not connected&quot;</span>);
-    }
+    <span class="class">MYSQLCONN_MUSTBE_CONNECTED</span>;
 
     <span class="variable">uint32_t</span> <span class="variable">warning_count</span> = <span class="variable">mysql_warning_count</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>);
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">warning_count</span>);
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">warning_count</span>));
 }
 
 </code></pre>
@@ -1884,9 +1778,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">info</span>.<span class="class">Holder</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="keyword">if</span> (<span class="variable">res</span>-&gt;<span class="variable">field_count</span> &gt; <span class="number integer">0</span>) {
         <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">res</span>-&gt;<span class="variable">field_count</span>));
@@ -1910,9 +1802,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="class">REQ_UINT_ARG</span>(<span class="number integer">0</span>, <span class="variable">offset</span>)
 
@@ -2042,9 +1932,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>()); <span class="comment">// NOLINT</span>
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="keyword">struct</span> <span class="variable">fetchAll_request</span> *<span class="variable">fetchAll_req</span> = (<span class="keyword">struct</span> <span class="variable">fetchAll_request</span> *)
         <span class="variable">calloc</span>(<span class="number integer">1</span>, <span class="keyword">sizeof</span>(<span class="keyword">struct</span> <span class="variable">fetchAll_request</span>));
@@ -2081,9 +1969,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="class">MYSQL_FIELD</span> *<span class="variable">fields</span> = <span class="variable">mysql_fetch_fields</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>);
     <span class="variable">uint32_t</span> <span class="variable">num_fields</span> = <span class="variable">mysql_num_fields</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>);
@@ -2127,9 +2013,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="class">MYSQL_FIELD</span> *<span class="variable">fields</span> = <span class="variable">mysql_fetch_fields</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>);
     <span class="variable">uint32_t</span> <span class="variable">num_fields</span> = <span class="variable">mysql_num_fields</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>);
@@ -2170,9 +2054,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="class">MYSQL_FIELD</span> *<span class="variable">field</span>;
 
@@ -2205,9 +2087,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="class">REQ_INT_ARG</span>(<span class="number integer">0</span>, <span class="variable">field_num</span>)
 
@@ -2242,9 +2122,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="variable">uint32_t</span> <span class="variable">num_fields</span> = <span class="variable">mysql_num_fields</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>);
     <span class="class">MYSQL_FIELD</span> *<span class="variable">field</span>;
@@ -2280,9 +2158,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="variable">uint32_t</span> <span class="variable">num_fields</span> = <span class="variable">mysql_num_fields</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>);
     <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">int</span> *<span class="variable">lengths</span> = <span class="variable">mysql_fetch_lengths</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>); <span class="comment">// NOLINT (unsigned long required by API)</span>
@@ -2316,9 +2192,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="class">MYSQL_FIELD</span> *<span class="variable">fields</span> = <span class="variable">mysql_fetch_fields</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>);
     <span class="variable">uint32_t</span> <span class="variable">num_fields</span> = <span class="variable">mysql_num_fields</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>);
@@ -2360,9 +2234,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="class">REQ_UINT_ARG</span>(<span class="number integer">0</span>, <span class="variable">field_num</span>)
 
@@ -2390,13 +2262,9 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">mysql_field_tell</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>));
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">mysql_field_tell</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>)));
 }</code></pre>
                 </td>
             </tr>
@@ -2411,9 +2279,7 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="variable">res</span>-&gt;<span class="class">Free</span>();
 
@@ -2435,17 +2301,13 @@ Used for establishing secure connections</p>
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
-    <span class="keyword">if</span> (!<span class="variable">res</span>-&gt;<span class="variable">_res</span>) {
-        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Result has been freed.&quot;</span>);
-    }
+    <span class="class">MYSQLRES_MUSTBE_VALID</span>;
 
     <span class="keyword">if</span> (<span class="variable">mysql_result_is_unbuffered</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>)) {
         <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Function cannot be used with MYSQL_USE_RESULT&quot;</span>);
     }
 
-    <span class="class">Local</span>&lt;<span class="class">Value</span>&gt; <span class="variable">js_result</span> = <span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">mysql_num_rows</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>));
-
-    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>);
+    <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">mysql_num_rows</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>)));
 }
 
 </code></pre>
