@@ -204,7 +204,9 @@ Use low-level functions
 <span class="keyword">while</span> ((<span class="variable">row</span> = <span class="variable">result</span>.<span class="variable">fetchArraySync</span>())) {
   <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="variable">row</span>[<span class="number integer">0</span>]);
 }
-<span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;&quot;</span>);</code></pre>
+<span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;&quot;</span>);
+
+<span class="variable">result</span>.<span class="variable">freeSync</span>();</code></pre>
                 </td>
             </tr>
             <tr class="code">
@@ -249,6 +251,8 @@ Use high-level functions
     
     <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;Rows in table '&quot;</span> + <span class="variable">database</span> + <span class="string">&quot;.&quot;</span> + <span class="variable">test_table</span> + <span class="string">&quot;':&quot;</span>);
     <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="variable">sys</span>.<span class="variable">inspect</span>(<span class="variable">rows</span>));
+    
+    <span class="variable">res</span>.<span class="variable">freeSync</span>();
   });
 });</code></pre>
                 </td>
