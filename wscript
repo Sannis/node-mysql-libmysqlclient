@@ -16,6 +16,7 @@ VERSION = "0.0.10"
 def set_options(opt):
   opt.tool_options("compiler_cxx")
   opt.add_option('--mysql-config', action='store', default='mysql_config', help='Path to mysql_config, e.g. /usr/bin/mysql_config')
+  opt.add_option('--all', action='store_true', help='Run all tests, include slow')
 
 def configure(conf):
   conf.check_tool("compiler_cxx")
@@ -48,7 +49,10 @@ def test(tst):
     print("\033[31mNodeunit doesn't exists.\033[39m\nYou should run `git submodule update --init` before run tests.")
     exit(1)
   else:
-    Utils.exec_command('node ./tools/nodeunit/lib/testrunner.js tests/*.js')
+    if Options.options.all:
+      Utils.exec_command('node ./tools/nodeunit/lib/testrunner.js tests/simple tests/complex tests/slow')
+    else:
+      Utils.exec_command('node ./tools/nodeunit/lib/testrunner.js tests/simple tests/complex')
 
 def lint(lnt):
   # Bindings C++ source code

@@ -7,7 +7,7 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("./config").cfg;
+var cfg = require("../tests/config").cfg;
 
 // Require modules
 var

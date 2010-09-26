@@ -5,13 +5,13 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../tools/config").cfg;
+var cfg = require("../config").cfg;
 
 // Require modules
 var
   sys = require("sys"),
-  mysql_libmysqlclient = require("../mysql-libmysqlclient"),
-  mysql_bindings = require("../mysql_bindings");
+  mysql_libmysqlclient = require("../../mysql-libmysqlclient"),
+  mysql_bindings = require("../../mysql_bindings");
 
 /*
 Complex test for methods:

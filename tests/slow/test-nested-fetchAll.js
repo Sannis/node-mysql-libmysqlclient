@@ -1,4 +1,4 @@
-#!/usr/bin/env node_g
+#!/usr/bin/env node
 /*
 Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
 See contributors list in README
@@ -7,12 +7,12 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("./config").cfg;
+var cfg = require("../config").cfg;
 
 // Require modules
 var
   sys = require("sys"),
-  mysql_libmysqlclient = require("../mysql-libmysqlclient");
+  mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
 
 var

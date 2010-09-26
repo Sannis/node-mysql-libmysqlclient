@@ -16,7 +16,7 @@ var
   gc = new node_gc.GC(),
   mysql_libmysqlclient = require("../mysql-libmysqlclient"),
   mysql_bindings = require("../mysql_bindings"),
-  cfg = require("./config").cfg,
+  cfg = require("../tests/config").cfg,
 // Params
   prompt = "mlf> ",
   commands,
