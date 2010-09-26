@@ -13,45 +13,122 @@ var
   sys = require("sys"),
   mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
-exports.NestedQueryMany = function (test) {
+exports.Setup = function (test) {
+  test.expect(0);
+  
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+  
+  conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
+  conn.querySync("CREATE TABLE " + cfg.test_table +
+    " (number INT(8) NOT NULL) TYPE=MEMORY;");
+  
+  conn.closeSync();
+  
+  test.done();
+};
+
+exports.QueriesNested = function (test) {
   test.expect(2);
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    random_boolean,
-    i, ci = 0;
+    test_result,
+    test_order = "";
   
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  test_order += "s";
   
-  conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL) TYPE=MEMORY;");
-  
-  for (i = 0; i < cfg.insert_rows_count; i += 1) {
-    random_boolean = (Math.random() > 0.5) ? 1 : 0;
+  conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('1');", function (err, result) {
+    if (err) {
+      throw err;
+    }
     
-    conn.query("INSERT INTO " + cfg.test_table +
-      " (random_number, random_boolean) VALUES ('" + i +
-      "', '" + random_boolean + "');", function (err, result) {
+    test_order += "1";
+    
+    conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('2');", function (err, result) {
+      if (err) {
+        throw err;
+      }
+      
+      test_order += "2";
+      
+      conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('3');", function (err, result) {
         if (err) {
-          sys.puts(conn.errorSync())
           throw err;
         }
         
-        ci += 1;
+        test_order += "3";
         
-        if (ci === cfg.insert_rows_count) {
-          conn.query("SELECT COUNT(random_number) AS c FROM " + cfg.test_table + ";", function (err, result) {
-            if (err) {
-              throw err;
-            }
-            
-            test.equals(result.fetchAllSync()[0].c, cfg.insert_rows_count);
-            conn.closeSync();
-            test.done();
-          });
-        }
+        (function () {
+          test.equals(test_order, "sf123");
+          
+          test_result = conn.querySync("SELECT number FROM " + cfg.test_table + ";").fetchAllSync();
+          test.same(test_result, [{number: 1}, {number: 2}, {number: 3}]);
+          
+          conn.closeSync();
+          test.done();
+        }());
       });
+    });
+  });
+  
+  test_order += "f";
+};
+
+exports.ManyQueriesNested = function (test) {
+  test.expect(1);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    helper,
+    test_result,
+    i = 0;
+  
+  helper = function () {
+    i += 1;
+    if (i <= cfg.slow_inserts_count) {
+      conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('" + i + "');", function (err, result) {
+        if (err) {
+          throw err;
+        }
+        
+        helper();
+      });
+    } else {
+      test_result = conn.querySync("SELECT COUNT(number) AS c FROM " + cfg.test_table + ";").fetchAllSync()[0].c;
+      test.equals(test_result, cfg.slow_inserts_count + 3);
+      
+      conn.closeSync();
+      test.done();
+    }
+  };
+  
+  helper();
+};
+
+exports.ManyQueriesInLoop = function (test) {
+  test.expect(1);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    test_result,
+    i = 0, ci = 0;
+  
+  for (i = 0; i < cfg.slow_inserts_count; i += 1) {
+    conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('" + i + "');", function (err, result) {
+      if (err) {
+        throw err;
+      }
+      
+      ci += 1;
+      
+      if (ci === cfg.slow_inserts_count) {
+        test_result = conn.querySync("SELECT COUNT(number) AS c FROM " + cfg.test_table + ";").fetchAllSync()[0].c;
+        test.equals(test_result, 2 * cfg.slow_inserts_count + 3);
+        
+        conn.closeSync();
+        test.done();
+      }
+    });
   }
 };
 

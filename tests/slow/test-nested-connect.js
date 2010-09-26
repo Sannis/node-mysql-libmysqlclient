@@ -13,46 +13,109 @@ var
   sys = require("sys"),
   mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
-exports.NestedConnect = function (test) {
-  test.expect(2);
+exports.ConnectsNested = function (test) {
+  test.expect(1);
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    test_string = "";
+    test_order = "";
   
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  test_order += "s";
   
-  test_string += "s";
+  conn.closeSync();
   conn.connect(cfg.host, cfg.user, cfg.password, function (err) {
     if (err) {
       throw err;
     }
     
-    test_string += "1";
-    conn.closeSync();
+    test_order += "1";
     
+    conn.closeSync();
     conn.connect(cfg.host, cfg.user, cfg.password, function (err) {
       if (err) {
         throw err;
       }
       
-      test_string += "2";
-      conn.closeSync();
+      test_order += "2";
       
+      conn.closeSync();
       conn.connect(cfg.host, cfg.user, cfg.password, function (err) {
         if (err) {
           throw err;
         }
         
-        test_string += "3";
-        conn.closeSync();
+        test_order += "3";
         
-        test.equals(test_string, "sf123");
-        test.done();
+        (function () {
+          test.equals(test_order, "sf123");
+          
+          conn.closeSync();
+          test.done();
+        }());
       });
     });
   });
   
-  test_string += "f";
+  test_order += "f";
+};
+
+exports.ManyConnectsNested = function (test) {
+  test.expect(0);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(),
+    helper,
+    i = 0;
+  
+  helper = function () {
+    i += 1;
+    if (i <= cfg.slow_connects_nested) {
+      conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (err) {
+        if (err) {
+          throw err;
+        }
+        
+        conn.closeSync();
+        
+        helper();
+      });
+    } else {
+      test.done();
+    }
+  };
+  
+  helper();
+};
+
+exports.ManyConnectsInLoop = function (test) {
+  test.expect(0);
+  
+  var
+    connections = new Array(cfg.slow_connects_inloo),
+    test_result,
+    i = 0, ci = 0;
+  
+  for (i = 0; i < cfg.slow_connects_inloop; i += 1) {
+    connections[i] = mysql_libmysqlclient.createConnectionSync();
+  }
+  
+  for (i = 0; i < cfg.slow_connects_inloop; i += 1) {
+    connections[i].connect(cfg.host, cfg.user, cfg.password, cfg.database, function (err) {
+      if (err) {
+        sys.puts(sys.inspect(err));
+        throw err;
+      }
+      
+      ci += 1;
+      
+      if (ci === cfg.slow_connects_inloop) {
+        for (i = 0; i < cfg.slow_connects_inloop; i += 1) {
+          connections[i].closeSync();
+        }
+        
+        test.done();
+      }
+    });
+  }
 };
 
