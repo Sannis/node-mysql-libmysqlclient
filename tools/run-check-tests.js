@@ -25,7 +25,7 @@ var
 
 var tools_dir = fs.realpathSync(__dirname);
 var source_dir = fs.realpathSync(tools_dir + "/../src");
-var tests_dir = fs.realpathSync(tools_dir + "/tests");
+var tests_dir = fs.realpathSync(tools_dir + "/../tests");
 
 function getBindingsClasses() {
   var

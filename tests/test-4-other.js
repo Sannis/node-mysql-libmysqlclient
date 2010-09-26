@@ -5,12 +5,12 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../config").cfg;
+var cfg = require("../tools/config").cfg;
 
 // Require modules
 var
   sys = require("sys"),
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient");
+  mysql_libmysqlclient = require("../mysql-libmysqlclient");
 
 exports.ManyInsertsIntoTestTableSync = function (test) {
   test.expect(2);
