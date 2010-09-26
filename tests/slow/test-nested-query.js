@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
 Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
 See contributors list in README
@@ -14,59 +13,45 @@ var
   sys = require("sys"),
   mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
-
-var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-  res,
-  random_number,
-  random_boolean,
-  last_insert_id,
-  i, ti = 0,
-  func;
+exports.NestedQueryMany = function (test) {
+  test.expect(2);
   
-res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-res = conn.querySync("CREATE TABLE " + cfg.test_table +
-  " (autoincrement_id BIGINT NOT NULL AUTO_INCREMENT," +
-  " random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL," +
-  " PRIMARY KEY (autoincrement_id)) TYPE=MEMORY;");
-
-if (!res) {
-  sys.puts("Error in conn.query('DELETE FROM cfg.test_table')");
-  process.exit(1);
-}
-
-sys.puts("Start");
-
-for (i = 0; i < cfg.insert_rows_count; i += 1) {
-  random_number = Math.round(Math.random() * 1000000);
-  random_boolean = (Math.random() > 0.5) ? 1 : 0;
-  sys.puts("\u001B[1ABefore queryAsync #" + (i + 1));
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    random_boolean,
+    i, ci = 0;
   
-  func = function () {
-    var j = i;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
+  conn.querySync("CREATE TABLE " + cfg.test_table +
+    " (random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL) TYPE=MEMORY;");
+  
+  for (i = 0; i < cfg.insert_rows_count; i += 1) {
+    random_boolean = (Math.random() > 0.5) ? 1 : 0;
+    
     conn.query("INSERT INTO " + cfg.test_table +
-      " (random_number, random_boolean) VALUES ('" + random_number +
+      " (random_number, random_boolean) VALUES ('" + i +
       "', '" + random_boolean + "');", function (err, result) {
-        sys.puts("\u001B[1ACallback #" + (j + 1));
-        if (result !== null) {
-          result.freeSync();
+        if (err) {
+          sys.puts(conn.errorSync())
+          throw err;
         }
-        ti += 1;
+        
+        ci += 1;
+        
+        if (ci === cfg.insert_rows_count) {
+          conn.query("SELECT COUNT(random_number) AS c FROM " + cfg.test_table + ";", function (err, result) {
+            if (err) {
+              throw err;
+            }
+            
+            test.equals(result.fetchAllSync()[0].c, cfg.insert_rows_count);
+            conn.closeSync();
+            test.done();
+          });
+        }
       });
-  };
-  
-  func();
-}
-
-sys.puts("Finish");
-
-process.on('exit', function () {
-  sys.puts("onExit callbacks done: " + ti);
-  last_insert_id = conn.lastInsertIdSync();
-  if (last_insert_id !== cfg.insert_rows_count) {
-    sys.puts("\u001B[31mFAIL: " + last_insert_id + " !== " + cfg.insert_rows_count + "\u001B[39m");
-  } else {
-    sys.puts("\u001B[32mOK: last_insert_id == cfg.insert_rows_count\u001B[39m");
   }
-  conn.closeSync();
-});
+};
 

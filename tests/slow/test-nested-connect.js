@@ -1,4 +1,3 @@
-#!/usr/bin/env node_g
 /*
 Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
 See contributors list in README
@@ -14,54 +13,46 @@ var
   sys = require("sys"),
   mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
-// Create DB connection
-var conn = mysql_libmysqlclient.createConnectionSync();
-
-process.on('exit', function () {
-  sys.debug("onExit");
-});
-
-sys.debug("Start");
-
-conn.connectSync(cfg.host, cfg.user, cfg.password);
-sys.debug("After first connectSync()");
-conn.closeSync();
-sys.debug("After first closeSync()");
-
-conn.connectSync(cfg.host, cfg.user, cfg.password);
-sys.debug("After second connectSync()");
-conn.closeSync();
-sys.debug("After second closeSync()");
-
-conn.connect(cfg.host, cfg.user, cfg.password, function (err) {
-  if (err) {
-    throw err;
-  }
+exports.NestedConnect = function (test) {
+  test.expect(2);
   
-  sys.debug("In first connect()");
-  conn.closeSync();
-  sys.debug("After first connect().closeSync()");
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    test_string = "";
   
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  test_string += "s";
   conn.connect(cfg.host, cfg.user, cfg.password, function (err) {
     if (err) {
       throw err;
     }
     
-    sys.debug("In second connect()");
+    test_string += "1";
     conn.closeSync();
-    sys.debug("After second connect().closeSync()");
     
     conn.connect(cfg.host, cfg.user, cfg.password, function (err) {
       if (err) {
         throw err;
       }
       
-      sys.debug("In third connect()");
+      test_string += "2";
       conn.closeSync();
-      sys.debug("After third connect().closeSync()");
+      
+      conn.connect(cfg.host, cfg.user, cfg.password, function (err) {
+        if (err) {
+          throw err;
+        }
+        
+        test_string += "3";
+        conn.closeSync();
+        
+        test.equals(test_string, "sf123");
+        test.done();
+      });
     });
   });
-});
-
-sys.debug("Finish");
+  
+  test_string += "f";
+};
 

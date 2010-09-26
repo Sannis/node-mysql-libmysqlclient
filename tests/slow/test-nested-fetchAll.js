@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
 Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
 See contributors list in README
@@ -14,48 +13,62 @@ var
   sys = require("sys"),
   mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
-
-var
-  conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-  res;
-
-process.on('exit', function () {
-  sys.debug("onExit");
-  conn.closeSync();
-});
-
-sys.debug("Start");
-
-sys.debug("In global scope");
-res = conn.querySync("SHOW TABLES;");
-sys.debug("After first querySync()");
-
-res.fetchAll(function (err, tables) {
-  if (err) {
-    throw err;
-  }
+exports.NestedFetchAll = function (test) {
+  test.expect(5);
   
-  sys.debug("In first fetchAll()");
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res,
+    test_string = "";
+  
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
   res = conn.querySync("SHOW TABLES;");
-  sys.debug("After second querySync()");
   
+  test_string += "s";
   res.fetchAll(function (err, tables) {
     if (err) {
       throw err;
     }
     
-    sys.debug("In second fetchAll()");
+    test.ok(tables.some(function (r) {
+      return r['Tables_in_' + cfg.database] === cfg.test_table;
+    }), "Find the test table in result");
+    
+    test_string += "1";
     res = conn.querySync("SHOW TABLES;");
-    sys.debug("After second querySync()");
     
     res.fetchAll(function (err, tables) {
       if (err) {
         throw err;
       }
-      sys.debug("In third fetchAll()");
+      
+      test.ok(tables.some(function (r) {
+        return r['Tables_in_' + cfg.database] === cfg.test_table;
+      }), "Find the test table in result");
+      
+      test_string += "2";
+      res = conn.querySync("SHOW TABLES;");
+      
+      res.fetchAll(function (err, tables) {
+        if (err) {
+          throw err;
+        }
+        
+        test.ok(tables.some(function (r) {
+          return r['Tables_in_' + cfg.database] === cfg.test_table;
+        }), "Find the test table in result");
+        
+        test_string += "3";
+        res = conn.querySync("SHOW TABLES;");
+        
+        conn.closeSync();
+        test.equals(test_string, "sf123");
+        test.done();
+      });
     });
   });
-});
-
-sys.debug("Finish");
+  
+  test_string += "f";
+};
 
