@@ -1,6 +1,7 @@
-{  "name" : "mysql-libmysqlclient"
-,  "description" : "MySQL bindings for Node.JS"
-,  "version" : "0.0.10"
+{ "name" : "mysql-libmysqlclient"
+, "description" : "MySQL bindings for Node.JS"
+, "homepage" : "http://sannis.github.com/node-mysql-libmysqlclient"
+, "version" : "0.0.10"
 , "maintainers" :
   [ { "name": "Oleg Efimov"
     , "email": "efimovov@gmail.com"
@@ -30,13 +31,14 @@
 , "licenses" : [ { "type" : "MIT" } ]
 , "repositories" :
   [ { "type" : "git"
-    , "url" : "http://github.com/Sannis/node-mysql-libmysqlclient"
+    , "url" : "git://github.com/Sannis/node-mysql-libmysqlclient.git"
     }
   ]
 , "main" : "./mysql-libmysqlclient"
 , "scripts" :
   { "build" : "node-waf configure build"
   , "test" : "node-waf test"
+  , "doc" : "node-waf doc"
   }
-, "engines" : { "node" : ">=0.2.1" }
+, "engines" : { "node" : ">=0.2.2" }
 }
