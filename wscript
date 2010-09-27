@@ -91,16 +91,24 @@ def doc(doc):
   print("Parse README.markdown:")
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient" ' +
                      description +
-                     '[API](./api.html), [Examples](./examples.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
+                     '[ChangeLog](./changelog.html), [API](./api.html), [Examples](./examples.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
                      ribbon +
                      downloads +
                      '--ignore-filenames ' +
                      './README.markdown ' +
                      '> ./doc/index.html')
+  print("Parse CHANGELOG.markdown:")
+  Utils.exec_command('dox --title "Node-mysql-libmysqlclient changelog" ' +
+                     description +
+                     '[Homepage](./index.html), [API](./api.html), [Examples](./examples.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
+                     ribbon +
+                     '--ignore-filenames ' +
+                     './CHANGELOG.markdown ' +
+                     '> ./doc/changelog.html')
   print("Parse API documentation:")
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient API" ' +
                      description +
-                     '[Homepage](./index.html), [Examples](./examples.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
+                     '[Homepage](./index.html), [ChangeLog](./changelog.html), [Examples](./examples.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
                      ribbon +
                      './mysql-libmysqlclient.js ' +
                      './src/mysql_bindings.cc ' +
@@ -108,10 +116,10 @@ def doc(doc):
                      './src/mysql_bindings_result.cc ' +
                      './src/mysql_bindings_statement.cc ' +
                      '> ./doc/api.html')
-  print("Parse mudule usage examples:")
+  print("Parse module usage examples:")
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient examples" ' +
                      description +
-                     '[Homepage](./index.html), [API](./api.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
+                     '[Homepage](./index.html), [ChangeLog](./changelog.html), [API](./api.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
                      ribbon +
                      '--ignore-shabang ' +
                      './doc/examples.js ' +
