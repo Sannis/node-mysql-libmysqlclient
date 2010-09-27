@@ -128,8 +128,11 @@ pre.shell code .prompt-root { color: #912121; }
 
 <p>Check out the <a href="http://github.com/Sannis/node-mysql-libmysqlclient">Github repo</a> for the source and installation guide.</p>
 
-<p>Extra information: <a href="./index.html">Homepage</a>, <a href="./examples.html">Examples</a>, <a href="http://github.com/Sannis/node-mysql-libmysqlclient/wiki">Wiki</a>.</p>
-                </td><td></td>
+<p>Extra information: <a href="./index.html">Homepage</a>, <a href="./changelog.html">ChangeLog</a>, <a href="./examples.html">Examples</a>, <a href="http://github.com/Sannis/node-mysql-libmysqlclient/wiki">Wiki</a>.</p>
+                </td>
+                <td>
+
+                </td>
             </tr>
             <tr class="filename">
                 <td>
@@ -682,8 +685,7 @@ taking into account the current charset of the connection</p>
     <span class="class">REQ_STR_ARG</span>(<span class="number integer">0</span>, <span class="variable">str</span>)
 
     <span class="keyword">int</span> <span class="variable">len</span> = <span class="variable">str</span>.<span class="variable">length</span>();
-    <span class="comment">// For example ö -&gt; \u00f6, 1 -&gt; 6 :-(</span>
-    <span class="keyword">char</span> *<span class="variable">result</span> = <span class="variable">new</span> <span class="keyword">char</span>[<span class="number integer">6</span>*<span class="variable">len</span> + <span class="number integer">1</span>];
+    <span class="keyword">char</span> *<span class="variable">result</span> = <span class="variable">new</span> <span class="keyword">char</span>[<span class="number integer">2</span>*<span class="variable">len</span> + <span class="number integer">1</span>];
     <span class="keyword">if</span> (!<span class="variable">result</span>) {
         <span class="class">V8</span>::<span class="class">LowMemoryNotification</span>();
         <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Not enough memory&quot;</span>);
