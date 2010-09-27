@@ -46,10 +46,7 @@ class MysqlResult : public node::EventEmitter {
                                     Local<Object> &js_field_obj,
                                     MYSQL_FIELD *field);
 
-    static void SetFieldValue(
-                                Handle<Value> &js_field,
-                                MYSQL_FIELD field,
-                                char* field_value);
+    static Handle<Value> GetFieldValue(MYSQL_FIELD field, char* field_value);
 
     void Free();
 

@@ -82,11 +82,11 @@ void MysqlResult::AddFieldProperties(
     js_field_obj->Set(V8STR("decimals"), Integer::New(field->decimals));
 }
 
-void MysqlResult::SetFieldValue(
-                                        Handle<Value> &js_field,
-                                        MYSQL_FIELD field,
-                                        char* field_value) {
-    js_field = Null();
+Handle<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value) {
+    HandleScope scope;
+
+    Handle<Value> js_field = Null();
+
     switch (field.type) {
         case MYSQL_TYPE_NULL:  // NULL-type field
             // Already null
@@ -132,13 +132,13 @@ void MysqlResult::SetFieldValue(
               time(&rawtime);
               if (!localtime_r(&rawtime, &timeinfo)) {
                   js_field = V8STR(field_value);
-                  return;
+                  break;
               }
               h1 = timeinfo.tm_hour - (timeinfo.tm_isdst > 0 ? 1 : 0);
               m1 = timeinfo.tm_min;
               if (!gmtime_r(&rawtime, &timeinfo)) {
                   js_field = V8STR(field_value);
-                  return;
+                  break;
               }
               h2 = timeinfo.tm_hour;
               m2 = timeinfo.tm_min;
@@ -165,13 +165,13 @@ void MysqlResult::SetFieldValue(
               time(&rawtime);
               if (!localtime_r(&rawtime, &timeinfo)) {
                   js_field = V8STR(field_value);
-                  return;
+                  break;
               }
               h1 = timeinfo.tm_hour - (timeinfo.tm_isdst > 0 ? 1 : 0);
               m1 = timeinfo.tm_min;
               if (!gmtime_r(&rawtime, &timeinfo)) {
                   js_field = V8STR(field_value);
-                  return;
+                  break;
               }
               h2 = timeinfo.tm_hour;
               m2 = timeinfo.tm_min;
@@ -248,6 +248,8 @@ void MysqlResult::SetFieldValue(
 
         js_field = js_field_array;
     }
+
+    return scope.Close(js_field);
 }
 
 void MysqlResult::Free() {
@@ -373,14 +375,14 @@ int MysqlResult::EIO_FetchAll(eio_req *req) {
 
     Local<Array> js_result = Array::New();
     Local<Object> js_result_row;
-    Local<Value> js_field;
+    Handle<Value> js_field;
 
     i = 0;
     while ( (result_row = mysql_fetch_row(res->_res)) ) {
         js_result_row = Object::New();
 
         for ( j = 0; j < num_fields; j++ ) {
-            SetFieldValue(js_field, fields[j], result_row[j]);
+            js_field = GetFieldValue(fields[j], result_row[j]);
 
             js_result_row->Set(V8STR(fields[j].name), js_field);
         }
@@ -452,14 +454,14 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 
     Local<Array> js_result = Array::New();
     Local<Object> js_result_row;
-    Local<Value> js_field;
+    Handle<Value> js_field;
 
     i = 0;
     while ( (result_row = mysql_fetch_row(res->_res)) ) {
         js_result_row = Object::New();
 
         for ( j = 0; j < num_fields; j++ ) {
-            SetFieldValue(js_field, fields[j], result_row[j]);
+            js_field = GetFieldValue(fields[j], result_row[j]);
 
             js_result_row->Set(V8STR(fields[j].name), js_field);
         }
@@ -489,7 +491,7 @@ Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
     uint32_t j = 0;
 
     Local<Array> js_result_row;
-    Local<Value> js_field;
+    Handle<Value> js_field;
 
     MYSQL_ROW result_row = mysql_fetch_row(res->_res);
 
@@ -500,7 +502,7 @@ Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
     js_result_row = Array::New();
 
     for ( j = 0; j < num_fields; j++ ) {
-        SetFieldValue(js_field, fields[j], result_row[j]);
+        js_field = GetFieldValue(fields[j], result_row[j]);
 
         js_result_row->Set(Integer::New(j), js_field);
     }
@@ -645,7 +647,7 @@ Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
     uint32_t j = 0;
 
     Local<Object> js_result_row;
-    Local<Value> js_field;
+    Handle<Value> js_field;
 
     result_row = mysql_fetch_row(res->_res);
 
@@ -656,7 +658,7 @@ Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
     js_result_row = Object::New();
 
     for ( j = 0; j < num_fields; j++ ) {
-        SetFieldValue(js_field, fields[j], result_row[j]);
+        js_field = GetFieldValue(fields[j], result_row[j]);
 
         js_result_row->Set(V8STR(fields[j].name), js_field);
     }
