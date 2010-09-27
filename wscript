@@ -74,21 +74,34 @@ def lint(lnt):
   Utils.exec_command('nodelint ./package.json ./mysql-libmysqlclient.js ./docs/*.js ./tools/*.js ./tools/tests/*.js')
 
 def doc(doc):
+  description = ('--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
+                 'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide.\n\n' +
+                 'Extra information: ')
+  ribbon = '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" '
+  
+  downloads = ('--desc-rigth "' +
+               'Latest stable v' + VERSION + ':<br/>\n' +
+               '<a href="http://github.com/Sannis/node-mysql-libmysqlclient/zipball/v' + VERSION + '">\n' +
+               ' <img width="90" src="http://github.com/images/modules/download/zip.png" />\n' +
+               '</a>\n' +
+               '<a href="http://github.com/Sannis/node-mysql-libmysqlclient/tarball/v' + VERSION + '">\n' +
+               ' <img width="90" src="http://github.com/images/modules/download/tar.png" />\n' +
+               '</a>" ')
+  
   print("Parse README.markdown:")
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient" ' +
-                     '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
-                     'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide.\n\n' +
-                     'Extra information: [API](./api.html), [Examples](./examples.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
-                     '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" '  +
+                     description +
+                     '[API](./api.html), [Examples](./examples.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
+                     ribbon +
+                     downloads +
                      '--ignore-filenames ' +
                      './README.markdown ' +
                      '> ./doc/index.html')
   print("Parse API documentation:")
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient API" ' +
-                     '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
-                     'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide.\n\n' +
-                     'Extra information: [Homepage](./index.html), [Examples](./examples.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
-                     '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" '  +
+                     description +
+                     '[Homepage](./index.html), [Examples](./examples.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
+                     ribbon +
                      './mysql-libmysqlclient.js ' +
                      './src/mysql_bindings.cc ' +
                      './src/mysql_bindings_connection.cc ' +
@@ -97,10 +110,9 @@ def doc(doc):
                      '> ./doc/api.html')
   print("Parse mudule usage examples:")
   Utils.exec_command('dox --title "Node-mysql-libmysqlclient examples" ' +
-                     '--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +
-                     'Check out the [Github repo](http://github.com/Sannis/node-mysql-libmysqlclient) for the source and installation guide.\n\n' +
-                     'Extra information: [Homepage](./index.html), [API](./api.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
-                     '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" ' +
+                     description +
+                     '[Homepage](./index.html), [API](./api.html), [Wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki)." ' +
+                     ribbon +
                      '--ignore-shabang ' +
                      './doc/examples.js ' +
                      '> ./doc/examples.html')
