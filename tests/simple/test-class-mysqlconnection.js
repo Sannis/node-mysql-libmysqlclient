@@ -315,8 +315,8 @@ exports.EscapeSync = function (test) {
     ["test\"string", "test\\\"string"],
     ["test\'string", "test\\'string"],
     ["test \x00", "test \\0"],
-    ["utf8 test Français Größe", "utf8 test Fran\u00e7ais Gr\u00f6\u00dfe"],
-    ["çöß", "\u00e7\u00f6\u00df"]
+    // utf8 test Français Größe
+    ["utf8 test Fran\u00e7ais Gr\u00f6\u00dfe", "utf8 test Fran\u00e7ais Gr\u00f6\u00dfe"]
   ],
   str,
   str_esc_theor,

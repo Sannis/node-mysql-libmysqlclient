@@ -639,8 +639,7 @@ Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
     REQ_STR_ARG(0, str)
 
     int len = str.length();
-    // For example ö -> \u00f6, 1 -> 6 :-(
-    char *result = new char[6*len + 1];
+    char *result = new char[2*len + 1];
     if (!result) {
         V8::LowMemoryNotification();
         return THREXC("Not enough memory");
