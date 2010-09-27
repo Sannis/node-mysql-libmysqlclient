@@ -98,6 +98,10 @@ exports.ManyFetchesNested = function (test) {
       test_result = conn.querySync("SHOW TABLES;").fetchAllSync();
       test.same(test_result, initial_result);
       
+      if (cfg.slow_fetches_nested <= 0) {
+        sys.puts("ManyFetchesNested test ignored, cfg.slow_fetches_nested <=0");
+      }
+      
       conn.closeSync();
       test.done();
     }
@@ -107,13 +111,20 @@ exports.ManyFetchesNested = function (test) {
 };
 
 exports.ManyFetchesInLoop = function (test) {
-  test.expect(0);
+  test.expect(1);
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     initial_result,
     test_result,
     i = 0, ci = 0;
+  
+  if (cfg.slow_fetches_inloop <= 0) {
+    sys.puts("ManyFetchesInLoop test ignored, cfg.slow_fetches_inloop <=0");
+    conn.closeSync();
+    test.done();
+    return;
+  }
   
   initial_result = conn.querySync("SHOW TABLES;").fetchAllSync();
   
@@ -125,7 +136,7 @@ exports.ManyFetchesInLoop = function (test) {
       
       ci += 1;
       
-      if (ci === cfg.slow_inserts_inloop) {
+      if (ci === cfg.slow_fetches_inloop) {
         test_result = conn.querySync("SHOW TABLES;").fetchAllSync();
         test.same(test_result, initial_result);
         
