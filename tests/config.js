@@ -25,7 +25,7 @@ exports.cfg = {
   slow_connects_nested: 20000,
   slow_connects_inloop: 150,
   slow_inserts_count: 20000,
-  slow_fetches_nested: 1000,
-  slow_fetches_inloop: 1000
+  slow_fetches_nested: 20000,
+  slow_fetches_inloop: 20000
 };
 

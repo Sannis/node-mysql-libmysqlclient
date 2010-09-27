@@ -46,7 +46,7 @@ class MysqlResult : public node::EventEmitter {
                                     Local<Object> &js_field_obj,
                                     MYSQL_FIELD *field);
 
-    static Handle<Value> GetFieldValue(MYSQL_FIELD field, char* field_value);
+    static Local<Value> GetFieldValue(MYSQL_FIELD field, char* field_value);
 
     void Free();
 
@@ -81,7 +81,9 @@ class MysqlResult : public node::EventEmitter {
     struct fetchAll_request {
         Persistent<Function> callback;
         MysqlResult *res;
-        Local<Array> js_result;
+        
+        MYSQL_FIELD *fields;
+        uint32_t num_fields;
     };
     static int EIO_After_FetchAll(eio_req *req);
     static int EIO_FetchAll(eio_req *req);

@@ -82,10 +82,10 @@ void MysqlResult::AddFieldProperties(
     js_field_obj->Set(V8STR("decimals"), Integer::New(field->decimals));
 }
 
-Handle<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value) {
+Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value) {
     HandleScope scope;
 
-    Handle<Value> js_field = Null();
+    Local<Value> js_field = Local<Value>::New(Null());
 
     switch (field.type) {
         case MYSQL_TYPE_NULL:  // NULL-type field
@@ -339,9 +339,32 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
     Local<Value> argv[2];
 
     if (req->result) {
-        argv[0] = V8EXC("Error on fetching");
+        argv[0] = V8EXC("Error on fetching fields");
     } else {
-        argv[1] = Local<Value>::New(fetchAll_req->js_result);
+        MYSQL_ROW result_row;
+        uint32_t i = 0, j = 0;
+
+        Local<Array> js_result = Array::New();
+        Local<Object> js_result_row;
+        Local<Value> js_field;
+
+        i = 0;
+        while ( (result_row = mysql_fetch_row(fetchAll_req->res->_res)) ) {
+            js_result_row = Object::New();
+
+            for ( j = 0; j < fetchAll_req->num_fields; j++ ) {
+                js_field = GetFieldValue(fetchAll_req->fields[j], result_row[j]);
+                js_result_row->Set(V8STR(fetchAll_req->fields[j].name), js_field);
+            }
+
+            js_result->Set(Integer::New(i), js_result_row);
+
+            i++;
+        }
+
+        // TODO(Sannis): Make some error check here
+
+        argv[1] = js_result;
         argv[0] = Local<Value>::New(Null());
         argc = 2;
     }
@@ -356,43 +379,23 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
 
     fetchAll_req->callback.Dispose();
     fetchAll_req->res->Unref();
+    // TODO(Sannis): should I free this?
+    //free(fetchAll_req->fields);
     free(fetchAll_req);
 
     return 0;
 }
 
 int MysqlResult::EIO_FetchAll(eio_req *req) {
-    HandleScope scope;
-
     struct fetchAll_request *fetchAll_req =
         reinterpret_cast<struct fetchAll_request *>(req->data);
     MysqlResult *res = fetchAll_req->res;
 
-    MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
-    uint32_t num_fields = mysql_num_fields(res->_res);
-    MYSQL_ROW result_row;
-    uint32_t i = 0, j = 0;
+    fetchAll_req->fields = mysql_fetch_fields(res->_res);
+    fetchAll_req->num_fields = mysql_num_fields(res->_res);
 
-    Local<Array> js_result = Array::New();
-    Local<Object> js_result_row;
-    Handle<Value> js_field;
+    // TODO(Sannis): Make some error check here
 
-    i = 0;
-    while ( (result_row = mysql_fetch_row(res->_res)) ) {
-        js_result_row = Object::New();
-
-        for ( j = 0; j < num_fields; j++ ) {
-            js_field = GetFieldValue(fields[j], result_row[j]);
-
-            js_result_row->Set(V8STR(fields[j].name), js_field);
-        }
-
-        js_result->Set(Integer::New(i), js_result_row);
-
-        i++;
-    }
-
-    fetchAll_req->js_result = scope.Close(js_result);
     req->result = 0;
 
     return 0;
@@ -454,7 +457,7 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 
     Local<Array> js_result = Array::New();
     Local<Object> js_result_row;
-    Handle<Value> js_field;
+    Local<Value> js_field;
 
     i = 0;
     while ( (result_row = mysql_fetch_row(res->_res)) ) {
@@ -491,7 +494,7 @@ Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
     uint32_t j = 0;
 
     Local<Array> js_result_row;
-    Handle<Value> js_field;
+    Local<Value> js_field;
 
     MYSQL_ROW result_row = mysql_fetch_row(res->_res);
 
@@ -647,7 +650,7 @@ Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
     uint32_t j = 0;
 
     Local<Object> js_result_row;
-    Handle<Value> js_field;
+    Local<Value> js_field;
 
     result_row = mysql_fetch_row(res->_res);
 
