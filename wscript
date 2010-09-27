@@ -52,13 +52,13 @@ def test(tst):
     exit(1)
   else:
     if Options.options.slow and Options.options.ignored:
-      Utils.exec_command('node ./tools/nodeunit/lib/testrunner.js tests/slow tests/ignored')
+      Utils.exec_command('node_g ./tools/nodeunit/lib/testrunner.js tests/slow tests/ignored')
     else:
       if Options.options.slow:
         Utils.exec_command('node ./tools/nodeunit/lib/testrunner.js tests/slow')
       else:
         if Options.options.ignored:
-          Utils.exec_command('node ./tools/nodeunit/lib/testrunner.js tests/ignored')
+          Utils.exec_command('node_g ./tools/nodeunit/lib/testrunner.js tests/ignored')
         else:
           if Options.options.all:
             Utils.exec_command('node ./tools/nodeunit/lib/testrunner.js tests/simple tests/complex tests/slow')
