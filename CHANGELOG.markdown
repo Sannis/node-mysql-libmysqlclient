@@ -1,3 +1,26 @@
+## Version 1.0.0
+  * Fixes:
+    * Rewrite fetchAll function, move V8 stuff to EIO_After_FetchAll, closes #34
+    * Rewrite MysqlResult::SetFieldValue() procedure to GetFieldValue() function
+    * Fix Nodules break, closes #46
+    * Return Boolean/throw exception fixes, closes #31
+    * Allocate less memory in MysqlConnection::EscapeSync()
+    * Add useful macroses to simplify MysqlConnection and MysqlResult
+    * Fix lint errors
+  * Tests improvements:
+    * Refactor tests: split them into simple, complex, slow and ignored
+    * Change nodeunit to original caolan's repo
+    * Add REPL memory leaks finder
+  * Documentation improvements:
+    * Add index.html generation from README.markdown
+    * Format ChangeLog with markdown
+    * Add changelog.html generation from CHANGELOG.markdown
+    * Add navigation
+    * Add zip- and tarball URLs to index.html
+    * Remove docs HTML from repo, you can generate them by 'node-waf doc'
+  * Semantic versioning introduced
+  * Other changes in README and package.json
+
 ## Version 0.0.10
   * Add JSDocs into bindings code
   * Add API documentation page
