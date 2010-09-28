@@ -36,10 +36,33 @@ For Debian/Ubuntu:
 Yes, you would use aptitude if you want.
 
 
+Installation
+------------
+
+You can install this module via NPM:
+
+    $> npm install mysql-libmysqlclient
+
+Also you can build latest source code from repository, see below.
+
+
 Build and use
 -------------
 
-To build the bindings library you should run this command in console:
+To get source code:
+
+    $> git clone git://github.com/Sannis/node-mysql-libmysqlclient.git
+    $> cd node-mysql-libmysqlclient
+
+or (careful!)
+
+    $> wget http://github.com/Sannis/node-mysql-libmysqlclient/tarball/master
+    $> tar -xzvf Sannis-node-mysql-libmysqlclient-*.tar.gz
+    $> rm -f ./Sannis-node-mysql-libmysqlclient-*.tar.gz
+    $> mv Sannis-node-mysql-libmysqlclient-* node-mysql-libmysqlclient
+    $> cd node-mysql-libmysqlclient
+
+To build the bindings you should run:
 
     $> node-waf configure build
 
@@ -49,7 +72,8 @@ To rebuild:
 
 To run tests:
 
-    $> git submodule update --init
+    $> git submodule init
+    $> git submodule update
     $> node-waf test
 
 The two files required to use these bindings are ./mysql-libmysqlclient.js and
