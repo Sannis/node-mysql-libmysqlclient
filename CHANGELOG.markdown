@@ -21,6 +21,8 @@
   * Semantic versioning introduced
   * Other changes in README and package.json
 
+Special thanks for Ben Noordhuis
+
 ## Version 0.0.10
   * Add JSDocs into bindings code
   * Add API documentation page
