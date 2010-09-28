@@ -12,8 +12,8 @@ var
   stdin,
   readline = require('readline'),
   rli,
-  node_gc = require("./node-gc/gc"),
-  gc = new node_gc.GC(),
+  node_gc,
+  gc,
   mysql_libmysqlclient = require("../mysql-libmysqlclient"),
   mysql_bindings = require("../mysql_bindings"),
   cfg = require("../tests/config").cfg,
@@ -148,6 +148,18 @@ commands = {
 };
 
 // Main program
+
+try {
+  node_gc = require("./node-gc/gc");
+} catch (e) {
+  sys.puts("\u001b[31mNode-GC doesn't exists or doesn't builded.\u001b[39m\n" +
+           "You should run:\n$> git submodule update --init\n" +
+           "$> cd ./tools/node-gc\n$> node-waf configure build");
+  process.exit(1);
+}
+
+gc = new node_gc.GC();
+
 sys.puts("Welcome to the memory leaks finder!");
 sys.puts("Type 'help' for options.");
 gc.collect();
