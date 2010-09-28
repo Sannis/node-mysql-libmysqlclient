@@ -131,11 +131,11 @@ pre.shell code .prompt-root { color: #912121; }
 <p>Extra information: <a href="./changelog.html">ChangeLog</a>, <a href="./api.html">API</a>, <a href="./examples.html">Examples</a>, <a href="http://github.com/Sannis/node-mysql-libmysqlclient/wiki">Wiki</a>.</p>
                 </td>
                 <td>
-Latest stable v0.0.10:<br/>
-<a href=http://github.com/Sannis/node-mysql-libmysqlclient/zipball/v0.0.10>
+Latest stable v1.0.0:<br/>
+<a href=http://github.com/Sannis/node-mysql-libmysqlclient/zipball/v1.0.0>
  <img width=90 src=http://github.com/images/modules/download/zip.png />
 </a>
-<a href=http://github.com/Sannis/node-mysql-libmysqlclient/tarball/v0.0.10>
+<a href=http://github.com/Sannis/node-mysql-libmysqlclient/tarball/v1.0.0>
  <img width=90 src=http://github.com/images/modules/download/tar.png />
 </a>
                 </td>
@@ -168,10 +168,35 @@ To install these dependencies, you can use the console.</p>
             </tr>
             <tr>
                 <td>
+<h2>Installation</h2>
+                </td>
+                <td>
+<p>You can install this module via NPM:</p>
+
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> npm install mysql-libmysqlclient</code></pre>
+
+<p>Also you can build latest source code from repository, see below.</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
 <h2>Build and use</h2>
                 </td>
                 <td>
-<p>To build the bindings library you should run this command in console:</p>
+<p>To get source code:</p>
+
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> git clone git:<span class="comment">//github.com/Sannis/node-mysql-libmysqlclient.git</span>
+<span class="prompt-user">$&gt;</span> cd node-mysql-libmysqlclient</code></pre>
+
+<p>or (careful!)</p>
+
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> wget http:<span class="comment">//github.com/Sannis/node-mysql-libmysqlclient/tarball/master</span>
+<span class="prompt-user">$&gt;</span> tar -xzvf Sannis-node-mysql-libmysqlclient-*.tar.gz
+<span class="prompt-user">$&gt;</span> rm -f ./Sannis-node-mysql-libmysqlclient-*.tar.gz
+<span class="prompt-user">$&gt;</span> mv Sannis-node-mysql-libmysqlclient-* node-mysql-libmysqlclient
+<span class="prompt-user">$&gt;</span> cd node-mysql-libmysqlclient</code></pre>
+
+<p>To build the bindings you should run:</p>
 
 <pre class="shell"><code><span class="prompt-user">$&gt;</span> node-waf configure build</code></pre>
 
@@ -181,7 +206,8 @@ To install these dependencies, you can use the console.</p>
 
 <p>To run tests:</p>
 
-<pre class="shell"><code><span class="prompt-user">$&gt;</span> git submodule update --init
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> git submodule init
+<span class="prompt-user">$&gt;</span> git submodule update
 <span class="prompt-user">$&gt;</span> node-waf test</code></pre>
 
 <p>The two files required to use these bindings are ./mysql-libmysqlclient.js and
