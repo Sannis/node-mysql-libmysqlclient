@@ -125,6 +125,9 @@ def doc(doc):
                      './doc/examples.js ' +
                      '> ./doc/examples.html')
 
+def gh_pages(context):
+  Utils.exec_command('./gh_pages.sh')
+
 def shutdown():
   # HACK to get bindings.node out of build directory.
   # better way to do this?
