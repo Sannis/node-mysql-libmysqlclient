@@ -140,6 +140,8 @@ pre.shell code .prompt-root { color: #912121; }
                 </td>
                 <td>
 <ul><li>Fixes:<ul><li>Rewrite fetchAll function, move V8 stuff to EIO<em>After</em>FetchAll, closes #34</li><li>Rewrite MysqlResult::SetFieldValue() procedure to GetFieldValue() function</li><li>Fix Nodules break, closes #46</li><li>Return Boolean/throw exception fixes, closes #31</li><li>Allocate less memory in MysqlConnection::EscapeSync()</li><li>Add useful macroses to simplify MysqlConnection and MysqlResult</li><li>Fix lint errors</li></ul></li><li>Tests improvements:<ul><li>Refactor tests: split them into simple, complex, slow and ignored</li><li>Change nodeunit to original caolan's repo</li><li>Add REPL memory leaks finder</li></ul></li><li>Documentation improvements:<ul><li>Add index.html generation from README.markdown</li><li>Format ChangeLog with markdown</li><li>Add changelog.html generation from CHANGELOG.markdown</li><li>Add navigation</li><li>Add zip- and tarball URLs to index.html</li><li>Remove docs HTML from repo, you can generate them by 'node-waf doc'</li></ul></li><li>Semantic versioning introduced</li><li>Other changes in README and package.json</li></ul>
+
+<p>Special thanks for Ben Noordhuis</p>
                 </td>
             </tr>
             <tr>
