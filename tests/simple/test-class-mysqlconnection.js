@@ -213,18 +213,21 @@ exports.Connect = function (test) {
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
     test.ok(error === null, "conn.connect() for allowed database");
     conn.closeSync();
-  
+    
     test.done();
   });
 };
 
 exports.ConnectWithError = function (test) {
-  test.expect(1);
+  test.expect(3);
   
   var conn = new mysql_bindings.MysqlConnection();
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (error) {
-    test.ok(error === 1044, "conn.connect() for denied database");
-  
+    test.ok(error === 1044, "conn.connect() to denied database");
+    
+    test.equals(conn.connectErrno, 1044, "conn.connectErrno");
+    test.ok(conn.connectError.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")), "conn.connectError");
+    
     test.done();
   });
 };
