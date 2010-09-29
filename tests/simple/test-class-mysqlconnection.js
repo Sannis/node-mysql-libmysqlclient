@@ -35,6 +35,7 @@ var multiRealQueryAndNextAndMoreSync = function (test) {
     res,
     rows,
     query;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
   
   query  = "SELECT 1 as one;";
   query += "SELECT 2 as two;";
@@ -42,8 +43,7 @@ var multiRealQueryAndNextAndMoreSync = function (test) {
   // This statement will be ignored as the test_table_notexists doesn't exist
   // and the loop should quit
   query += "SHOW TABLES;";
-
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  
   conn.multiRealQuerySync(query);
   // SELECT 1 as one;
   res = conn.storeResultSync();
@@ -70,8 +70,8 @@ var realQueryAndUseAndStoreResultSync = function (test) {
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     r1, r2, r3;
-  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  
   conn.realQuerySync("SHOW TABLES;");
   res = conn.storeResultSync();
   test.ok(res instanceof mysql_bindings.MysqlResult, "SHOW TABLES query res instanceof mysql_bindings.MysqlResult");
@@ -147,7 +147,6 @@ exports.AffectedRowsSync = function (test) {
     random_boolean,
     affected_rows,
     i;
-  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
@@ -210,6 +209,7 @@ exports.Connect = function (test) {
   test.expect(1);
   
   var conn = new mysql_bindings.MysqlConnection();
+  
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
     test.ok(error === null, "conn.connect() for allowed database");
     conn.closeSync();
@@ -222,6 +222,7 @@ exports.ConnectWithError = function (test) {
   test.expect(3);
   
   var conn = new mysql_bindings.MysqlConnection();
+  
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (error) {
     test.ok(error === 1044, "conn.connect() to denied database");
     
@@ -237,6 +238,7 @@ exports.ConnectSync = function (test) {
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
   conn.closeSync();
   test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password), "conn.connectSync() without database selection");
   conn.closeSync();
@@ -249,6 +251,7 @@ exports.ConnectedSync = function (test) {
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
   test.ok(conn.connectedSync(), "conn.connectedSync() after connect");
   conn.closeSync();
   test.ok(!conn.connectedSync(), "conn.connectedSync() after close");
@@ -263,8 +266,8 @@ exports.CloseSync = function (test) {
   test.expect(4);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
-  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
   test.ok(conn.connectedSync(), "conn.connectedSync() after connect");
   conn.closeSync();
   test.ok(!conn.connectedSync(), "conn.connectedSync() after close");
@@ -283,6 +286,7 @@ exports.ErrnoSync = function (test) {
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  
   res = conn.querySync("USE " + cfg.database_denied + ";");
   test.equals(conn.errnoSync(), 1044, "conn.errnoSync");
   res = conn.querySync("SELECT * FROM " + cfg.test_table_notexists + ";");
@@ -299,6 +303,7 @@ exports.ErrorSync = function (test) {
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  
   res = conn.querySync("USE " + cfg.database_denied + ";");
   test.ok(conn.errorSync().match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")), "conn.errorSync");
   res = conn.querySync("SELECT * FROM " + cfg.test_table_notexists + ";");
@@ -309,7 +314,8 @@ exports.ErrorSync = function (test) {
 };
 
 exports.EscapeSync = function (test) {
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     strings_to_escape = [
     ["test string", "test string"],
     ["test\\string", "test\\\\string"],
@@ -376,9 +382,11 @@ exports.FieldCountSync = function (test) {
 exports.GetCharsetSync = function (test) {
   test.expect(4);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password),
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password),
     charset_obj;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  
   test.ok(conn.setCharsetSync(cfg.charset), "conn.setCharset()");
   charset_obj = conn.getCharsetSync();
   test.equals(charset_obj.charset, cfg.charset, "conn.getCharsetSync()");
@@ -393,6 +401,7 @@ exports.GetCharsetNameSync = function (test) {
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  
   test.ok(conn.setCharsetSync(cfg.charset), "conn.setCharsetSync()");
   test.equals(conn.getCharsetNameSync(), cfg.charset, "conn.getCharsetNameSync()");
   conn.closeSync();
@@ -405,15 +414,18 @@ exports.GetInfoSync = function (test) {
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
   test.ok(conn.getInfoSync(), "conn.getInfoSync() after connection to allowed database");
   
   test.done();
 };
 
 exports.GetInfoStringSync = function (test) {
-  test.expect(3);
+  test.expect(4);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), res;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.equals(res, true);
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " ADD INDEX (random_number)");
@@ -426,9 +438,11 @@ exports.GetInfoStringSync = function (test) {
 };
 
 exports.GetWarningsSync = function (test) {
-  test.expect(1);
+  test.expect(2);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), res;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
   res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table_notexists + ";");
   test.same(conn.getWarningsSync(),
             [{errno: 1051, reason: "Unknown table '" + cfg.test_table_notexists + "'" }],
@@ -451,7 +465,6 @@ exports.LastInsertIdSync = function (test) {
     random_boolean,
     last_insert_id,
     i;
-  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
@@ -493,11 +506,12 @@ exports.MultiRealQuerySync = function (test) {
 };
 
 exports.Query = function (test) {
-  test.expect(2);
+  test.expect(3);
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   conn.query("SHOW TABLES", function (err, result) {
     test.ok(result.fieldCount === 1, "show results field count === 1");
@@ -516,7 +530,6 @@ exports.QueryWithError = function (test) {
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   conn.query("SHOW TABLESaagh", function (err, result) {
@@ -531,7 +544,6 @@ exports.QueryWithQuerySync = function (test) {
   test.expect(4);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
-  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   conn.query("SELECT SLEEP(2)", function (err, result) {
@@ -552,8 +564,8 @@ exports.QuerySync = function (test) {
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
   res = conn.querySync("SHOW TABLES");
   test.ok(res instanceof mysql_bindings.MysqlResult, "SHOW TABLES query res instanceof mysql_bindings.MysqlResult");
   
@@ -580,8 +592,8 @@ exports.SelectDbSync = function (test) {
   test.expect(3);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password);
-  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  
   test.ok(conn.selectDbSync(cfg.database), "conn.selectDbSync() for allowed database");
   test.ok(!conn.selectDbSync(cfg.database_denied), "conn.selectDbSync() for denied database");
   conn.closeSync();
@@ -593,8 +605,8 @@ exports.SetCharsetSync = function (test) {
   test.expect(2);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password);
-  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
+  
   test.ok(conn.setCharsetSync(cfg.charset), "conn.setCharsetSync()");
   conn.closeSync();
   
@@ -631,8 +643,8 @@ exports.SqlStateSync = function (test) {
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
   test.equals(conn.sqlStateSync(), "00000", "conn.sqlStateSync() after connection to allowed database");
   conn.closeSync();
   
@@ -645,8 +657,8 @@ exports.StatSync = function (test) {
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
   test.equals(typeof conn.statSync(), "string", "typeof conn.statSync() is a string");
   conn.closeSync();
   
@@ -658,9 +670,10 @@ exports.StoreResultSync = function (test) {
 };
 
 exports.ThreadSafeSync = function (test) {
-  test.expect(1);
+  test.expect(2);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   test.ok(conn.threadSafeSync(), "conn.threadSafeSync() === true");
   conn.closeSync();
@@ -673,11 +686,10 @@ exports.UseResultSync = function (test) {
 };
 
 exports.WarningCountSync = function (test) {
-  test.expect(1);
+  test.expect(2);
   
-  var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res;
+  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), res;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table_notexists + ";");
   test.equals(conn.warningCountSync(), 1, "conn.getWarningsSync() after DROP TABLE IF EXISTS test_table_notexists");

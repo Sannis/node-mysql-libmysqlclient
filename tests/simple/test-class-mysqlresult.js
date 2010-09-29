@@ -114,8 +114,10 @@ exports.FetchAll = function (test) {
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
   res = conn.querySync("SHOW TABLES;");
   test.ok(res, "conn.querySync('SHOW TABLES;')");
+  
   res.fetchAll(function (err, tables) {
     test.ok(err === null, "res.fetchAll() err===null");
     test.ok(tables, "res.fetchAll() result");
@@ -132,8 +134,8 @@ exports.FetchAllSync = function (test) {
     res,
     tables,
     rows;
-  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
   res = conn.querySync("SHOW TABLES;");
   test.ok(res, "conn.querySync('SHOW TABLES;')");
   tables = res.fetchAllSync();
