@@ -8,13 +8,7 @@ fi
 
 DESC=`git describe`
 
-if [ "$TMPDIR" = "" ]
-then
-    TMPDIR=~/tmp
-fi
-
-TMP=$TMPDIR/`mktemp temp.XXXXXX`.$$
-mkdir -p $TMP
+TMP=`mktemp --tmpdir -d temp.XXXXXX.$$`
 cp ./doc/* $TMP
 rm -f $TMP/*~
 git checkout gh-pages
