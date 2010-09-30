@@ -44,6 +44,7 @@ static Persistent<String> statement_numRowsSync_symbol;
 static Persistent<String> statement_prepareSync_symbol;
 static Persistent<String> statement_resetSync_symbol;
 static Persistent<String> statement_resultMetadataSync_symbol;
+static Persistent<String> statement_sendLongDataSync_symbol;
 static Persistent<String> statement_storeResultSync_symbol;
 static Persistent<String> statement_sqlStateSync_symbol;
 
@@ -108,6 +109,8 @@ class MysqlStatement : public node::EventEmitter {
     static Handle<Value> ResetSync(const Arguments& args);
 
     static Handle<Value> ResultMetadataSync(const Arguments& args);
+
+    static Handle<Value> SendLongDataSync(const Arguments& args);
 
     static Handle<Value> StoreResultSync(const Arguments& args);
 

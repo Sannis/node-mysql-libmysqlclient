@@ -60,6 +60,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(statement, prepareSync, PrepareSync);
     ADD_PROTOTYPE_METHOD(statement, resetSync, ResetSync);
     ADD_PROTOTYPE_METHOD(statement, resultMetadataSync, ResultMetadataSync);
+    ADD_PROTOTYPE_METHOD(statement, sendLongDataSync, SendLongDataSync);
     ADD_PROTOTYPE_METHOD(statement, storeResultSync, StoreResultSync);
     ADD_PROTOTYPE_METHOD(statement, sqlStateSync, SqlStateSync);
 
@@ -615,6 +616,32 @@ Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
                              GetFunction()->NewInstance(argc, argv));
 
     return scope.Close(js_result);
+}
+
+/**
+ * Send parameter data to the server in blocks (or "chunks")
+ *
+ * @param {Integer} parameter number, beginning with 0
+ * @param {String} data
+ * @return {Boolean}
+ */
+Handle<Value> MysqlStatement::SendLongDataSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    MYSQLSTMT_MUSTBE_INITIALIZED;
+    MYSQLSTMT_MUSTBE_PREPARED;
+
+    REQ_INT_ARG(0, parameter_number);
+    REQ_STR_ARG(1, data);
+
+    if (mysql_stmt_send_long_data(stmt->_stmt,
+                                  parameter_number, *data, data.length())) {
+        return scope.Close(False());
+    }
+
+    return scope.Close(True());
 }
 
 /**
