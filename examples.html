@@ -188,7 +188,7 @@ pre.shell code .prompt-root { color: #912121; }
                 </td>
                 <td>
 <pre><code><span class="keyword">if</span> (!<span class="variable">conn</span>.<span class="variable">connectedSync</span>()) {
-  <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;Connection error &quot;</span> + <span class="variable">conn</span>.<span class="variable">connectionErrno</span> + <span class="string">&quot;: &quot;</span> + <span class="variable">conn</span>.<span class="variable">connectionError</span>);
+  <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;Connection error &quot;</span> + <span class="variable">conn</span>.<span class="variable">connectErrno</span> + <span class="string">&quot;: &quot;</span> + <span class="variable">conn</span>.<span class="variable">connectError</span>);
   <span class="variable">process</span>.<span class="variable">exit</span>(<span class="number integer">1</span>);
 }</code></pre>
                 </td>

@@ -36,7 +36,7 @@ conn.connectSync(host, user, password, database);
  * Check connection status
  */
 if (!conn.connectedSync()) {
-  sys.puts("Connection error " + conn.connectionErrno + ": " + conn.connectionError);
+  sys.puts("Connection error " + conn.connectErrno + ": " + conn.connectError);
   process.exit(1);
 }
 
