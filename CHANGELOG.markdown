@@ -1,3 +1,12 @@
+## Version 1.0.1
+  * Change node-gc to Sannis' fork with some fixes
+  * Improve simple.conn.ConnectWithError test, tests cleanup
+  * Add gh_pages.sh to simplify docs update
+  * Update wscript in accordance to current node_addon.py
+  * Fix error reporting in example
+
+Special thanks for Surendra Singhi and http://fallen.habrahabr.ru
+
 ## Version 1.0.0
   * Fixes:
     * Rewrite fetchAll function, move V8 stuff to EIO_After_FetchAll, closes #34
