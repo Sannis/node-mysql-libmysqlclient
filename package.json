@@ -31,7 +31,7 @@
 , "licenses" : [ { "type" : "MIT" } ]
 , "repositories" :
   [ { "type" : "git"
-    , "url" : "git://github.com/Sannis/node-mysql-libmysqlclient.git"
+    , "url" : "http://github.com/Sannis/node-mysql-libmysqlclient.git"
     }
   ]
 , "main" : "./mysql-libmysqlclient"
