@@ -130,8 +130,13 @@ Contributors
 
 * **Maurits Lamers** ( [E-mail](maurits@weidestraat.nl), [GitHub](http://github.com/mauritslamers) \)
 
-  Fixing a [bug](http://github.com/Sannis/node-mysql-libmysqlclient/commit/c4071181404362b60b9d3a3aed9784b25459fffa) where previous values were set instead of empty.  
+  Fix a [bug](http://github.com/Sannis/node-mysql-libmysqlclient/commit/c4071181404362b60b9d3a3aed9784b25459fffa) where previous values were set instead of empty.  
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=mauritslamers).
+
+* **Benjmain Reesman** ( [E-mail](ben.reesman@gmail.com), [GitHub](http://github.com/benreesman) \)
+
+  Fix [bug](http://github.com/Sannis/node-mysql-libmysqlclient/commit/46dc9ccf266b39d67ed9e6796a178278ccc153a2) with building with libmysqlclient at specific location.
+  [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=benreesman).
 
 [Full contributors list](http://github.com/Sannis/node-mysql-libmysqlclient/contributors).
 
