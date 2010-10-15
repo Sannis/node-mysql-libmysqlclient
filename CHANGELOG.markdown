@@ -1,3 +1,9 @@
+## Version 1.0.2
+  * Tested with Node version v0.2.3
+  * Some changes to make the module build with specific libmysqlclient path, closes #50
+
+Special thanks for Benjmain Reesman
+
 ## Version 1.0.1
   * Change node-gc to Sannis' fork with some fixes
   * Improve simple.conn.ConnectWithError test, tests cleanup
