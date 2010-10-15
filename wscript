@@ -24,16 +24,18 @@ def configure(conf):
   conf.check_tool("compiler_cxx")
   conf.check_tool("node_addon")
   
+  # Node.js and debug flags
   conf.env.append_unique('CPPFLAGS', ["-D_FILE_OFFSET_BITS=64","-D_LARGEFILE_SOURCE"])
   conf.env.append_unique('CXXFLAGS', ["-Wall"])
   
+  # MySQL flags and libraries
   conf.env.append_unique('CXXFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --include').split())
+  conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs_r').split())
   
-  if conf.check_cxx(lib="mysqlclient_r", errmsg="not found, try to find nonthreadsafe libmysqlclient"):
-    conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs_r').split())
-  else:
+  if not conf.check_cxx(lib="mysqlclient_r", errmsg="not found, try to find nonthreadsafe libmysqlclient"):
+    # link flags are needed to find the libraries
+    conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs').split())
     if conf.check_cxx(lib="mysqlclient"):
-      conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs').split())
       conf.env.append_unique('CXXDEFINES', ["MYSQL_NON_THREADSAFE"])
     else:
       conf.fatal("Missing both libmysqlclient_r and libmysqlclient from libmysqlclient-devel or mysql-devel package")
