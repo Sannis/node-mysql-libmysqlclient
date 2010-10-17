@@ -135,7 +135,7 @@ Contributors
 
 * **Benjmain Reesman** ( [E-mail](ben.reesman@gmail.com), [GitHub](http://github.com/benreesman) \)
 
-  Fix [bug](http://github.com/Sannis/node-mysql-libmysqlclient/commit/46dc9ccf266b39d67ed9e6796a178278ccc153a2) with building with libmysqlclient at specific location.
+  Fix [bug](http://github.com/Sannis/node-mysql-libmysqlclient/commit/46dc9ccf266b39d67ed9e6796a178278ccc153a2) with building with libmysqlclient at specific location.  
   [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=benreesman).
 
 [Full contributors list](http://github.com/Sannis/node-mysql-libmysqlclient/contributors).
