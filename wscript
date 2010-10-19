@@ -50,23 +50,23 @@ def build(bld):
   obj.uselib = "MYSQLCLIENT"
 
 def test(tst):
-  if not exists('./tools/nodeunit/lib/testrunner.js'):
+  if not exists('./tools/nodeunit/bin/nodeunit'):
     print("\033[31mNodeunit doesn't exists.\033[39m\nYou should run `git submodule update --init` before run tests.")
     exit(1)
   else:
     if Options.options.slow and Options.options.ignored:
-      Utils.exec_command('node_g ./tools/nodeunit/lib/testrunner.js tests/slow tests/ignored')
+      Utils.exec_command('node_g ./tools/nodeunit/bin/nodeunit tests/slow tests/ignored')
     else:
       if Options.options.slow:
-        Utils.exec_command('node ./tools/nodeunit/lib/testrunner.js tests/slow')
+        Utils.exec_command('node ./tools/nodeunit/bin/nodeunit tests/slow')
       else:
         if Options.options.ignored:
-          Utils.exec_command('node_g ./tools/nodeunit/lib/testrunner.js tests/ignored')
+          Utils.exec_command('node_g ./tools/nodeunit/bin/nodeunit tests/ignored')
         else:
           if Options.options.all:
-            Utils.exec_command('node ./tools/nodeunit/lib/testrunner.js tests/simple tests/complex tests/slow')
+            Utils.exec_command('node ./tools/nodeunit/bin/nodeunit tests/simple tests/complex tests/slow')
           else:
-            Utils.exec_command('node ./tools/nodeunit/lib/testrunner.js tests/simple tests/complex')
+            Utils.exec_command('node ./tools/nodeunit/bin/nodeunit tests/simple tests/complex')
 
 def lint(lnt):
   # Bindings C++ source code
