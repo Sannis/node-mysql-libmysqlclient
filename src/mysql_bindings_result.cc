@@ -350,11 +350,19 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
 
         i = 0;
         while ( (result_row = mysql_fetch_row(fetchAll_req->res->_res)) ) {
-            js_result_row = Object::New();
+            if(fetchAll_req->results_array) {
+              js_result_row = Array::New();
+            } else {
+              js_result_row = Object::New();
+            }
 
             for ( j = 0; j < fetchAll_req->num_fields; j++ ) {
                 js_field = GetFieldValue(fetchAll_req->fields[j], result_row[j]);
-                js_result_row->Set(V8STR(fetchAll_req->fields[j].name), js_field);
+                if(fetchAll_req->results_array) {
+                  js_result_row->Set(Integer::New(j), js_field);
+                } else {
+                  js_result_row->Set(V8STR(fetchAll_req->fields[j].name), js_field);
+                }
             }
 
             js_result->Set(Integer::New(i), js_result_row);
@@ -412,7 +420,13 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 #ifdef MYSQL_NON_THREADSAFE
     return THREXC(MYSQL_NON_THREADSAFE_ERRORSTRING);
 #else
-    REQ_FUN_ARG(0, callback);
+    int arg_pos = 0;
+    bool results_array = false;
+    if(args.Length() > arg_pos && args[arg_pos]->IsBoolean()) {
+      results_array = args[arg_pos]->BooleanValue();
+      arg_pos++;
+    }
+    REQ_FUN_ARG(arg_pos, callback)
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This()); // NOLINT
 
@@ -428,6 +442,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 
     fetchAll_req->callback = Persistent<Function>::New(callback);
     fetchAll_req->res = res;
+    fetchAll_req->results_array = results_array;
 
     eio_custom(EIO_FetchAll, EIO_PRI_DEFAULT, EIO_After_FetchAll, fetchAll_req);
 
@@ -450,6 +465,8 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 
     MYSQLRES_MUSTBE_VALID;
 
+    bool results_array = (args.Length() > 0 && args[0]->IsBoolean()) ? args[0]->BooleanValue() : false;
+
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
     uint32_t num_fields = mysql_num_fields(res->_res);
     MYSQL_ROW result_row;
@@ -461,12 +478,19 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 
     i = 0;
     while ( (result_row = mysql_fetch_row(res->_res)) ) {
-        js_result_row = Object::New();
+        if(results_array) {
+          js_result_row = Array::New();
+        } else {
+          js_result_row = Object::New();
+        }
 
         for ( j = 0; j < num_fields; j++ ) {
-            js_field = GetFieldValue(fields[j], result_row[j]);
-
+          js_field = GetFieldValue(fields[j], result_row[j]);
+          if(results_array) {
+            js_result_row->Set(Integer::New(j), js_field);
+          } else {
             js_result_row->Set(V8STR(fields[j].name), js_field);
+          }
         }
 
         js_result->Set(Integer::New(i), js_result_row);

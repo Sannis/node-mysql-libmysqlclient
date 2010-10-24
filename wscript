@@ -61,7 +61,7 @@ def test(tst):
         Utils.exec_command('node ./tools/nodeunit/bin/nodeunit tests/slow')
       else:
         if Options.options.ignored:
-          Utils.exec_command('node_g ./tools/nodeunit/bin/nodeunit tests/ignored')
+          Utils.exec_command('node ./tools/nodeunit/bin/nodeunit tests/ignored')
         else:
           if Options.options.all:
             Utils.exec_command('node ./tools/nodeunit/bin/nodeunit tests/simple tests/complex tests/slow')
