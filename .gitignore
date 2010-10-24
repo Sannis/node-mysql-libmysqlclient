@@ -2,4 +2,3 @@
 build
 .lock-wscript
 mysql_bindings.node
-doc/*.html
