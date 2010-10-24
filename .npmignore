@@ -1,0 +1,4 @@
+*~
+build
+.lock-wscript
+mysql_bindings.node
