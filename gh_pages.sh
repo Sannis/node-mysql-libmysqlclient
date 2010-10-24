@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+
 BRANCH=`git branch 2> /dev/null | grep "*" | sed 's#*\ \(.*\)#\1#'`
 if [ "$BRANCH" != "master" ]
 then
@@ -8,7 +10,13 @@ fi
 
 DESC=`git describe`
 
-TMP=`mktemp --tmpdir -d temp.XXXXXX.$$`
+# Update master branch
+node-waf doc
+git add doc/*.js doc/*.html
+git ci -m "Update docs to $DESC"
+
+# Update gh-pages branch
+TMP=`mktemp --tmpdir -d temp.XXXXXXXXXX`
 cp ./doc/* $TMP
 rm -f $TMP/*~
 git checkout gh-pages
