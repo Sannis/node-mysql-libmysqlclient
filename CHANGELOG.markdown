@@ -1,3 +1,8 @@
+## Version 1.0.3
+  * Update nodeunit from cf2f529 to d4949a4
+  * Add HTML documentation into repo
+  * Add .npmignore file, closes #54
+
 ## Version 1.0.2
   * Tested with Node version v0.2.3
   * Some changes to make the module build with specific libmysqlclient path, closes #50
