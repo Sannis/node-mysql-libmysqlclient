@@ -20,7 +20,7 @@ Special thanks for Surendra Singhi and http://fallen.habrahabr.ru
 
 ## Version 1.0.0
   * Fixes:
-    * Rewrite fetchAll function, move V8 stuff to EIO_After_FetchAll, closes #34
+    * Rewrite fetchAll function, move V8 stuff to EIO\_After\_FetchAll, closes #34
     * Rewrite MysqlResult::SetFieldValue() procedure to GetFieldValue() function
     * Fix Nodules break, closes #46
     * Return Boolean/throw exception fixes, closes #31
@@ -60,7 +60,7 @@ Special thanks for Ben Noordhuis
     * MysqlResult::FieldCountSync()
   * Make it possible to interleave
     sync and async queries on same connection
-  * Improve package.json, fdd 'Dependencies' section into README
+  * Improve package.json, add 'Dependencies' section into README
   * Rework nested C++ classes into separate
   * Fix lint errors (all, except sscanf)
   * Implemented methods:
@@ -150,12 +150,12 @@ Special thanks for Surendra Singhi
 ## Version 0.0.3
   * Add 'lint' target for node-waf
   * Add docs dir, docs/examples.md,
-    docs/api_php_mysqli.md and docs/api_node_mysql_sync.md
+    docs/api\_php\_mysqli.md and docs/api\_node\_mysql\_sync.md
   * Add tests/debug.js for inspecting bindings 'classes' from javascript
   * Implement all methods in 'connection' category:
     * MysqlSyncConn::ChangeUser()
-    * MysqlSyncConn::СonnectErrno()
-    * MysqlSyncConn::СonnectError()
+    * MysqlSyncConn::ConnectErrno()
+    * MysqlSyncConn::ConnectError()
     * MysqlSyncConn::GetCharset()
     * MysqlSyncConn::GetCharsetName()
     * MysqlSyncConn::Ping()
