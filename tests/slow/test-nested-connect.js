@@ -10,7 +10,6 @@ var cfg = require("../config").cfg;
 
 // Require modules
 var
-  sys = require("sys"),
   mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
 exports.ConnectsNested = function (test) {
@@ -102,7 +101,7 @@ exports.ManyConnectsInLoop = function (test) {
   for (i = 0; i < cfg.slow_connects_inloop; i += 1) {
     connections[i].connect(cfg.host, cfg.user, cfg.password, cfg.database, function (err) {
       if (err) {
-        sys.puts(sys.inspect(err));
+        console.log(err);
         throw err;
       }
       

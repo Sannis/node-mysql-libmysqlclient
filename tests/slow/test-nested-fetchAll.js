@@ -10,7 +10,6 @@ var cfg = require("../config").cfg;
 
 // Require modules
 var
-  sys = require("sys"),
   mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
 exports.FetchesNested = function (test) {
@@ -99,7 +98,7 @@ exports.ManyFetchesNested = function (test) {
       test.same(test_result, initial_result);
       
       if (cfg.slow_fetches_nested <= 0) {
-        sys.puts("ManyFetchesNested test ignored, cfg.slow_fetches_nested <=0");
+        console.log("ManyFetchesNested test ignored, cfg.slow_fetches_nested <=0");
       }
       
       conn.closeSync();
@@ -120,7 +119,7 @@ exports.ManyFetchesInLoop = function (test) {
     i = 0, ci = 0;
   
   if (cfg.slow_fetches_inloop <= 0) {
-    sys.puts("ManyFetchesInLoop test ignored, cfg.slow_fetches_inloop <=0");
+    console.log("ManyFetchesInLoop test ignored, cfg.slow_fetches_inloop <=0");
     conn.closeSync();
     test.done();
     return;

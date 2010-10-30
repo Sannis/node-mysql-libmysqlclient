@@ -10,7 +10,6 @@ var cfg = require("../config").cfg;
 
 // Require modules
 var
-  sys = require("sys"),
   mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
 exports.Setup = function (test) {

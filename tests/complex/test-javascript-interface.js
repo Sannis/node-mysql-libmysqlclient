@@ -9,7 +9,6 @@ var cfg = require("../config").cfg;
 
 // Require modules
 var
-  sys = require("sys"),
   mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
 exports.mysql_libmysqlclient_createConnectionSync_0 = function (test) {
@@ -30,7 +29,7 @@ exports.mysql_libmysqlclient_createConnectionSync_1 = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host)");
   test.ok(conn.connectedSync(), "mysql_libmysqlclient.createConnectionSync(host).connectedSync()");
   if (!conn.connectedSync()) {
-    sys.puts("Error:" + conn.connectError);
+    console.log("Error:" + conn.connectError);
   } else {
     conn.closeSync();
   }
@@ -65,7 +64,7 @@ exports.mysql_libmysqlclient_createConnectionSync_3 = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password)");
   test.ok(conn.connectedSync(), "mysql_libmysqlclient.createConnectionSync(host, user, password).connectedSync()");
   if (!conn.connectedSync()) {
-    sys.puts("Error:" + conn.connectError);
+    console.log("Error:" + conn.connectError);
   } else {
     conn.closeSync();
   }
@@ -79,7 +78,7 @@ exports.mysql_libmysqlclient_createConnectionSync_4_allowed = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   test.ok(conn.connectedSync(), "mysql_libmysqlclient.createConnectionSync(host, user, password, database).connectedSync()");
   if (!conn.connectedSync()) {
-    sys.puts("Error:" + conn.connectError);
+    console.log("Error:" + conn.connectError);
   } else {
     conn.closeSync();
   }

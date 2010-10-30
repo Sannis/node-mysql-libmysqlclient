@@ -9,7 +9,6 @@ var cfg = require("../config").cfg;
 
 // Require modules
 var
-  sys = require("sys"),
   mysql_libmysqlclient = require("../../mysql-libmysqlclient");
 
 exports.JoinQueryFetchAllSync = function (test) {
@@ -33,7 +32,7 @@ exports.JoinQueryFetchAllSync = function (test) {
   res = conn.querySync("SELECT t1.*, t2.* from " + cfg.test_table + " t1 JOIN " + cfg.test_table + " t2 ON t1.random_boolean = t2.random_boolean;");
   test.ok(res, "SELECT with JOIN");
   rows = res.fetchAllSync();
-  sys.puts(sys.inspect(rows));
+  console.log(rows);
   test.same(rows, [ { "t1.random_number": 1, "t1.random_boolean": 1, "t2.random_number": 1, "t2.random_boolean": 1 },
     { "t1.random_number": 2, "t1.random_boolean": 1, "t2.random_number": 1, "t2.random_boolean": 1 },
     { "t1.random_number": 1, "t1.random_boolean": 1, "t2.random_number": 2, "t2.random_boolean": 1 },
