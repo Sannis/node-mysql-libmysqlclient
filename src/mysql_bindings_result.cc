@@ -413,6 +413,7 @@ int MysqlResult::EIO_FetchAll(eio_req *req) {
 /**
  * Fetches all result rows as an array
  *
+ * @param {Boolean|Object} 'results_array' (optional)
  * @param {Function(error, rows)} callback
  */
 Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
@@ -422,10 +423,22 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 #else
     int arg_pos = 0;
     bool results_array = false;
-    if(args.Length() > arg_pos && args[arg_pos]->IsBoolean()) {
-      results_array = args[arg_pos]->BooleanValue();
-      arg_pos++;
+
+    if (args.Length() > 0) {
+        if (args[0]->IsBoolean()) {
+            results_array = args[0]->BooleanValue();
+            arg_pos++;
+        } else if (args[0]->IsObject() && !args[0]->IsFunction()) {
+            if (args[0]->ToObject()->Has(V8STR("array"))) {
+                results_array = args[0]->ToObject()
+                                ->Get(V8STR("array"))->BooleanValue();
+            }
+            arg_pos++;
+        }
+        // NOT here, because any function is object
+        // arg_pos++;
     }
+
     REQ_FUN_ARG(arg_pos, callback)
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This()); // NOLINT
@@ -456,6 +469,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 /**
  * Fetches all result rows as an array
  *
+ * @param {Boolean|Object} 'results_array' (optional)
  * @return {Array}
  */
 Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
@@ -465,7 +479,18 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 
     MYSQLRES_MUSTBE_VALID;
 
-    bool results_array = (args.Length() > 0 && args[0]->IsBoolean()) ? args[0]->BooleanValue() : false;
+    bool results_array = false;
+
+    if (args.Length() > 0) {
+        if (args[0]->IsBoolean()) {
+            results_array = args[0]->BooleanValue();
+        } else if (args[0]->IsObject()) {
+            if (args[0]->ToObject()->Has(V8STR("array"))) {
+                results_array = args[0]->ToObject()
+                                ->Get(V8STR("array"))->BooleanValue();
+            }
+        }
+    }
 
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
     uint32_t num_fields = mysql_num_fields(res->_res);
