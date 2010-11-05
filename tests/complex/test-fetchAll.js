@@ -133,7 +133,7 @@ exports.FetchAllSyncWithObjectArrayOption = function (test) {
   test.done();
 };
 
-exports.FetchAllWithObjectArrayOption = function (test) {
+exports.FetchAllWithObjectStructuredOption = function (test) {
   test.expect(9);
   
   var
