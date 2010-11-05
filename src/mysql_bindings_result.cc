@@ -341,6 +341,8 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
     if (req->result) {
         argv[0] = V8EXC("Error on fetching fields");
     } else {
+        MYSQL_FIELD *fields = fetchAll_req->fields;
+        uint32_t num_fields = fetchAll_req->num_fields;
         MYSQL_ROW result_row;
         uint32_t i = 0, j = 0;
 
@@ -356,12 +358,21 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
               js_result_row = Object::New();
             }
 
-            for ( j = 0; j < fetchAll_req->num_fields; j++ ) {
-                js_field = GetFieldValue(fetchAll_req->fields[j], result_row[j]);
-                if(fetchAll_req->results_array) {
-                  js_result_row->Set(Integer::New(j), js_field);
+            for (j = 0; j < num_fields; j++) {
+                js_field = GetFieldValue(fields[j], result_row[j]);
+                if (fetchAll_req->results_array) {
+                    js_result_row->Set(Integer::New(j), js_field);
                 } else {
-                  js_result_row->Set(V8STR(fetchAll_req->fields[j].name), js_field);
+                    if (fetchAll_req->results_structured) {
+                        if (!js_result_row->Has(V8STR(fields[j].table))) {
+                            js_result_row->Set(V8STR(fields[j].table),
+                                               Object::New());
+                        }
+                        js_result_row->Get(V8STR(fields[j].table))->ToObject()
+                                     ->Set(V8STR(fields[j].name), js_field);
+                    } else {
+                        js_result_row->Set(V8STR(fields[j].name), js_field);
+                    }
                 }
             }
 
@@ -413,7 +424,7 @@ int MysqlResult::EIO_FetchAll(eio_req *req) {
 /**
  * Fetches all result rows as an array
  *
- * @param {Boolean|Object} 'results_array' (optional)
+ * @param {Boolean|Object} options (optional)
  * @param {Function(error, rows)} callback
  */
 Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
@@ -423,6 +434,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 #else
     int arg_pos = 0;
     bool results_array = false;
+    bool results_structured = false;
 
     if (args.Length() > 0) {
         if (args[0]->IsBoolean()) {
@@ -433,10 +445,18 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
                 results_array = args[0]->ToObject()
                                 ->Get(V8STR("array"))->BooleanValue();
             }
+            if (args[0]->ToObject()->Has(V8STR("structured"))) {
+                results_structured = args[0]->ToObject()
+                                     ->Get(V8STR("structured"))->BooleanValue();
+            }
             arg_pos++;
         }
-        // NOT here, because any function is object
+        // NOT here: any function is object
         // arg_pos++;
+    }
+
+    if (results_array && results_structured) {
+        return THREXC("You can't mix 'array' and 'structured' parameters");
     }
 
     REQ_FUN_ARG(arg_pos, callback)
@@ -456,6 +476,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     fetchAll_req->callback = Persistent<Function>::New(callback);
     fetchAll_req->res = res;
     fetchAll_req->results_array = results_array;
+    fetchAll_req->results_structured = results_structured;
 
     eio_custom(EIO_FetchAll, EIO_PRI_DEFAULT, EIO_After_FetchAll, fetchAll_req);
 
@@ -469,7 +490,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 /**
  * Fetches all result rows as an array
  *
- * @param {Boolean|Object} 'results_array' (optional)
+ * @param {Boolean|Object} options (optional)
  * @return {Array}
  */
 Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
@@ -480,6 +501,7 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
     MYSQLRES_MUSTBE_VALID;
 
     bool results_array = false;
+    bool results_structured = false;
 
     if (args.Length() > 0) {
         if (args[0]->IsBoolean()) {
@@ -489,7 +511,15 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
                 results_array = args[0]->ToObject()
                                 ->Get(V8STR("array"))->BooleanValue();
             }
+            if (args[0]->ToObject()->Has(V8STR("structured"))) {
+                results_structured = args[0]->ToObject()
+                                     ->Get(V8STR("structured"))->BooleanValue();
+            }
         }
+    }
+
+    if (results_array && results_structured) {
+        return THREXC("You can't mix 'array' and 'structured' parameters");
     }
 
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
@@ -503,19 +533,27 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 
     i = 0;
     while ( (result_row = mysql_fetch_row(res->_res)) ) {
-        if(results_array) {
-          js_result_row = Array::New();
+        if (results_array) {
+            js_result_row = Array::New();
         } else {
-          js_result_row = Object::New();
+            js_result_row = Object::New();
         }
 
-        for ( j = 0; j < num_fields; j++ ) {
-          js_field = GetFieldValue(fields[j], result_row[j]);
-          if(results_array) {
-            js_result_row->Set(Integer::New(j), js_field);
-          } else {
-            js_result_row->Set(V8STR(fields[j].name), js_field);
-          }
+        for (j = 0; j < num_fields; j++) {
+            js_field = GetFieldValue(fields[j], result_row[j]);
+            if (results_array) {
+                js_result_row->Set(Integer::New(j), js_field);
+            } else {
+                if (results_structured) {
+                    if (!js_result_row->Has(V8STR(fields[j].table))) {
+                        js_result_row->Set(V8STR(fields[j].table), Object::New());
+                    }
+                    js_result_row->Get(V8STR(fields[j].table))->ToObject()
+                                 ->Set(V8STR(fields[j].name), js_field);
+                } else {
+                    js_result_row->Set(V8STR(fields[j].name), js_field);
+                }
+            }
         }
 
         js_result->Set(Integer::New(i), js_result_row);

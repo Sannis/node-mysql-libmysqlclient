@@ -13,6 +13,7 @@ exports.cfg = {
   database: "test",
   database_denied: "mysql",
   test_table: "test_table",
+  test_table2: "test_table2",
   test_table_notexists: "test_table_notexists",
   charset: "utf8",
 

@@ -85,6 +85,7 @@ class MysqlResult : public node::EventEmitter {
         MYSQL_FIELD *fields;
         uint32_t num_fields;
         bool results_array;
+        bool results_structured;
     };
     static int EIO_After_FetchAll(eio_req *req);
     static int EIO_FetchAll(eio_req *req);
