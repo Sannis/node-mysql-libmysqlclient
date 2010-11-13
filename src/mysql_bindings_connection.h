@@ -197,7 +197,7 @@ class MysqlConnection : public node::EventEmitter {
 
 #ifndef MYSQL_NON_THREADSAFE
     struct query_request {
-        Persistent<Function> callback;
+        Persistent<Value> callback;
         MysqlConnection *conn;
         char *query;
         MYSQL_RES *my_result;

@@ -52,17 +52,25 @@ return ThrowException(Exception::TypeError( \
 String::New("Argument " #I " must be a boolean"))); \
 bool VAR = args[I]->BooleanValue();
 
+#define REQ_EXT_ARG(I, VAR) \
+if (args.Length() <= (I) || !args[I]->IsExternal()) \
+return ThrowException(Exception::TypeError( \
+String::New("Argument " #I " invalid"))); \
+Local<External> VAR = Local<External>::Cast(args[I]);
+
 #define REQ_FUN_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsFunction()) \
 return ThrowException(Exception::TypeError( \
 String::New("Argument " #I " must be a function"))); \
 Local<Function> VAR = Local<Function>::Cast(args[I]);
 
-#define REQ_EXT_ARG(I, VAR) \
-if (args.Length() <= (I) || !args[I]->IsExternal()) \
-return ThrowException(Exception::TypeError( \
-String::New("Argument " #I " invalid"))); \
-Local<External> VAR = Local<External>::Cast(args[I]);
+#define OPTIONAL_FUN_ARG(I, VAR) \
+Handle<Value> VAR; \
+if (args.Length() > (I) && args[I]->IsFunction()) {\
+    VAR = args[I]; \
+} else { \
+    VAR = Null(); \
+}
 
 #define MYSQLSYNC_DISABLE_MQ \
 if (conn->multi_query) { \
