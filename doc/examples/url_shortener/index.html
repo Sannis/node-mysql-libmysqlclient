@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Node.js + node-mysql-libmysqlclient URL shortener</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script>
+      /*global $: true*/
+      $(function () {
+        $('input[type=submit]').click(function () {
+          var
+            input = $('input[type=text]'),
+            url   = input.val();
+          
+          input.val('');
+          url && $.ajax({
+            url: './',
+            data: ({add: url}),
+            success: function (data) {
+              var result = location.protocol + '//' + location.host + '/!' + data;
+              $('#url')
+                .prepend(
+                  $('<dd>').append(
+                    $('<a>')
+                      .text(result)
+                      .attr('href', result)
+                  )
+                  .hide()
+                  .fadeIn()
+                )
+                .prepend(
+                  $('<dt>')
+                    .text(url)
+                    .hide()
+                    .fadeIn()
+                );
+            }  // success function
+          }); // ajax object
+        }); // $('input[type=submit]').click
+      }); // document.ready
+    </script>
+  </head>
+  <body>
+    <div id="form">
+      <input type="text" />
+      <input type="submit" />
+    </div>
+    <dl id="url"></dl>
+  </body>
+</html>
+
