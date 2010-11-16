@@ -98,3 +98,4 @@ exports.mysql_libmysqlclient_createConnectionSync_4_denied = function (test) {
   }
   test.done();
 };
+

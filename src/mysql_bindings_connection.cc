@@ -451,10 +451,10 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
         new String::Utf8Value(args[2]->ToString()) : NULL;
     conn_req->dbname = args.Length() > 4 && args[3]->IsString() ?
         new String::Utf8Value(args[3]->ToString()) : NULL;
-    conn_req->port = args.Length() > 5 ?
-                              args[4]->IntegerValue() : 0;
+    conn_req->port = args.Length() > 5 && args[4]->IsUint32() ?
+                            args[4]->Uint32Value() : 0;
     conn_req->socket = args.Length() > 6 && args[5]->IsString() ?
-      new String::Utf8Value(args[5]->ToString()) : NULL;
+        new String::Utf8Value(args[5]->ToString()) : NULL;
     eio_custom(EIO_Connect, EIO_PRI_DEFAULT, EIO_After_Connect, conn_req);
 
     ev_ref(EV_DEFAULT_UC);
@@ -484,7 +484,7 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
     String::Utf8Value user(args[1]->ToString());
     String::Utf8Value password(args[2]->ToString());
     String::Utf8Value dbname(args[3]->ToString());
-    uint32_t port = args[4]->IntegerValue();
+    uint32_t port = args[4]->Uint32Value();
     String::Utf8Value socket(args[5]->ToString());
 
     bool r = conn->Connect(
@@ -492,33 +492,18 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
                         args[0]->IsString() ?
                         *hostname : NULL),
                     (
-                        args[0]->IsString() &&
                         args[1]->IsString() ?
                         *user : NULL),
                     (
-                        args[0]->IsString() &&
-                        args[1]->IsString() &&
                         args[2]->IsString() ?
                         *password : NULL),
                     (
-                        args[0]->IsString() &&
-                        args[1]->IsString() &&
-                        args[2]->IsString() &&
                         args[3]->IsString() ?
                         *dbname : NULL),
                     (
-                        args[0]->IsString() &&
-                        args[1]->IsString() &&
-                        args[2]->IsString() &&
-                        args[3]->IsString() &&
-                        args[4]->IsString() ?
+                        args[4]->IsUint32() ?
                         port : 0),
                     (
-                        args[0]->IsString() &&
-                        args[1]->IsString() &&
-                        args[2]->IsString() &&
-                        args[3]->IsString() &&
-                        args[4]->IsString() &&
                         args[5]->IsString() ?
                         *socket : NULL));
 
@@ -1183,7 +1168,7 @@ Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
     String::Utf8Value user(args[1]->ToString());
     String::Utf8Value password(args[2]->ToString());
     String::Utf8Value dbname(args[3]->ToString());
-    uint32_t port = args[4]->IntegerValue();
+    uint32_t port = args[4]->Uint32Value();
     String::Utf8Value socket(args[5]->ToString());
 
     bool r = conn->RealConnect(
@@ -1191,33 +1176,18 @@ Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
                         args[0]->IsString() ?
                         *hostname : NULL),
                     (
-                        args[0]->IsString() &&
                         args[1]->IsString() ?
                         *user : NULL),
                     (
-                        args[0]->IsString() &&
-                        args[1]->IsString() &&
                         args[2]->IsString() ?
                         *password : NULL),
                     (
-                        args[0]->IsString() &&
-                        args[1]->IsString() &&
-                        args[2]->IsString() &&
                         args[3]->IsString() ?
                         *dbname : NULL),
                     (
-                        args[0]->IsString() &&
-                        args[1]->IsString() &&
-                        args[2]->IsString() &&
-                        args[3]->IsString() &&
-                        args[4]->IsString() ?
+                        args[4]->IsUint32() ?
                         port : 0),
                     (
-                        args[0]->IsString() &&
-                        args[1]->IsString() &&
-                        args[2]->IsString() &&
-                        args[3]->IsString() &&
-                        args[4]->IsString() &&
                         args[5]->IsString() ?
                         *socket : NULL));
 
