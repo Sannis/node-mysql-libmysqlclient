@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /*!
- * Copyright (C) 2010, Oleg Efimov <efimovov@gmail.com>
+ * Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
+ * See contributors list in README
  *
  * See license text in LICENSE file
-*/
+ */
 
 /**
  * Require modules and define variables
