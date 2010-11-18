@@ -7,9 +7,9 @@ Visit [module site] for API docs and examples.
 Extra information available in [wiki].
 
 [Node.js]: http://nodejs.org/
-[Github repo]: http://github.com/Sannis/node-mysql-libmysqlclient
+[Github repo]: https://github.com/Sannis/node-mysql-libmysqlclient
 [module site]: http://sannis.github.com/node-mysql-libmysqlclient
-[wiki]: http://github.com/Sannis/node-mysql-libmysqlclient/wiki
+[wiki]: https://github.com/Sannis/node-mysql-libmysqlclient/wiki
 
 
 Dependencies
@@ -91,59 +91,64 @@ leave your comments to the code.
 I'll be glad to see your forks and commits in them :)
 
 To contribute any patches, simply fork this repository using GitHub
-and send a pull request to [me](http://github.com/Sannis). Thanks!
+and send a pull request to [me](https://github.com/Sannis). Thanks!
 
-You can find other information about [contributing and code style guide in wiki](http://github.com/Sannis/node-mysql-libmysqlclient/wiki/contributing).
+You can find other information about [contributing and code style guide in wiki](https://github.com/Sannis/node-mysql-libmysqlclient/wiki/contributing).
 
 
 Contributors
 ------------
 
-* **Oleg Efimov** ( [E-mail](efimovov@gmail.com), [GitHub](http://github.com/Sannis), [site](http://sannis.ru) \)
+* **Oleg Efimov** ( [E-mail](efimovov@gmail.com), [GitHub](https://github.com/Sannis), [site](http://sannis.ru) \)
 
   Author and maintainer.  
   Synchronouse version development.  
   First libeio asynchronouse attempts.  
   Writing tests, docs and so on.  
-  [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=Sannis).
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=Sannis).
 
-* **Surendra Singhi** ( [E-mail](<ssinghi@kreeti.com), [GitHub](http://github.com/ssinghi), [GitHub2](http://github.com/kreetitech), [site](http://ssinghi.kreeti.com) \)
+* **Surendra Singhi** ( [E-mail](<ssinghi@kreeti.com), [GitHub](https://github.com/ssinghi), [GitHub2](https://github.com/kreetitech), [site](http://ssinghi.kreeti.com) \)
 
   Make asynchronouse connecting and querying work.  
-  Fix segmentation faults, partialy closes [#14](http://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find).  
+  Fix segmentation faults, partialy closes [#14](https://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find).  
   Some other fixes.  
-  [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=ssinghi).
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=ssinghi).
 
-* **Akzhan Abdulin** ( [E-mail](akzhan.abdulin@gmail.com), [GitHub](http://github.com/akzhan) \)
+* **Akzhan Abdulin** ( [E-mail](akzhan.abdulin@gmail.com), [GitHub](https://github.com/akzhan) \)
 
   Tests and code style fixes.  
-  [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=akzhan).
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=akzhan).
 
-* **Robin Duckett** ( [E-mail](robin.duckett@gmail.com), [GitHub](http://github.com/robinduckett) \)
+* **Robin Duckett** ( [E-mail](robin.duckett@gmail.com), [GitHub](https://github.com/robinduckett) \)
 
-  Fix segfault error, partialy closes [#14](http://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find).  
-  [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=robinduckett).
+  Fix segfault error, partialy closes [#14](https://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find).  
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=robinduckett).
   
-* **Dan Beam** ( [E-mail](dan@danbeam.org), [GitHub](http://github.com/danbeam), [site](http://danbeam.org) \)
+* **Dan Beam** ( [E-mail](dan@danbeam.org), [GitHub](https://github.com/danbeam), [site](http://danbeam.org) \)
 
-  [Simplify javascript logic](http://github.com/Sannis/node-mysql-libmysqlclient/commit/97040c3e7a5d4673ca6f340d8a9bc69da8e398d8) of createConnection().  
-  [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=danbeam).
+  [Simplify javascript logic](https://github.com/Sannis/node-mysql-libmysqlclient/commit/97040c3e7a5d4673ca6f340d8a9bc69da8e398d8) of createConnection().  
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=danbeam).
 
-* **Maurits Lamers** ( [E-mail](maurits@weidestraat.nl), [GitHub](http://github.com/mauritslamers) \)
+* **Maurits Lamers** ( [E-mail](maurits@weidestraat.nl), [GitHub](https://github.com/mauritslamers) \)
 
-  Fix a [bug](http://github.com/Sannis/node-mysql-libmysqlclient/commit/c4071181404362b60b9d3a3aed9784b25459fffa) where previous values were set instead of empty.  
-  [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=mauritslamers).
+  Fix a [bug](https://github.com/Sannis/node-mysql-libmysqlclient/commit/c4071181404362b60b9d3a3aed9784b25459fffa) where previous values were set instead of empty.  
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=mauritslamers).
 
-* **Benjmain Reesman** ( [E-mail](ben.reesman@gmail.com), [GitHub](http://github.com/benreesman) \)
+* **Benjmain Reesman** ( [E-mail](ben.reesman@gmail.com), [GitHub](https://github.com/benreesman) \)
 
-  Fix [bug](http://github.com/Sannis/node-mysql-libmysqlclient/commit/46dc9ccf266b39d67ed9e6796a178278ccc153a2) with building with libmysqlclient at specific location.  
-  [All commits](http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=benreesman).
+  Fix [bug](https://github.com/Sannis/node-mysql-libmysqlclient/commit/46dc9ccf266b39d67ed9e6796a178278ccc153a2) with building with libmysqlclient at specific location.  
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=benreesman).
 
-[Full contributors list](http://github.com/Sannis/node-mysql-libmysqlclient/contributors).
+* **Pavel Ponomarenko** ( [E-mail](shocksilien@gmail.com), [GitHub](https://github.com/theshock) \)
+
+  Add URL shortener example script.  
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=theshock).
+
+[Full contributors list](https://github.com/Sannis/node-mysql-libmysqlclient/contributors).
 
 
 License
 -------
 
-MIT license. See license text in file [LICENSE](http://github.com/Sannis/node-mysql-libmysqlclient/blob/master/LICENSE).
+MIT license. See license text in file [LICENSE](https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/LICENSE).
 
