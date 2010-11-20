@@ -204,34 +204,6 @@ exports.ChangeUserSync = function (test) {
   test.done();
 };
 
-exports.Connect = function (test) {
-  test.expect(1);
-  
-  var conn = new mysql_bindings.MysqlConnection();
-  
-  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
-    test.ok(error === null, "conn.connect() for allowed database");
-    conn.closeSync();
-    
-    test.done();
-  });
-};
-
-exports.ConnectWithError = function (test) {
-  test.expect(3);
-  
-  var conn = new mysql_bindings.MysqlConnection();
-  
-  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (error) {
-    test.ok(error === 1044, "conn.connect() to denied database");
-    
-    test.equals(conn.connectErrno, 1044, "conn.connectErrno");
-    test.ok(conn.connectError.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")), "conn.connectError");
-    
-    test.done();
-  });
-};
-
 exports.ConnectSync = function (test) {
   test.expect(2);
   
@@ -502,41 +474,6 @@ exports.MultiNextResultSync = function (test) {
 
 exports.MultiRealQuerySync = function (test) {
   multiRealQueryAndNextAndMoreSync(test);
-};
-
-exports.Query = function (test) {
-  test.expect(3);
-  
-  var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
-  conn.query("SHOW TABLES", function (err, result) {
-    test.ok(result.fieldCount === 1, "show results field count === 1");
-    var res = result.fetchAllSync();
-    test.ok(res.some(function (r) {
-      return r['Tables_in_' + cfg.database] === cfg.test_table;
-    }), "find the test table in results");
-    conn.closeSync();
-    test.done();
-  });
-};
-
-exports.QueryWithError = function (test) {
-  test.expect(3);
-  
-  var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
-  conn.query("SHOW TABLESaagh", function (err, result) {
-    test.ok(err, "Error object is present");
-    test.ok(!result, "Result is not defined");
-    conn.closeSync();
-    test.done();
-  });
 };
 
 exports.QueryWithQuerySync = function (test) {

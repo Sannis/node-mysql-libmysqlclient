@@ -107,35 +107,6 @@ exports.DataSeekSync = function (test) {
   test.done();
 };
 
-exports.FetchAll = function (test) {
-  test.expect(4);
-  
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
-  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  res = conn.querySync("INSERT INTO " + cfg.test_table +
-                   " (random_number, random_boolean) VALUES ('1', '1');") && res;
-  res = conn.querySync("INSERT INTO " + cfg.test_table +
-                    " (random_number, random_boolean) VALUES ('2', '1');") && res;
-  res = conn.querySync("INSERT INTO " + cfg.test_table +
-                   " (random_number, random_boolean) VALUES ('3', '0');") && res;
-  test.ok(res, "INSERT");
-  
-  res = conn.querySync("SELECT random_number from " + cfg.test_table +
-                   " WHERE random_boolean='0';");
-  
-  res.fetchAll(function (err, rows) {
-    test.ok(err === null, "res.fetchAll() err===null");
-    test.same(rows, [{random_number: 3}], "conn.querySync('SELECT ...').fetchAll()");
-    res.freeSync();
-    conn.closeSync();
-    
-    test.done();
-  });
-};
-
 exports.FetchAllSync = function (test) {
   test.expect(7);
   
