@@ -487,25 +487,12 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
     uint32_t port = args[4]->Uint32Value();
     String::Utf8Value socket(args[5]->ToString());
 
-    bool r = conn->Connect(
-                    (
-                        args[0]->IsString() ?
-                        *hostname : NULL),
-                    (
-                        args[1]->IsString() ?
-                        *user : NULL),
-                    (
-                        args[2]->IsString() ?
-                        *password : NULL),
-                    (
-                        args[3]->IsString() ?
-                        *dbname : NULL),
-                    (
-                        args[4]->IsUint32() ?
-                        port : 0),
-                    (
-                        args[5]->IsString() ?
-                        *socket : NULL));
+    bool r = conn->Connect(args[0]->IsString() ? *hostname : NULL,
+                           args[1]->IsString() ? *user     : NULL,
+                           args[2]->IsString() ? *password : NULL,
+                           args[3]->IsString() ? *dbname   : NULL,
+                           args[4]->IsUint32() ? port      : 0,
+                           args[5]->IsString() ? *socket   : NULL);
 
     if (!r) {
         return scope.Close(False());

@@ -44,15 +44,15 @@ exports.Query = function (test) {
   test.expect(3);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res;
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  conn.query("SHOW TABLES", function (err, result) {
-    test.ok(result.fieldCount === 1, "show results field count === 1");
-    var res = result.fetchAllSync();
-    test.ok(res.some(function (r) {
+  conn.query("SHOW TABLES", function (err, res) {
+    test.ok(res.fieldCount === 1, "show results field count === 1");
+    var rows = res.fetchAllSync();
+    res.freeSync();
+    test.ok(rows.some(function (r) {
       return r['Tables_in_' + cfg.database] === cfg.test_table;
     }), "find the test table in results");
     conn.closeSync();
