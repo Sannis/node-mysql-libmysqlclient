@@ -21,8 +21,9 @@ exports.createTestTableComplex = function (test) {
   
   conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
   conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (size ENUM('small', 'medium', 'large')," +
-    "  colors SET('red', 'green', 'blue')) TYPE=MEMORY;");
+    " (size ENUM('small', 'medium', 'large') NULL," +
+    "  colors SET('red', 'green', 'blue') NULL," + 
+    "  num INT(8) NOT NULL DEFAULT 0) TYPE=MEMORY;");
   res = conn.querySync("SHOW TABLES");
   tables = res.fetchAllSync();
   
