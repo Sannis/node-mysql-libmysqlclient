@@ -949,8 +949,10 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
                                      GetFunction()->NewInstance(2, argv));
 
             argv[1] = Local<Value>::New(scope.Close(js_result));
-            argc = 2;
+        } else {
+            argv[1] = Local<Value>::New(scope.Close(Integer::New(query_req->affected_rows_or_insert_id)));
         }
+        argc = 2;
         argv[0] = Local<Value>::New(Null());
     }
 
@@ -998,17 +1000,26 @@ int MysqlConnection::EIO_Query(eio_req *req) {
 
         query_req->field_count = mysql_field_count(conn->_conn);
 
-        if (!my_result) {
+        if (my_result) {
+            // Valid result set (may be empty, of cause)
+            req->int1 = 1;
+            query_req->my_result = my_result;
+        } else {
             if (query_req->field_count == 0) {
                 // No result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN
+                // INSERT?
+                query_req->affected_rows_or_insert_id =
+                                    mysql_insert_id(conn->_conn);
+                // UPDATE or DELETE?
+                if (query_req->affected_rows_or_insert_id == 0) {
+                    query_req->affected_rows_or_insert_id =
+                                        mysql_affected_rows(conn->_conn);
+                }
                 req->int1 = 0;
             } else {
                 // Result store error
                 req->result = 1;
             }
-        } else {
-            req->int1 = 1;
-            query_req->my_result = my_result;
         }
     }
     pthread_mutex_unlock(&conn->query_lock);

@@ -60,6 +60,46 @@ exports.Query = function (test) {
   });
 };
 
+exports.QueryWithLastInsertIdAndAffectedRows = function (test) {
+  test.expect(8);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+  
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
+  test.ok(res, "conn.querySync('DELETE FROM test_table')");
+  
+  res = conn.querySync("ALTER TABLE " + cfg.test_table + " AUTO_INCREMENT = 1;");
+  test.ok(res, "conn.querySync('ALTER TABLE test_table AUTO_INCREMENT = 1;')");
+  
+  conn.query("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('1', '0');", function (err, last_insert_id) {
+    test.equals(last_insert_id, 1, "Last insert id");
+    
+    conn.query("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('2', '0'), ('3', '0');", function (err, last_insert_id) {
+      // For MySQL version >= 5.1.12
+      test.equals(last_insert_id, 2, "Last insert id");
+      
+      conn.query("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('4', '1'), ('5', '1');", function (err, last_insert_id) {
+        // For MySQL version >= 5.1.12
+        test.equals(last_insert_id, 4, "Last insert id");
+        
+        conn.query("UPDATE " + cfg.test_table + " SET random_number = '0' WHERE random_boolean='0';", function (err, affected_rows) {
+          test.equals(affected_rows, 3, "Affected rows count");
+          
+          conn.query("DELETE FROM " + cfg.test_table + " WHERE random_boolean='1';", function (err, affected_rows) {
+            test.equals(affected_rows, 2, "Affected rows count");
+            
+            conn.closeSync();
+            test.done();
+          });
+        });
+      });
+    });
+  });
+};
+
 exports.QueryWithError = function (test) {
   test.expect(3);
   
@@ -91,7 +131,7 @@ exports.QueryWithoutCallback = function (test) {
     conn.query("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('1', '0');");
   });
   
-  conn.query("SELECT * FROM " + cfg.test_table + ";", function (err, result) {
+  conn.query("SELECT random_number, random_boolean FROM " + cfg.test_table + ";", function (err, result) {
     test.ok(result, "Result is defined");
     test.ok(!err, "Error object is not present");
     

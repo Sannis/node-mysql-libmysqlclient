@@ -22,7 +22,7 @@ exports.createTestTableSimple = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, cfg.database)");
   conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
   conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL) TYPE=MEMORY;");
+    " (id INT(8) NOT NULL AUTO_INCREMENT, random_number INT(8) NOT NULL, random_boolean BOOLEAN NOT NULL, PRIMARY KEY(id)) TYPE=MEMORY;");
   res = conn.querySync("SHOW TABLES");
   test.ok(res.fieldCount === 1, "SHOW TABLES result field count === 1");
   tables = res.fetchAllSync();

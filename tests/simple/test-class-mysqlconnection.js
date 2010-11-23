@@ -428,7 +428,7 @@ exports.InitSync = function (test) {
 };
 
 exports.LastInsertIdSync = function (test) {
-  test.expect(6);
+  test.expect(5);
   
   var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res = true,
@@ -439,10 +439,10 @@ exports.LastInsertIdSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.ok(res, "conn.querySync('DELETE FROM test_table')");
   
-  res = conn.querySync("ALTER TABLE " + cfg.test_table + " ADD id BIGINT AUTO_INCREMENT, ADD INDEX (id);");
-  test.ok(res, "conn.querySync('ALTER TABLE cfg.test_table ADD id BIGINT AUTO_INCREMENT, ADD INDEX (id)')");
+  res = conn.querySync("ALTER TABLE " + cfg.test_table + " AUTO_INCREMENT = 1;");
+  test.ok(res, "conn.querySync('ALTER TABLE test_table AUTO_INCREMENT = 1;')");
   
   for (i = 0; i < cfg.insert_rows_count; i += 1) {
     random_number = Math.round(Math.random() * 1000000);
@@ -455,9 +455,6 @@ exports.LastInsertIdSync = function (test) {
   test.equals(res, true, "Insert " + cfg.insert_rows_count + " rows into table " + cfg.test_table);
   last_insert_id = conn.lastInsertIdSync();
   test.equals(last_insert_id, cfg.insert_rows_count, "conn.lastInsertIdSync()");
-  
-  res = conn.querySync("ALTER TABLE " + cfg.test_table + " DROP id;");
-  test.ok(res, "conn.querySync('ALTER TABLE cfg.test_table  DROP id')");
   
   conn.closeSync();
   
