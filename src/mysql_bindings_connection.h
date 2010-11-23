@@ -1,9 +1,9 @@
-/*
-Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
-See contributors list in README
-
-See license text in LICENSE file
-*/
+/*!
+ * Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
+ * See contributors list in README
+ *
+ * See license text in LICENSE file
+ */
 
 #ifndef NODE_MYSQL_CONNECTION_H  // NOLINT
 #define NODE_MYSQL_CONNECTION_H

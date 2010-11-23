@@ -1,9 +1,9 @@
-/*
-Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
-See contributors list in README
-
-See license text in LICENSE file
-*/
+/*!
+ * Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
+ * See contributors list in README
+ *
+ * See license text in LICENSE file
+ */
 
 #ifndef SRC_MYSQL_BINDINGS_RESULT_H_
 #define SRC_MYSQL_BINDINGS_RESULT_H_
