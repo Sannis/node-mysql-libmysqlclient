@@ -26,6 +26,9 @@ h1, h2, h3 {
 ul {
     padding-left: 20px;
 }
+img {
+    border: 0;
+}
 table#source {
     width: 100%;
     border-collapse: collapse;
@@ -94,7 +97,6 @@ table#source tr.code td:first-child pre {
     position: fixed;
     top: 0;
     right: 0;
-    border: 0;
 }
 code .string { color: #219161; }
 code .regexp { color: #219161; }
@@ -465,10 +467,10 @@ pre.shell code .prompt-root { color: #912121; }
         <span class="variable">new</span> <span class="class">String</span>::<span class="class">Utf8Value</span>(<span class="variable">args</span>[<span class="number integer">2</span>]-&gt;<span class="class">ToString</span>()) : <span class="class">NULL</span>;
     <span class="variable">conn_req</span>-&gt;<span class="variable">dbname</span> = <span class="variable">args</span>.<span class="class">Length</span>() &gt; <span class="number integer">4</span> &amp;&amp; <span class="variable">args</span>[<span class="number integer">3</span>]-&gt;<span class="class">IsString</span>() ?
         <span class="variable">new</span> <span class="class">String</span>::<span class="class">Utf8Value</span>(<span class="variable">args</span>[<span class="number integer">3</span>]-&gt;<span class="class">ToString</span>()) : <span class="class">NULL</span>;
-    <span class="variable">conn_req</span>-&gt;<span class="variable">port</span> = <span class="variable">args</span>.<span class="class">Length</span>() &gt; <span class="number integer">5</span> ?
-                              <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">IntegerValue</span>() : <span class="number integer">0</span>;
+    <span class="variable">conn_req</span>-&gt;<span class="variable">port</span> = <span class="variable">args</span>.<span class="class">Length</span>() &gt; <span class="number integer">5</span> &amp;&amp; <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">IsUint32</span>() ?
+                            <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">Uint32Value</span>() : <span class="number integer">0</span>;
     <span class="variable">conn_req</span>-&gt;<span class="variable">socket</span> = <span class="variable">args</span>.<span class="class">Length</span>() &gt; <span class="number integer">6</span> &amp;&amp; <span class="variable">args</span>[<span class="number integer">5</span>]-&gt;<span class="class">IsString</span>() ?
-      <span class="variable">new</span> <span class="class">String</span>::<span class="class">Utf8Value</span>(<span class="variable">args</span>[<span class="number integer">5</span>]-&gt;<span class="class">ToString</span>()) : <span class="class">NULL</span>;
+        <span class="variable">new</span> <span class="class">String</span>::<span class="class">Utf8Value</span>(<span class="variable">args</span>[<span class="number integer">5</span>]-&gt;<span class="class">ToString</span>()) : <span class="class">NULL</span>;
     <span class="variable">eio_custom</span>(<span class="class">EIO_Connect</span>, <span class="class">EIO_PRI_DEFAULT</span>, <span class="class">EIO_After_Connect</span>, <span class="variable">conn_req</span>);
 
     <span class="variable">ev_ref</span>(<span class="class">EV_DEFAULT_UC</span>);
@@ -497,43 +499,15 @@ pre.shell code .prompt-root { color: #912121; }
     <span class="class">String</span>::<span class="class">Utf8Value</span> <span class="variable">user</span>(<span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">ToString</span>());
     <span class="class">String</span>::<span class="class">Utf8Value</span> <span class="variable">password</span>(<span class="variable">args</span>[<span class="number integer">2</span>]-&gt;<span class="class">ToString</span>());
     <span class="class">String</span>::<span class="class">Utf8Value</span> <span class="variable">dbname</span>(<span class="variable">args</span>[<span class="number integer">3</span>]-&gt;<span class="class">ToString</span>());
-    <span class="variable">uint32_t</span> <span class="variable">port</span> = <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">IntegerValue</span>();
+    <span class="variable">uint32_t</span> <span class="variable">port</span> = <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">Uint32Value</span>();
     <span class="class">String</span>::<span class="class">Utf8Value</span> <span class="variable">socket</span>(<span class="variable">args</span>[<span class="number integer">5</span>]-&gt;<span class="class">ToString</span>());
 
-    <span class="variable">bool</span> <span class="variable">r</span> = <span class="variable">conn</span>-&gt;<span class="class">Connect</span>(
-                    (
-                        <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() ?
-                        *<span class="variable">hostname</span> : <span class="class">NULL</span>),
-                    (
-                        <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">IsString</span>() ?
-                        *<span class="variable">user</span> : <span class="class">NULL</span>),
-                    (
-                        <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">2</span>]-&gt;<span class="class">IsString</span>() ?
-                        *<span class="variable">password</span> : <span class="class">NULL</span>),
-                    (
-                        <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">2</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">3</span>]-&gt;<span class="class">IsString</span>() ?
-                        *<span class="variable">dbname</span> : <span class="class">NULL</span>),
-                    (
-                        <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">2</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">3</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">IsString</span>() ?
-                        <span class="variable">port</span> : <span class="number integer">0</span>),
-                    (
-                        <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">2</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">3</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">5</span>]-&gt;<span class="class">IsString</span>() ?
-                        *<span class="variable">socket</span> : <span class="class">NULL</span>));
+    <span class="variable">bool</span> <span class="variable">r</span> = <span class="variable">conn</span>-&gt;<span class="class">Connect</span>(<span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() ? *<span class="variable">hostname</span> : <span class="class">NULL</span>,
+                           <span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">IsString</span>() ? *<span class="variable">user</span>     : <span class="class">NULL</span>,
+                           <span class="variable">args</span>[<span class="number integer">2</span>]-&gt;<span class="class">IsString</span>() ? *<span class="variable">password</span> : <span class="class">NULL</span>,
+                           <span class="variable">args</span>[<span class="number integer">3</span>]-&gt;<span class="class">IsString</span>() ? *<span class="variable">dbname</span>   : <span class="class">NULL</span>,
+                           <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">IsUint32</span>() ? <span class="variable">port</span>      : <span class="number integer">0</span>,
+                           <span class="variable">args</span>[<span class="number integer">5</span>]-&gt;<span class="class">IsString</span>() ? *<span class="variable">socket</span>   : <span class="class">NULL</span>);
 
     <span class="keyword">if</span> (!<span class="variable">r</span>) {
         <span class="keyword">return</span> <span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">False</span>());
@@ -1092,21 +1066,27 @@ taking into account the current charset of the connection</p>
                                      <span class="class">GetFunction</span>()-&gt;<span class="class">NewInstance</span>(<span class="number integer">2</span>, <span class="variable">argv</span>));
 
             <span class="variable">argv</span>[<span class="number integer">1</span>] = <span class="class">Local</span>&lt;<span class="class">Value</span>&gt;::<span class="class">New</span>(<span class="variable">scope</span>.<span class="class">Close</span>(<span class="variable">js_result</span>));
-            <span class="variable">argc</span> = <span class="number integer">2</span>;
+        } <span class="keyword">else</span> {
+            <span class="variable">argv</span>[<span class="number integer">1</span>] = <span class="class">Local</span>&lt;<span class="class">Value</span>&gt;::<span class="class">New</span>(<span class="variable">scope</span>.<span class="class">Close</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">query_req</span>-&gt;<span class="variable">affected_rows_or_insert_id</span>)));
         }
+        <span class="variable">argc</span> = <span class="number integer">2</span>;
         <span class="variable">argv</span>[<span class="number integer">0</span>] = <span class="class">Local</span>&lt;<span class="class">Value</span>&gt;::<span class="class">New</span>(<span class="class">Null</span>());
     }
 
-    <span class="class">TryCatch</span> <span class="variable">try_catch</span>;
+    <span class="keyword">if</span> (<span class="variable">query_req</span>-&gt;<span class="variable">callback</span>-&gt;<span class="class">IsFunction</span>()) {
+        <span class="class">TryCatch</span> <span class="variable">try_catch</span>;
 
-    <span class="variable">query_req</span>-&gt;<span class="variable">callback</span>-&gt;<span class="class">Call</span>(<span class="class">Context</span>::<span class="class">GetCurrent</span>()-&gt;<span class="class">Global</span>(), <span class="variable">argc</span>, <span class="variable">argv</span>);
+        <span class="class">Persistent</span>&lt;<span class="class">Function</span>&gt;::<span class="class">Cast</span>(<span class="variable">query_req</span>-&gt;<span class="variable">callback</span>)-&gt;<span class="class">Call</span>(<span class="class">Context</span>::<span class="class">GetCurrent</span>()-&gt;<span class="class">Global</span>(), <span class="variable">argc</span>, <span class="variable">argv</span>);
 
-    <span class="keyword">if</span> (<span class="variable">try_catch</span>.<span class="class">HasCaught</span>()) {
-        <span class="variable">node</span>::<span class="class">FatalException</span>(<span class="variable">try_catch</span>);
+        <span class="keyword">if</span> (<span class="variable">try_catch</span>.<span class="class">HasCaught</span>()) {
+            <span class="variable">node</span>::<span class="class">FatalException</span>(<span class="variable">try_catch</span>);
+        }
+
+        <span class="variable">query_req</span>-&gt;<span class="variable">callback</span>.<span class="class">Dispose</span>();
     }
 
-    <span class="variable">query_req</span>-&gt;<span class="variable">callback</span>.<span class="class">Dispose</span>();
     <span class="variable">query_req</span>-&gt;<span class="variable">conn</span>-&gt;<span class="class">Unref</span>();
+
     <span class="variable">free</span>(<span class="variable">query_req</span>-&gt;<span class="variable">query</span>);
     <span class="variable">free</span>(<span class="variable">query_req</span>);
 
@@ -1137,17 +1117,26 @@ taking into account the current charset of the connection</p>
 
         <span class="variable">query_req</span>-&gt;<span class="variable">field_count</span> = <span class="variable">mysql_field_count</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>);
 
-        <span class="keyword">if</span> (!<span class="variable">my_result</span>) {
+        <span class="keyword">if</span> (<span class="variable">my_result</span>) {
+            <span class="comment">// Valid result set (may be empty, of cause)</span>
+            <span class="variable">req</span>-&gt;<span class="variable">int1</span> = <span class="number integer">1</span>;
+            <span class="variable">query_req</span>-&gt;<span class="variable">my_result</span> = <span class="variable">my_result</span>;
+        } <span class="keyword">else</span> {
             <span class="keyword">if</span> (<span class="variable">query_req</span>-&gt;<span class="variable">field_count</span> == <span class="number integer">0</span>) {
                 <span class="comment">// No result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN</span>
+                <span class="comment">// INSERT?</span>
+                <span class="variable">query_req</span>-&gt;<span class="variable">affected_rows_or_insert_id</span> =
+                                    <span class="variable">mysql_insert_id</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>);
+                <span class="comment">// UPDATE or DELETE?</span>
+                <span class="keyword">if</span> (<span class="variable">query_req</span>-&gt;<span class="variable">affected_rows_or_insert_id</span> == <span class="number integer">0</span>) {
+                    <span class="variable">query_req</span>-&gt;<span class="variable">affected_rows_or_insert_id</span> =
+                                        <span class="variable">mysql_affected_rows</span>(<span class="variable">conn</span>-&gt;<span class="variable">_conn</span>);
+                }
                 <span class="variable">req</span>-&gt;<span class="variable">int1</span> = <span class="number integer">0</span>;
             } <span class="keyword">else</span> {
                 <span class="comment">// Result store error</span>
                 <span class="variable">req</span>-&gt;<span class="variable">result</span> = <span class="number integer">1</span>;
             }
-        } <span class="keyword">else</span> {
-            <span class="variable">req</span>-&gt;<span class="variable">int1</span> = <span class="number integer">1</span>;
-            <span class="variable">query_req</span>-&gt;<span class="variable">my_result</span> = <span class="variable">my_result</span>;
         }
     }
     <span class="variable">pthread_mutex_unlock</span>(&amp;<span class="variable">conn</span>-&gt;<span class="variable">query_lock</span>);
@@ -1171,7 +1160,7 @@ taking into account the current charset of the connection</p>
     <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="class">MYSQL_NON_THREADSAFE_ERRORSTRING</span>);
 <span class="directive">#else</span>
     <span class="class">REQ_STR_ARG</span>(<span class="number integer">0</span>, <span class="variable">query</span>);
-    <span class="class">REQ_FUN_ARG</span>(<span class="number integer">1</span>, <span class="variable">callback</span>);
+    <span class="class">OPTIONAL_FUN_ARG</span>(<span class="number integer">1</span>, <span class="variable">callback</span>);
 
     <span class="class">MysqlConnection</span> *<span class="variable">conn</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlConnection</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
@@ -1194,7 +1183,7 @@ taking into account the current charset of the connection</p>
         <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;Snprintf() error&quot;</span>);
     }
 
-    <span class="variable">query_req</span>-&gt;<span class="variable">callback</span> = <span class="class">Persistent</span>&lt;<span class="class">Function</span>&gt;::<span class="class">New</span>(<span class="variable">callback</span>);
+    <span class="variable">query_req</span>-&gt;<span class="variable">callback</span> = <span class="class">Persistent</span>&lt;<span class="class">Value</span>&gt;::<span class="class">New</span>(<span class="variable">callback</span>);
     <span class="variable">query_req</span>-&gt;<span class="variable">conn</span> = <span class="variable">conn</span>;
 
     <span class="variable">eio_custom</span>(<span class="class">EIO_Query</span>, <span class="class">EIO_PRI_DEFAULT</span>, <span class="class">EIO_After_Query</span>, <span class="variable">query_req</span>);
@@ -1310,7 +1299,7 @@ taking into account the current charset of the connection</p>
     <span class="class">String</span>::<span class="class">Utf8Value</span> <span class="variable">user</span>(<span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">ToString</span>());
     <span class="class">String</span>::<span class="class">Utf8Value</span> <span class="variable">password</span>(<span class="variable">args</span>[<span class="number integer">2</span>]-&gt;<span class="class">ToString</span>());
     <span class="class">String</span>::<span class="class">Utf8Value</span> <span class="variable">dbname</span>(<span class="variable">args</span>[<span class="number integer">3</span>]-&gt;<span class="class">ToString</span>());
-    <span class="variable">uint32_t</span> <span class="variable">port</span> = <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">IntegerValue</span>();
+    <span class="variable">uint32_t</span> <span class="variable">port</span> = <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">Uint32Value</span>();
     <span class="class">String</span>::<span class="class">Utf8Value</span> <span class="variable">socket</span>(<span class="variable">args</span>[<span class="number integer">5</span>]-&gt;<span class="class">ToString</span>());
 
     <span class="variable">bool</span> <span class="variable">r</span> = <span class="variable">conn</span>-&gt;<span class="class">RealConnect</span>(
@@ -1318,33 +1307,18 @@ taking into account the current charset of the connection</p>
                         <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() ?
                         *<span class="variable">hostname</span> : <span class="class">NULL</span>),
                     (
-                        <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
                         <span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">IsString</span>() ?
                         *<span class="variable">user</span> : <span class="class">NULL</span>),
                     (
-                        <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
                         <span class="variable">args</span>[<span class="number integer">2</span>]-&gt;<span class="class">IsString</span>() ?
                         *<span class="variable">password</span> : <span class="class">NULL</span>),
                     (
-                        <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">2</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
                         <span class="variable">args</span>[<span class="number integer">3</span>]-&gt;<span class="class">IsString</span>() ?
                         *<span class="variable">dbname</span> : <span class="class">NULL</span>),
                     (
-                        <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">2</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">3</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">IsString</span>() ?
+                        <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">IsUint32</span>() ?
                         <span class="variable">port</span> : <span class="number integer">0</span>),
                     (
-                        <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">1</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">2</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">3</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
-                        <span class="variable">args</span>[<span class="number integer">4</span>]-&gt;<span class="class">IsString</span>() &amp;&amp;
                         <span class="variable">args</span>[<span class="number integer">5</span>]-&gt;<span class="class">IsString</span>() ?
                         *<span class="variable">socket</span> : <span class="class">NULL</span>));
 
@@ -1857,6 +1831,8 @@ Used for establishing secure connections</p>
     <span class="keyword">if</span> (<span class="variable">req</span>-&gt;<span class="variable">result</span>) {
         <span class="variable">argv</span>[<span class="number integer">0</span>] = <span class="class">V8EXC</span>(<span class="string">&quot;Error on fetching fields&quot;</span>);
     } <span class="keyword">else</span> {
+        <span class="class">MYSQL_FIELD</span> *<span class="variable">fields</span> = <span class="variable">fetchAll_req</span>-&gt;<span class="variable">fields</span>;
+        <span class="variable">uint32_t</span> <span class="variable">num_fields</span> = <span class="variable">fetchAll_req</span>-&gt;<span class="variable">num_fields</span>;
         <span class="class">MYSQL_ROW</span> <span class="variable">result_row</span>;
         <span class="variable">uint32_t</span> <span class="variable">i</span> = <span class="number integer">0</span>, <span class="variable">j</span> = <span class="number integer">0</span>;
 
@@ -1866,11 +1842,28 @@ Used for establishing secure connections</p>
 
         <span class="variable">i</span> = <span class="number integer">0</span>;
         <span class="keyword">while</span> ( (<span class="variable">result_row</span> = <span class="variable">mysql_fetch_row</span>(<span class="variable">fetchAll_req</span>-&gt;<span class="variable">res</span>-&gt;<span class="variable">_res</span>)) ) {
-            <span class="variable">js_result_row</span> = <span class="class">Object</span>::<span class="class">New</span>();
+            <span class="keyword">if</span>(<span class="variable">fetchAll_req</span>-&gt;<span class="variable">results_array</span>) {
+              <span class="variable">js_result_row</span> = <span class="class">Array</span>::<span class="class">New</span>();
+            } <span class="keyword">else</span> {
+              <span class="variable">js_result_row</span> = <span class="class">Object</span>::<span class="class">New</span>();
+            }
 
-            <span class="keyword">for</span> ( <span class="variable">j</span> = <span class="number integer">0</span>; <span class="variable">j</span> &lt; <span class="variable">fetchAll_req</span>-&gt;<span class="variable">num_fields</span>; <span class="variable">j</span>++ ) {
-                <span class="variable">js_field</span> = <span class="class">GetFieldValue</span>(<span class="variable">fetchAll_req</span>-&gt;<span class="variable">fields</span>[<span class="variable">j</span>], <span class="variable">result_row</span>[<span class="variable">j</span>]);
-                <span class="variable">js_result_row</span>-&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="variable">fetchAll_req</span>-&gt;<span class="variable">fields</span>[<span class="variable">j</span>].<span class="variable">name</span>), <span class="variable">js_field</span>);
+            <span class="keyword">for</span> (<span class="variable">j</span> = <span class="number integer">0</span>; <span class="variable">j</span> &lt; <span class="variable">num_fields</span>; <span class="variable">j</span>++) {
+                <span class="variable">js_field</span> = <span class="class">GetFieldValue</span>(<span class="variable">fields</span>[<span class="variable">j</span>], <span class="variable">result_row</span>[<span class="variable">j</span>]);
+                <span class="keyword">if</span> (<span class="variable">fetchAll_req</span>-&gt;<span class="variable">results_array</span>) {
+                    <span class="variable">js_result_row</span>-&gt;<span class="class">Set</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">j</span>), <span class="variable">js_field</span>);
+                } <span class="keyword">else</span> {
+                    <span class="keyword">if</span> (<span class="variable">fetchAll_req</span>-&gt;<span class="variable">results_structured</span>) {
+                        <span class="keyword">if</span> (!<span class="variable">js_result_row</span>-&gt;<span class="class">Has</span>(<span class="class">V8STR</span>(<span class="variable">fields</span>[<span class="variable">j</span>].<span class="variable">table</span>))) {
+                            <span class="variable">js_result_row</span>-&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="variable">fields</span>[<span class="variable">j</span>].<span class="variable">table</span>),
+                                               <span class="class">Object</span>::<span class="class">New</span>());
+                        }
+                        <span class="variable">js_result_row</span>-&gt;<span class="class">Get</span>(<span class="class">V8STR</span>(<span class="variable">fields</span>[<span class="variable">j</span>].<span class="variable">table</span>))-&gt;<span class="class">ToObject</span>()
+                                     -&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="variable">fields</span>[<span class="variable">j</span>].<span class="variable">name</span>), <span class="variable">js_field</span>);
+                    } <span class="keyword">else</span> {
+                        <span class="variable">js_result_row</span>-&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="variable">fields</span>[<span class="variable">j</span>].<span class="variable">name</span>), <span class="variable">js_field</span>);
+                    }
+                }
             }
 
             <span class="variable">js_result</span>-&gt;<span class="class">Set</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">i</span>), <span class="variable">js_result_row</span>);
@@ -1925,7 +1918,7 @@ Used for establishing secure connections</p>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Function(error, rows)</em>  callback</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Boolean | Object</em>  options (optional)</p></li><li><p><strong>param</strong>: <em>Function(error, rows)</em>  callback</p></li></ul>
                 </td>
                 <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FetchAll</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
@@ -1933,7 +1926,34 @@ Used for establishing secure connections</p>
 <span class="directive">#ifdef MYSQL_NON_THREADSAFE</span>
     <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="class">MYSQL_NON_THREADSAFE_ERRORSTRING</span>);
 <span class="directive">#else</span>
-    <span class="class">REQ_FUN_ARG</span>(<span class="number integer">0</span>, <span class="variable">callback</span>);
+    <span class="keyword">int</span> <span class="variable">arg_pos</span> = <span class="number integer">0</span>;
+    <span class="variable">bool</span> <span class="variable">results_array</span> = <span class="variable">false</span>;
+    <span class="variable">bool</span> <span class="variable">results_structured</span> = <span class="variable">false</span>;
+
+    <span class="keyword">if</span> (<span class="variable">args</span>.<span class="class">Length</span>() &gt; <span class="number integer">0</span>) {
+        <span class="keyword">if</span> (<span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsBoolean</span>()) {
+            <span class="variable">results_array</span> = <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">BooleanValue</span>();
+            <span class="variable">arg_pos</span>++;
+        } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsObject</span>() &amp;&amp; !<span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsFunction</span>()) {
+            <span class="keyword">if</span> (<span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">ToObject</span>()-&gt;<span class="class">Has</span>(<span class="class">V8STR</span>(<span class="string">&quot;array&quot;</span>))) {
+                <span class="variable">results_array</span> = <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">ToObject</span>()
+                                -&gt;<span class="class">Get</span>(<span class="class">V8STR</span>(<span class="string">&quot;array&quot;</span>))-&gt;<span class="class">BooleanValue</span>();
+            }
+            <span class="keyword">if</span> (<span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">ToObject</span>()-&gt;<span class="class">Has</span>(<span class="class">V8STR</span>(<span class="string">&quot;structured&quot;</span>))) {
+                <span class="variable">results_structured</span> = <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">ToObject</span>()
+                                     -&gt;<span class="class">Get</span>(<span class="class">V8STR</span>(<span class="string">&quot;structured&quot;</span>))-&gt;<span class="class">BooleanValue</span>();
+            }
+            <span class="variable">arg_pos</span>++;
+        }
+        <span class="comment">// NOT here: any function is object</span>
+        <span class="comment">// arg_pos++;</span>
+    }
+
+    <span class="keyword">if</span> (<span class="variable">results_array</span> &amp;&amp; <span class="variable">results_structured</span>) {
+        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;You can't mix 'array' and 'structured' parameters&quot;</span>);
+    }
+
+    <span class="class">REQ_FUN_ARG</span>(<span class="variable">arg_pos</span>, <span class="variable">callback</span>)
 
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>()); <span class="comment">// NOLINT</span>
 
@@ -1949,6 +1969,8 @@ Used for establishing secure connections</p>
 
     <span class="variable">fetchAll_req</span>-&gt;<span class="variable">callback</span> = <span class="class">Persistent</span>&lt;<span class="class">Function</span>&gt;::<span class="class">New</span>(<span class="variable">callback</span>);
     <span class="variable">fetchAll_req</span>-&gt;<span class="variable">res</span> = <span class="variable">res</span>;
+    <span class="variable">fetchAll_req</span>-&gt;<span class="variable">results_array</span> = <span class="variable">results_array</span>;
+    <span class="variable">fetchAll_req</span>-&gt;<span class="variable">results_structured</span> = <span class="variable">results_structured</span>;
 
     <span class="variable">eio_custom</span>(<span class="class">EIO_FetchAll</span>, <span class="class">EIO_PRI_DEFAULT</span>, <span class="class">EIO_After_FetchAll</span>, <span class="variable">fetchAll_req</span>);
 
@@ -1966,7 +1988,7 @@ Used for establishing secure connections</p>
 
 <h2></h2>
 
-<ul><li><p><strong>return</strong>: <em>Array</em> </p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Boolean | Object</em>  options (optional)</p></li><li><p><strong>return</strong>: <em>Array</em> </p></li></ul>
                 </td>
                 <td>
 <pre><code><span class="class">Handle</span>&lt;<span class="class">Value</span>&gt; <span class="class">MysqlResult</span>::<span class="class">FetchAllSync</span>(<span class="keyword">const</span> <span class="class">Arguments</span>&amp; <span class="variable">args</span>) {
@@ -1975,6 +1997,28 @@ Used for establishing secure connections</p>
     <span class="class">MysqlResult</span> *<span class="variable">res</span> = <span class="class">OBJUNWRAP</span>&lt;<span class="class">MysqlResult</span>&gt;(<span class="variable">args</span>.<span class="class">This</span>());
 
     <span class="class">MYSQLRES_MUSTBE_VALID</span>;
+
+    <span class="variable">bool</span> <span class="variable">results_array</span> = <span class="variable">false</span>;
+    <span class="variable">bool</span> <span class="variable">results_structured</span> = <span class="variable">false</span>;
+
+    <span class="keyword">if</span> (<span class="variable">args</span>.<span class="class">Length</span>() &gt; <span class="number integer">0</span>) {
+        <span class="keyword">if</span> (<span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsBoolean</span>()) {
+            <span class="variable">results_array</span> = <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">BooleanValue</span>();
+        } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">IsObject</span>()) {
+            <span class="keyword">if</span> (<span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">ToObject</span>()-&gt;<span class="class">Has</span>(<span class="class">V8STR</span>(<span class="string">&quot;array&quot;</span>))) {
+                <span class="variable">results_array</span> = <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">ToObject</span>()
+                                -&gt;<span class="class">Get</span>(<span class="class">V8STR</span>(<span class="string">&quot;array&quot;</span>))-&gt;<span class="class">BooleanValue</span>();
+            }
+            <span class="keyword">if</span> (<span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">ToObject</span>()-&gt;<span class="class">Has</span>(<span class="class">V8STR</span>(<span class="string">&quot;structured&quot;</span>))) {
+                <span class="variable">results_structured</span> = <span class="variable">args</span>[<span class="number integer">0</span>]-&gt;<span class="class">ToObject</span>()
+                                     -&gt;<span class="class">Get</span>(<span class="class">V8STR</span>(<span class="string">&quot;structured&quot;</span>))-&gt;<span class="class">BooleanValue</span>();
+            }
+        }
+    }
+
+    <span class="keyword">if</span> (<span class="variable">results_array</span> &amp;&amp; <span class="variable">results_structured</span>) {
+        <span class="keyword">return</span> <span class="class">THREXC</span>(<span class="string">&quot;You can't mix 'array' and 'structured' parameters&quot;</span>);
+    }
 
     <span class="class">MYSQL_FIELD</span> *<span class="variable">fields</span> = <span class="variable">mysql_fetch_fields</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>);
     <span class="variable">uint32_t</span> <span class="variable">num_fields</span> = <span class="variable">mysql_num_fields</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>);
@@ -1987,12 +2031,27 @@ Used for establishing secure connections</p>
 
     <span class="variable">i</span> = <span class="number integer">0</span>;
     <span class="keyword">while</span> ( (<span class="variable">result_row</span> = <span class="variable">mysql_fetch_row</span>(<span class="variable">res</span>-&gt;<span class="variable">_res</span>)) ) {
-        <span class="variable">js_result_row</span> = <span class="class">Object</span>::<span class="class">New</span>();
+        <span class="keyword">if</span> (<span class="variable">results_array</span>) {
+            <span class="variable">js_result_row</span> = <span class="class">Array</span>::<span class="class">New</span>();
+        } <span class="keyword">else</span> {
+            <span class="variable">js_result_row</span> = <span class="class">Object</span>::<span class="class">New</span>();
+        }
 
-        <span class="keyword">for</span> ( <span class="variable">j</span> = <span class="number integer">0</span>; <span class="variable">j</span> &lt; <span class="variable">num_fields</span>; <span class="variable">j</span>++ ) {
+        <span class="keyword">for</span> (<span class="variable">j</span> = <span class="number integer">0</span>; <span class="variable">j</span> &lt; <span class="variable">num_fields</span>; <span class="variable">j</span>++) {
             <span class="variable">js_field</span> = <span class="class">GetFieldValue</span>(<span class="variable">fields</span>[<span class="variable">j</span>], <span class="variable">result_row</span>[<span class="variable">j</span>]);
-
-            <span class="variable">js_result_row</span>-&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="variable">fields</span>[<span class="variable">j</span>].<span class="variable">name</span>), <span class="variable">js_field</span>);
+            <span class="keyword">if</span> (<span class="variable">results_array</span>) {
+                <span class="variable">js_result_row</span>-&gt;<span class="class">Set</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">j</span>), <span class="variable">js_field</span>);
+            } <span class="keyword">else</span> {
+                <span class="keyword">if</span> (<span class="variable">results_structured</span>) {
+                    <span class="keyword">if</span> (!<span class="variable">js_result_row</span>-&gt;<span class="class">Has</span>(<span class="class">V8STR</span>(<span class="variable">fields</span>[<span class="variable">j</span>].<span class="variable">table</span>))) {
+                        <span class="variable">js_result_row</span>-&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="variable">fields</span>[<span class="variable">j</span>].<span class="variable">table</span>), <span class="class">Object</span>::<span class="class">New</span>());
+                    }
+                    <span class="variable">js_result_row</span>-&gt;<span class="class">Get</span>(<span class="class">V8STR</span>(<span class="variable">fields</span>[<span class="variable">j</span>].<span class="variable">table</span>))-&gt;<span class="class">ToObject</span>()
+                                 -&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="variable">fields</span>[<span class="variable">j</span>].<span class="variable">name</span>), <span class="variable">js_field</span>);
+                } <span class="keyword">else</span> {
+                    <span class="variable">js_result_row</span>-&gt;<span class="class">Set</span>(<span class="class">V8STR</span>(<span class="variable">fields</span>[<span class="variable">j</span>].<span class="variable">name</span>), <span class="variable">js_field</span>);
+                }
+            }
         }
 
         <span class="variable">js_result</span>-&gt;<span class="class">Set</span>(<span class="class">Integer</span>::<span class="class">New</span>(<span class="variable">i</span>), <span class="variable">js_result_row</span>);

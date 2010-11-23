@@ -26,6 +26,9 @@ h1, h2, h3 {
 ul {
     padding-left: 20px;
 }
+img {
+    border: 0;
+}
 table#source {
     width: 100%;
     border-collapse: collapse;
@@ -94,7 +97,6 @@ table#source tr.code td:first-child pre {
     position: fixed;
     top: 0;
     right: 0;
-    border: 0;
 }
 code .string { color: #219161; }
 code .regexp { color: #219161; }
@@ -167,7 +169,7 @@ pre.shell code .prompt-root { color: #912121; }
 <h2>Version 1.0.0</h2>
                 </td>
                 <td>
-<ul><li>Fixes:<ul><li>Rewrite fetchAll function, move V8 stuff to EIO<em>After</em>FetchAll, closes #34</li><li>Rewrite MysqlResult::SetFieldValue() procedure to GetFieldValue() function</li><li>Fix Nodules break, closes #46</li><li>Return Boolean/throw exception fixes, closes #31</li><li>Allocate less memory in MysqlConnection::EscapeSync()</li><li>Add useful macroses to simplify MysqlConnection and MysqlResult</li><li>Fix lint errors</li></ul></li><li>Tests improvements:<ul><li>Refactor tests: split them into simple, complex, slow and ignored</li><li>Change nodeunit to original caolan's repo</li><li>Add REPL memory leaks finder</li></ul></li><li>Documentation improvements:<ul><li>Add index.html generation from README.markdown</li><li>Format ChangeLog with markdown</li><li>Add changelog.html generation from CHANGELOG.markdown</li><li>Add navigation</li><li>Add zip- and tarball URLs to index.html</li><li>Remove docs HTML from repo, you can generate them by 'node-waf doc'</li></ul></li><li>Semantic versioning introduced</li><li>Other changes in README and package.json</li></ul>
+<ul><li>Fixes:<ul><li>Rewrite fetchAll function, move V8 stuff to EIO_After_FetchAll, closes #34</li><li>Rewrite MysqlResult::SetFieldValue() procedure to GetFieldValue() function</li><li>Fix Nodules break, closes #46</li><li>Return Boolean/throw exception fixes, closes #31</li><li>Allocate less memory in MysqlConnection::EscapeSync()</li><li>Add useful macroses to simplify MysqlConnection and MysqlResult</li><li>Fix lint errors</li></ul></li><li>Tests improvements:<ul><li>Refactor tests: split them into simple, complex, slow and ignored</li><li>Change nodeunit to original caolan's repo</li><li>Add REPL memory leaks finder</li></ul></li><li>Documentation improvements:<ul><li>Add index.html generation from README.markdown</li><li>Format ChangeLog with markdown</li><li>Add changelog.html generation from CHANGELOG.markdown</li><li>Add navigation</li><li>Add zip- and tarball URLs to index.html</li><li>Remove docs HTML from repo, you can generate them by 'node-waf doc'</li></ul></li><li>Semantic versioning introduced</li><li>Other changes in README and package.json</li></ul>
 
 <p>Special thanks for Ben Noordhuis</p>
                 </td>
@@ -186,7 +188,7 @@ pre.shell code .prompt-root { color: #912121; }
                 </td>
                 <td>
 <ul><li>Add MYSQL_TYPE_TIME and MYSQL_TYPE_SET handling</li><li>Rename MysqlConn to MysqlConnection</li><li>Change some methods to read-only properties:<ul><li>MysqlConnection::ConnectErrnoSync()</li><li>MysqlConnection::ConnectErrorSync()</li><li>MysqlResult::FieldCountSync()</li></ul></li><li>Make it possible to interleave
-sync and async queries on same connection</li><li>Improve package.json, fdd 'Dependencies' section into README</li><li>Rework nested C++ classes into separate</li><li>Fix lint errors (all, except sscanf)</li><li>Implemented methods:<ul><li>MysqlConnection::InitSync()</li><li>MysqlConnection::RealConnectSync()</li><li>MysqlConnection::SetOptionSync()</li></ul></li></ul>
+sync and async queries on same connection</li><li>Improve package.json, add 'Dependencies' section into README</li><li>Rework nested C++ classes into separate</li><li>Fix lint errors (all, except sscanf)</li><li>Implemented methods:<ul><li>MysqlConnection::InitSync()</li><li>MysqlConnection::RealConnectSync()</li><li>MysqlConnection::SetOptionSync()</li></ul></li></ul>
 
 <p>Special thanks for Akzhan Abdulin and Surendra Singhi</p>
                 </td>
@@ -243,7 +245,7 @@ query result and prepared statements</li><li>Add nodeunit as the test framework 
                 </td>
                 <td>
 <ul><li>Add 'lint' target for node-waf</li><li>Add docs dir, docs/examples.md,
-docs/api<em>php</em>mysqli.md and docs/api<em>node</em>mysql_sync.md</li><li>Add tests/debug.js for inspecting bindings 'classes' from javascript</li><li>Implement all methods in 'connection' category:<ul><li>MysqlSyncConn::ChangeUser()</li><li>MysqlSyncConn::СonnectErrno()</li><li>MysqlSyncConn::СonnectError()</li><li>MysqlSyncConn::GetCharset()</li><li>MysqlSyncConn::GetCharsetName()</li><li>MysqlSyncConn::Ping()</li><li>MysqlSyncConn::SelectDb()</li><li>MysqlSyncConn::SetCharset()</li><li>MysqlSyncConn::SetSsl()</li></ul></li><li>Improve MysqlSyncConn::Connect() functionality, see d2d9ae2</li></ul>
+docs/api_php_mysqli.md and docs/api_node_mysql_sync.md</li><li>Add tests/debug.js for inspecting bindings 'classes' from javascript</li><li>Implement all methods in 'connection' category:<ul><li>MysqlSyncConn::ChangeUser()</li><li>MysqlSyncConn::ConnectErrno()</li><li>MysqlSyncConn::ConnectError()</li><li>MysqlSyncConn::GetCharset()</li><li>MysqlSyncConn::GetCharsetName()</li><li>MysqlSyncConn::Ping()</li><li>MysqlSyncConn::SelectDb()</li><li>MysqlSyncConn::SetCharset()</li><li>MysqlSyncConn::SetSsl()</li></ul></li><li>Improve MysqlSyncConn::Connect() functionality, see d2d9ae2</li></ul>
                 </td>
             </tr>
             <tr>
