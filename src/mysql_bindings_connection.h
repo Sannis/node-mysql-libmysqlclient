@@ -202,7 +202,8 @@ class MysqlConnection : public node::EventEmitter {
         char *query;
         MYSQL_RES *my_result;
         uint32_t field_count;
-        my_ulonglong affected_rows_or_insert_id;
+        my_ulonglong affected_rows;
+        my_ulonglong insert_id;
     };
     static int EIO_After_Query(eio_req *req);
     static int EIO_Query(eio_req *req);
