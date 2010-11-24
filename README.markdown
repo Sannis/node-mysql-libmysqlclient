@@ -55,13 +55,9 @@ To get source code:
     $> git clone git://github.com/Sannis/node-mysql-libmysqlclient.git
     $> cd node-mysql-libmysqlclient
 
-or (careful!)
+If you want to build specific version of node-mysql-libmysqlclient, checkout it:
 
-    $> wget http://github.com/Sannis/node-mysql-libmysqlclient/tarball/master
-    $> tar -xzvf Sannis-node-mysql-libmysqlclient-*.tar.gz
-    $> rm -f ./Sannis-node-mysql-libmysqlclient-*.tar.gz
-    $> mv Sannis-node-mysql-libmysqlclient-* node-mysql-libmysqlclient
-    $> cd node-mysql-libmysqlclient
+    $> git checkout v1.0.2
 
 To build the bindings you should run:
 
