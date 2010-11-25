@@ -110,18 +110,18 @@ bool MysqlConnection::Connect(const char* hostname,
                         const char* dbname,
                         uint32_t port,
                         const char* socket) {
-    if (_conn) {
+    if (this->_conn) {
         return false;
     }
 
-    _conn = mysql_init(NULL);
+    this->_conn = mysql_init(NULL);
 
-    if (!_conn) {
-        connected = false;
+    if (!this->_conn) {
+        this->connected = false;
         return false;
     }
 
-    bool unsuccessful = !mysql_real_connect(_conn,
+    bool unsuccessful = !mysql_real_connect(this->_conn,
                             hostname,
                             user,
                             password,
@@ -131,16 +131,16 @@ bool MysqlConnection::Connect(const char* hostname,
                             0);
 
     if (unsuccessful) {
-        connect_errno = mysql_errno(_conn);
-        connect_error = mysql_error(_conn);
+        this->connect_errno = mysql_errno(this->_conn);
+        this->connect_error = mysql_error(this->_conn);
 
-        mysql_close(_conn);
-        connected = false;
-        _conn = NULL;
+        mysql_close(this->_conn);
+        this->connected = false;
+        this->_conn = NULL;
         return false;
     }
 
-    connected = true;
+    this->connected = true;
     return true;
 }
 
@@ -150,15 +150,15 @@ bool MysqlConnection::RealConnect(const char* hostname,
                             const char* dbname,
                             uint32_t port,
                             const char* socket) {
-    if (!_conn) {
+    if (!this->_conn) {
         return false;
     }
 
-    if (connected) {
+    if (this->connected) {
         return false;
     }
 
-    bool unsuccessful = !mysql_real_connect(_conn,
+    bool unsuccessful = !mysql_real_connect(this->_conn,
                                             hostname,
                                             user,
                                             password,
@@ -168,12 +168,12 @@ bool MysqlConnection::RealConnect(const char* hostname,
                                             0);
 
     if (unsuccessful) {
-        connect_errno = mysql_errno(_conn);
-        connect_error = mysql_error(_conn);
+        this->connect_errno = mysql_errno(this->_conn);
+        this->connect_error = mysql_error(this->_conn);
 
-        mysql_close(_conn);
-        _conn = NULL;
-        connected = false;
+        mysql_close(this->_conn);
+        this->_conn = NULL;
+        this->connected = false;
         return false;
     }
 
@@ -184,17 +184,17 @@ bool MysqlConnection::RealConnect(const char* hostname,
 #if MYSQL_VERSION_ID >= 50013 && MYSQL_VERSION_ID < 50106
     unsuccessful = mysql_options(_conn, MYSQL_OPT_RECONNECT, opt_reconnect);
     if (unsuccessful) {
-        connect_errno = mysql_errno(_conn);
-        connect_error = mysql_error(_conn);
+        this->connect_errno = mysql_errno(this->_conn);
+        this->connect_error = mysql_error(this->_conn);
 
-        mysql_close(_conn);
-        _conn = NULL;
-        connected = false;
+        mysql_close(this->_conn);
+        this->_conn = NULL;
+        this->connected = false;
         return false;
     }
 #endif
 
-    connected = true;
+    this->connected = true;
     return true;
 }
 
