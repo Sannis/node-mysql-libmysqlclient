@@ -381,6 +381,23 @@ exports.GetCharsetNameSync = function (test) {
   test.done();
 };
 
+exports.GetClientInfoSync = function (test) {
+  test.expect(2);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(),
+    client_info;
+  
+  client_info = conn.getClientInfoSync();
+  
+  test.ok(client_info.client_info, "conn.getClientInfoSync().client_info");
+  test.ok(client_info.client_version, "conn.getClientInfoSync().client_version");
+  
+  console.log(conn.getClientInfoSync());
+  
+  test.done();
+};
+
 exports.GetInfoSync = function (test) {
   test.expect(2);
   

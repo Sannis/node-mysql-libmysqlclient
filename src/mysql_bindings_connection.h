@@ -40,6 +40,7 @@ static Persistent<String> connection_escapeSync_symbol;
 static Persistent<String> connection_fieldCountSync_symbol;
 static Persistent<String> connection_getCharsetSync_symbol;
 static Persistent<String> connection_getCharsetNameSync_symbol;
+static Persistent<String> connection_getClientInfoSync_symbol;
 static Persistent<String> connection_getInfoSync_symbol;
 static Persistent<String> connection_getInfoStringSync_symbol;
 static Persistent<String> connection_getWarningsSync_symbol;
@@ -73,15 +74,6 @@ class MysqlConnection : public node::EventEmitter {
 
     static void Init(Handle<Object> target);
 
-    struct MysqlConnectionInfo {
-        uint64_t client_version;
-        const char *client_info;
-        uint64_t server_version;
-        const char *server_info;
-        const char *host_info;
-        uint32_t proto_info;
-    };
-
     bool Connect(const char* hostname,
                  const char* user,
                  const char* password,
@@ -97,8 +89,6 @@ class MysqlConnection : public node::EventEmitter {
                  const char* socket);
 
     void Close();
-
-    MysqlConnectionInfo GetInfo();
 
   protected:
     MYSQL *_conn;
@@ -174,6 +164,8 @@ class MysqlConnection : public node::EventEmitter {
     static Handle<Value> GetCharsetSync(const Arguments& args);
 
     static Handle<Value> GetCharsetNameSync(const Arguments& args);
+
+    static Handle<Value> GetClientInfoSync(const Arguments& args);
 
     static Handle<Value> GetInfoSync(const Arguments& args);
 

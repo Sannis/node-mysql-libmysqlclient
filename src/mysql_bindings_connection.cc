@@ -70,6 +70,7 @@ void MysqlConnection::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, fieldCountSync, FieldCountSync);
     ADD_PROTOTYPE_METHOD(connection, getCharsetSync, GetCharsetSync);
     ADD_PROTOTYPE_METHOD(connection, getCharsetNameSync, GetCharsetNameSync);
+    ADD_PROTOTYPE_METHOD(connection, getClientInfoSync, GetClientInfoSync);
     ADD_PROTOTYPE_METHOD(connection, getInfoSync, GetInfoSync);
     ADD_PROTOTYPE_METHOD(connection, getInfoStringSync, GetInfoStringSync);
     ADD_PROTOTYPE_METHOD(connection, getWarningsSync, GetWarningsSync);
@@ -185,19 +186,6 @@ void MysqlConnection::Close() {
         connected = false;
         _conn = NULL;
     }
-}
-
-MysqlConnection::MysqlConnectionInfo MysqlConnection::GetInfo() {
-    MysqlConnectionInfo info;
-
-    info.client_version = mysql_get_client_version();
-    info.client_info = mysql_get_client_info();
-    info.server_version = mysql_get_server_version(_conn);
-    info.server_info = mysql_get_server_info(_conn);
-    info.host_info = mysql_get_host_info(_conn);
-    info.proto_info = mysql_get_proto_info(_conn);
-
-    return info;
 }
 
 MysqlConnection::MysqlConnection(): EventEmitter() {
@@ -686,7 +674,25 @@ Handle<Value> MysqlConnection::GetCharsetNameSync(const Arguments& args) {
 }
 
 /**
- * Returns the MySQL client and server version and information
+ * Returns the MySQL client version and information
+ *
+ * @return {Object}
+ */
+Handle<Value> MysqlConnection::GetClientInfoSync(const Arguments& args) {
+    HandleScope scope;
+
+    Local<Object> js_result = Object::New();
+
+    js_result->Set(V8STR("client_info"),
+                   V8STR(mysql_get_client_info()));
+    js_result->Set(V8STR("client_version"),
+                   Integer::New(mysql_get_client_version()));
+
+    return scope.Close(js_result);
+}
+
+/**
+ * Returns the MySQL client, server, host and protocol version and information
  *
  * @return {Object}
  */
@@ -697,16 +703,20 @@ Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    MysqlConnectionInfo info = conn->GetInfo();
-
     Local<Object> js_result = Object::New();
 
-    js_result->Set(V8STR("client_version"), Integer::New(info.client_version));
-    js_result->Set(V8STR("client_info"), V8STR(info.client_info));
-    js_result->Set(V8STR("server_version"), Integer::New(info.server_version));
-    js_result->Set(V8STR("server_info"), V8STR(info.server_info));
-    js_result->Set(V8STR("host_info"), V8STR(info.host_info));
-    js_result->Set(V8STR("proto_info"), Integer::New(info.proto_info));
+    js_result->Set(V8STR("client_info"),
+                   V8STR(mysql_get_client_info()));
+    js_result->Set(V8STR("client_version"),
+                   Integer::New(mysql_get_client_version()));
+    js_result->Set(V8STR("server_info"),
+                   V8STR(mysql_get_server_info(conn->_conn)));
+    js_result->Set(V8STR("server_version"),
+                   Integer::New(mysql_get_server_version(conn->_conn)));
+    js_result->Set(V8STR("host_info"),
+                   V8STR(mysql_get_host_info(conn->_conn)));
+    js_result->Set(V8STR("proto_info"),
+                   Integer::New(mysql_get_proto_info(conn->_conn)));
 
     return scope.Close(js_result);
 }
