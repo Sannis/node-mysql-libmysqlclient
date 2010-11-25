@@ -14,15 +14,28 @@ var
   mysql_bindings = require("../../mysql_bindings");
 
 var initAndRealConnectSync = function (test) {
-  test.expect(2);
+  test.expect(5);
   
   var conn = mysql_libmysqlclient.createConnectionSync();
   
+  // Test right code
   conn.initSync();
   test.ok(!conn.connectedSync(), "conn.connectedSync() after conn.initSync()");
   conn.realConnectSync(cfg.host, cfg.user, cfg.password);
   test.ok(conn.connectedSync(), "conn.connectedSync() after conn.realConnectSync()");
   conn.closeSync();
+  
+  // Test code without init
+  test.throws(function () {
+    conn.realConnectSync(cfg.host, cfg.user, cfg.password);
+  }, Error, "Not initialized");
+  
+  // Test other wrong code
+  conn.initSync();
+  test.ok(!conn.connectedSync(), "conn.connectedSync() after conn.initSync()");
+  test.throws(function () {
+    conn.connectSync(cfg.host, cfg.user, cfg.password);
+  }, Error, "Not initialized");
   
   test.done();
 };
@@ -246,7 +259,7 @@ exports.CloseSync = function (test) {
   
   test.throws(function () {
     conn.closeSync();
-  }, "conn.closeSync() with closed connection");
+  }, Error, "Not connected");
   
   test.done();
 };
@@ -392,8 +405,6 @@ exports.GetClientInfoSync = function (test) {
   
   test.ok(client_info.client_info, "conn.getClientInfoSync().client_info");
   test.ok(client_info.client_version, "conn.getClientInfoSync().client_version");
-  
-  console.log(conn.getClientInfoSync());
   
   test.done();
 };

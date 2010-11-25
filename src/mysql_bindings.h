@@ -88,8 +88,13 @@ if (!conn->multi_query) { \
     "Asynchronous functions works only with threadsafe libmysqlclient_r"
 
 #define MYSQLCONN_MUSTBE_CONNECTED \
-    if (!conn->_conn) { \
+    if (!conn->_conn || !conn->connected) { \
         return THREXC("Not connected"); \
+    }
+
+#define MYSQLCONN_MUSTBE_INITIALIZED \
+    if (!conn->_conn) { \
+        return THREXC("Not initialized"); \
     }
 
 #endif  // NODE_MYSQL_H  // NOLINT

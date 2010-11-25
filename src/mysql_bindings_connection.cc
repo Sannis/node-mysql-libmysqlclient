@@ -491,6 +491,11 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
+    if (conn->_conn) {
+        return THREXC("Already initialized. "
+                       "Use conn.realConnectSync() after conn.initSync()");
+    }
+
     String::Utf8Value hostname(args[0]->ToString());
     String::Utf8Value user(args[1]->ToString());
     String::Utf8Value password(args[2]->ToString());
@@ -1197,7 +1202,7 @@ Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    MYSQLCONN_MUSTBE_CONNECTED;
+    MYSQLCONN_MUSTBE_INITIALIZED;
 
     String::Utf8Value hostname(args[0]->ToString());
     String::Utf8Value user(args[1]->ToString());
