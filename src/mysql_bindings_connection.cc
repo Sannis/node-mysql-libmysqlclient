@@ -183,8 +183,11 @@ bool MysqlConnection::RealConnect(const char* hostname,
 void MysqlConnection::Close() {
     if (_conn) {
         mysql_close(_conn);
-        connected = false;
         _conn = NULL;
+        connected = false;
+        // multi_query = false;
+        connect_errno = 0;
+        connect_error = NULL;
     }
 }
 
@@ -781,7 +784,6 @@ Handle<Value> MysqlConnection::GetWarningsSync(const Arguments& args) {
 /**
  * Initializes MysqlConnection
  *
- * @deprecated
  * @return {Boolean}
  */
 Handle<Value> MysqlConnection::InitSync(const Arguments& args) {
