@@ -97,6 +97,7 @@ class MysqlConnection : public node::EventEmitter {
     pthread_mutex_t query_lock;
 
     bool multi_query;
+    my_bool opt_reconnect;
 
     unsigned int connect_errno;
     const char *connect_error;

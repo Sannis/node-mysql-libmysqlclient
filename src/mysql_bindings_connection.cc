@@ -172,9 +172,27 @@ bool MysqlConnection::RealConnect(const char* hostname,
         connect_error = mysql_error(_conn);
 
         mysql_close(_conn);
+        _conn = NULL;
         connected = false;
         return false;
     }
+
+    // MYSQL_OPT_RECONNECT option is modified by mysql_real_connect
+    // due to bug in MySQL < 5.1.6
+    // Save it state and repeat mysql_options after connect
+    // See issue #66
+#if MYSQL_VERSION_ID >= 50013 && MYSQL_VERSION_ID < 50106
+    unsuccessful = mysql_options(_conn, MYSQL_OPT_RECONNECT, opt_reconnect);
+    if (unsuccessful) {
+        connect_errno = mysql_errno(_conn);
+        connect_error = mysql_error(_conn);
+
+        mysql_close(_conn);
+        _conn = NULL;
+        connected = false;
+        return false;
+    }
+#endif
 
     connected = true;
     return true;
@@ -186,6 +204,7 @@ void MysqlConnection::Close() {
         _conn = NULL;
         connected = false;
         // multi_query = false;
+        opt_reconnect = false;
         connect_errno = 0;
         connect_error = NULL;
     }
@@ -195,6 +214,7 @@ MysqlConnection::MysqlConnection(): EventEmitter() {
     _conn = NULL;
     connected = false;
     multi_query = false;
+    opt_reconnect = false;
     connect_errno = 0;
     connect_error = NULL;
     pthread_mutex_init(&query_lock, NULL);
@@ -1318,6 +1338,15 @@ Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
                                 static_cast<const void *>(
                                   &option_integer_value)));
             }
+            // MYSQL_OPT_RECONNECT option is modified by mysql_real_connect
+            // due to bug in MySQL < 5.1.6
+            // Save it state and repeat mysql_options after connect
+            // See issue #66
+#if MYSQL_VERSION_ID >= 50013 && MYSQL_VERSION_ID < 50106
+            if (!r && (option_key == MYSQL_OPT_RECONNECT)) {
+                conn->opt_reconnect = option_integer_value;
+            }
+#endif
             break;
         case MYSQL_READ_DEFAULT_FILE:
         case MYSQL_READ_DEFAULT_GROUP:
