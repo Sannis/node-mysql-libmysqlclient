@@ -95,7 +95,7 @@ You can find other information about [contributing and code style guide in wiki]
 Contributors
 ------------
 
-* **Oleg Efimov** ( [E-mail](efimovov@gmail.com), [GitHub](https://github.com/Sannis), [site](http://sannis.ru) \)
+* **Oleg Efimov** ( [E-mail](mailto:efimovov@gmail.com), [GitHub](https://github.com/Sannis), [site](http://sannis.ru) \)
 
   Author and maintainer.  
   Synchronouse version development.  
@@ -103,42 +103,50 @@ Contributors
   Writing tests, docs and so on.  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=Sannis).
 
-* **Surendra Singhi** ( [E-mail](<ssinghi@kreeti.com), [GitHub](https://github.com/ssinghi), [GitHub2](https://github.com/kreetitech), [site](http://ssinghi.kreeti.com) \)
+
+* **Surendra Singhi** ( [E-mail](mailto:ssinghi@kreeti.com), [GitHub](https://github.com/ssinghi), [GitHub2](https://github.com/kreetitech), [site](http://ssinghi.kreeti.com) \)
 
   Make asynchronouse connecting and querying work.  
   Fix segmentation faults, partialy closes [#14](https://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find).  
   Some other fixes.  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=ssinghi).
 
-* **Akzhan Abdulin** ( [E-mail](akzhan.abdulin@gmail.com), [GitHub](https://github.com/akzhan) \)
+
+* **Akzhan Abdulin** ( [E-mail](mailto:akzhan.abdulin@gmail.com), [GitHub](https://github.com/akzhan) \)
 
   Tests and code style fixes.  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=akzhan).
 
-* **Robin Duckett** ( [E-mail](robin.duckett@gmail.com), [GitHub](https://github.com/robinduckett) \)
+
+* **Robin Duckett** ( [E-mail](mailto:robin.duckett@gmail.com), [GitHub](https://github.com/robinduckett) \)
 
   Fix segfault error, partialy closes [#14](https://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find).  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=robinduckett).
-  
-* **Dan Beam** ( [E-mail](dan@danbeam.org), [GitHub](https://github.com/danbeam), [site](http://danbeam.org) \)
+
+
+* **Dan Beam** ( [E-mail](mailto:dan@danbeam.org), [GitHub](https://github.com/danbeam), [site](http://danbeam.org) \)
 
   [Simplify javascript logic](https://github.com/Sannis/node-mysql-libmysqlclient/commit/97040c3e7a5d4673ca6f340d8a9bc69da8e398d8) of createConnection().  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=danbeam).
 
-* **Maurits Lamers** ( [E-mail](maurits@weidestraat.nl), [GitHub](https://github.com/mauritslamers) \)
+
+* **Maurits Lamers** ( [E-mail](mailto:maurits@weidestraat.nl), [GitHub](https://github.com/mauritslamers) \)
 
   Fix a [bug](https://github.com/Sannis/node-mysql-libmysqlclient/commit/c4071181404362b60b9d3a3aed9784b25459fffa) where previous values were set instead of empty.  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=mauritslamers).
 
-* **Benjmain Reesman** ( [E-mail](ben.reesman@gmail.com), [GitHub](https://github.com/benreesman) \)
+
+* **Benjmain Reesman** ( [E-mail](mailto:ben.reesman@gmail.com), [GitHub](https://github.com/benreesman) \)
 
   Fix [bug](https://github.com/Sannis/node-mysql-libmysqlclient/commit/46dc9ccf266b39d67ed9e6796a178278ccc153a2) with building with libmysqlclient at specific location.  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=benreesman).
 
-* **Pavel Ponomarenko** ( [E-mail](shocksilien@gmail.com), [GitHub](https://github.com/theshock) \)
+
+* **Pavel Ponomarenko** ( [E-mail](mailto:shocksilien@gmail.com), [GitHub](https://github.com/theshock) \)
 
   Add URL shortener example script.  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=theshock).
+
 
 [Full contributors list](https://github.com/Sannis/node-mysql-libmysqlclient/contributors).
 
