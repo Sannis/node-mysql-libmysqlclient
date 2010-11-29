@@ -336,7 +336,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
         reinterpret_cast<struct fetchAll_request *>(req->data);
 
     int argc = 1; /* node.js convention, there is always one argument */
-    Local<Value> argv[2];
+    Local<Value> argv[3];
 
     if (req->result) {
         argv[0] = V8EXC("Error on fetching fields");
@@ -346,6 +346,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
         MYSQL_ROW result_row;
         uint32_t i = 0, j = 0;
 
+        // Get rows
         Local<Array> js_result = Array::New();
         Local<Object> js_result_row;
         Local<Value> js_field;
@@ -381,11 +382,22 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
             i++;
         }
 
+        // Get fields info
+        Local<Array> js_fields = Array::New();
+
+        for (i = 0; i < num_fields; i++) {
+            js_result_row = Object::New();
+            AddFieldProperties(js_result_row, &fields[i]);
+
+            js_fields->Set(Integer::New(i), js_result_row);
+        }
+
         // TODO(Sannis): Make some error check here
 
         argv[1] = js_result;
+        argv[2] = js_fields;
         argv[0] = Local<Value>::New(Null());
-        argc = 2;
+        argc = 3;
     }
 
     TryCatch try_catch;
