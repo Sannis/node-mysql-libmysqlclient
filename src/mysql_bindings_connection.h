@@ -132,12 +132,16 @@ class MysqlConnection : public node::EventEmitter {
     struct connect_request {
         Persistent<Function> callback;
         MysqlConnection *conn;
+
         String::Utf8Value *hostname;
         String::Utf8Value *user;
         String::Utf8Value *password;
         String::Utf8Value *dbname;
         uint32_t port;
         String::Utf8Value *socket;
+
+        unsigned int errno;
+        const char *error;
     };
     static int EIO_After_Connect(eio_req *req);
     static int EIO_Connect(eio_req *req);
@@ -192,11 +196,15 @@ class MysqlConnection : public node::EventEmitter {
     struct query_request {
         Persistent<Value> callback;
         MysqlConnection *conn;
+
         char *query;
         MYSQL_RES *my_result;
         uint32_t field_count;
         my_ulonglong affected_rows;
         my_ulonglong insert_id;
+
+        unsigned int errno;
+        const char *error;
     };
     static int EIO_After_Query(eio_req *req);
     static int EIO_Query(eio_req *req);

@@ -31,11 +31,15 @@ exports.ConnectWithError = function (test) {
   
   var conn = new mysql_bindings.MysqlConnection();
   
-  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (error) {
-    test.ok(error === 1044, "conn.connect() to denied database");
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (err) {
+    var
+      errno = conn.connectErrno,
+      error = conn.connectError;
     
-    test.equals(conn.connectErrno, 1044, "conn.connectErrno");
-    test.ok(conn.connectError.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")), "conn.connectError");
+    test.equals(errno, 1044, "conn.connectErrno");
+    test.ok(error.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")), "conn.connectError");
+    
+    test.equals(err.message, "Connection error #" + errno + ": " + error, "Callback exception in conn.connect() to denied database");
     
     test.done();
   });
@@ -105,16 +109,26 @@ exports.QueryWithLastInsertIdAndAffectedRows = function (test) {
 };
 
 exports.QueryWithError = function (test) {
-  test.expect(3);
+  test.expect(6);
   
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  conn.query("SHOW TABLESaagh", function (err, result) {
+  conn.query("SHOW TABLESaagh", function (err, res) {
     test.ok(err, "Error object is present");
-    test.ok(!result, "Result is not defined");
+    test.ok(!res, "Result is not defined");
+    
+    var
+      errno = conn.errnoSync();
+      error = conn.errorSync();
+    
+    test.equals(errno, 1064, "conn.connectErrno");
+    test.ok(error.match(new RegExp("You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'TABLESaagh'")), "conn.connectError");
+    
+    test.equals(err.message, "Query error #" + errno + ": " + error, "Callback exception in conn.query()");
+    
     conn.closeSync();
     test.done();
   });

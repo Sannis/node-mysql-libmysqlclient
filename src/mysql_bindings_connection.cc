@@ -384,9 +384,15 @@ int MysqlConnection::EIO_After_Connect(eio_req *req) {
     Local<Value> argv[1];
 
     if (req->result) {
-      argv[0] = Local<Value>::New(Integer::New(conn_req->conn->connect_errno));
+        int error_string_length = strlen(conn_req->conn->connect_error) + 25;
+        char* error_string = new char[error_string_length];
+        snprintf(error_string, error_string_length, "Connection error #%d: %s",
+               conn_req->errno, conn_req->error);
+
+        argv[0] = V8EXC(error_string);
+        delete[] error_string;
     } else {
-      argv[0] = Local<Value>::New(Null());
+        argv[0] = Local<Value>::New(Null());
     }
 
     TryCatch try_catch;
@@ -414,6 +420,11 @@ int MysqlConnection::EIO_Connect(eio_req *req) {
                     conn_req->dbname ? **(conn_req->dbname) : NULL,
                     conn_req->port,
                     conn_req->socket ? **(conn_req->socket) : NULL) ? 0 : 1;
+
+    if (req->result) {
+        conn_req->errno = conn_req->conn->connect_errno;
+        conn_req->error = conn_req->conn->connect_error;
+    }
 
     delete conn_req->hostname;
     delete conn_req->user;
@@ -977,7 +988,13 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
     Local<Value> argv[2];
 
     if (req->result) {
-        argv[0] = V8EXC("Error on query execution");
+        int error_string_length = strlen(query_req->error) + 20;
+        char* error_string = new char[error_string_length];
+        snprintf(error_string, error_string_length, "Query error #%d: %s",
+                 query_req->errno, query_req->error);
+
+        argv[0] = V8EXC(error_string);
+        delete[] error_string;
     } else {
         if (req->int1) {
             argv[0] = External::New(query_req->my_result);
@@ -1035,6 +1052,9 @@ int MysqlConnection::EIO_Query(eio_req *req) {
     if (r != 0) {
         // Query error
         req->result = 1;
+
+        query_req->errno = mysql_errno(conn->_conn);
+        query_req->error = mysql_error(conn->_conn);
     } else {
         req->result = 0;
 
