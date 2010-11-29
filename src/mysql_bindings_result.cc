@@ -267,10 +267,12 @@ void MysqlResult::Free() {
 Handle<Value> MysqlResult::New(const Arguments& args) {
     HandleScope scope;
 
-    REQ_EXT_ARG(0, js_res);
-    uint32_t field_count = args[1]->IntegerValue();
-    MYSQL_RES *res = static_cast<MYSQL_RES*>(js_res->Value());
-    MysqlResult *my_res = new MysqlResult(res, field_count);
+    REQ_EXT_ARG(0, js_connection);
+    REQ_EXT_ARG(1, js_result);
+    REQ_UINT_ARG(2, field_count);
+    MYSQL *connection = static_cast<MYSQL*>(js_connection->Value());
+    MYSQL_RES *result = static_cast<MYSQL_RES*>(js_result->Value());
+    MysqlResult *my_res = new MysqlResult(connection, result, field_count);
     my_res->Wrap(args.This());
 
     return args.This();
@@ -352,7 +354,8 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
         Local<Value> js_field;
 
         i = 0;
-        while ( (result_row = mysql_fetch_row(fetchAll_req->res->_res)) ) {
+        while ( (result_row = mysql_fetch_row(fetchAll_req->res->_res)) &&
+                 (i < num_fields) ) {
             if(fetchAll_req->results_array) {
               js_result_row = Array::New();
             } else {
@@ -382,22 +385,32 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
             i++;
         }
 
-        // Get fields info
-        Local<Array> js_fields = Array::New();
+        if (i != mysql_num_rows(fetchAll_req->res->_res)) {
+            unsigned int errno = mysql_errno(fetchAll_req->res->_conn);
+            const char *error = mysql_error(fetchAll_req->res->_conn);
+            int error_string_length = strlen(error) + 20;
+            char* error_string = new char[error_string_length];
+            snprintf(error_string, error_string_length, "Fetch error #%d: %s",
+                     errno, error);
 
-        for (i = 0; i < num_fields; i++) {
-            js_result_row = Object::New();
-            AddFieldProperties(js_result_row, &fields[i]);
+            argv[0] = V8EXC(error_string);
+            delete[] error_string;
+        } else {
+            // Get fields info
+            Local<Array> js_fields = Array::New();
 
-            js_fields->Set(Integer::New(i), js_result_row);
+            for (i = 0; i < num_fields; i++) {
+                js_result_row = Object::New();
+                AddFieldProperties(js_result_row, &fields[i]);
+
+                js_fields->Set(Integer::New(i), js_result_row);
+            }
+
+            argv[1] = js_result;
+            argv[2] = js_fields;
+            argv[0] = Local<Value>::New(Null());
+            argc = 3;
         }
-
-        // TODO(Sannis): Make some error check here
-
-        argv[1] = js_result;
-        argv[2] = js_fields;
-        argv[0] = Local<Value>::New(Null());
-        argc = 3;
     }
 
     TryCatch try_catch;
@@ -410,7 +423,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
 
     fetchAll_req->callback.Dispose();
     fetchAll_req->res->Unref();
-    // TODO(Sannis): should I free this?
+
     //free(fetchAll_req->fields);
     free(fetchAll_req);
 
@@ -422,10 +435,10 @@ int MysqlResult::EIO_FetchAll(eio_req *req) {
         reinterpret_cast<struct fetchAll_request *>(req->data);
     MysqlResult *res = fetchAll_req->res;
 
+    // Errors: none
     fetchAll_req->fields = mysql_fetch_fields(res->_res);
+    // Errors: none
     fetchAll_req->num_fields = mysql_num_fields(res->_res);
-
-    // TODO(Sannis): Make some error check here
 
     req->result = 0;
 

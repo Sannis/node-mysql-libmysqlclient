@@ -985,7 +985,7 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
     struct query_request *query_req = (struct query_request *)(req->data);
 
     int argc = 1;
-    Local<Value> argv[2];
+    Local<Value> argv[3];
 
     if (req->result) {
         int error_string_length = strlen(query_req->error) + 20;
@@ -997,10 +997,11 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
         delete[] error_string;
     } else {
         if (req->int1) {
-            argv[0] = External::New(query_req->my_result);
-            argv[1] = Integer::New(query_req->field_count);
+            argv[0] = External::New(query_req->conn->_conn);
+            argv[1] = External::New(query_req->my_result);
+            argv[2] = Integer::New(query_req->field_count);
             Persistent<Object> js_result(MysqlResult::constructor_template->
-                                     GetFunction()->NewInstance(2, argv));
+                                     GetFunction()->NewInstance(3, argv));
 
             argv[1] = Local<Value>::New(scope.Close(js_result));
         } else {
@@ -1177,10 +1178,11 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
         }
     }
 
-    int argc = 2;
-    Local<Value> argv[2];
-    argv[0] = External::New(my_result);
-    argv[1] = Integer::New(field_count);
+    int argc = 3;
+    Local<Value> argv[argc];
+    argv[0] = External::New(conn->_conn);
+    argv[1] = External::New(my_result);
+    argv[2] = Integer::New(field_count);
     Persistent<Object> js_result(MysqlResult::constructor_template->
                              GetFunction()->NewInstance(argc, argv));
 
@@ -1475,10 +1477,11 @@ Handle<Value> MysqlConnection::StoreResultSync(const Arguments& args) {
         return scope.Close(False());
     }
 
-    int argc = 2;
-    Local<Value> argv[2];
-    argv[0] = External::New(my_result);
-    argv[1] = Integer::New(mysql_field_count(conn->_conn));
+    int argc = 3;
+    Local<Value> argv[argc];
+    argv[0] = External::New(conn->_conn);
+    argv[1] = External::New(my_result);
+    argv[2] = Integer::New(mysql_field_count(conn->_conn));
     Persistent<Object> js_result(MysqlResult::constructor_template->
                              GetFunction()->NewInstance(argc, argv));
 
@@ -1538,10 +1541,11 @@ Handle<Value> MysqlConnection::UseResultSync(const Arguments& args) {
         return scope.Close(False());
     }
 
-    int argc = 2;
-    Local<Value> argv[2];
-    argv[0] = External::New(my_result);
-    argv[1] = Integer::New(mysql_field_count(conn->_conn));
+    int argc = 3;
+    Local<Value> argv[argc];
+    argv[0] = External::New(conn->_conn);
+    argv[1] = External::New(my_result);
+    argv[2] = Integer::New(mysql_field_count(conn->_conn));
     Persistent<Object> js_result(MysqlResult::constructor_template->
                              GetFunction()->NewInstance(argc, argv));
 

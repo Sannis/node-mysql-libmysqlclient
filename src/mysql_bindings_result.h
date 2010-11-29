@@ -51,14 +51,18 @@ class MysqlResult : public node::EventEmitter {
     void Free();
 
   protected:
+    MYSQL *_conn;
     MYSQL_RES *_res;
 
     uint32_t field_count;
 
     MysqlResult();
 
-    explicit MysqlResult(MYSQL_RES *my_result, uint32_t my_field_count):
+    explicit MysqlResult(MYSQL *my_connection,
+                          MYSQL_RES *my_result,
+                          uint32_t my_field_count):
                                                 EventEmitter(),
+                                                _conn(my_connection),
                                                 _res(my_result),
                                                 field_count(my_field_count) {}
 
@@ -81,7 +85,7 @@ class MysqlResult : public node::EventEmitter {
     struct fetchAll_request {
         Persistent<Function> callback;
         MysqlResult *res;
-        
+
         MYSQL_FIELD *fields;
         uint32_t num_fields;
         bool results_array;
