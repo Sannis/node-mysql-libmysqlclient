@@ -1,3 +1,37 @@
+## Version 1.1.0
+  * Fixes:
+    * Don't ignore connect arguments after any null, closes #63
+    * Reset connect_error in MysqlConnection::Close()
+    * Fix bug with MYSQL_OPT_RECONNECT reset in MySQL < 5.1.6, closes #66
+    * Add MYSQLCONN_MUSTBE_INITIALIZED macro and change error reporting
+      in ConnectSync() and RealConnectSync() to avoid coding errors like in #67
+    * Make error reporting for conn.connect() and conn.query() more verbose, closes #68
+    * Add error handling for res.fetchAll(), closes #69
+    * Fix lint rule in wscript, fix lint errors
+  * Improvements:
+    * Pass affectedRows and insertId to conn.query() callback
+      as object properties, closes #58
+    * res.fetchAll*() improvements:
+      * res.fetchAll*() takes a boolean option,
+        which if true returns array of results, instead of objects
+      * Add possibility to use hash with options in res.fetchAll*()
+      * Add 'structured' option support for res.fetchall*() methods
+      * Pass information about fields as third argument of res.fetchAll() callback, closes #59
+      * Add more option constants, update conn.setOptionSync()
+      * Add connect flags support and test with select in stored procedure, closes #64
+      * Add tests for stored procedures/functions call, see #64
+  * Documentation improvements:
+    * Add URL shortener example web application
+    * Improve gh_pags.sh
+  * Refactoring
+    * Extract defines from mysql_bindings_connection.h to mysql_bindings.h
+    * Extract 'simple' async tests into separate files
+    * Split client-realted stuff from conn.getInfoSync() to conn.getClientInfoSync()
+  * Update tools/nodeunit from d4949a4 to 200e5a7
+
+Special thanks to Pavel Ponomarenko and Surendra Singhi
+Thanks to Michael Pearson, who pointed out the problem with stored procedures
+
 ## Version 1.0.3
   * Update nodeunit from cf2f529 to d4949a4
   * Add HTML documentation into repo
@@ -7,7 +41,7 @@
   * Tested with Node version v0.2.3
   * Some changes to make the module build with specific libmysqlclient path, closes #50
 
-Special thanks for Benjmain Reesman
+Special thanks to Benjmain Reesman
 
 ## Version 1.0.1
   * Change node-gc to Sannis' fork with some fixes
@@ -16,7 +50,7 @@ Special thanks for Benjmain Reesman
   * Update wscript in accordance to current node_addon.py
   * Fix error reporting in example
 
-Special thanks for Surendra Singhi and http://fallen.habrahabr.ru
+Special thanks to Surendra Singhi and http://fallen.habrahabr.ru
 
 ## Version 1.0.0
   * Fixes:
@@ -41,7 +75,7 @@ Special thanks for Surendra Singhi and http://fallen.habrahabr.ru
   * Semantic versioning introduced
   * Other changes in README and package.json
 
-Special thanks for Ben Noordhuis
+Special thanks to Ben Noordhuis
 
 ## Version 0.0.10
   * Add JSDocs into bindings code
@@ -68,7 +102,7 @@ Special thanks for Ben Noordhuis
     * MysqlConnection::RealConnectSync()
     * MysqlConnection::SetOptionSync()
 
-Special thanks for Akzhan Abdulin and Surendra Singhi
+Special thanks to Akzhan Abdulin and Surendra Singhi
 
 ## Version 0.0.8
   * Make asynchronous connect and fetchAll
@@ -79,7 +113,7 @@ Special thanks for Akzhan Abdulin and Surendra Singhi
     * MysqlConn::Connect() and libeio wrapper
     * MysqlResult::FetchAll() and libeio wrapper
 
-Special thanks for Surendra Singhi
+Special thanks to Surendra Singhi
 
 ## Version 0.0.7
   * Make asynchronous querying work
@@ -92,7 +126,7 @@ Special thanks for Surendra Singhi
   * Implemented methods:
     * MysqlConn::QueryAsync() and libeio wrapper
 
-Special thanks for Surendra Singhi
+Special thanks to Surendra Singhi
 
 ## Version 0.0.6
   * Update package.json and make small fixes in docs and README
