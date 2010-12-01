@@ -26,6 +26,9 @@ h1, h2, h3 {
 ul {
     padding-left: 20px;
 }
+img {
+    border: 0;
+}
 table#source {
     width: 100%;
     border-collapse: collapse;
@@ -94,7 +97,6 @@ table#source tr.code td:first-child pre {
     position: fixed;
     top: 0;
     right: 0;
-    border: 0;
 }
 code .string { color: #219161; }
 code .regexp { color: #219161; }
@@ -131,11 +133,11 @@ pre.shell code .prompt-root { color: #912121; }
 <p>Extra information: <a href="./changelog.html">ChangeLog</a>, <a href="./api.html">API</a>, <a href="./examples.html">Examples</a>, <a href="http://github.com/Sannis/node-mysql-libmysqlclient/wiki">Wiki</a>.</p>
                 </td>
                 <td>
-Latest stable v1.0.3:<br/>
-<a href=http://github.com/Sannis/node-mysql-libmysqlclient/zipball/v1.0.3>
+Latest stable v1.1.0:<br/>
+<a href=http://github.com/Sannis/node-mysql-libmysqlclient/zipball/v1.1.0>
  <img width=90 src=http://github.com/images/modules/download/zip.png />
 </a>
-<a href=http://github.com/Sannis/node-mysql-libmysqlclient/tarball/v1.0.3>
+<a href=http://github.com/Sannis/node-mysql-libmysqlclient/tarball/v1.1.0>
  <img width=90 src=http://github.com/images/modules/download/tar.png />
 </a>
                 </td>
@@ -145,7 +147,8 @@ Latest stable v1.0.3:<br/>
 <h2>Dependencies</h2>
                 </td>
                 <td>
-<p>This module tested with Node version v0.2.3.</p>
+<p>This module tested with Node version v0.2.5 (@v1.0.3-24-gefcd8df).
+Also it pass all tests on 0.3.0 (@v1.0.3-11-ge4b5d00).</p>
 
 <p>To build it you must install libmysqlclient library and development files for it.
 Node-waf use mysql_config to determine the paths to the library and header files.
@@ -188,13 +191,9 @@ To install these dependencies, you can use the console.</p>
 <pre class="shell"><code><span class="prompt-user">$&gt;</span> git clone git:<span class="comment">//github.com/Sannis/node-mysql-libmysqlclient.git</span>
 <span class="prompt-user">$&gt;</span> cd node-mysql-libmysqlclient</code></pre>
 
-<p>or (careful!)</p>
+<p>If you want to build specific version of node-mysql-libmysqlclient, checkout it:</p>
 
-<pre class="shell"><code><span class="prompt-user">$&gt;</span> wget http:<span class="comment">//github.com/Sannis/node-mysql-libmysqlclient/tarball/master</span>
-<span class="prompt-user">$&gt;</span> tar -xzvf Sannis-node-mysql-libmysqlclient-*.tar.gz
-<span class="prompt-user">$&gt;</span> rm -f ./Sannis-node-mysql-libmysqlclient-*.tar.gz
-<span class="prompt-user">$&gt;</span> mv Sannis-node-mysql-libmysqlclient-* node-mysql-libmysqlclient
-<span class="prompt-user">$&gt;</span> cd node-mysql-libmysqlclient</code></pre>
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> git checkout v<span class="number float">1.0</span>.<span class="number integer">2</span></code></pre>
 
 <p>To build the bindings you should run:</p>
 
@@ -226,9 +225,9 @@ leave your comments to the code.
 I'll be glad to see your forks and commits in them :)</p>
 
 <p>To contribute any patches, simply fork this repository using GitHub
-and send a pull request to <a href="http://github.com/Sannis">me</a>. Thanks!</p>
+and send a pull request to <a href="https://github.com/Sannis">me</a>. Thanks!</p>
 
-<p>You can find other information about <a href="http://github.com/Sannis/node-mysql-libmysqlclient/wiki/contributing">contributing and code style guide in wiki</a>.</p>
+<p>You can find other information about <a href="https://github.com/Sannis/node-mysql-libmysqlclient/wiki/contributing">contributing and code style guide in wiki</a>.</p>
                 </td>
             </tr>
             <tr>
@@ -236,9 +235,9 @@ and send a pull request to <a href="http://github.com/Sannis">me</a>. Thanks!</p
 <h2>Contributors</h2>
                 </td>
                 <td>
-<ul><li><p><strong>Oleg Efimov</strong> ( <a href="efimovov@gmail.com">E-mail</a>, <a href="http://github.com/Sannis">GitHub</a>, <a href="http://sannis.ru">site</a> )</p><p>Author and maintainer.<br></br>Synchronouse version development.<br></br>First libeio asynchronouse attempts.<br></br>Writing tests, docs and so on.<br></br><a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=Sannis">All commits</a>.</p></li><li><p><strong>Surendra Singhi</strong> ( <a href="<ssinghi@kreeti.com">E-mail</a>, <a href="http://github.com/ssinghi">GitHub</a>, <a href="http://github.com/kreetitech">GitHub2</a>, <a href="http://ssinghi.kreeti.com">site</a> )</p><p>Make asynchronouse connecting and querying work.<br></br>Fix segmentation faults, partialy closes <a href="http://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find">#14</a>.<br></br>Some other fixes.<br></br><a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=ssinghi">All commits</a>.</p></li><li><p><strong>Akzhan Abdulin</strong> ( <a href="akzhan.abdulin@gmail.com">E-mail</a>, <a href="http://github.com/akzhan">GitHub</a> )</p><p>Tests and code style fixes.<br></br><a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=akzhan">All commits</a>.</p></li><li><p><strong>Robin Duckett</strong> ( <a href="robin.duckett@gmail.com">E-mail</a>, <a href="http://github.com/robinduckett">GitHub</a> )</p><p>Fix segfault error, partialy closes <a href="http://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find">#14</a>.<br></br><a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=robinduckett">All commits</a>.</p></li><li><p><strong>Dan Beam</strong> ( <a href="dan@danbeam.org">E-mail</a>, <a href="http://github.com/danbeam">GitHub</a>, <a href="http://danbeam.org">site</a> )</p><p><a href="http://github.com/Sannis/node-mysql-libmysqlclient/commit/97040c3e7a5d4673ca6f340d8a9bc69da8e398d8">Simplify javascript logic</a> of createConnection().<br></br><a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=danbeam">All commits</a>.</p></li><li><p><strong>Maurits Lamers</strong> ( <a href="maurits@weidestraat.nl">E-mail</a>, <a href="http://github.com/mauritslamers">GitHub</a> )</p><p>Fix a <a href="http://github.com/Sannis/node-mysql-libmysqlclient/commit/c4071181404362b60b9d3a3aed9784b25459fffa">bug</a> where previous values were set instead of empty.<br></br><a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=mauritslamers">All commits</a>.</p></li><li><p><strong>Benjmain Reesman</strong> ( <a href="ben.reesman@gmail.com">E-mail</a>, <a href="http://github.com/benreesman">GitHub</a> )</p><p>Fix <a href="http://github.com/Sannis/node-mysql-libmysqlclient/commit/46dc9ccf266b39d67ed9e6796a178278ccc153a2">bug</a> with building with libmysqlclient at specific location.<br></br><a href="http://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=benreesman">All commits</a>.</p></li></ul>
+<ul><li><p><strong>Oleg Efimov</strong> ( <a href="mailto:efimovov@gmail.com">E-mail</a>, <a href="https://github.com/Sannis">GitHub</a>, <a href="http://sannis.ru">site</a> )</p><p>Author and maintainer.<br></br>Synchronouse version development.<br></br>First libeio asynchronouse attempts.<br></br>Writing tests, docs and so on.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=Sannis">All commits</a>.</p></li><li><p><strong>Surendra Singhi</strong> ( <a href="mailto:ssinghi@kreeti.com">E-mail</a>, <a href="https://github.com/ssinghi">GitHub</a>, <a href="https://github.com/kreetitech">GitHub2</a>, <a href="http://ssinghi.kreeti.com">site</a> )</p><p>Make asynchronouse connecting and querying work.<br></br>Fix segmentation faults, partialy closes <a href="https://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find">#14</a>.<br></br>Some other fixes.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=ssinghi">All commits</a>.</p></li><li><p><strong>Akzhan Abdulin</strong> ( <a href="mailto:akzhan.abdulin@gmail.com">E-mail</a>, <a href="https://github.com/akzhan">GitHub</a> )</p><p>Tests and code style fixes.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=akzhan">All commits</a>.</p></li><li><p><strong>Robin Duckett</strong> ( <a href="mailto:robin.duckett@gmail.com">E-mail</a>, <a href="https://github.com/robinduckett">GitHub</a> )</p><p>Fix segfault error, partialy closes <a href="https://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find">#14</a>.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=robinduckett">All commits</a>.</p></li><li><p><strong>Dan Beam</strong> ( <a href="mailto:dan@danbeam.org">E-mail</a>, <a href="https://github.com/danbeam">GitHub</a>, <a href="http://danbeam.org">site</a> )</p><p><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commit/97040c3e7a5d4673ca6f340d8a9bc69da8e398d8">Simplify javascript logic</a> of createConnection().<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=danbeam">All commits</a>.</p></li><li><p><strong>Maurits Lamers</strong> ( <a href="mailto:maurits@weidestraat.nl">E-mail</a>, <a href="https://github.com/mauritslamers">GitHub</a> )</p><p>Fix a <a href="https://github.com/Sannis/node-mysql-libmysqlclient/commit/c4071181404362b60b9d3a3aed9784b25459fffa">bug</a> where previous values were set instead of empty.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=mauritslamers">All commits</a>.</p></li><li><p><strong>Benjmain Reesman</strong> ( <a href="mailto:ben.reesman@gmail.com">E-mail</a>, <a href="https://github.com/benreesman">GitHub</a> )</p><p>Fix <a href="https://github.com/Sannis/node-mysql-libmysqlclient/commit/46dc9ccf266b39d67ed9e6796a178278ccc153a2">bug</a> with building with libmysqlclient at specific location.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=benreesman">All commits</a>.</p></li><li><p><strong>Pavel Ponomarenko</strong> ( <a href="mailto:shocksilien@gmail.com">E-mail</a>, <a href="https://github.com/theshock">GitHub</a> )</p><p>Add URL shortener example script.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=theshock">All commits</a>.</p></li></ul>
 
-<p><a href="http://github.com/Sannis/node-mysql-libmysqlclient/contributors">Full contributors list</a>.</p>
+<p><a href="https://github.com/Sannis/node-mysql-libmysqlclient/contributors">Full contributors list</a>.</p>
                 </td>
             </tr>
             <tr>
@@ -246,7 +245,7 @@ and send a pull request to <a href="http://github.com/Sannis">me</a>. Thanks!</p
 <h2>License</h2>
                 </td>
                 <td>
-<p>MIT license. See license text in file <a href="http://github.com/Sannis/node-mysql-libmysqlclient/blob/master/LICENSE">LICENSE</a>.</p>
+<p>MIT license. See license text in file <a href="https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/LICENSE">LICENSE</a>.</p>
                 </td>
             </tr>
         </tbody></table>
