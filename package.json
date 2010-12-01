@@ -26,6 +26,12 @@
   , { "name": "Maurits Lamers"
     , "email": "maurits@weidestraat.nl"
     }
+  , { "name": "Benjmain Reesman"
+    , "email": "ben.reesman@gmail.com"
+    }
+  , { "name": "Pavel Ponomarenko"
+    , "email": "shocksilien@gmail.com"
+    }
   ]
 , "bugs" : { "web" : "http://github.com/Sannis/node-mysql-libmysqlclient/issues" }
 , "licenses" : [ { "type" : "MIT" } ]
@@ -40,5 +46,5 @@
   , "test" : "node-waf test"
   , "doc" : "node-waf doc"
   }
-, "engines" : { "node" : ">=0.2.3" }
+, "engines" : { "node" : ">=0.2.5" }
 }
