@@ -18,14 +18,17 @@ var
  * http://dev.mysql.com/doc/refman/5.1/en/call.html
  */
 exports.CallStoredProcedureSync = function (test) {
-  test.expect(8);
+  test.expect(12);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = mysql_libmysqlclient.createConnectionSync(),
     res,
     max_num,
     max_num_proc,
-    max_num_func;
+    max_num_func,
+    rows;
+  
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   // Insert some rows
@@ -48,21 +51,12 @@ exports.CallStoredProcedureSync = function (test) {
   
   res = conn.querySync("CREATE PROCEDURE maxnum_proc(OUT max_num INT) SELECT MAX(num) FROM " + cfg.test_table + " INTO max_num;");
   test.ok(res, "CREATE PROCEDURE maxnum_proc");
-  if (!res) {
-    console.log(conn.errorSync());
-  }
   
   res = conn.querySync("CALL maxnum_proc(@max_num);");
   test.ok(res, "CALL maxnum_proc(@max_num);");
-  if (!res) {
-    console.log(conn.errorSync());
-  }
   
   res = conn.querySync("SELECT @max_num;");
   test.ok(res, "SELECT @max_num;");
-  if (!res) {
-    console.log(conn.errorSync());
-  }
   
   max_num_proc = res.fetchAllSync()[0]['@max_num'];
   res.freeSync();
@@ -96,6 +90,21 @@ exports.CallStoredProcedureSync = function (test) {
   test.equals(max_num_proc, max_num, "max_num_proc == max_num");
   // max_num_func should equals max_num
   //test.equals(max_num_func, max_num, "max_num_func == max_num");
+  
+  // Select all rows with stored procedure
+  res = conn.querySync("DROP PROCEDURE IF EXISTS select_num_proc;");
+  test.ok(res, "DROP PROCEDURE IF EXISTS select_num_proc");
+  
+  res = conn.querySync("CREATE PROCEDURE select_num_proc() SELECT num FROM " + cfg.test_table + " WHERE num > 2;");
+  test.ok(res, "CREATE PROCEDURE select_num_proc");
+  
+  res = conn.querySync("CALL select_num_proc();");
+  test.ok(res, "CALL select_num_proc()");
+  
+  rows = res.fetchAllSync();
+  test.same(rows, [{num: 654}, {num: 3415}], "Select rows by stored procedure");
+  
+  res.freeSync();
   
   conn.closeSync();
   test.done();

@@ -111,15 +111,37 @@ exports.New = function (test) {
   test.done();
 };
 
-exports.OptionsConstants = function (test) {
-  test.expect(12);
+exports.ConnectFlagsConstants = function (test) {
+  test.expect(9);
+  
+  var conn = mysql_libmysqlclient.createConnectionSync();
+  
+  test.equals(conn.CLIENT_COMPRESS, 32);
+  test.equals(conn.CLIENT_FOUND_ROWS, 2);
+  test.equals(conn.CLIENT_IGNORE_SIGPIPE, 4096);
+  test.equals(conn.CLIENT_IGNORE_SPACE, 256);
+  test.equals(conn.CLIENT_INTERACTIVE, 1024);
+  // Not yet implemented
+  // test.equals(conn.CLIENT_LOCAL_FILES, 128);
+  test.equals(conn.CLIENT_MULTI_RESULTS, 131072);
+  test.equals(conn.CLIENT_MULTI_STATEMENTS, 65536);
+  test.equals(conn.CLIENT_NO_SCHEMA, 16);
+  // TODO(Sannis): Fix this
+  test.equals(conn.CLIENT_REMEMBER_OPTIONS, -2147483648);
+  
+  test.done();
+};
+
+exports.SetOptionsConstants = function (test) {
+  test.expect(11);
   
   var conn = mysql_libmysqlclient.createConnectionSync();
   
   test.equals(conn.MYSQL_INIT_COMMAND, 3);
   test.equals(conn.MYSQL_OPT_COMPRESS, 1);
   test.equals(conn.MYSQL_OPT_CONNECT_TIMEOUT, 0);
-  test.equals(conn.MYSQL_OPT_LOCAL_INFILE, 8);
+  // Not yet implemented
+  // test.equals(conn.MYSQL_OPT_LOCAL_INFILE, 8);
   test.equals(conn.MYSQL_OPT_PROTOCOL, 9);
   test.equals(conn.MYSQL_OPT_READ_TIMEOUT, 11);
   test.equals(conn.MYSQL_OPT_RECONNECT, 20);

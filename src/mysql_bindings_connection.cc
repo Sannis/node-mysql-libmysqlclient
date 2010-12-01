@@ -35,6 +35,27 @@ void MysqlConnection::Init(Handle<Object> target) {
     Local<ObjectTemplate> instance_template =
         constructor_template->InstanceTemplate();
 
+    // Constants for connect flags
+    NODE_DEFINE_CONSTANT(instance_template, CLIENT_COMPRESS);
+    NODE_DEFINE_CONSTANT(instance_template, CLIENT_FOUND_ROWS);
+    NODE_DEFINE_CONSTANT(instance_template, CLIENT_IGNORE_SIGPIPE);
+    NODE_DEFINE_CONSTANT(instance_template, CLIENT_IGNORE_SPACE);
+    NODE_DEFINE_CONSTANT(instance_template, CLIENT_INTERACTIVE);
+    // Not yet implemented
+    // NODE_DEFINE_CONSTANT(instance_template, CLIENT_LOCAL_FILES);
+    NODE_DEFINE_CONSTANT(instance_template, CLIENT_MULTI_RESULTS);
+    NODE_DEFINE_CONSTANT(instance_template, CLIENT_MULTI_STATEMENTS);
+    NODE_DEFINE_CONSTANT(instance_template, CLIENT_NO_SCHEMA);
+    // Unused by MySQL
+    // NODE_DEFINE_CONSTANT(instance_template, CLIENT_ODBC);
+    // This option should not be set by application programs;
+    // it is set internally in the client library. Instead,
+    // use setSslSync() before calling connect() or connectSync().
+    // NODE_DEFINE_CONSTANT(instance_template, CLIENT_SSL);
+    // TODO(Sannis): Fix this
+    // conn.CLIENT_REMEMBER_OPTIONS === -2147483648
+    NODE_DEFINE_CONSTANT(instance_template, CLIENT_REMEMBER_OPTIONS);
+    
     // Constants for setOption
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_INIT_COMMAND);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_COMPRESS);
@@ -127,7 +148,8 @@ bool MysqlConnection::Connect(const char* hostname,
                         const char* password,
                         const char* dbname,
                         uint32_t port,
-                        const char* socket) {
+                        const char* socket,
+                        uint64_t flags) {
     if (this->_conn) {
         return false;
     }
@@ -146,7 +168,7 @@ bool MysqlConnection::Connect(const char* hostname,
                             dbname,
                             port,
                             socket,
-                            0);
+                            flags);
 
     if (unsuccessful) {
         this->connect_errno = mysql_errno(this->_conn);
@@ -167,7 +189,8 @@ bool MysqlConnection::RealConnect(const char* hostname,
                             const char* password,
                             const char* dbname,
                             uint32_t port,
-                            const char* socket) {
+                            const char* socket,
+                            uint64_t flags) {
     if (!this->_conn) {
         return false;
     }
@@ -183,7 +206,7 @@ bool MysqlConnection::RealConnect(const char* hostname,
                                             dbname,
                                             port,
                                             socket,
-                                            0);
+                                            flags);
 
     if (unsuccessful) {
         this->connect_errno = mysql_errno(this->_conn);
@@ -437,7 +460,8 @@ int MysqlConnection::EIO_Connect(eio_req *req) {
                     conn_req->password ? **(conn_req->password) : NULL,
                     conn_req->dbname ? **(conn_req->dbname) : NULL,
                     conn_req->port,
-                    conn_req->socket ? **(conn_req->socket) : NULL) ? 0 : 1;
+                    conn_req->socket ? **(conn_req->socket) : NULL,
+                    conn_req->flags) ? 0 : 1;
 
     if (req->result) {
         conn_req->errno = conn_req->conn->connect_errno;
@@ -495,6 +519,8 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
                             args[4]->Uint32Value() : 0;
     conn_req->socket = args.Length() > 6 && args[5]->IsString() ?
         new String::Utf8Value(args[5]->ToString()) : NULL;
+    conn_req->flags = args.Length() > 7 && args[6]->IsUint32() ?
+                            args[6]->Uint32Value() : 0;
     eio_custom(EIO_Connect, EIO_PRI_DEFAULT, EIO_After_Connect, conn_req);
 
     ev_ref(EV_DEFAULT_UC);
@@ -531,13 +557,15 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
     String::Utf8Value dbname(args[3]->ToString());
     uint32_t port = args[4]->Uint32Value();
     String::Utf8Value socket(args[5]->ToString());
+    uint64_t flags = args[6]->Uint32Value();
 
     bool r = conn->Connect(args[0]->IsString() ? *hostname : NULL,
                            args[1]->IsString() ? *user     : NULL,
                            args[2]->IsString() ? *password : NULL,
                            args[3]->IsString() ? *dbname   : NULL,
                            args[4]->IsUint32() ? port      : 0,
-                           args[5]->IsString() ? *socket   : NULL);
+                           args[5]->IsString() ? *socket   : NULL,
+                           args[6]->IsUint32() ? flags     : 0);
 
     if (!r) {
         return scope.Close(False());
@@ -1252,26 +1280,15 @@ Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
     String::Utf8Value dbname(args[3]->ToString());
     uint32_t port = args[4]->Uint32Value();
     String::Utf8Value socket(args[5]->ToString());
+    uint64_t flags = args[6]->Uint32Value();
 
-    bool r = conn->RealConnect(
-                    (
-                        args[0]->IsString() ?
-                        *hostname : NULL),
-                    (
-                        args[1]->IsString() ?
-                        *user : NULL),
-                    (
-                        args[2]->IsString() ?
-                        *password : NULL),
-                    (
-                        args[3]->IsString() ?
-                        *dbname : NULL),
-                    (
-                        args[4]->IsUint32() ?
-                        port : 0),
-                    (
-                        args[5]->IsString() ?
-                        *socket : NULL));
+    bool r = conn->RealConnect(args[0]->IsString() ? *hostname : NULL,
+                               args[1]->IsString() ? *user     : NULL,
+                               args[2]->IsString() ? *password : NULL,
+                               args[3]->IsString() ? *dbname   : NULL,
+                               args[4]->IsUint32() ? port      : 0,
+                               args[5]->IsString() ? *socket   : NULL,
+                               args[6]->IsUint32() ? flags     : 0);
 
     if (!r) {
         return scope.Close(False());
