@@ -957,7 +957,8 @@ Handle<Value> MysqlConnection::MultiRealQuerySync(const Arguments& args) {
 }
 
 /**
- * Pings a server connection, or tries to reconnect if the connection has gone down
+ * Pings a server connection,
+ * or tries to reconnect if the connection has gone down
  *
  * @return {Boolean}
  */
@@ -1019,7 +1020,8 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
     if (query_req->callback->IsFunction()) {
         TryCatch try_catch;
 
-        Persistent<Function>::Cast(query_req->callback)->Call(Context::GetCurrent()->Global(), argc, argv);
+        Persistent<Function>::Cast(query_req->callback)->
+                              Call(Context::GetCurrent()->Global(), argc, argv);
 
         if (try_catch.HasCaught()) {
             node::FatalException(try_catch);

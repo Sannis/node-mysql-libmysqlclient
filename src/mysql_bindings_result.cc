@@ -356,7 +356,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
         i = 0;
         while ( (result_row = mysql_fetch_row(fetchAll_req->res->_res)) &&
                  (i < num_fields) ) {
-            if(fetchAll_req->results_array) {
+            if (fetchAll_req->results_array) {
               js_result_row = Array::New();
             } else {
               js_result_row = Object::New();
@@ -424,7 +424,8 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
     fetchAll_req->callback.Dispose();
     fetchAll_req->res->Unref();
 
-    //free(fetchAll_req->fields);
+    // Why segfault if fried?
+    // free(fetchAll_req->fields);
     free(fetchAll_req);
 
     return 0;
@@ -571,7 +572,8 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
             } else {
                 if (results_structured) {
                     if (!js_result_row->Has(V8STR(fields[j].table))) {
-                        js_result_row->Set(V8STR(fields[j].table), Object::New());
+                        js_result_row->Set(V8STR(fields[j].table),
+                                           Object::New());
                     }
                     js_result_row->Get(V8STR(fields[j].table))->ToObject()
                                  ->Set(V8STR(fields[j].name), js_field);

@@ -77,9 +77,12 @@ def lint(lnt):
   # Bindings C++ source code
   print("Run CPPLint:")
   Utils.exec_command('cpplint ./src/*.h ./src/*.cc')
-  # Bindings javascript code, tools and tests
-  print("Run Nodeint:")
-  Utils.exec_command('nodelint ./package.json ./mysql-libmysqlclient.js ./docs/*.js ./tools/*.js ./tools/tests/*.js')
+  # Bindings javascript code, docs and tools
+  print("Run Nodelint for sources:")
+  Utils.exec_command('nodelint ./package.json ./mysql-libmysqlclient.js ./doc ./tools/*.js')
+  # Bindings tests
+  print("Run Nodelint for tests:")
+  Utils.exec_command('nodelint ./tests')
 
 def doc(doc):
   description = ('--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +

@@ -150,11 +150,11 @@ exports.FetchAllWithObjectStructuredOption = function (test) {
   res.fetchAll({'structured': false}, function (err, rows) {
     test.ok(err === null, "res.fetchAll() err===null");
     test.same(rows,
-      [ { size: 'small', colors: 'red' }
-      , { size: 'small', colors: 'orange' }
-      , { size: 'large', colors: 'deep purple' }
-      , { size: 'large', colors: 'deep purple' }
-      ] , "conn.querySync('SELECT ...').fetchAllSync({'structured': false})");
+      [{size: 'small', colors: 'red'},
+       {size: 'small', colors: 'orange'},
+       {size: 'large', colors: 'deep purple'},
+       {size: 'large', colors: 'deep purple'}
+      ], "conn.querySync('SELECT ...').fetchAllSync({'structured': false})");
     res.freeSync();
     
     res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
@@ -167,16 +167,16 @@ exports.FetchAllWithObjectStructuredOption = function (test) {
       test.ok(Array.isArray(rows), "Result returns an array");
       test.ok(rows[0] instanceof Object, "Result returns an array of objects");
       test.same(rows,
-        [ { t1: { size: 'small', colors: ['red'] }
-          , t2: { size: 'small', colors: 'red' }
-          }
-        , { t1: { size: 'small', colors: ['red'] }
-          , t2: { size: 'small', colors: 'orange' }
-          }
-        , { t1: { size: 'large', colors: ['red', 'blue'] }
-          , t2: { size: 'large', colors: 'deep purple' }
-          }
-        ] , "conn.querySync('SELECT ...').fetchAll({'structured': true})");
+        [{t1: {size: 'small', colors: ['red']},
+          t2: {size: 'small', colors: 'red'}
+         },
+         {t1: { size: 'small', colors: ['red']},
+          t2: { size: 'small', colors: 'orange'}
+         },
+         {t1: { size: 'large', colors: ['red', 'blue'] },
+          t2: { size: 'large', colors: 'deep purple' }
+         }
+        ], "conn.querySync('SELECT ...').fetchAll({'structured': true})");
       res.freeSync();
       
       conn.closeSync();
@@ -201,10 +201,10 @@ exports.FetchAllSyncWithObjectStructuredOption = function (test) {
   
   rows = res.fetchAllSync({'structured': false});
   test.same(rows,
-    [ { size: 'small', colors: 'red' }
-    , { size: 'small', colors: 'orange' }
-    , { size: 'large', colors: 'deep purple' }
-    , { size: 'large', colors: 'deep purple' }
+    [{size: 'small', colors: 'red'},
+     {size: 'small', colors: 'orange'},
+     {size: 'large', colors: 'deep purple'},
+     {size: 'large', colors: 'deep purple'}
     ], "conn.querySync('SELECT ...').fetchAllSync({'structured': false})");
   res.freeSync();
   
@@ -217,16 +217,16 @@ exports.FetchAllSyncWithObjectStructuredOption = function (test) {
   test.ok(Array.isArray(rows), "Result returns an array");
   test.ok(rows[0] instanceof Object, "Result returns an array of objects");
   test.same(rows,
-    [ { t1: { size: 'small', colors: ['red'] }
-      , t2: { size: 'small', colors: 'red' }
-      }
-    , { t1: { size: 'small', colors: ['red'] }
-      , t2: { size: 'small', colors: 'orange' }
-      }
-    , { t1: { size: 'large', colors: ['red', 'blue'] }
-      , t2: { size: 'large', colors: 'deep purple' }
-      }
-    ] , "conn.querySync('SELECT ...').fetchAllSync({'structured': true})");
+    [{t1: { size: 'small', colors: ['red']},
+      t2: { size: 'small', colors: 'red'}
+     },
+     {t1: { size: 'small', colors: ['red']},
+      t2: { size: 'small', colors: 'orange'}
+     },
+     {t1: { size: 'large', colors: ['red', 'blue']},
+      t2: { size: 'large', colors: 'deep purple'}
+     }
+    ], "conn.querySync('SELECT ...').fetchAllSync({'structured': true})");
   res.freeSync();
   
   conn.closeSync();

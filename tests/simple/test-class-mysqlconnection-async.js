@@ -69,7 +69,8 @@ exports.QueryWithLastInsertIdAndAffectedRows = function (test) {
   test.expect(9);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res;
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
@@ -114,6 +115,7 @@ exports.QueryWithError = function (test) {
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
+  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   conn.query("SHOW TABLESaagh", function (err, res) {
@@ -121,7 +123,7 @@ exports.QueryWithError = function (test) {
     test.ok(!res, "Result is not defined");
     
     var
-      errno = conn.errnoSync();
+      errno = conn.errnoSync(),
       error = conn.errorSync();
     
     test.equals(errno, 1064, "conn.connectErrno");
@@ -140,6 +142,7 @@ exports.QueryWithoutCallback = function (test) {
   var
     conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
+  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
