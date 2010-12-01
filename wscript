@@ -91,7 +91,7 @@ def doc(doc):
   ribbon = '--ribbon "http://github.com/Sannis/node-mysql-libmysqlclient" '
   
   downloads = ('--desc-rigth "' +
-               'Latest stable v' + VERSION + ':<br/>\n' +
+               'Latest version ' + VERSION + ':<br/>\n' +
                '<a href="http://github.com/Sannis/node-mysql-libmysqlclient/zipball/v' + VERSION + '">\n' +
                ' <img width="90" src="http://github.com/images/modules/download/zip.png" />\n' +
                '</a>\n' +
