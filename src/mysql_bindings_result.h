@@ -14,6 +14,8 @@
 #include <node.h>
 #include <node_events.h>
 
+#include "./mysql_bindings.h"
+
 #define mysql_result_is_unbuffered(r) \
 ((r)->handle && (r)->handle->status == MYSQL_STATUS_USE_RESULT)
 

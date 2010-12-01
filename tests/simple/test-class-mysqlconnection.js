@@ -126,8 +126,12 @@ exports.ConnectFlagsConstants = function (test) {
   test.equals(conn.CLIENT_MULTI_RESULTS, 131072);
   test.equals(conn.CLIENT_MULTI_STATEMENTS, 65536);
   test.equals(conn.CLIENT_NO_SCHEMA, 16);
-  // TODO(Sannis): Fix this
+  // Known issue: conn.CLIENT_REMEMBER_OPTIONS === -2147483648
   test.equals(conn.CLIENT_REMEMBER_OPTIONS, -2147483648);
+  
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_REMEMBER_OPTIONS);
+  conn.closeSync();
+  
   
   test.done();
 };

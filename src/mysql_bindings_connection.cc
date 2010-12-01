@@ -52,10 +52,9 @@ void MysqlConnection::Init(Handle<Object> target) {
     // it is set internally in the client library. Instead,
     // use setSslSync() before calling connect() or connectSync().
     // NODE_DEFINE_CONSTANT(instance_template, CLIENT_SSL);
-    // TODO(Sannis): Fix this
-    // conn.CLIENT_REMEMBER_OPTIONS === -2147483648
+    // Known issue: conn.CLIENT_REMEMBER_OPTIONS === -2147483648
     NODE_DEFINE_CONSTANT(instance_template, CLIENT_REMEMBER_OPTIONS);
-    
+
     // Constants for setOption
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_INIT_COMMAND);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_COMPRESS);
@@ -992,12 +991,12 @@ Handle<Value> MysqlConnection::MultiRealQuerySync(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    MYSQLSYNC_ENABLE_MQ;
+    MYSQLCONN_ENABLE_MQ;
     if (mysql_real_query(conn->_conn, *query, query.length()) != 0) {
-        MYSQLSYNC_DISABLE_MQ;
+        MYSQLCONN_DISABLE_MQ;
         return scope.Close(False());
     }
-    MYSQLSYNC_DISABLE_MQ;
+    MYSQLCONN_DISABLE_MQ;
 
     return scope.Close(True());
 }
@@ -1094,7 +1093,7 @@ int MysqlConnection::EIO_Query(eio_req *req) {
         return 0;
     }
 
-    MYSQLSYNC_DISABLE_MQ;
+    MYSQLCONN_DISABLE_MQ;
 
     pthread_mutex_lock(&conn->query_lock);
     int r = mysql_query(conn->_conn, query_req->query);
@@ -1196,7 +1195,8 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    MYSQLSYNC_DISABLE_MQ;
+    MYSQLCONN_DISABLE_MQ;
+
     MYSQL_RES *my_result = NULL;
     int field_count;
 
@@ -1312,8 +1312,7 @@ Handle<Value> MysqlConnection::RealQuerySync(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    MYSQLSYNC_DISABLE_MQ;
-
+    MYSQLCONN_DISABLE_MQ;
 
     pthread_mutex_lock(&conn->query_lock);
     int r = mysql_real_query(conn->_conn, *query, query.length());

@@ -5,8 +5,8 @@
  * See license text in LICENSE file
  */
 
-#ifndef NODE_MYSQL_H  // NOLINT
-#define NODE_MYSQL_H
+#ifndef SRC_MYSQL_BINDINGS_H_
+#define SRC_MYSQL_BINDINGS_H_
 
 /**
  * Usefull macroses for unility operations
@@ -72,30 +72,8 @@ if (args.Length() > (I) && args[I]->IsFunction()) {\
     VAR = Null(); \
 }
 
-#define MYSQLSYNC_DISABLE_MQ \
-if (conn->multi_query) { \
-    mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_OFF); \
-    conn->multi_query = false; \
-}
-
-#define MYSQLSYNC_ENABLE_MQ \
-if (!conn->multi_query) { \
-    mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_ON); \
-    conn->multi_query = true; \
-}
-
 #define MYSQL_NON_THREADSAFE_ERRORSTRING \
     "Asynchronous functions works only with threadsafe libmysqlclient_r"
 
-#define MYSQLCONN_MUSTBE_CONNECTED \
-    if (!conn->_conn || !conn->connected) { \
-        return THREXC("Not connected"); \
-    }
-
-#define MYSQLCONN_MUSTBE_INITIALIZED \
-    if (!conn->_conn) { \
-        return THREXC("Not initialized"); \
-    }
-
-#endif  // NODE_MYSQL_H  // NOLINT
+#endif  // SRC_MYSQL_BINDINGS_H_
 

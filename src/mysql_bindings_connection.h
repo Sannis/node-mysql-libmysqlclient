@@ -5,8 +5,8 @@
  * See license text in LICENSE file
  */
 
-#ifndef NODE_MYSQL_CONNECTION_H  // NOLINT
-#define NODE_MYSQL_CONNECTION_H
+#ifndef SRC_MYSQL_BINDINGS_CONNECTION_H_
+#define SRC_MYSQL_BINDINGS_CONNECTION_H_
 
 #include <mysql.h>
 
@@ -21,6 +21,28 @@
 #include <cstring>
 
 #include "./mysql_bindings.h"
+
+#define MYSQLCONN_DISABLE_MQ \
+if (conn->multi_query) { \
+    mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_OFF); \
+    conn->multi_query = false; \
+}
+
+#define MYSQLCONN_ENABLE_MQ \
+if (!conn->multi_query) { \
+    mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_ON); \
+    conn->multi_query = true; \
+}
+
+#define MYSQLCONN_MUSTBE_CONNECTED \
+    if (!conn->_conn || !conn->connected) { \
+        return THREXC("Not connected"); \
+    }
+
+#define MYSQLCONN_MUSTBE_INITIALIZED \
+    if (!conn->_conn) { \
+        return THREXC("Not initialized"); \
+    }
 
 using namespace v8; // NOLINT
 
@@ -245,5 +267,5 @@ class MysqlConnection : public node::EventEmitter {
     static Handle<Value> WarningCountSync(const Arguments& args);
 };
 
-#endif  // NODE_MYSQL_CONNECTION_H  // NOLINT
+#endif  // SRC_MYSQL_BINDINGS_CONNECTION_H_
 

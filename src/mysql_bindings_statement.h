@@ -5,14 +5,16 @@
  * See license text in LICENSE file
  */
 
-#ifndef NODE_MYSQL_STATEMENT_H  // NOLINT
-#define NODE_MYSQL_STATEMENT_H
+#ifndef SRC_MYSQL_BINDINGS_STATEMENT_H_
+#define SRC_MYSQL_BINDINGS_STATEMENT_H_
 
 #include <mysql.h>
 
 #include <v8.h>
 #include <node.h>
 #include <node_events.h>
+
+#include "./mysql_bindings.h"
 
 static Persistent<String> statement_prepareSync_symbol;
 
@@ -37,5 +39,5 @@ class MysqlStatement : public node::EventEmitter {
     static Handle<Value> PrepareSync(const Arguments& args);
 };
 
-#endif  // NODE_MYSQL_STATEMENT_H  // NOLINT
+#endif  // SRC_MYSQL_BINDINGS_STATEMENT_H_
 
