@@ -35,19 +35,37 @@ void MysqlConnection::Init(Handle<Object> target) {
     Local<ObjectTemplate> instance_template =
         constructor_template->InstanceTemplate();
 
-    // Constants
+    // Constants for setOption
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_INIT_COMMAND);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_COMPRESS);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_CONNECT_TIMEOUT);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_LOCAL_INFILE);
+    // Unused, embedded
+    // NODE_DEFINE_CONSTANT(MYSQL_OPT_GUESS_CONNECTION);
+    // Not yet implemented
+    // NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_LOCAL_INFILE);
+    // Unused, windows
+    // NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_NAMED_PIPE);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_PROTOCOL);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_READ_TIMEOUT);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_RECONNECT);
+    // Unused, embedded
+    // NODE_DEFINE_CONSTANT(MYSQL_SET_CLIENT_IP);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_SSL_VERIFY_SERVER_CERT);
+    // Unused, embedded
+    // NODE_DEFINE_CONSTANT(MYSQL_OPT_USE_EMBEDDED_CONNECTION);
+    // Unused, embedded
+    // NODE_DEFINE_CONSTANT(MYSQL_OPT_USE_REMOTE_CONNECTION);
+    // Unused by MySQL
+    // NODE_DEFINE_CONSTANT(MYSQL_OPT_USE_RESULT);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_WRITE_TIMEOUT);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_READ_DEFAULT_FILE);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_READ_DEFAULT_GROUP);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_REPORT_DATA_TRUNCATION);
+    NODE_DEFINE_CONSTANT(instance_template, MYSQL_SECURE_AUTH);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_SET_CHARSET_DIR);
     NODE_DEFINE_CONSTANT(instance_template, MYSQL_SET_CHARSET_NAME);
+    // Unused, windows
+    // NODE_DEFINE_CONSTANT(instance_template, MYSQL_SHARED_MEMORY_BASE_NAME);
 
     // Properties
     instance_template->SetAccessor(V8STR("connectErrno"), ConnectErrnoGetter);
@@ -1353,12 +1371,14 @@ Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
 
     switch (option_key) {
         case MYSQL_OPT_CONNECT_TIMEOUT:
-        case MYSQL_OPT_LOCAL_INFILE:
         case MYSQL_OPT_PROTOCOL:
         case MYSQL_OPT_READ_TIMEOUT:
         case MYSQL_OPT_WRITE_TIMEOUT:
         case MYSQL_OPT_RECONNECT:
         case MYSQL_OPT_COMPRESS:
+        case MYSQL_OPT_SSL_VERIFY_SERVER_CERT:
+        case MYSQL_REPORT_DATA_TRUNCATION:
+        case MYSQL_SECURE_AUTH:
             {
             REQ_INT_ARG(1, option_integer_value);
             r = mysql_options(conn->_conn,
@@ -1366,7 +1386,6 @@ Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
                               static_cast<const char *>(
                                 static_cast<const void *>(
                                   &option_integer_value)));
-            }
             // MYSQL_OPT_RECONNECT option is modified by mysql_real_connect
             // due to bug in MySQL < 5.1.6
             // Save it state and repeat mysql_options after connect
@@ -1376,6 +1395,7 @@ Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
                 conn->opt_reconnect = option_integer_value;
             }
 #endif
+            }
             break;
         case MYSQL_READ_DEFAULT_FILE:
         case MYSQL_READ_DEFAULT_GROUP:
@@ -1387,8 +1407,22 @@ Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
             r = mysql_options(conn->_conn, option_key, *option_string_value);
             }
             break;
+        case MYSQL_OPT_LOCAL_INFILE:
+            return THREXC("This option isn't implemented yet");
+            break;
+        case MYSQL_OPT_NAMED_PIPE:
+        case MYSQL_SHARED_MEMORY_BASE_NAME:
+            return THREXC("This option isn't used because Windows");
+            break;
+        case MYSQL_OPT_GUESS_CONNECTION:
+        case MYSQL_SET_CLIENT_IP:
+        case MYSQL_OPT_USE_EMBEDDED_CONNECTION:
+        case MYSQL_OPT_USE_REMOTE_CONNECTION:
+            return THREXC("This option isn't used because not embedded");
+            break;
+        case MYSQL_OPT_USE_RESULT:
         default:
-            return THREXC("This option isn't supported");
+            return THREXC("This option isn't supported by MySQL");
     }
 
     if (r) {
