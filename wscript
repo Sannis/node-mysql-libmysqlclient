@@ -32,7 +32,8 @@ def configure(conf):
   # MySQL flags and libraries
   conf.env.append_unique('CXXFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --include').split())
   conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs_r').split())
-  
+  conf.env.append_unique('LINKFLAGS', ["-lev"])
+
   if not conf.check_cxx(lib="mysqlclient_r", errmsg="not found, try to find nonthreadsafe libmysqlclient"):
     # link flags are needed to find the libraries
     conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs').split())
