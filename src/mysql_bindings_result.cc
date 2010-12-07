@@ -317,7 +317,7 @@ Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
         return THREXC("Function cannot be used with MYSQL_USE_RESULT");
     }
 
-    if (offset < 0 || offset >= mysql_num_rows(res->_res)) {
+    if (offset >= mysql_num_rows(res->_res)) {
         return THREXC("Invalid row offset");
     }
 
@@ -797,7 +797,7 @@ Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
 
     REQ_UINT_ARG(0, field_num)
 
-    if (field_num < 0 || field_num >= res->field_count) {
+    if (field_num >= res->field_count) {
         return THREXC("Invalid field offset");
     }
 

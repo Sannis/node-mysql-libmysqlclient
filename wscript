@@ -27,7 +27,10 @@ def configure(conf):
   
   # Node.js and debug flags
   conf.env.append_unique('CPPFLAGS', ["-D_FILE_OFFSET_BITS=64","-D_LARGEFILE_SOURCE"])
+  # Enables all the warnings that are easy to avoid
   conf.env.append_unique('CXXFLAGS', ["-Wall"])
+  # Extra warnings
+  conf.env.append_unique('CXXFLAGS', ["-Wextra"])
   
   # MySQL flags and libraries
   conf.env.append_unique('CXXFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --include').split())
