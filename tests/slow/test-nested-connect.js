@@ -90,7 +90,7 @@ exports.ManyConnectsInLoop = function (test) {
   test.expect(0);
   
   var
-    connections = new Array(cfg.slow_connects_inloo),
+    connections = [],
     test_result,
     i = 0, ci = 0;
   
