@@ -20,6 +20,7 @@ def set_options(opt):
   opt.add_option('--slow', action='store_true', help='Run slow tests')
   opt.add_option('--ignored', action='store_true', help='Run ignored tests')
   opt.add_option('--debug', action='store_true', help='Run tests with node_g')
+  opt.add_option('--warn', action='store_true', help='Enable extra -W* compiler flags')
 
 def configure(conf):
   conf.check_tool("compiler_cxx")
@@ -29,8 +30,11 @@ def configure(conf):
   conf.env.append_unique('CPPFLAGS', ["-D_FILE_OFFSET_BITS=64","-D_LARGEFILE_SOURCE"])
   # Enables all the warnings that are easy to avoid
   conf.env.append_unique('CXXFLAGS', ["-Wall"])
-  # Extra warnings
-  conf.env.append_unique('CXXFLAGS', ["-Wextra"])
+  if Options.options.warn:
+    # Extra warnings
+    conf.env.append_unique('CXXFLAGS', ["-Wextra"])
+    # Extra warnings, gcc 4.4
+    conf.env.append_unique('CXXFLAGS', ["-Wconversion", "-Wshadow", "-Wsign-conversion", "-Wunreachable-code", "-Wredundant-decls", "-Wcast-qual"])
   
   # MySQL flags and libraries
   conf.env.append_unique('CXXFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --include').split())

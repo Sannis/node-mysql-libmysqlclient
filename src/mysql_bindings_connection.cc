@@ -291,7 +291,7 @@ Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property,
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
-    return scope.Close(Integer::New(conn->connect_errno));
+    return scope.Close(Integer::NewFromUnsigned(conn->connect_errno));
 }
 
 /**
@@ -424,7 +424,7 @@ int MysqlConnection::EIO_After_Connect(eio_req *req) {
     Local<Value> argv[1];
 
     if (req->result) {
-        int error_string_length = strlen(conn_req->conn->connect_error) + 25;
+        unsigned int error_string_length = strlen(conn_req->conn->connect_error) + 25;
         char* error_string = new char[error_string_length];
         snprintf(error_string, error_string_length, "Connection error #%d: %s",
                conn_req->errno, conn_req->error);
@@ -646,7 +646,7 @@ Handle<Value> MysqlConnection::ErrnoSync(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    return scope.Close(Integer::New(mysql_errno(conn->_conn)));
+    return scope.Close(Integer::NewFromUnsigned(mysql_errno(conn->_conn)));
 }
 
 /**
@@ -682,7 +682,7 @@ Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
 
     REQ_STR_ARG(0, str)
 
-    int len = str.length();
+    unsigned int len = static_cast<unsigned int>(str.length());
     char *result = new char[2*len + 1];
     if (!result) {
         V8::LowMemoryNotification();
@@ -709,7 +709,9 @@ Handle<Value> MysqlConnection::FieldCountSync(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    return scope.Close(Integer::New(mysql_field_count(conn->_conn)));
+    return scope.Close(Integer::NewFromUnsigned(
+                           mysql_field_count(conn->_conn)
+                       ));
 }
 
 /**
@@ -733,10 +735,10 @@ Handle<Value> MysqlConnection::GetCharsetSync(const Arguments& args) {
     js_result->Set(V8STR("charset"), V8STR(cs.csname ? cs.csname : ""));
     js_result->Set(V8STR("collation"), V8STR(cs.name ? cs.name : ""));
     js_result->Set(V8STR("dir"), V8STR(cs.dir ? cs.dir : ""));
-    js_result->Set(V8STR("min_length"), Integer::New(cs.mbminlen));
-    js_result->Set(V8STR("max_length"), Integer::New(cs.mbmaxlen));
-    js_result->Set(V8STR("number"), Integer::New(cs.number));
-    js_result->Set(V8STR("state"), Integer::New(cs.state));
+    js_result->Set(V8STR("min_length"), Integer::NewFromUnsigned(cs.mbminlen));
+    js_result->Set(V8STR("max_length"), Integer::NewFromUnsigned(cs.mbmaxlen));
+    js_result->Set(V8STR("number"), Integer::NewFromUnsigned(cs.number));
+    js_result->Set(V8STR("state"), Integer::NewFromUnsigned(cs.state));
     js_result->Set(V8STR("comment"), V8STR(cs.comment ? cs.comment : ""));
 
     return scope.Close(js_result);
@@ -770,7 +772,7 @@ Handle<Value> MysqlConnection::GetClientInfoSync(const Arguments& args) {
     js_result->Set(V8STR("client_info"),
                    V8STR(mysql_get_client_info()));
     js_result->Set(V8STR("client_version"),
-                   Integer::New(mysql_get_client_version()));
+                   Integer::NewFromUnsigned(mysql_get_client_version()));
 
     return scope.Close(js_result);
 }
@@ -792,15 +794,17 @@ Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
     js_result->Set(V8STR("client_info"),
                    V8STR(mysql_get_client_info()));
     js_result->Set(V8STR("client_version"),
-                   Integer::New(mysql_get_client_version()));
+                   Integer::NewFromUnsigned(mysql_get_client_version()));
     js_result->Set(V8STR("server_info"),
                    V8STR(mysql_get_server_info(conn->_conn)));
     js_result->Set(V8STR("server_version"),
-                   Integer::New(mysql_get_server_version(conn->_conn)));
+                   Integer::NewFromUnsigned(
+                       mysql_get_server_version(conn->_conn)
+                   ));
     js_result->Set(V8STR("host_info"),
                    V8STR(mysql_get_host_info(conn->_conn)));
     js_result->Set(V8STR("proto_info"),
-                   Integer::New(mysql_get_proto_info(conn->_conn)));
+                   Integer::NewFromUnsigned(mysql_get_proto_info(conn->_conn)));
 
     return scope.Close(js_result);
 }
@@ -992,7 +996,8 @@ Handle<Value> MysqlConnection::MultiRealQuerySync(const Arguments& args) {
     MYSQLCONN_MUSTBE_CONNECTED;
 
     MYSQLCONN_ENABLE_MQ;
-    if (mysql_real_query(conn->_conn, *query, query.length()) != 0) {
+    unsigned int query_len = static_cast<unsigned int>(query.length());
+    if (mysql_real_query(conn->_conn, *query, query_len) != 0) {
         MYSQLCONN_DISABLE_MQ;
         return scope.Close(False());
     }
@@ -1034,7 +1039,7 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
     Local<Value> argv[3];
 
     if (req->result) {
-        int error_string_length = strlen(query_req->error) + 20;
+        unsigned int error_string_length = strlen(query_req->error) + 20;
         char* error_string = new char[error_string_length];
         snprintf(error_string, error_string_length, "Query error #%d: %s",
                  query_req->errno, query_req->error);
@@ -1045,7 +1050,7 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
         if (req->int1) {
             argv[0] = External::New(query_req->conn->_conn);
             argv[1] = External::New(query_req->my_result);
-            argv[2] = Integer::New(query_req->field_count);
+            argv[2] = Integer::NewFromUnsigned(query_req->field_count);
             Persistent<Object> js_result(MysqlResult::constructor_template->
                                      GetFunction()->NewInstance(3, argv));
 
@@ -1159,12 +1164,12 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
         return THREXC("Could not allocate enough memory");
     }
 
+    unsigned int query_len = static_cast<unsigned int>(query.length());
     query_req->query =
-        reinterpret_cast<char *>(calloc(query.length() + 1,
-        sizeof(char))); // NOLINT (have no char var)
+        reinterpret_cast<char *>(calloc(query_len + 1, sizeof(char))); // NOLINT (have no char var)
 
-    if (snprintf(query_req->query, query.length() + 1, "%s", *query) !=
-                                                      query.length()) {
+    if (snprintf(query_req->query, query_len + 1, "%s", *query) !=
+                                                static_cast<int>(query_len)) {
         return THREXC("Snprintf() error");
     }
 
@@ -1198,7 +1203,7 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
     MYSQLCONN_DISABLE_MQ;
 
     MYSQL_RES *my_result = NULL;
-    int field_count;
+    unsigned int field_count;
 
     // Only one query can be executed on a connection at a time
     pthread_mutex_lock(&conn->query_lock);
@@ -1230,7 +1235,7 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
     Local<Value> argv[argc];
     argv[0] = External::New(conn->_conn);
     argv[1] = External::New(my_result);
-    argv[2] = Integer::New(field_count);
+    argv[2] = Integer::NewFromUnsigned(field_count);
     Persistent<Object> js_result(MysqlResult::constructor_template->
                              GetFunction()->NewInstance(argc, argv));
 
@@ -1314,8 +1319,10 @@ Handle<Value> MysqlConnection::RealQuerySync(const Arguments& args) {
 
     MYSQLCONN_DISABLE_MQ;
 
+    unsigned int query_len = static_cast<unsigned int>(query.length());
+
     pthread_mutex_lock(&conn->query_lock);
-    int r = mysql_real_query(conn->_conn, *query, query.length());
+    int r = mysql_real_query(conn->_conn, *query, query_len);
     pthread_mutex_unlock(&conn->query_lock);
 
     if (r != 0) {
@@ -1533,7 +1540,7 @@ Handle<Value> MysqlConnection::StoreResultSync(const Arguments& args) {
     Local<Value> argv[argc];
     argv[0] = External::New(conn->_conn);
     argv[1] = External::New(my_result);
-    argv[2] = Integer::New(mysql_field_count(conn->_conn));
+    argv[2] = Integer::NewFromUnsigned(mysql_field_count(conn->_conn));
     Persistent<Object> js_result(MysqlResult::constructor_template->
                              GetFunction()->NewInstance(argc, argv));
 
@@ -1597,7 +1604,7 @@ Handle<Value> MysqlConnection::UseResultSync(const Arguments& args) {
     Local<Value> argv[argc];
     argv[0] = External::New(conn->_conn);
     argv[1] = External::New(my_result);
-    argv[2] = Integer::New(mysql_field_count(conn->_conn));
+    argv[2] = Integer::NewFromUnsigned(mysql_field_count(conn->_conn));
     Persistent<Object> js_result(MysqlResult::constructor_template->
                              GetFunction()->NewInstance(argc, argv));
 
@@ -1618,6 +1625,6 @@ Handle<Value> MysqlConnection::WarningCountSync(const Arguments& args) {
 
     uint32_t warning_count = mysql_warning_count(conn->_conn);
 
-    return scope.Close(Integer::New(warning_count));
+    return scope.Close(Integer::NewFromUnsigned(warning_count));
 }
 

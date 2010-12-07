@@ -81,7 +81,7 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
 
     REQ_STR_ARG(0, query)
 
-    int query_len = args[0]->ToString()->Utf8Length();
+    unsigned long int query_len = args[0]->ToString()->Utf8Length();
 
     if (mysql_stmt_prepare(stmt->_stmt, *query, query_len)) {
         return scope.Close(False());

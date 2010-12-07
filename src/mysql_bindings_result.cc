@@ -74,12 +74,18 @@ void MysqlResult::AddFieldProperties(
                       V8STR(field->org_table ? field->org_table : ""));
     js_field_obj->Set(V8STR("def"), V8STR(field->def ? field->def : ""));
 
-    js_field_obj->Set(V8STR("max_length"), Integer::New(field->max_length));
-    js_field_obj->Set(V8STR("length"), Integer::New(field->length));
-    js_field_obj->Set(V8STR("charsetnr"), Integer::New(field->charsetnr));
-    js_field_obj->Set(V8STR("flags"), Integer::New(field->flags));
-    js_field_obj->Set(V8STR("type"), Integer::New(field->type));
-    js_field_obj->Set(V8STR("decimals"), Integer::New(field->decimals));
+    js_field_obj->Set(V8STR("max_length"),
+                      Integer::NewFromUnsigned(field->max_length));
+    js_field_obj->Set(V8STR("length"),
+                      Integer::NewFromUnsigned(field->length));
+    js_field_obj->Set(V8STR("charsetnr"),
+                      Integer::NewFromUnsigned(field->charsetnr));
+    js_field_obj->Set(V8STR("flags"),
+                      Integer::NewFromUnsigned(field->flags));
+    js_field_obj->Set(V8STR("type"),
+                      Integer::New(field->type));
+    js_field_obj->Set(V8STR("decimals"),
+                      Integer::NewFromUnsigned(field->decimals));
 }
 
 Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value) {
@@ -293,7 +299,7 @@ Handle<Value> MysqlResult::FieldCountGetter(Local<String> property,
     MYSQLRES_MUSTBE_VALID;
 
     if (res->field_count > 0) {
-        return scope.Close(Integer::New(res->field_count));
+        return scope.Close(Integer::NewFromUnsigned(res->field_count));
     } else {
         return Undefined();
     }
@@ -365,7 +371,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
             for (j = 0; j < num_fields; j++) {
                 js_field = GetFieldValue(fields[j], result_row[j]);
                 if (fetchAll_req->results_array) {
-                    js_result_row->Set(Integer::New(j), js_field);
+                    js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
                 } else {
                     if (fetchAll_req->results_structured) {
                         if (!js_result_row->Has(V8STR(fields[j].table))) {
@@ -380,7 +386,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
                 }
             }
 
-            js_result->Set(Integer::New(i), js_result_row);
+            js_result->Set(Integer::NewFromUnsigned(i), js_result_row);
 
             i++;
         }
@@ -388,7 +394,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
         if (i != mysql_num_rows(fetchAll_req->res->_res)) {
             unsigned int errno = mysql_errno(fetchAll_req->res->_conn);
             const char *error = mysql_error(fetchAll_req->res->_conn);
-            int error_string_length = strlen(error) + 20;
+            unsigned long error_string_length = strlen(error) + 20;
             char* error_string = new char[error_string_length];
             snprintf(error_string, error_string_length, "Fetch error #%d: %s",
                      errno, error);
@@ -403,7 +409,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
                 js_result_row = Object::New();
                 AddFieldProperties(js_result_row, &fields[i]);
 
-                js_fields->Set(Integer::New(i), js_result_row);
+                js_fields->Set(Integer::NewFromUnsigned(i), js_result_row);
             }
 
             argv[1] = js_result;
@@ -568,7 +574,7 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
         for (j = 0; j < num_fields; j++) {
             js_field = GetFieldValue(fields[j], result_row[j]);
             if (results_array) {
-                js_result_row->Set(Integer::New(j), js_field);
+                js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
             } else {
                 if (results_structured) {
                     if (!js_result_row->Has(V8STR(fields[j].table))) {
@@ -583,7 +589,7 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
             }
         }
 
-        js_result->Set(Integer::New(i), js_result_row);
+        js_result->Set(Integer::NewFromUnsigned(i), js_result_row);
 
         i++;
     }
@@ -621,7 +627,7 @@ Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
     for ( j = 0; j < num_fields; j++ ) {
         js_field = GetFieldValue(fields[j], result_row[j]);
 
-        js_result_row->Set(Integer::New(j), js_field);
+        js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
     }
 
     return scope.Close(js_result_row);
@@ -668,7 +674,7 @@ Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLI
 
     MYSQLRES_MUSTBE_VALID;
 
-    REQ_INT_ARG(0, field_num)
+    REQ_UINT_ARG(0, field_num)
 
     MYSQL_FIELD *field;
 
@@ -711,7 +717,7 @@ Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
         js_result_obj = Object::New();
         AddFieldProperties(js_result_obj, field);
 
-        js_result->Set(Integer::New(i), js_result_obj);
+        js_result->Set(Integer::NewFromUnsigned(i), js_result_obj);
     }
 
     return scope.Close(js_result);
@@ -730,7 +736,7 @@ Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
     MYSQLRES_MUSTBE_VALID;
 
     uint32_t num_fields = mysql_num_fields(res->_res);
-    unsigned long int *lengths = mysql_fetch_lengths(res->_res); // NOLINT (unsigned long required by API)
+    unsigned long int *lengths = mysql_fetch_lengths(res->_res); // NOLINT
     uint32_t i = 0;
 
     Local<Array> js_result = Array::New();
@@ -740,7 +746,8 @@ Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
     }
 
     for (i = 0; i < num_fields; i++) {
-        js_result->Set(Integer::New(i), Integer::New(lengths[i]));
+        js_result->Set(Integer::NewFromUnsigned(i),
+                       Integer::NewFromUnsigned(lengths[i]));
     }
 
     return scope.Close(js_result);
@@ -818,7 +825,7 @@ Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
 
     MYSQLRES_MUSTBE_VALID;
 
-    return scope.Close(Integer::New(mysql_field_tell(res->_res)));
+    return scope.Close(Integer::NewFromUnsigned(mysql_field_tell(res->_res)));
 }
 
 /**
