@@ -222,7 +222,8 @@ bool MysqlConnection::RealConnect(const char* hostname,
     // Save it state and repeat mysql_options after connect
     // See issue #66
 #if MYSQL_VERSION_ID >= 50013 && MYSQL_VERSION_ID < 50106
-    unsuccessful = mysql_options(_conn, MYSQL_OPT_RECONNECT, opt_reconnect);
+    unsuccessful = mysql_options(this->_conn, MYSQL_OPT_RECONNECT,
+                            static_cast<const char*>(&this->opt_reconnect));
     if (unsuccessful) {
         this->connect_errno = mysql_errno(this->_conn);
         this->connect_error = mysql_error(this->_conn);
