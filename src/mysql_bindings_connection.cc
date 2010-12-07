@@ -239,30 +239,30 @@ bool MysqlConnection::RealConnect(const char* hostname,
 }
 
 void MysqlConnection::Close() {
-    if (_conn) {
-        mysql_close(_conn);
-        _conn = NULL;
-        connected = false;
-        // multi_query = false;
-        opt_reconnect = false;
-        connect_errno = 0;
-        connect_error = NULL;
+    if (this->_conn) {
+        mysql_close(this->_conn);
+        this->_conn = NULL;
+        this->connected = false;
+        // this->multi_query = false;
+        this->opt_reconnect = false;
+        this->connect_errno = 0;
+        this->connect_error = NULL;
     }
 }
 
 MysqlConnection::MysqlConnection(): EventEmitter() {
-    _conn = NULL;
-    connected = false;
-    multi_query = false;
-    opt_reconnect = false;
-    connect_errno = 0;
-    connect_error = NULL;
-    pthread_mutex_init(&query_lock, NULL);
+    this->_conn = NULL;
+    this->connected = false;
+    this->multi_query = false;
+    this->opt_reconnect = false;
+    this->connect_errno = 0;
+    this->connect_error = NULL;
+    pthread_mutex_init(&this->query_lock, NULL);
 }
 
 MysqlConnection::~MysqlConnection() {
     this->Close();
-    pthread_mutex_destroy(&query_lock);
+    pthread_mutex_destroy(&this->query_lock);
 }
 
 /**
