@@ -5,6 +5,12 @@ See contributors list in README
 See license text in LICENSE file
 */
 
+/*
+> mysql -u root
+CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+GRANT ALL ON test.* TO test@localhost IDENTIFIED BY "";
+*/
+
 exports.cfg = {
   // Database connection settings
   host: "localhost",
