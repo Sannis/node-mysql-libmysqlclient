@@ -148,7 +148,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value) {
               }
               h2 = timeinfo.tm_hour;
               m2 = timeinfo.tm_min;
-              gmt_delta = (((h1 - h2 + 24)%24)*60 + (m1-m2))*60;
+              gmt_delta = (((h1 - h2)%24)*60 + (m1-m2))*60;
               timeinfo.tm_year = year - 1900;
               timeinfo.tm_mon = month - 1;
               timeinfo.tm_mday = day;
@@ -181,7 +181,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value) {
               }
               h2 = timeinfo.tm_hour;
               m2 = timeinfo.tm_min;
-              gmt_delta = (((h1 - h2 + 24)%24)*60 + (m1-m2))*60;
+              gmt_delta = (((h1 - h2)%24)*60 + (m1-m2))*60;
               timeinfo.tm_year = year - 1900;
               timeinfo.tm_mon = month - 1;
               timeinfo.tm_mday = day;
