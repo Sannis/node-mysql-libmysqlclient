@@ -616,10 +616,18 @@ exports.SetOptionSync = function (test) {
   default_cs = conn.querySync("SHOW VARIABLES LIKE 'character_set_connection';").fetchAllSync()[0].Value;
   other_cs = charset_map[default_cs] ? charset_map[default_cs] : charset_map.other;
   conn.closeSync();
+  
+  // Test MYSQL_INIT_COMMAND
   conn.initSync();
   conn.setOptionSync(conn.MYSQL_INIT_COMMAND, "SET NAMES " + other_cs + ";");
   conn.realConnectSync(cfg.host, cfg.user, cfg.password);
   test.equals(conn.querySync("SHOW VARIABLES LIKE 'character_set_connection';").fetchAllSync()[0].Value, other_cs, "setOptionSync(MYSQL_INIT_COMMAND. 'SET NAMES')");
+  conn.closeSync();
+  
+  // Test MYSQL_OPT_RECONNECT
+  conn.initSync();
+  conn.setOptionSync(conn.MYSQL_OPT_RECONNECT, 1);
+  conn.realConnectSync(cfg.host, cfg.user, cfg.password);
   conn.closeSync();
   
   test.done();
