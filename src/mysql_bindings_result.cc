@@ -360,8 +360,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
         Local<Value> js_field;
 
         i = 0;
-        while ( (result_row = mysql_fetch_row(fetchAll_req->res->_res)) &&
-                 (i < num_fields) ) {
+        while ((result_row = mysql_fetch_row(fetchAll_req->res->_res))) {
             if (fetchAll_req->results_array) {
               js_result_row = Array::New();
             } else {
