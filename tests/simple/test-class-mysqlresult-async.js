@@ -29,7 +29,7 @@ exports.FetchAll = function (test) {
                    " (random_number, random_boolean) VALUES ('3', '0');") && res;
   test.ok(res, "INSERT");
   
-  res = conn.querySync("SELECT random_number from " + cfg.test_table +
+  res = conn.querySync("SELECT random_number FROM " + cfg.test_table +
                    " WHERE random_boolean='1';");
   
   res.fetchAll(function (err, rows, fields) {
@@ -37,6 +37,7 @@ exports.FetchAll = function (test) {
     
     test.same(rows, [{random_number: 1}, {random_number: 2}], "conn.querySync('SELECT ...').fetchAll()");
     test.same(fields, res.fetchFieldsSync(), "Callback fields argument == res.fetchFieldsSync()");
+    
     res.freeSync();
     conn.closeSync();
     

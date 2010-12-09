@@ -281,3 +281,36 @@ exports.FetchAllSyncWithObjectOptionsConflicted = function (test) {
   test.done();
 };
 
+exports.setOptionSyncQueryFetchAll = function (test) {
+  test.expect(5);
+  
+  var conn = mysql_libmysqlclient.createConnectionSync();
+  
+  conn.initSync();
+  conn.setOptionSync(conn.MYSQL_OPT_RECONNECT, 1);
+  conn.setOptionSync(conn.MYSQL_SET_CHARSET_NAME, "utf8");
+  conn.realConnectSync(cfg.host, cfg.user, cfg.password, cfg.database);
+  test.ok(conn.connectedSync(), "conn.realConnectSync(host, user, password, database)");
+  
+  conn.query("SELECT size, colors FROM " + cfg.test_table + " WHERE size;", function (err, res) {
+    test.ok(err === null, "conn.query() err===null");
+    console.log(err);
+    res.fetchAll(function (err, rows, fields) {
+      test.ok(err === null, "res.fetchAll() err===null");
+      
+      test.same(rows,
+                [{size: 'small', colors: ['red']},
+                 {size: 'medium', colors: ['red', 'green', 'blue']},
+                 {size: 'large', colors: ['green']},
+                 {size: 'large', colors: ['red', 'blue']}],
+                "conn.querySync('SELECT ...').fetchAll()");
+      test.same(fields, res.fetchFieldsSync(), "Callback fields argument == res.fetchFieldsSync()");
+      
+      res.freeSync();
+      conn.closeSync();
+      
+      test.done();
+    });
+  });
+}
+
