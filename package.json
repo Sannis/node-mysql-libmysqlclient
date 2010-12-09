@@ -32,6 +32,9 @@
   , { "name": "Pavel Ponomarenko"
     , "email": "shocksilien@gmail.com"
     }
+  , { "name": "Krists Krīgers"
+    , "email": "kristsk@cdi.lv"
+    }
   ]
 , "bugs" : { "web" : "http://github.com/Sannis/node-mysql-libmysqlclient/issues" }
 , "licenses" : [ { "type" : "MIT" } ]

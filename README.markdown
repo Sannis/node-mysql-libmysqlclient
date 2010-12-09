@@ -147,6 +147,11 @@ Contributors
   Add URL shortener example script.  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=theshock).
 
+* **Krists Krīgers** ( [E-mail](mailto:kristsk@cdi.lv), [GitHub](https://github.com/kristsk) \)
+
+  Fix bug with res.fetchAll(), discussed at the end of #71.  
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=kristsk).
+
 
 [Full contributors list](https://github.com/Sannis/node-mysql-libmysqlclient/contributors).
 
