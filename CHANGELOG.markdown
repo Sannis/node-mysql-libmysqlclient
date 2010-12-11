@@ -1,3 +1,13 @@
+## Version 1.1.1
+  * Fixes:
+    * Fix mysql_options() recall after mysql_real_connect(), closes #71 part 1
+    * Fix logic error in res.fetchAll(), closes #71 past 2
+  * Improvements:
+    * Add --warn flag to node-waf, enables extra compiler warnings, do some fixes
+    * Some more lint, JSLint updated
+
+Special thanks to Krists Krīgers
+
 ## Version 1.1.0
   * Fixes:
     * Don't ignore connect arguments after any null, closes #63

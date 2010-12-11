@@ -11,7 +11,7 @@ from os.path import exists
 
 srcdir = "."
 blddir = "build"
-VERSION = "1.1.0"
+VERSION = "1.1.1"
 
 def set_options(opt):
   opt.tool_options("compiler_cxx")

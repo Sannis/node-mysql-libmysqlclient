@@ -118,6 +118,12 @@ Contributors
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=akzhan).
 
 
+* **Pavel Ponomarenko** ( [E-mail](mailto:shocksilien@gmail.com), [GitHub](https://github.com/theshock) \)
+
+  Add URL shortener example script. Make good suggestions to improve the functional.  
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=theshock).
+
+
 * **Robin Duckett** ( [E-mail](mailto:robin.duckett@gmail.com), [GitHub](https://github.com/robinduckett) \)
 
   Fix segfault error, partialy closes [#14](https://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find).  
@@ -138,18 +144,13 @@ Contributors
 
 * **Benjmain Reesman** ( [E-mail](mailto:ben.reesman@gmail.com), [GitHub](https://github.com/benreesman) \)
 
-  Fix [bug](https://github.com/Sannis/node-mysql-libmysqlclient/commit/46dc9ccf266b39d67ed9e6796a178278ccc153a2) with building with libmysqlclient at specific location.  
+  Fix [bug](https://github.com/Sannis/node-mysql-libmysqlclient/issues/50/find) with building with libmysqlclient at specific location.  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=benreesman).
 
 
-* **Pavel Ponomarenko** ( [E-mail](mailto:shocksilien@gmail.com), [GitHub](https://github.com/theshock) \)
-
-  Add URL shortener example script.  
-  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=theshock).
-
 * **Krists Krīgers** ( [E-mail](mailto:kristsk@cdi.lv), [GitHub](https://github.com/kristsk) \)
 
-  Fix bug with res.fetchAll(), discussed at the end of #71.  
+  Fix bug with res.fetchAll(), discussed at the end of [#71](https://github.com/Sannis/node-mysql-libmysqlclient/issues/71/find).  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=kristsk).
 
 
