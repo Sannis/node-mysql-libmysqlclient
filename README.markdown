@@ -15,8 +15,8 @@ Extra information available in [wiki].
 Dependencies
 ------------
 
-This module tested with Node version v0.2.5 (@v1.1.0).
-Also it pass all tests on 0.3.0 (@v1.0.3-11-ge4b5d00).
+This module tested with Node version v0.2.6 (@v1.1.1-2-g7014034).
+Also it pass all tests on 0.3.4 (@v1.1.1-2-g7014034).
 
 To build it you must install libmysqlclient library and development files for it.
 Node-waf use mysql_config to determine the paths to the library and header files.
