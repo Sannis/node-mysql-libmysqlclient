@@ -13,6 +13,9 @@
 #include <v8.h>
 #include <node.h>
 #include <node_events.h>
+#include <node_buffer.h>
+
+#include <cstring>
 
 #include "./mysql_bindings.h"
 
@@ -48,7 +51,7 @@ class MysqlResult : public node::EventEmitter {
                                     Local<Object> &js_field_obj,
                                     MYSQL_FIELD *field);
 
-    static Local<Value> GetFieldValue(MYSQL_FIELD field, char* field_value);
+    static Local<Value> GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length);
 
     void Free();
 

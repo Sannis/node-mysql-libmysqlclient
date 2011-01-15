@@ -88,7 +88,7 @@ void MysqlResult::AddFieldProperties(
                       Integer::NewFromUnsigned(field->decimals));
 }
 
-Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value) {
+Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length) {
     HandleScope scope;
 
     Local<Value> js_field = Local<Value>::New(Null());
@@ -197,6 +197,15 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value) {
         case MYSQL_TYPE_MEDIUM_BLOB:
         case MYSQL_TYPE_LONG_BLOB:
         case MYSQL_TYPE_BLOB:
+            if(field.flags & BINARY_FLAG) {
+                //printf("field %s is binary, length %lu\n", field.name, field_length);
+                node::Buffer *zzz = node::Buffer::New(field_length);
+                char *buff_data = zzz->data();
+                memcpy(buff_data, field_value, field_length);
+                js_field = node::Encode((void *)buff_data, field_length, node::BINARY);
+                break;
+            }
+        
         case MYSQL_TYPE_VAR_STRING:
         case MYSQL_TYPE_VARCHAR:
             if (field_value) {
@@ -352,6 +361,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
         MYSQL_FIELD *fields = fetchAll_req->fields;
         uint32_t num_fields = fetchAll_req->num_fields;
         MYSQL_ROW result_row;
+        unsigned long *field_lengths;
         uint32_t i = 0, j = 0;
 
         // Get rows
@@ -361,6 +371,8 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
 
         i = 0;
         while ((result_row = mysql_fetch_row(fetchAll_req->res->_res))) {
+            field_lengths = mysql_fetch_lengths(fetchAll_req->res->_res);
+
             if (fetchAll_req->results_array) {
               js_result_row = Array::New();
             } else {
@@ -368,7 +380,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
             }
 
             for (j = 0; j < num_fields; j++) {
-                js_field = GetFieldValue(fields[j], result_row[j]);
+                js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
                 if (fetchAll_req->results_array) {
                     js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
                 } else {
@@ -556,6 +568,7 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
     uint32_t num_fields = mysql_num_fields(res->_res);
     MYSQL_ROW result_row;
+    unsigned long *field_lengths;
     uint32_t i = 0, j = 0;
 
     Local<Array> js_result = Array::New();
@@ -564,6 +577,8 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 
     i = 0;
     while ( (result_row = mysql_fetch_row(res->_res)) ) {
+        field_lengths = mysql_fetch_lengths(res->_res);
+
         if (results_array) {
             js_result_row = Array::New();
         } else {
@@ -571,7 +586,7 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
         }
 
         for (j = 0; j < num_fields; j++) {
-            js_field = GetFieldValue(fields[j], result_row[j]);
+            js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
             if (results_array) {
                 js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
             } else {
@@ -621,10 +636,12 @@ Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
         return scope.Close(False());
     }
 
+    unsigned long *field_lengths = mysql_fetch_lengths(res->_res);
+
     js_result_row = Array::New();
 
     for ( j = 0; j < num_fields; j++ ) {
-        js_field = GetFieldValue(fields[j], result_row[j]);
+        js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
 
         js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
     }
@@ -778,10 +795,12 @@ Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
         return scope.Close(False());
     }
 
+    unsigned long *field_lengths = mysql_fetch_lengths(res->_res);
+
     js_result_row = Object::New();
 
     for ( j = 0; j < num_fields; j++ ) {
-        js_field = GetFieldValue(fields[j], result_row[j]);
+        js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
 
         js_result_row->Set(V8STR(fields[j].name), js_field);
     }
