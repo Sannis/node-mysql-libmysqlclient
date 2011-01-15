@@ -22,7 +22,7 @@ exports.createTestTableComplex2BinaryBlobs = function (test) {
   
   conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table2 + ";");
   conn.querySync("CREATE TABLE " + cfg.test_table2 +
-    " (vb VARBINARY(16), b BINARY, t TEXT) " + cfg.store_engine + ";");
+    " (vc VARCHAR(8), vbi VARBINARY(8), bi BINARY(8), t TEXT, b BLOB) " + cfg.store_engine + ";");
   res = conn.querySync("SHOW TABLES");
   tables = res.fetchAllSync();
   
@@ -32,16 +32,41 @@ exports.createTestTableComplex2BinaryBlobs = function (test) {
   }), "Find the test_table2 in results");
   
   res = conn.querySync("INSERT INTO " + cfg.test_table2 +
-                   " (vb, b, t) VALUES ('qwerty', 'qwerty', 'qwerty');");
+                   " (vc, vbi, bi, t, b) VALUES ('qwerty', 'qwerty', 'qwerty', 'qwerty', 'qwerty');");
   res = conn.querySync("INSERT INTO " + cfg.test_table2 +
-                   " (vb, b, t) VALUES ('qwe', 'qwe', 'qwe');") && res;
+                   " (vc, vbi, bi, t, b) VALUES ('qwe\\0\\0', 'qwe\\0\\0', 'qwe\\0\\0', 'qwe\\0\\0', 'qwe\\0\\0');") && res;
   res = conn.querySync("INSERT INTO " + cfg.test_table2 +
-                   " (vb, b, t) VALUES ('qwe\\0', 'qwe\\0', 'qwe\\0');") && res;
+                   " (vc, vbi, bi, t) VALUES ('12\\0\\0', '12\\0\\0', '12\\0\\0', '12\\0\\0');") && res;
   res = conn.querySync("INSERT INTO " + cfg.test_table2 +
-                   " (vb, b, t) VALUES ('qwe\\0\\0', 'qwe\\0\\0', 'qwe\\0\\0');") && res;
+                   " (vc, vbi, bi, b) VALUES ('34\\0\\0', '34\\0\\0', '34\\0\\0', '34\\0\\0');") && res;
   test.ok(res, "conn.querySync('INSERT INTO test_table2 ...')");
   
   conn.closeSync();
   test.done();
 };
 
+exports.FetchAllSyncWithBinaryFields = function (test) {
+  test.expect(3);
+  
+  var
+    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res,
+    rows;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  res = conn.querySync("SELECT vc, vbi, bi, t, b FROM " + cfg.test_table2 + ";");
+  test.ok(res, "SELECT");
+  
+  rows = res.fetchAllSync(true);
+  test.same(rows,
+            [ [ 'qwerty',          new Buffer('qwerty'),  new Buffer('qwerty\0\0'),     'qwerty',          new Buffer('qwerty') ],
+              [ 'qwe\u0000\u0000', new Buffer('qwe\0\0'), new Buffer('qwe\0\0\0\0\0'),  'qwe\u0000\u0000', new Buffer('qwe\0\0') ],
+              [ '12\u0000\u0000',  new Buffer('12\0\0'),  new Buffer('12\0\0\0\0\0\0'), '12\u0000\u0000',  null ],
+              [ '34\u0000\u0000',  new Buffer('34\0\0'),  new Buffer('34\0\0\0\0\0\0'), null,              new Buffer('34\0\0') ] ],
+    "conn.querySync('SELECT ...').fetchAllSync(true)"
+  );
+  res.freeSync();
+  
+  conn.closeSync();
+  test.done();
+};

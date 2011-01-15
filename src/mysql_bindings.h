@@ -27,6 +27,7 @@ NODE_SET_PROTOTYPE_METHOD(constructor_template, #name, method);
 #define THRTYPEEXC(str) ThrowException(Exception::TypeError(String::New(str)))
 #define OBJUNWRAP ObjectWrap::Unwrap
 #define V8STR(str) String::New(str)
+#define V8STR2(str, len) String::New(str, len)
 
 #define REQ_INT_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsInt32()) \

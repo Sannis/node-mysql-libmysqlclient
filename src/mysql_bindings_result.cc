@@ -197,19 +197,17 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
         case MYSQL_TYPE_MEDIUM_BLOB:
         case MYSQL_TYPE_LONG_BLOB:
         case MYSQL_TYPE_BLOB:
-            if(field.flags & BINARY_FLAG) {
-                //printf("field %s is binary, length %lu\n", field.name, field_length);
-                node::Buffer *zzz = node::Buffer::New(field_length);
-                char *buff_data = zzz->data();
-                memcpy(buff_data, field_value, field_length);
-                js_field = node::Encode((void *)buff_data, field_length, node::BINARY);
-                break;
-            }
-        
+        case MYSQL_TYPE_STRING:
         case MYSQL_TYPE_VAR_STRING:
-        case MYSQL_TYPE_VARCHAR:
-            if (field_value) {
-                js_field = V8STR(field_value);
+            if(field_value) {
+                if(field.flags & BINARY_FLAG) {
+                    //printf("field %s is binary, length %lu\n", field.name, field_length);
+                    node::Buffer *bp = node::Buffer::New(field_length);
+                    memcpy(bp->data(), field_value, field_length);
+                    js_field = Local<Value>::New(bp->handle_);
+                } else {
+                    js_field = V8STR2(field_value, field_length);
+                }
             }
             break;
         case MYSQL_TYPE_SET:  // SET field
