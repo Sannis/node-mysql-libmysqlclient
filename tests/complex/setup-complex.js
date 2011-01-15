@@ -24,7 +24,7 @@ exports.createTestTableComplex = function (test) {
   conn.querySync("CREATE TABLE " + cfg.test_table +
     " (size ENUM('small', 'medium', 'large') NULL," +
     "  colors SET('red', 'green', 'blue') NULL," + 
-    "  num INT(8) NOT NULL DEFAULT 0) TYPE=MEMORY;");
+    "  num INT(8) NOT NULL DEFAULT 0) " + cfg.store_engine + ";");
   res = conn.querySync("SHOW TABLES");
   tables = res.fetchAllSync();
   
@@ -46,7 +46,7 @@ exports.createTestTableComplex = function (test) {
   conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table2 + ";");
   conn.querySync("CREATE TABLE " + cfg.test_table2 +
     " (size ENUM('small', 'medium', 'large')," +
-    "  colors VARCHAR(32)) TYPE=MEMORY;");
+    "  colors VARCHAR(32)) " + cfg.store_engine + ";");
   res = conn.querySync("SHOW TABLES");
   tables = res.fetchAllSync();
   

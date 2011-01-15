@@ -294,7 +294,6 @@ exports.setOptionSyncQueryFetchAll = function (test) {
   
   conn.query("SELECT size, colors FROM " + cfg.test_table + " WHERE size;", function (err, res) {
     test.ok(err === null, "conn.query() err===null");
-    console.log(err);
     res.fetchAll(function (err, rows, fields) {
       test.ok(err === null, "res.fetchAll() err===null");
       
