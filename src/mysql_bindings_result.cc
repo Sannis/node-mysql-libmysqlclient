@@ -435,13 +435,16 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
 
     TryCatch try_catch;
 
-    fetchAll_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
+    if (fetchAll_req->callback->IsFunction()) {
+        fetchAll_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
 
-    if (try_catch.HasCaught()) {
-        node::FatalException(try_catch);
+        if (try_catch.HasCaught()) {
+            node::FatalException(try_catch);
+        }
+
+        fetchAll_req->callback.Dispose();
     }
 
-    fetchAll_req->callback.Dispose();
     fetchAll_req->res->Unref();
 
     // Why segfault if fried?
