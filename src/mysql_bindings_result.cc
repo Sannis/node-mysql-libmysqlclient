@@ -447,8 +447,11 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
 
     fetchAll_req->res->Unref();
 
-    // Why segfault if fried?
-    // free(fetchAll_req->fields);
+    // free the result object after callback
+    // all of the rows have been gotten at this point
+    fetchAll_req->res->Free();
+
+    // free eio state object
     free(fetchAll_req);
 
     return 0;

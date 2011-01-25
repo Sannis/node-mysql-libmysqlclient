@@ -1032,8 +1032,9 @@ Handle<Value> MysqlConnection::PingSync(const Arguments& args) {
  */
 #ifndef MYSQL_NON_THREADSAFE
 int MysqlConnection::EIO_After_Query(eio_req *req) {
-    ev_unref(EV_DEFAULT_UC);
     HandleScope scope;
+
+    ev_unref(EV_DEFAULT_UC);
     struct query_request *query_req = (struct query_request *)(req->data);
 
     int argc = 1;
@@ -1055,14 +1056,14 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
             Persistent<Object> js_result(MysqlResult::constructor_template->
                                      GetFunction()->NewInstance(3, argv));
 
-            argv[1] = Local<Value>::New(scope.Close(js_result));
+            argv[1] = Local<Object>::New(js_result);
         } else {
             Local<Object> js_result = Object::New();
             js_result->Set(V8STR("affectedRows"),
                            Integer::New(query_req->affected_rows));
             js_result->Set(V8STR("insertId"),
                            Integer::New(query_req->insert_id));
-            argv[1] = Local<Object>::New(scope.Close(js_result));
+            argv[1] = Local<Object>::New(js_result);
         }
         argc = 2;
         argv[0] = Local<Value>::New(Null());
