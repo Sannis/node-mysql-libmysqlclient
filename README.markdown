@@ -130,6 +130,13 @@ Contributors
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=robinduckett).
 
 
+* **Roman Shtylman** ( [E-mail](mailto:shtylman@gmail.com), [GitHub](https://github.com/shtylman) \)
+
+  Free result object after fetchAll() callback, closes [#60](https://github.com/Sannis/node-mysql-libmysqlclient/issues/60/find).  
+  Link libev for 'ev_default_loop_ptr' symbol.  
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=shtylman).
+
+
 * **Dan Beam** ( [E-mail](mailto:dan@danbeam.org), [GitHub](https://github.com/danbeam), [site](http://danbeam.org) \)
 
   [Simplify javascript logic](https://github.com/Sannis/node-mysql-libmysqlclient/commit/97040c3e7a5d4673ca6f340d8a9bc69da8e398d8) of createConnection().  

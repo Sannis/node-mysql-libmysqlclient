@@ -1,3 +1,15 @@
+## Version 1.2.0
+  * Improvements:
+    * Use Buffer(v0.2.x)/FastBuffer(v0.3.x) instead of V8 strings to encode binary data, closes #30
+    * Free result object after res.fetchAll() callback, closes #60
+    * Link libev for 'ev_default_loop_ptr' symbol
+  * Tests improvements:
+    * Some refactor of complex tests tables creation
+    * Change table type from memory to myisam in tests (for binary fields)
+
+Special thanks to Roman Shtylman
+Thanks for Krists Krīgers first buffers implementation, 6826022fb8a34f48d0c4e51a6cd1af487293e89d
+
 ## Version 1.1.1
   * Fixes:
     * Fix mysql_options() recall after mysql_real_connect(), closes #71 part 1

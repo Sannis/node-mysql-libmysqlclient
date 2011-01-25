@@ -1,7 +1,7 @@
 { "name" : "mysql-libmysqlclient"
 , "description" : "Binary MySQL bindings for Node.JS"
 , "homepage" : "http://sannis.github.com/node-mysql-libmysqlclient"
-, "version" : "1.1.1"
+, "version" : "1.2.0"
 , "maintainers" :
   [ { "name": "Oleg Efimov"
     , "email": "efimovov@gmail.com"
@@ -34,6 +34,9 @@
     }
   , { "name": "Krists Krīgers"
     , "email": "kristsk@cdi.lv"
+    }
+  , { "name": "Roman Shtylman"
+    , "email": "shtylman@gmail.com"
     }
   ]
 , "bugs" : { "web" : "http://github.com/Sannis/node-mysql-libmysqlclient/issues" }
