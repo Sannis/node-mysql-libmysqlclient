@@ -88,7 +88,9 @@ conn.query("SELECT * FROM " + test_table + ";", function (err, res) {
     sys.puts("Rows in table '" + database + "." + test_table + "':");
     sys.puts(sys.inspect(rows));
     
-    res.freeSync();
+    // This isn't necessary since v1.2.0
+    // See https://github.com/Sannis/node-mysql-libmysqlclient/issues#issue/60
+    //res.freeSync();
   });
 });
 

@@ -138,6 +138,17 @@ pre.shell code .prompt-root { color: #912121; }
             </tr>
             <tr>
                 <td>
+<h2>Version 1.2.0</h2>
+                </td>
+                <td>
+<ul><li>Improvements:<ul><li>Use Buffer(v0.2.x)/FastBuffer(v0.3.x) instead of V8 strings to encode binary data, closes #30</li><li>Free result object after res.fetchAll() callback, closes #60</li><li>Link libev for 'ev<em>default</em>loop_ptr' symbol</li></ul></li><li>Tests improvements:<ul><li>Some refactor of complex tests tables creation</li><li>Change table type from memory to myisam in tests (for binary fields)</li></ul></li></ul>
+
+<p>Special thanks to Roman Shtylman
+Thanks for Krists Krīgers first buffers implementation, 6826022fb8a34f48d0c4e51a6cd1af487293e89d</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
 <h2>Version 1.1.1</h2>
                 </td>
                 <td>
