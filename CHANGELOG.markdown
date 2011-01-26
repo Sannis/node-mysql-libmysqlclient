@@ -25,7 +25,7 @@ Special thanks to Krists Krīgers
     * Don't ignore connect arguments after any null, closes #63
     * Reset connect_error in MysqlConnection::Close()
     * Fix bug with MYSQL_OPT_RECONNECT reset in MySQL < 5.1.6, closes #66
-    * Add MYSQLCONN_MUSTBE_INITIALIZED macro and change error reporting
+    * Add MYSQLCONN_MUSTBE_INITIALIZED macro and change error reporting  
       in ConnectSync() and RealConnectSync() to avoid coding errors like in #67
     * Make error reporting for conn.connect() and conn.query() more verbose, closes #68
     * Add error handling for res.fetchAll(), closes #69
@@ -51,7 +51,7 @@ Special thanks to Krists Krīgers
     * Split client-realted stuff from conn.getInfoSync() to conn.getClientInfoSync()
   * Update tools/nodeunit from d4949a4 to 200e5a7
 
-Special thanks to Pavel Ponomarenko and Surendra Singhi
+Special thanks to Pavel Ponomarenko and Surendra Singhi  
 Thanks to Michael Pearson, who pointed out the problem with stored procedures
 
 ## Version 1.0.3
