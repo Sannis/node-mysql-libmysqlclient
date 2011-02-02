@@ -133,7 +133,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
               int h1 = 0, h2 = 0, m1 = 0, m2 = 0;
               sscanf(field_value, "%d-%d-%d %d:%d:%d",
                                   &year, &month, &day, &hour, &min, &sec);
-              time_t rawtime, gmt_delta;
+              time_t rawtime;
               struct tm timeinfo;
               time(&rawtime);
               if (!localtime_r(&rawtime, &timeinfo)) {
@@ -148,7 +148,13 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
               }
               h2 = timeinfo.tm_hour;
               m2 = timeinfo.tm_min;
-              gmt_delta = (((h1 - h2)%24)*60 + (m1-m2))*60;
+              int gmt_delta = ((h1 - h2)*60 + (m1-m2))*60;
+              if (gmt_delta <= -12*60*60) {
+                  gmt_delta += 24*60*60;
+              }
+              if (gmt_delta > 12*60*60) {
+                  gmt_delta -= 24*60*60;
+              }
               timeinfo.tm_year = year - 1900;
               timeinfo.tm_mon = month - 1;
               timeinfo.tm_mday = day;
@@ -166,7 +172,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
               int year = 0, month = 0, day = 0;
               int h1 = 0, h2 = 0, m1 = 0, m2 = 0;
               sscanf(field_value, "%d-%d-%d", &year, &month, &day);
-              time_t rawtime, gmt_delta;
+              time_t rawtime;
               struct tm timeinfo;
               time(&rawtime);
               if (!localtime_r(&rawtime, &timeinfo)) {
@@ -181,7 +187,13 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
               }
               h2 = timeinfo.tm_hour;
               m2 = timeinfo.tm_min;
-              gmt_delta = (((h1 - h2)%24)*60 + (m1-m2))*60;
+              int gmt_delta = ((h1 - h2)*60 + (m1-m2))*60;
+              if (gmt_delta <= -12*60*60) {
+                  gmt_delta += 24*60*60;
+              }
+              if (gmt_delta > 12*60*60) {
+                  gmt_delta -= 24*60*60;
+              }
               timeinfo.tm_year = year - 1900;
               timeinfo.tm_mon = month - 1;
               timeinfo.tm_mday = day;
