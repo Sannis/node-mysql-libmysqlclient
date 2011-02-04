@@ -1,3 +1,6 @@
+Changelog (revision history) for node-mysql-libmysqlclient,
+the full MySQL bindings for Node.js using libmysqlclient.
+
 ## Version 1.2.0
   * Improvements:
     * Use Buffer(v0.2.x)/FastBuffer(v0.3.x) instead of V8 strings to encode binary data, closes #30
