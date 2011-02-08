@@ -26,8 +26,6 @@ def configure(conf):
   conf.check_tool("compiler_cxx")
   conf.check_tool("node_addon")
   
-  # Node.js and debug flags
-  conf.env.append_unique('CPPFLAGS', ["-D_FILE_OFFSET_BITS=64","-D_LARGEFILE_SOURCE"])
   # Enables all the warnings that are easy to avoid
   conf.env.append_unique('CXXFLAGS', ["-Wall"])
   if Options.options.warn:
