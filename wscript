@@ -56,6 +56,8 @@ def build(bld):
   obj.uselib = "MYSQLCLIENT"
 
 def test(tst):
+  minimal_tests = ' tests/simple tests/complex tests/regression'
+  
   nodeunit_binary = 'nodeunit'
   if Options.options.debug:
     nodeunit_binary = 'nodeunit_g'
@@ -70,9 +72,9 @@ def test(tst):
         Utils.exec_command(nodeunit_binary + ' tests/ignored')
       else:
         if Options.options.all:
-          Utils.exec_command(nodeunit_binary + ' tests/simple tests/complex tests/slow')
+          Utils.exec_command(nodeunit_binary + minimal_tests + ' tests/slow')
         else:
-          Utils.exec_command(nodeunit_binary + ' tests/simple tests/complex')
+          Utils.exec_command(nodeunit_binary + minimal_tests)
 
 def lint(lnt):
   # Bindings C++ source code
