@@ -49,8 +49,8 @@ process.on('exit', function () {
 conn.querySync("DROP TABLE IF EXISTS " + test_table + ";");
 conn.querySync("CREATE TABLE " + test_table +
   " (id INT(8) NOT NULL AUTO_INCREMENT, " +
-  "time INT(8) NOT NULL, " +
-  "PRIMARY KEY(id)) TYPE=MyISAM;");
+  "time BIGINT(13) NOT NULL, " +
+  "PRIMARY KEY(id));");
 
 /**
  * Create HTTP server
