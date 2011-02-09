@@ -6,11 +6,7 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../config").cfg;
-
-// Require modules
-var
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient");
+var cfg = require('../config');
 
 /**
  * Reference:
@@ -21,7 +17,7 @@ exports.CallStoredProcedureSync = function (test) {
   test.expect(12);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(),
     res,
     max_num,
     max_num_proc,

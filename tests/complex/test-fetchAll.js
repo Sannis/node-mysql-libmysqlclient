@@ -6,17 +6,13 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../config").cfg;
-
-// Require modules
-var
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient");
+var cfg = require('../config');
 
 exports.createTestTableComplex2 = function (test) {
   test.expect(3);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     tables;
   
@@ -50,7 +46,7 @@ exports.FetchAllWithBooleanOption = function (test) {
   test.expect(9);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
@@ -82,7 +78,7 @@ exports.FetchAllSyncWithBooleanOption = function (test) {
   test.expect(7);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     rows;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
@@ -111,7 +107,7 @@ exports.FetchAllWithObjectArrayOption = function (test) {
   test.expect(9);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
@@ -143,7 +139,7 @@ exports.FetchAllSyncWithObjectArrayOption = function (test) {
   test.expect(7);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     rows;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
@@ -172,7 +168,7 @@ exports.FetchAllWithObjectStructuredOption = function (test) {
   test.expect(9);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
@@ -223,7 +219,7 @@ exports.FetchAllSyncWithObjectStructuredOption = function (test) {
   test.expect(7);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     rows;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
@@ -271,7 +267,7 @@ exports.FetchAllWithObjectOptionsConflicted = function (test) {
   test.expect(3);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     rows;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
@@ -295,7 +291,7 @@ exports.FetchAllSyncWithObjectOptionsConflicted = function (test) {
   test.expect(3);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     rows;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
@@ -318,7 +314,7 @@ exports.FetchAllSyncWithObjectOptionsConflicted = function (test) {
 exports.setOptionSyncQueryFetchAll = function (test) {
   test.expect(5);
   
-  var conn = mysql_libmysqlclient.createConnectionSync();
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync();
   
   conn.initSync();
   conn.setOptionSync(conn.MYSQL_OPT_RECONNECT, 1);

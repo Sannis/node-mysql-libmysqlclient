@@ -6,17 +6,13 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../config").cfg;
-
-// Require modules
-var
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient");
+var cfg = require("../config");
 
 exports.createTestTableComplex1 = function (test) {
   test.expect(3);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     tables;
   

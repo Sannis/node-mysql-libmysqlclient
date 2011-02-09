@@ -6,17 +6,12 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../config").cfg;
-
-// Require modules
-var
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient"),
-  mysql_bindings = require("../../mysql_bindings");
+var cfg = require('../config');
 
 exports.Connect = function (test) {
   test.expect(1);
   
-  var conn = new mysql_bindings.MysqlConnection();
+  var conn = new cfg.mysql_bindings.MysqlConnection();
   
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
     test.ok(error === null, "conn.connect() for allowed database");
@@ -29,7 +24,7 @@ exports.Connect = function (test) {
 exports.ConnectWithError = function (test) {
   test.expect(3);
   
-  var conn = new mysql_bindings.MysqlConnection();
+  var conn = new cfg.mysql_bindings.MysqlConnection();
   
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (err) {
     var
@@ -49,7 +44,7 @@ exports.Query = function (test) {
   test.expect(3);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
@@ -69,7 +64,7 @@ exports.QueryWithLastInsertIdAndAffectedRows = function (test) {
   test.expect(9);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
@@ -113,7 +108,7 @@ exports.QueryWithError = function (test) {
   test.expect(6);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
@@ -140,7 +135,7 @@ exports.QueryWithoutCallback = function (test) {
   test.expect(6);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");

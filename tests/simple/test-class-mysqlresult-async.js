@@ -6,18 +6,15 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../config").cfg;
-
-// Require modules
-var
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient"),
-  mysql_bindings = require("../../mysql_bindings");
+var cfg = require('../config');
 
 exports.FetchAll = function (test) {
   test.expect(5);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
+  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");

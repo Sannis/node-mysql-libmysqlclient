@@ -11,7 +11,11 @@ CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 GRANT ALL ON test.* TO test@localhost IDENTIFIED BY "";
 */
 
-exports.cfg = {
+module.exports = {
+  // Required modules
+  mysql_libmysqlclient: require("../mysql-libmysqlclient"),
+  mysql_bindings: require("../mysql_bindings"),
+  
   // Database connection settings
   host: "localhost",
   user: "test",

@@ -6,17 +6,13 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../config").cfg;
-
-// Require modules
-var
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient");
+var cfg = require('../config');
 
 exports.FetchesNested = function (test) {
   test.expect(5);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     t1, t2, t3,
     test_order = "";
   
@@ -75,7 +71,7 @@ exports.ManyFetchesNested = function (test) {
   test.expect(1);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     helper,
     initial_result,
     test_result,
@@ -113,7 +109,7 @@ exports.ManyFetchesInLoop = function (test) {
   test.expect(1);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     initial_result,
     test_result,
     i = 0, ci = 0;

@@ -6,11 +6,7 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../config").cfg;
-
-// Require modules
-var
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient");
+var cfg = require('../config');
 
 /**
  * @url: https://github.com/Sannis/node-mysql-libmysqlclient/issues#issue/72
@@ -21,7 +17,7 @@ exports['gh-72'] = function (test) {
   test.expect(6);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     rows;
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");

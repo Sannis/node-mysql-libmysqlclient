@@ -6,12 +6,7 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../config").cfg;
-
-// Require modules
-var
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient"),
-  mysql_bindings = require("../../mysql_bindings");
+var cfg = require('../config');
 
 /*
 Complex test for methods:
@@ -23,7 +18,8 @@ res.fetchFields();
 var testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFieldsSync = function (test) {
   test.expect(9);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     row,
     field1,
@@ -68,7 +64,7 @@ exports.New = function (test) {
   test.expect(1);
   
   test.throws(function () {
-    var res = new mysql_bindings.MysqlResult();
+    var res = new cfg.mysql_bindings.MysqlResult();
   }, TypeError, "new mysql_bindings.MysqlResult() should throw exception from JS code");
   
   test.done();
@@ -77,7 +73,7 @@ exports.New = function (test) {
 exports.DataSeekSync = function (test) {
   test.expect(6);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     row;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
@@ -111,7 +107,7 @@ exports.DataSeekSync = function (test) {
 exports.FetchAllSync = function (test) {
   test.expect(7);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     tables,
     rows;
@@ -152,7 +148,7 @@ exports.FetchAllSync = function (test) {
 exports.FetchArraySync = function (test) {
   test.expect(5);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     row;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
@@ -194,7 +190,7 @@ exports.FetchFieldsSync = function (test) {
 exports.FetchLengthsSync = function (test) {
   test.expect(7);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     row,
     lengths;
@@ -231,7 +227,7 @@ exports.FetchLengthsSync = function (test) {
 exports.FetchObjectSync = function (test) {
   test.expect(5);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     row;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
@@ -261,7 +257,7 @@ exports.FetchObjectSync = function (test) {
 exports.FieldCountGetter = function (test) {
   test.expect(5);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     row,
     field_count;
@@ -297,7 +293,7 @@ exports.FieldTellSync = function (test) {
 exports.FreeSync = function (test) {
   test.expect(6);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     rows;
   
@@ -333,7 +329,7 @@ exports.FreeSync = function (test) {
 exports.NumRowsSync = function (test) {
   test.expect(9);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     rows;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");

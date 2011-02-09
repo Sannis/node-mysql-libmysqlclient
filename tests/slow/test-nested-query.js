@@ -6,16 +6,12 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../config").cfg;
-
-// Require modules
-var
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient");
+var cfg = require('../config');
 
 exports.Setup = function (test) {
   test.expect(0);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
   
   conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
   conn.querySync("CREATE TABLE " + cfg.test_table +
@@ -30,7 +26,7 @@ exports.QueriesNested = function (test) {
   test.expect(2);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     test_result,
     test_order = "";
   
@@ -77,7 +73,7 @@ exports.ManyQueriesNested = function (test) {
   test.expect(1);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     helper,
     test_result,
     i = 0;
@@ -108,7 +104,7 @@ exports.ManyQueriesInLoop = function (test) {
   test.expect(1);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     test_result,
     i = 0, ci = 0;
   

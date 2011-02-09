@@ -6,16 +6,12 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../config").cfg;
-
-// Require modules
-var
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient");
+var cfg = require("../config");
 
 exports.ConnectSync_WithoutDb = function (test) {
   test.expect(1);
   
-  var conn = mysql_libmysqlclient.createConnectionSync();
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync();
   test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password), "conn.connect() without database selection");
   conn.closeSync();
   
@@ -25,7 +21,7 @@ exports.ConnectSync_WithoutDb = function (test) {
 exports.ConnectSync_ManyTimes = function (test) {
   test.expect(1);
   
-  var conn = mysql_libmysqlclient.createConnectionSync(), i;
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(), i;
   for (i = 1; i <= cfg.reconnect_count; i += 1) {
     conn.connectSync(cfg.host, cfg.user, cfg.password);
     conn.closeSync();
@@ -39,7 +35,7 @@ exports.ConnectSync_ManyTimes = function (test) {
 exports.ConnectSync_AllowedDb = function (test) {
   test.expect(1);
   
-  var conn = mysql_libmysqlclient.createConnectionSync();
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync();
   test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database), "conn.connect() for allowed database");
   conn.closeSync();
   
@@ -49,7 +45,7 @@ exports.ConnectSync_AllowedDb = function (test) {
 exports.ConnectSync_DeniedDb = function (test) {
   test.expect(1);
   
-  var conn = mysql_libmysqlclient.createConnectionSync();
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync();
   test.ok(!conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database_denied), "conn.connect() for denied database");
   
   test.done();
@@ -58,7 +54,7 @@ exports.ConnectSync_DeniedDb = function (test) {
 exports.ConnectSync_DeniedFollowedByAllowedDb = function (test) {
   test.expect(2);
   
-  var conn = mysql_libmysqlclient.createConnectionSync();
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync();
   test.ok(!conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database_denied), "conn.connect() for denied database");
   test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database), "conn.connect() for allowed database");
   conn.closeSync();

@@ -6,17 +6,13 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../config").cfg;
-
-// Require modules
-var
-  mysql_libmysqlclient = require("../../mysql-libmysqlclient");
+var cfg = require('../config');
 
 exports.ConnectsNested = function (test) {
   test.expect(1);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     test_order = "";
   
   test_order += "s";
@@ -62,7 +58,7 @@ exports.ManyConnectsNested = function (test) {
   test.expect(0);
   
   var
-    conn = mysql_libmysqlclient.createConnectionSync(),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(),
     helper,
     i = 0;
   
@@ -95,7 +91,7 @@ exports.ManyConnectsInLoop = function (test) {
     i = 0, ci = 0;
   
   for (i = 0; i < cfg.slow_connects_inloop; i += 1) {
-    connections[i] = mysql_libmysqlclient.createConnectionSync();
+    connections[i] = cfg.mysql_libmysqlclient.createConnectionSync();
   }
   
   for (i = 0; i < cfg.slow_connects_inloop; i += 1) {
