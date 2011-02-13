@@ -156,11 +156,9 @@ commands = {
 // Main program
 
 try {
-  node_gc = require("./node-gc/gc");
+  node_gc = require("gc");
 } catch (e) {
-  sys.puts("\u001b[31mNode-GC doesn't exists or doesn't builded.\u001b[39m\n" +
-           "You should run:\n$> git submodule update --init\n" +
-           "$> cd ./tools/node-gc\n$> node-waf configure build");
+  sys.puts("\u001b[31mNode-GC doesn't exists or doesn't builded.\u001b[39m\n");
   process.exit(1);
 }
 
