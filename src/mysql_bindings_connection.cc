@@ -425,7 +425,8 @@ int MysqlConnection::EIO_After_Connect(eio_req *req) {
     Local<Value> argv[1];
 
     if (req->result) {
-        unsigned int error_string_length = strlen(conn_req->conn->connect_error) + 25;
+        unsigned int error_string_length =
+                                    strlen(conn_req->conn->connect_error) + 25;
         char* error_string = new char[error_string_length];
         snprintf(error_string, error_string_length, "Connection error #%d: %s",
                conn_req->errno, conn_req->error);
@@ -710,9 +711,9 @@ Handle<Value> MysqlConnection::FieldCountSync(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    return scope.Close(Integer::NewFromUnsigned(
-                           mysql_field_count(conn->_conn)
-                       ));
+    return scope.Close(
+                Integer::NewFromUnsigned(
+                    mysql_field_count(conn->_conn)));
 }
 
 /**
@@ -800,8 +801,7 @@ Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
                    V8STR(mysql_get_server_info(conn->_conn)));
     js_result->Set(V8STR("server_version"),
                    Integer::NewFromUnsigned(
-                       mysql_get_server_version(conn->_conn)
-                   ));
+                       mysql_get_server_version(conn->_conn)));
     js_result->Set(V8STR("host_info"),
                    V8STR(mysql_get_host_info(conn->_conn)));
     js_result->Set(V8STR("proto_info"),

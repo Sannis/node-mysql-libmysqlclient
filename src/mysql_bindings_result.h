@@ -52,7 +52,9 @@ class MysqlResult : public node::EventEmitter {
                                     Local<Object> &js_field_obj,
                                     MYSQL_FIELD *field);
 
-    static Local<Value> GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length);
+    static Local<Value> GetFieldValue(MYSQL_FIELD field,
+                                       char* field_value,
+                                       unsigned long field_length);
 
     void Free();
 

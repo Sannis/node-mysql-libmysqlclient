@@ -66,3 +66,4 @@ exports.FetchAllSyncWithBinaryFields = function (test) {
   conn.closeSync();
   test.done();
 };
+

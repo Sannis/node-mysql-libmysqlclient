@@ -341,5 +341,5 @@ exports.setOptionSyncQueryFetchAll = function (test) {
       test.done();
     });
   });
-}
+};
 

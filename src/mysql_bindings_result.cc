@@ -88,7 +88,9 @@ void MysqlResult::AddFieldProperties(
                       Integer::NewFromUnsigned(field->decimals));
 }
 
-Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length) {
+Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
+                                        char* field_value,
+                                        unsigned long field_length) {
     HandleScope scope;
 
     Local<Value> js_field = Local<Value>::New(Null());
@@ -211,17 +213,20 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
         case MYSQL_TYPE_BLOB:
         case MYSQL_TYPE_STRING:
         case MYSQL_TYPE_VAR_STRING:
-            if(field_value) {
-                if(field.flags & BINARY_FLAG) {
+            if (field_value) {
+                if (field.flags & BINARY_FLAG) {
                     #if NODE_MINOR_VERSION < 3
                     node::Buffer *bp = node::Buffer::New(field_length);
                     memcpy(bp->data(), field_value, field_length);
                     js_field = Local<Value>::New(bp->handle_);
-                    #else // NODE_VERSION
-                    //SlowBuffer
-                    //node::Buffer *bp = node::Buffer::New(field_value, field_length);
-                    js_field = Local<Value>::New(node::Buffer::New(V8STR2(field_value, field_length)));
-                    #endif // NODE_VERSION
+                    #else  // NODE_VERSION
+                    // SlowBuffer
+                    // node::Buffer *bp = node::Buffer::New(field_value,
+                    //                                      field_length);
+                    js_field = Local<Value>::New(
+                                   node::Buffer::New(
+                                       V8STR2(field_value, field_length)));
+                    #endif  // NODE_VERSION
                 } else {
                     js_field = V8STR2(field_value, field_length);
                 }
@@ -395,7 +400,9 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
             }
 
             for (j = 0; j < num_fields; j++) {
-                js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
+                js_field = GetFieldValue(fields[j],
+                                         result_row[j],
+                                         field_lengths[j]);
                 if (fetchAll_req->results_array) {
                     js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
                 } else {
@@ -604,7 +611,9 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
         }
 
         for (j = 0; j < num_fields; j++) {
-            js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
+            js_field = GetFieldValue(fields[j],
+                                     result_row[j],
+                                     field_lengths[j]);
             if (results_array) {
                 js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
             } else {
