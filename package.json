@@ -53,4 +53,8 @@
   , "doc" : "node-waf doc"
   }
 , "engines" : { "node" : ">=0.2.5" }
+, "devDependencies" :
+  { "nodeunit" : "*"
+  , "nodelint" : "*"
+  }
 }
