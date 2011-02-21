@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+        <title>Node-mysql-libmysqlclient examples</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+        <style>body {
+    margin: 0;
+    padding: 0;
+    font: 14px/1.5 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+    color: #252519;
+}
+a {
+    color: #252519;
+}
+a:hover {
+    text-decoration: underline;
+    color: #19469D;
+}
+p {
+    margin: 12px 0;
+}
+h1, h2, h3 {
+    margin: 0;
+    padding: 0;
+}
+ul {
+    padding-left: 20px;
+}
+img {
+    border: 0;
+}
+table#source {
+    width: 100%;
+    border-collapse: collapse;
+}
+table#source td:first-child {
+    padding: 30px;
+    vertical-align: top;
+}
+table#source td:first-child,
+table#source td:first-child pre {
+    width: 450px;
+}
+table#source td:last-child {
+    padding: 30px;
+    border-left: 1px solid #E5E5EE;
+    background: #F5F5FF;
+}
+table#source tr {
+    border-bottom: 1px solid #E5E5EE;
+}
+table#source tr.filename {
+    padding-top: 40px;
+    border-top: 1px solid #E5E5EE;
+}
+table#source tr.filename td:first-child {
+    cursor: pointer;
+    text-transform: capitalize;
+}
+table#source tr.filename td:last-child {
+    font-size: 12px;
+}
+table#source tr.filename h2 {
+    margin: 0;
+    padding: 0;
+    text-decoration: underline;
+}
+table#source tr.code h1,
+table#source tr.code h2,
+table#source tr.code h3 {
+    margin-top: 30px;
+    font-family: "Lucida Grande", "Helvetica Nueue", Arial, sans-serif;
+    font-size: 18px;
+}
+table#source tr.code h2 {
+    font-size: 16px;
+}
+table#source tr.code h3 {
+    font-size: 14px;
+}
+table#source tr.code ul {
+    margin: 15px 0 15px 35px;
+    padding: 0;
+}
+table#source tr.code ul li {
+    margin: 0;
+    padding: 1px 0;
+}
+table#source tr.code ul li p {
+    margin: 0;
+    padding: 0;
+}
+table#source tr.code td:first-child pre {
+    padding: 20px;
+}
+#ribbon {
+    position: fixed;
+    top: 0;
+    right: 0;
+}
+code .string { color: #219161; }
+code .regexp { color: #219161; }
+code .keyword { color: #954121; }
+code .number { color: #19469D; }
+code .comment { color: #bbb; }
+code .this { color: #19469D; }
+pre.shell code .prompt-user { color: #219121; }
+pre.shell code .prompt-root { color: #912121; }
+
+</style>
+        <script>
+            $(function(){
+                if ($('tr.filename').length) {
+                    $('tr.code').hide();
+                    $('tr.filename').toggle(function(){
+                        $(this).nextUntil('.filename').fadeIn();
+                    }, function(){
+                        $(this).nextUntil('.filename').fadeOut();
+                    });
+                }
+            });
+        </script>
+    </head>
+    <body>
+        <a href="http://github.com/Sannis/node-mysql-libmysqlclient"><img alt="Fork me on GitHub" id="ribbon" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+        <table id="source"><tbody>
+            <tr>
+                <td><h1>Node-mysql-libmysqlclient examples</h1>
+<p>MySQL bindings for <a href="http://nodejs.org">Node.js</a> using libmysqlclient.</p>
+
+<p>Check out the <a href="http://github.com/Sannis/node-mysql-libmysqlclient">Github repo</a> for the source and installation guide.</p>
+
+<p>Extra information: <a href="./index.html">Homepage</a>, <a href="./changelog.html">ChangeLog</a>, <a href="./api.html">API</a>, <a href="http://github.com/Sannis/node-mysql-libmysqlclient/wiki">Wiki</a>.</p>
+                </td>
+                <td>
+
+                </td>
+            </tr>
+            <tr class="filename">
+                <td>
+<h2 id="examples">examples</h2>
+                </td>
+                <td>
+./doc/examples.js
+                </td>
+            </tr>
+            <tr class="code">
+                <td>
+<p>Require modules and define variables
+ </p>
+                </td>
+                <td>
+<pre><code><span class="keyword">var</span>
+  <span class="variable">sys</span> = <span class="variable">require</span>(<span class="string">'sys'</span>),
+  <span class="variable">mysql</span> = <span class="variable">require</span>(<span class="string">'../mysql-libmysqlclient'</span>),
+  <span class="variable">conn</span>,
+  <span class="variable">result</span>,
+  <span class="variable">row</span>,
+  <span class="variable">rows</span>;</code></pre>
+                </td>
+            </tr>
+            <tr class="code">
+                <td>
+<p>Set database connection settings
+ </p>
+                </td>
+                <td>
+<pre><code><span class="keyword">var</span>
+  <span class="variable">host</span> = <span class="string">&quot;localhost&quot;</span>,
+  <span class="variable">user</span> = <span class="string">&quot;test&quot;</span>,
+  <span class="variable">password</span> = <span class="string">&quot;&quot;</span>,
+  <span class="variable">database</span> = <span class="string">&quot;test&quot;</span>,
+  <span class="variable">test_table</span> = <span class="string">&quot;test_table&quot;</span>;</code></pre>
+                </td>
+            </tr>
+            <tr class="code">
+                <td>
+<p>Create connection
+ </p>
+                </td>
+                <td>
+<pre><code><span class="variable">conn</span> = <span class="variable">mysql</span>.<span class="variable">createConnectionSync</span>();
+<span class="variable">conn</span>.<span class="variable">connectSync</span>(<span class="variable">host</span>, <span class="variable">user</span>, <span class="variable">password</span>, <span class="variable">database</span>);</code></pre>
+                </td>
+            </tr>
+            <tr class="code">
+                <td>
+<p>Check connection status
+ </p>
+                </td>
+                <td>
+<pre><code><span class="keyword">if</span> (!<span class="variable">conn</span>.<span class="variable">connectedSync</span>()) {
+  <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;Connection error &quot;</span> + <span class="variable">conn</span>.<span class="variable">connectErrno</span> + <span class="string">&quot;: &quot;</span> + <span class="variable">conn</span>.<span class="variable">connectError</span>);
+  <span class="variable">process</span>.<span class="variable">exit</span>(<span class="number integer">1</span>);
+}</code></pre>
+                </td>
+            </tr>
+            <tr class="code">
+                <td>
+<p>Show tables in test database
+Use low-level functions
+ </p>
+                </td>
+                <td>
+<pre><code><span class="variable">conn</span>.<span class="variable">realQuerySync</span>(<span class="string">&quot;SHOW TABLES;&quot;</span>);
+<span class="variable">result</span> = <span class="variable">conn</span>.<span class="variable">storeResultSync</span>();
+
+<span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;Tables in database '&quot;</span> + <span class="variable">database</span> + <span class="string">&quot;':&quot;</span>);
+<span class="keyword">while</span> ((<span class="variable">row</span> = <span class="variable">result</span>.<span class="variable">fetchArraySync</span>())) {
+  <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="variable">row</span>[<span class="number integer">0</span>]);
+}
+<span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;&quot;</span>);
+
+<span class="variable">result</span>.<span class="variable">freeSync</span>();</code></pre>
+                </td>
+            </tr>
+            <tr class="code">
+                <td>
+<p>Show tables in test database
+Use high-level functions
+ </p>
+                </td>
+                <td>
+<pre><code><span class="variable">result</span> = <span class="variable">conn</span>.<span class="variable">querySync</span>(<span class="string">&quot;SHOW TABLES;&quot;</span>);
+<span class="variable">rows</span> = <span class="variable">result</span>.<span class="variable">fetchAllSync</span>();
+
+<span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;Tables in database '&quot;</span> + <span class="variable">database</span> + <span class="string">&quot;':&quot;</span>);
+<span class="variable">sys</span>.<span class="variable">puts</span>(<span class="variable">sys</span>.<span class="variable">inspect</span>(<span class="variable">rows</span>) + <span class="string">&quot;\n&quot;</span>);</code></pre>
+                </td>
+            </tr>
+            <tr class="code">
+                <td>
+<p>Show information about connection
+ </p>
+                </td>
+                <td>
+<pre><code><span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;Information:&quot;</span>);
+<span class="variable">sys</span>.<span class="variable">puts</span>(<span class="variable">sys</span>.<span class="variable">inspect</span>(<span class="variable">conn</span>.<span class="variable">getInfoSync</span>()) + <span class="string">&quot;\n&quot;</span>);</code></pre>
+                </td>
+            </tr>
+            <tr class="code">
+                <td>
+<p>Run asynchronous queries and get results
+ </p>
+                </td>
+                <td>
+<pre><code><span class="variable">conn</span>.<span class="variable">query</span>(<span class="string">&quot;SELECT * FROM &quot;</span> + <span class="variable">test_table</span> + <span class="string">&quot;;&quot;</span>, <span class="keyword">function</span> (<span class="variable">err</span>, <span class="variable">res</span>) {
+  <span class="keyword">if</span> (<span class="variable">err</span>) {
+    <span class="keyword">throw</span> <span class="variable">err</span>;
+  }
+  
+  <span class="variable">res</span>.<span class="variable">fetchAll</span>(<span class="keyword">function</span> (<span class="variable">err</span>, <span class="variable">rows</span>) {
+    <span class="keyword">if</span> (<span class="variable">err</span>) {
+      <span class="keyword">throw</span> <span class="variable">err</span>;
+    }
+    
+    <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="string">&quot;Rows in table '&quot;</span> + <span class="variable">database</span> + <span class="string">&quot;.&quot;</span> + <span class="variable">test_table</span> + <span class="string">&quot;':&quot;</span>);
+    <span class="variable">sys</span>.<span class="variable">puts</span>(<span class="variable">sys</span>.<span class="variable">inspect</span>(<span class="variable">rows</span>));
+    
+    <span class="comment">// This isn't necessary since v1.2.0</span>
+    <span class="comment">// See https://github.com/Sannis/node-mysql-libmysqlclient/issues#issue/60</span>
+    <span class="comment">//res.freeSync();</span>
+  });
+});</code></pre>
+                </td>
+            </tr>
+            <tr class="code">
+                <td>
+<p>Close connection on exit
+ </p>
+                </td>
+                <td>
+<pre><code><span class="variable">process</span>.<span class="variable">on</span>(<span class="string">'exit'</span>, <span class="keyword">function</span> () {
+  <span class="variable">conn</span>.<span class="variable">closeSync</span>();
+});
+
+</code></pre>
+                </td>
+            </tr>
+        </tbody></table>
+    </body>
+</html>

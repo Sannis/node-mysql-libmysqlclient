@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+        <title>Node-mysql-libmysqlclient</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+        <style>body {
+    margin: 0;
+    padding: 0;
+    font: 14px/1.5 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+    color: #252519;
+}
+a {
+    color: #252519;
+}
+a:hover {
+    text-decoration: underline;
+    color: #19469D;
+}
+p {
+    margin: 12px 0;
+}
+h1, h2, h3 {
+    margin: 0;
+    padding: 0;
+}
+ul {
+    padding-left: 20px;
+}
+img {
+    border: 0;
+}
+table#source {
+    width: 100%;
+    border-collapse: collapse;
+}
+table#source td:first-child {
+    padding: 30px;
+    vertical-align: top;
+}
+table#source td:first-child,
+table#source td:first-child pre {
+    width: 450px;
+}
+table#source td:last-child {
+    padding: 30px;
+    border-left: 1px solid #E5E5EE;
+    background: #F5F5FF;
+}
+table#source tr {
+    border-bottom: 1px solid #E5E5EE;
+}
+table#source tr.filename {
+    padding-top: 40px;
+    border-top: 1px solid #E5E5EE;
+}
+table#source tr.filename td:first-child {
+    cursor: pointer;
+    text-transform: capitalize;
+}
+table#source tr.filename td:last-child {
+    font-size: 12px;
+}
+table#source tr.filename h2 {
+    margin: 0;
+    padding: 0;
+    text-decoration: underline;
+}
+table#source tr.code h1,
+table#source tr.code h2,
+table#source tr.code h3 {
+    margin-top: 30px;
+    font-family: "Lucida Grande", "Helvetica Nueue", Arial, sans-serif;
+    font-size: 18px;
+}
+table#source tr.code h2 {
+    font-size: 16px;
+}
+table#source tr.code h3 {
+    font-size: 14px;
+}
+table#source tr.code ul {
+    margin: 15px 0 15px 35px;
+    padding: 0;
+}
+table#source tr.code ul li {
+    margin: 0;
+    padding: 1px 0;
+}
+table#source tr.code ul li p {
+    margin: 0;
+    padding: 0;
+}
+table#source tr.code td:first-child pre {
+    padding: 20px;
+}
+#ribbon {
+    position: fixed;
+    top: 0;
+    right: 0;
+}
+code .string { color: #219161; }
+code .regexp { color: #219161; }
+code .keyword { color: #954121; }
+code .number { color: #19469D; }
+code .comment { color: #bbb; }
+code .this { color: #19469D; }
+pre.shell code .prompt-user { color: #219121; }
+pre.shell code .prompt-root { color: #912121; }
+
+</style>
+        <script>
+            $(function(){
+                if ($('tr.filename').length) {
+                    $('tr.code').hide();
+                    $('tr.filename').toggle(function(){
+                        $(this).nextUntil('.filename').fadeIn();
+                    }, function(){
+                        $(this).nextUntil('.filename').fadeOut();
+                    });
+                }
+            });
+        </script>
+    </head>
+    <body>
+        <a href="http://github.com/Sannis/node-mysql-libmysqlclient"><img alt="Fork me on GitHub" id="ribbon" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+        <table id="source"><tbody>
+            <tr>
+                <td><h1>Node-mysql-libmysqlclient</h1>
+<p>MySQL bindings for <a href="http://nodejs.org">Node.js</a> using libmysqlclient.</p>
+
+<p>Check out the <a href="http://github.com/Sannis/node-mysql-libmysqlclient">Github repo</a> for the source and installation guide.</p>
+
+<p>Extra information: <a href="./changelog.html">ChangeLog</a>, <a href="./api.html">API</a>, <a href="./examples.html">Examples</a>, <a href="http://github.com/Sannis/node-mysql-libmysqlclient/wiki">Wiki</a>.</p>
+                </td>
+                <td>
+Latest version 1.2.2:<br/>
+<a href=http://github.com/Sannis/node-mysql-libmysqlclient/zipball/v1.2.2>
+ <img width=90 src=http://github.com/images/modules/download/zip.png />
+</a>
+<a href=http://github.com/Sannis/node-mysql-libmysqlclient/tarball/v1.2.2>
+ <img width=90 src=http://github.com/images/modules/download/tar.png />
+</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Dependencies</h2>
+                </td>
+                <td>
+<p>This module tested with Node version v0.2.6 (@v1.1.1-2-g7014034) and 0.4.1 (@v1.1.2).</p>
+
+<p>To build it you must install libmysqlclient library and development files for it.
+Node-waf use mysql_config to determine the paths to the library and header files.
+To install these dependencies, you can use the console.</p>
+
+<p>For CentOS:</p>
+
+<pre class="shell"><code><span class="prompt-root">#&gt;</span> yum install mysql-devel</code></pre>
+
+<p>For openSUSE:</p>
+
+<pre class="shell"><code><span class="prompt-root">#&gt;</span> zypper install libmysqlclient-devel</code></pre>
+
+<p>For Debian/Ubuntu:</p>
+
+<pre class="shell"><code><span class="prompt-root">#&gt;</span> apt-get install libmysqlclient-dev</code></pre>
+
+<p>Yes, you would use aptitude if you want.</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Installation</h2>
+                </td>
+                <td>
+<p>You can install this module via NPM:</p>
+
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> npm install mysql-libmysqlclient</code></pre>
+
+<p>Also you can build latest source code from repository, see below.</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Build and use</h2>
+                </td>
+                <td>
+<p>To get source code:</p>
+
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> git clone git:<span class="comment">//github.com/Sannis/node-mysql-libmysqlclient.git</span>
+<span class="prompt-user">$&gt;</span> cd node-mysql-libmysqlclient</code></pre>
+
+<p>If you want to build specific version of node-mysql-libmysqlclient, checkout it:</p>
+
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> git checkout v<span class="number float">1.0</span>.<span class="number integer">2</span></code></pre>
+
+<p>To build the bindings you should run:</p>
+
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> node-waf configure build</code></pre>
+
+<p>To rebuild:</p>
+
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> node-waf distclean configure build</code></pre>
+
+<p>To run tests:</p>
+
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> npm install nodeunit
+<span class="prompt-user">$&gt;</span> node-waf test</code></pre>
+
+<p>To lint code:</p>
+
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> npm install nodelint
+<span class="prompt-user">$&gt;</span> # install cpplint.py</code></pre>
+
+<p>The two files required to use these bindings are ./mysql-libmysqlclient.js and
+./mysql_bindings.node (build/default/mysql_bindings.node).
+Put module directory in your NODE_PATH or copy those two files where you need them.</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Contributing</h2>
+                </td>
+                <td>
+<p>I will be happy to hear tips from the more experienced programmers.
+If you are interested in wide MySQL usage in Node.JS applications,
+leave your comments to the code.
+I'll be glad to see your forks and commits in them :)</p>
+
+<p>To contribute any patches, simply fork this repository using GitHub
+and send a pull request to <a href="https://github.com/Sannis">me</a>. Thanks!</p>
+
+<p>You can find other information about <a href="https://github.com/Sannis/node-mysql-libmysqlclient/wiki/contributing">contributing and code style guide in wiki</a>.</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Contributors</h2>
+                </td>
+                <td>
+<ul><li><p><strong>Oleg Efimov</strong> ( <a href="mailto:efimovov@gmail.com">E-mail</a>, <a href="https://github.com/Sannis">GitHub</a>, <a href="http://sannis.ru">site</a> )</p><p>Author and maintainer.<br></br>Synchronouse version development.<br></br>First libeio asynchronouse attempts.<br></br>Writing tests, docs and so on.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=Sannis">All commits</a>.</p></li><li><p><strong>Surendra Singhi</strong> ( <a href="mailto:ssinghi@kreeti.com">E-mail</a>, <a href="https://github.com/ssinghi">GitHub</a>, <a href="https://github.com/kreetitech">GitHub2</a>, <a href="http://ssinghi.kreeti.com">site</a> )</p><p>Make asynchronouse connecting and querying work.<br></br>Fix segmentation faults, partialy closes <a href="https://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find">#14</a>.<br></br>Some other fixes.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=ssinghi">All commits</a>.</p></li><li><p><strong>Akzhan Abdulin</strong> ( <a href="mailto:akzhan.abdulin@gmail.com">E-mail</a>, <a href="https://github.com/akzhan">GitHub</a> )</p><p>Tests and code style fixes.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=akzhan">All commits</a>.</p></li><li><p><strong>Pavel Ponomarenko</strong> ( <a href="mailto:shocksilien@gmail.com">E-mail</a>, <a href="https://github.com/theshock">GitHub</a> )</p><p>Add URL shortener example script. Make good suggestions to improve the functional.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=theshock">All commits</a>.</p></li><li><p><strong>Robin Duckett</strong> ( <a href="mailto:robin.duckett@gmail.com">E-mail</a>, <a href="https://github.com/robinduckett">GitHub</a> )</p><p>Fix segfault error, partialy closes <a href="https://github.com/Sannis/node-mysql-libmysqlclient/issues/14/find">#14</a>.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=robinduckett">All commits</a>.</p></li><li><p><strong>Roman Shtylman</strong> ( <a href="mailto:shtylman@gmail.com">E-mail</a>, <a href="https://github.com/shtylman">GitHub</a> )</p><p>Free result object after fetchAll() callback, closes <a href="https://github.com/Sannis/node-mysql-libmysqlclient/issues/60/find">#60</a>.<br></br>Link libev for 'ev<em>default</em>loop_ptr' symbol.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=shtylman">All commits</a>.</p></li><li><p><strong>Dan Beam</strong> ( <a href="mailto:dan@danbeam.org">E-mail</a>, <a href="https://github.com/danbeam">GitHub</a>, <a href="http://danbeam.org">site</a> )</p><p><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commit/97040c3e7a5d4673ca6f340d8a9bc69da8e398d8">Simplify javascript logic</a> of createConnection().<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=danbeam">All commits</a>.</p></li><li><p><strong>Maurits Lamers</strong> ( <a href="mailto:maurits@weidestraat.nl">E-mail</a>, <a href="https://github.com/mauritslamers">GitHub</a> )</p><p>Fix a <a href="https://github.com/Sannis/node-mysql-libmysqlclient/commit/c4071181404362b60b9d3a3aed9784b25459fffa">bug</a> where previous values were set instead of empty.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=mauritslamers">All commits</a>.</p></li><li><p><strong>Benjmain Reesman</strong> ( <a href="mailto:ben.reesman@gmail.com">E-mail</a>, <a href="https://github.com/benreesman">GitHub</a> )</p><p>Fix <a href="https://github.com/Sannis/node-mysql-libmysqlclient/issues/50/find">bug</a> with building with libmysqlclient at specific location.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=benreesman">All commits</a>.</p></li><li><p><strong>Krists Krīgers</strong> ( <a href="mailto:kristsk@cdi.lv">E-mail</a>, <a href="https://github.com/kristsk">GitHub</a> )</p><p>Fix bug with res.fetchAll(), discussed at the end of <a href="https://github.com/Sannis/node-mysql-libmysqlclient/issues/71/find">#71</a>.<br></br><a href="https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=kristsk">All commits</a>.</p></li></ul>
+
+<p><a href="https://github.com/Sannis/node-mysql-libmysqlclient/contributors">Full contributors list</a>.</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>License</h2>
+                </td>
+                <td>
+<p>MIT license. See license text in file <a href="https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/LICENSE">LICENSE</a>.</p>
+                </td>
+            </tr>
+        </tbody></table>
+    </body>
+</html>

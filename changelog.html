@@ -1,0 +1,320 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+        <title>Node-mysql-libmysqlclient changelog</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+        <style>body {
+    margin: 0;
+    padding: 0;
+    font: 14px/1.5 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+    color: #252519;
+}
+a {
+    color: #252519;
+}
+a:hover {
+    text-decoration: underline;
+    color: #19469D;
+}
+p {
+    margin: 12px 0;
+}
+h1, h2, h3 {
+    margin: 0;
+    padding: 0;
+}
+ul {
+    padding-left: 20px;
+}
+img {
+    border: 0;
+}
+table#source {
+    width: 100%;
+    border-collapse: collapse;
+}
+table#source td:first-child {
+    padding: 30px;
+    vertical-align: top;
+}
+table#source td:first-child,
+table#source td:first-child pre {
+    width: 450px;
+}
+table#source td:last-child {
+    padding: 30px;
+    border-left: 1px solid #E5E5EE;
+    background: #F5F5FF;
+}
+table#source tr {
+    border-bottom: 1px solid #E5E5EE;
+}
+table#source tr.filename {
+    padding-top: 40px;
+    border-top: 1px solid #E5E5EE;
+}
+table#source tr.filename td:first-child {
+    cursor: pointer;
+    text-transform: capitalize;
+}
+table#source tr.filename td:last-child {
+    font-size: 12px;
+}
+table#source tr.filename h2 {
+    margin: 0;
+    padding: 0;
+    text-decoration: underline;
+}
+table#source tr.code h1,
+table#source tr.code h2,
+table#source tr.code h3 {
+    margin-top: 30px;
+    font-family: "Lucida Grande", "Helvetica Nueue", Arial, sans-serif;
+    font-size: 18px;
+}
+table#source tr.code h2 {
+    font-size: 16px;
+}
+table#source tr.code h3 {
+    font-size: 14px;
+}
+table#source tr.code ul {
+    margin: 15px 0 15px 35px;
+    padding: 0;
+}
+table#source tr.code ul li {
+    margin: 0;
+    padding: 1px 0;
+}
+table#source tr.code ul li p {
+    margin: 0;
+    padding: 0;
+}
+table#source tr.code td:first-child pre {
+    padding: 20px;
+}
+#ribbon {
+    position: fixed;
+    top: 0;
+    right: 0;
+}
+code .string { color: #219161; }
+code .regexp { color: #219161; }
+code .keyword { color: #954121; }
+code .number { color: #19469D; }
+code .comment { color: #bbb; }
+code .this { color: #19469D; }
+pre.shell code .prompt-user { color: #219121; }
+pre.shell code .prompt-root { color: #912121; }
+
+</style>
+        <script>
+            $(function(){
+                if ($('tr.filename').length) {
+                    $('tr.code').hide();
+                    $('tr.filename').toggle(function(){
+                        $(this).nextUntil('.filename').fadeIn();
+                    }, function(){
+                        $(this).nextUntil('.filename').fadeOut();
+                    });
+                }
+            });
+        </script>
+    </head>
+    <body>
+        <a href="http://github.com/Sannis/node-mysql-libmysqlclient"><img alt="Fork me on GitHub" id="ribbon" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+        <table id="source"><tbody>
+            <tr>
+                <td><h1>Node-mysql-libmysqlclient changelog</h1>
+<p>MySQL bindings for <a href="http://nodejs.org">Node.js</a> using libmysqlclient.</p>
+
+<p>Check out the <a href="http://github.com/Sannis/node-mysql-libmysqlclient">Github repo</a> for the source and installation guide.</p>
+
+<p>Extra information: <a href="./index.html">Homepage</a>, <a href="./api.html">API</a>, <a href="./examples.html">Examples</a>, <a href="http://github.com/Sannis/node-mysql-libmysqlclient/wiki">Wiki</a>.</p>
+                </td>
+                <td>
+
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 1.2.2</h2>
+                </td>
+                <td>
+<ul><li>Refactor mysql<em>libmysqlclient and mysql</em>bindings from tests to config.js</li><li>Remove nodeunit and node-gc submodules</li><li>Add devDependencies to package.json</li><li>Remove unnecessary -D<em>FILE</em>OFFSET<em>BITS=64","-D</em>LARGEFILE<em>SOURCE, fixed in node</em>addon.py</li><li>Fix some lint warnings</li><li>Fix NPM package size, remove leaktest log</li></ul>
+
+<p>Special thanks to Vitaly Puzrin</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 1.2.1</h2>
+                </td>
+                <td>
+<ul><li>Fix wrong gmt_delta calculation in datetime casting, closes #72</li><li>Revert "build: add check for ev library before adding it to link line"</li><li>Revert "link libev for 'ev<em>default</em>loop_ptr' symbol"</li></ul>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 1.2.0</h2>
+                </td>
+                <td>
+<ul><li>Improvements:<ul><li>Use Buffer(v0.2.x)/FastBuffer(v0.3.x) instead of V8 strings to encode binary data, closes #30</li><li>Free result object after res.fetchAll() callback, closes #60</li><li>Link libev for 'ev<em>default</em>loop_ptr' symbol</li></ul></li><li>Tests improvements:<ul><li>Some refactor of complex tests tables creation</li><li>Change table type from memory to myisam in tests (for binary fields)</li></ul></li></ul>
+
+<p>Special thanks to Roman Shtylman
+Thanks for Krists Krīgers first buffers implementation, 6826022fb8a34f48d0c4e51a6cd1af487293e89d</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 1.1.1</h2>
+                </td>
+                <td>
+<ul><li>Fixes:<ul><li>Fix mysql<em>options() recall after mysql</em>real_connect(), closes #71 part 1</li><li>Fix logic error in res.fetchAll(), closes #71 past 2</li></ul></li><li>Improvements:<ul><li>Add --warn flag to node-waf, enables extra compiler warnings, do some fixes</li><li>Some more lint, JSLint updated</li></ul></li></ul>
+
+<p>Special thanks to Krists Krīgers</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 1.1.0</h2>
+                </td>
+                <td>
+<ul><li>Fixes:<ul><li>Don't ignore connect arguments after any null, closes #63</li><li>Reset connect_error in MysqlConnection::Close()</li><li>Fix bug with MYSQL<em>OPT</em>RECONNECT reset in MySQL &lt; 5.1.6, closes #66</li><li>Add MYSQLCONN<em>MUSTBE</em>INITIALIZED macro and change error reporting<br></br>in ConnectSync() and RealConnectSync() to avoid coding errors like in #67</li><li>Make error reporting for conn.connect() and conn.query() more verbose, closes #68</li><li>Add error handling for res.fetchAll(), closes #69</li><li>Fix lint rule in wscript, fix lint errors</li></ul></li><li>Improvements:<ul><li>Pass affectedRows and insertId to conn.query() callback
+as object properties, closes #58</li><li>res.fetchAll*() improvements:<ul><li>res.fetchAll*() takes a boolean option,
+which if true returns array of results, instead of objects</li><li>Add possibility to use hash with options in res.fetchAll*()</li><li>Add 'structured' option support for res.fetchall*() methods</li><li>Pass information about fields as third argument of res.fetchAll() callback, closes #59</li><li>Add more option constants, update conn.setOptionSync()</li><li>Add connect flags support and test with select in stored procedure, closes #64</li><li>Add tests for stored procedures/functions call, see #64</li></ul></li></ul></li><li>Documentation improvements:<ul><li>Add URL shortener example web application</li><li>Improve gh_pags.sh</li></ul></li><li>Refactoring<ul><li>Extract defines from mysql<em>bindings</em>connection.h to mysql_bindings.h</li><li>Extract 'simple' async tests into separate files</li><li>Split client-realted stuff from conn.getInfoSync() to conn.getClientInfoSync()</li></ul></li><li>Update tools/nodeunit from d4949a4 to 200e5a7</li></ul>
+
+<p>Special thanks to Pavel Ponomarenko and Surendra Singhi<br></br>Thanks to Michael Pearson, who pointed out the problem with stored procedures</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 1.0.3</h2>
+                </td>
+                <td>
+<ul><li>Update nodeunit from cf2f529 to d4949a4</li><li>Add HTML documentation into repo</li><li>Add .npmignore file, closes #54</li></ul>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 1.0.2</h2>
+                </td>
+                <td>
+<ul><li>Tested with Node version v0.2.3</li><li>Some changes to make the module build with specific libmysqlclient path, closes #50</li></ul>
+
+<p>Special thanks to Benjmain Reesman</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 1.0.1</h2>
+                </td>
+                <td>
+<ul><li>Change node-gc to Sannis' fork with some fixes</li><li>Improve simple.conn.ConnectWithError test, tests cleanup</li><li>Add gh_pages.sh to simplify docs update</li><li>Update wscript in accordance to current node_addon.py</li><li>Fix error reporting in example</li></ul>
+
+<p>Special thanks to Surendra Singhi and http://fallen.habrahabr.ru</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 1.0.0</h2>
+                </td>
+                <td>
+<ul><li>Fixes:<ul><li>Rewrite fetchAll function, move V8 stuff to EIO_After_FetchAll, closes #34</li><li>Rewrite MysqlResult::SetFieldValue() procedure to GetFieldValue() function</li><li>Fix Nodules break, closes #46</li><li>Return Boolean/throw exception fixes, closes #31</li><li>Allocate less memory in MysqlConnection::EscapeSync()</li><li>Add useful macroses to simplify MysqlConnection and MysqlResult</li><li>Fix lint errors</li></ul></li><li>Tests improvements:<ul><li>Refactor tests: split them into simple, complex, slow and ignored</li><li>Change nodeunit to original caolan's repo</li><li>Add REPL memory leaks finder</li></ul></li><li>Documentation improvements:<ul><li>Add index.html generation from README.markdown</li><li>Format ChangeLog with markdown</li><li>Add changelog.html generation from CHANGELOG.markdown</li><li>Add navigation</li><li>Add zip- and tarball URLs to index.html</li><li>Remove docs HTML from repo, you can generate them by 'node-waf doc'</li></ul></li><li>Semantic versioning introduced</li><li>Other changes in README and package.json</li></ul>
+
+<p>Special thanks to Ben Noordhuis</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 0.0.10</h2>
+                </td>
+                <td>
+<ul><li>Add JSDocs into bindings code</li><li>Add API documentation page</li><li>Add examples.js and Dox-generated examples.html</li><li>Change caolan/nodeunit to Sannis/nodeunit</li><li>Update tests to use test.throws()</li><li>Other cleanup in tests and files</li></ul>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 0.0.9</h2>
+                </td>
+                <td>
+<ul><li>Add MYSQL_TYPE_TIME and MYSQL_TYPE_SET handling</li><li>Rename MysqlConn to MysqlConnection</li><li>Change some methods to read-only properties:<ul><li>MysqlConnection::ConnectErrnoSync()</li><li>MysqlConnection::ConnectErrorSync()</li><li>MysqlResult::FieldCountSync()</li></ul></li><li>Make it possible to interleave
+sync and async queries on same connection</li><li>Improve package.json, add 'Dependencies' section into README</li><li>Rework nested C++ classes into separate</li><li>Fix lint errors (all, except sscanf)</li><li>Implemented methods:<ul><li>MysqlConnection::InitSync()</li><li>MysqlConnection::RealConnectSync()</li><li>MysqlConnection::SetOptionSync()</li></ul></li></ul>
+
+<p>Special thanks to Akzhan Abdulin and Surendra Singhi</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 0.0.8</h2>
+                </td>
+                <td>
+<ul><li>Make asynchronous connect and fetchAll</li><li>Tested with Node version v0.2.0</li><li>Small improves in tests, README</li><li>Move all TODO to GitHub issues tracker</li><li>Implemented methods:<ul><li>MysqlConn::Connect() and libeio wrapper</li><li>MysqlResult::FetchAll() and libeio wrapper</li></ul></li></ul>
+
+<p>Special thanks to Surendra Singhi</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 0.0.7</h2>
+                </td>
+                <td>
+<ul><li>Make asynchronous querying work</li><li>Simplify javascript logic of createConnection()</li><li>Allow reconnecting after failed connect</li><li>Do correct conversion of NULL fields in MysqlResult::AddFieldProperties()</li><li>Add test for asynchronous queries</li><li>Rewrite tests config</li><li>Improve build wscript</li><li>Implemented methods:<ul><li>MysqlConn::QueryAsync() and libeio wrapper</li></ul></li></ul>
+
+<p>Special thanks to Surendra Singhi</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 0.0.6</h2>
+                </td>
+                <td>
+<ul><li>Update package.json and make small fixes in docs and README</li><li>Rename MysqlResult::FetchResult method to FetchAll</li><li>Implemented methods:<ul><li>MysqlResult::DataSeek()</li><li>MysqlResult::NumRows()</li><li>MysqlResult::FetchArray()</li><li>MysqlResult::FetchFields()</li><li>MysqlResult::FetchField()</li><li>MysqlResult::FetchFieldDirect()</li><li>MysqlResult::FetchLengths()</li><li>MysqlResult::FetchObject()</li><li>MysqlResult::FieldCount()</li><li>MysqlResult::FieldSeek()</li><li>MysqlResult::FieldTell()</li><li>MysqlResult::Free()</li></ul></li><li>MysqlResult class finished</li></ul>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 0.0.5</h2>
+                </td>
+                <td>
+<ul><li>Remove 'Sync' from classes names,
+rename main module file to mysql-libmysqlclient.js</li><li>Add example MysqlConn::queryAsync() and MysqlConn::async() methods</li><li>Add a script to verify the existence of unittests for each function</li><li>Reorganize tests files for new think and add some tests</li><li>Add speedtest</li></ul>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 0.0.4</h2>
+                </td>
+                <td>
+<ul><li>Split source code into separate files for database connection,
+query result and prepared statements</li><li>Add nodeunit as the test framework for project</li><li>Implemented methods:<ul><li>MysqlSyncConn::autoCommit()</li><li>MysqlSyncConn::commit()</li><li>MysqlSyncConn::debug()</li><li>MysqlSyncConn::dumpDebugInfo()</li><li>MysqlSyncConn::fieldCount()</li><li>MysqlSyncConn::getInfoString()</li><li>MysqlSyncConn::getWarnings()</li><li>MysqlSyncConn::initStmt()</li><li>MysqlSyncConn::multiMoreResults()</li><li>MysqlSyncConn::multiNextResult()</li><li>MysqlSyncConn::multiRealQuery()</li><li>MysqlSyncConn::realQuery()</li><li>MysqlSyncConn::rollback()</li><li>MysqlSyncConn::stat()</li><li>MysqlSyncConn::storeResult()</li><li>MysqlSyncConn::threadId()</li><li>MysqlSyncConn::threadKill()</li><li>MysqlSyncConn::threadSafe()</li><li>MysqlSyncConn::useResult()</li><li>MysqlSyncStmt::prepare()</li></ul></li><li>Decrease number of cpplint warnings (dirty hack? maybe)</li></ul>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 0.0.3</h2>
+                </td>
+                <td>
+<ul><li>Add 'lint' target for node-waf</li><li>Add docs dir, docs/examples.md,
+docs/api_php_mysqli.md and docs/api_node_mysql_sync.md</li><li>Add tests/debug.js for inspecting bindings 'classes' from javascript</li><li>Implement all methods in 'connection' category:<ul><li>MysqlSyncConn::ChangeUser()</li><li>MysqlSyncConn::ConnectErrno()</li><li>MysqlSyncConn::ConnectError()</li><li>MysqlSyncConn::GetCharset()</li><li>MysqlSyncConn::GetCharsetName()</li><li>MysqlSyncConn::Ping()</li><li>MysqlSyncConn::SelectDb()</li><li>MysqlSyncConn::SetCharset()</li><li>MysqlSyncConn::SetSsl()</li></ul></li><li>Improve MysqlSyncConn::Connect() functionality, see d2d9ae2</li></ul>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 0.0.2</h2>
+                </td>
+                <td>
+<ul><li>Split MysqlDbSync into MysqlSyncConn and MysqlSyncRes</li><li>Add unit tests suite</li><li>Query() API is more clear to PHP MySQLi</li></ul>
+                </td>
+            </tr>
+            <tr>
+                <td>
+<h2>Version 0.0.1</h2>
+                </td>
+                <td>
+<ul><li>Basic functionality: connect/close/query/fenchAll/getInfo/error/etc.</li><li>Implemented methods:<ul><li>MysqlDbSync::AffectedRows()</li><li>MysqlDbSync::Connect()</li><li>MysqlDbSync::Close()</li><li>MysqlDbSync::Errno()</li><li>MysqlDbSync::Error()</li><li>MysqlDbSync::Escape()</li><li>MysqlDbSync::FetchResult()</li><li>MysqlDbSync::GetInfo()</li><li>MysqlDbSync::LastInsertId()</li><li>MysqlDbSync::Query()</li><li>MysqlDbSync::WarningCount()</li></ul></li></ul>
+                </td>
+            </tr>
+        </tbody></table>
+    </body>
+</html>
