@@ -1,6 +1,17 @@
 Changelog (revision history) for node-mysql-libmysqlclient,
 the full MySQL bindings for Node.js using libmysqlclient.
 
+## Version 1.2.2
+
+  * Refactor mysql_libmysqlclient and mysql_bindings from tests to config.js
+  * Remove nodeunit and node-gc submodules
+  * Add devDependencies to package.json
+  * Remove unnecessary -D_FILE_OFFSET_BITS=64","-D_LARGEFILE_SOURCE, fixed in node_addon.py
+  * Fix some lint warnings
+  * Fix NPM package size, remove leaktest log
+
+Special thanks to Vitaly Puzrin
+
 ## Version 1.2.1
   * Fix wrong gmt_delta calculation in datetime casting, closes #72
   * Revert "build: add check for ev library before adding it to link line"
