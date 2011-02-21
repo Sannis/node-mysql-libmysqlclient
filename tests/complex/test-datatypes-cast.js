@@ -9,7 +9,7 @@ See license text in LICENSE file
 var cfg = require('../config');
 
 exports.fetchDateAndTimeValues = function (test) {
-  test.expect(7);
+  test.expect(17);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
@@ -28,6 +28,26 @@ exports.fetchDateAndTimeValues = function (test) {
   rows = conn.querySync("SELECT CAST('1988-10-25 06:34' AS DATETIME) as datetime;").fetchAllSync();
   test.ok(rows[0].datetime instanceof Date, "SELECT CAST('1988-10-25 06:34' AS DATETIME) is Date");
   test.equals(rows[0].datetime.toUTCString(), "Tue, 25 Oct 1988 06:34:00 GMT", "SELECT CAST('1988-10-25 06:34' AS DATETIME) is correct");
+  
+  rows = conn.querySync("SELECT CAST('1988-10-25' AS DATETIME) as datetime;").fetchAllSync();
+  test.ok(rows[0].datetime instanceof Date, "SELECT CAST('1988-10-25' AS DATETIME) is Date");
+  test.equals(rows[0].datetime.toUTCString(), "Tue, 25 Oct 1988 00:00:00 GMT", "SELECT CAST('1988-10-25' AS DATETIME) is correct");
+  
+  rows = conn.querySync("SELECT CAST('1988-10-25 2:50' AS DATETIME) as datetime;").fetchAllSync();
+  test.ok(rows[0].datetime instanceof Date, "SELECT CAST('1988-10-25 2:50' AS DATETIME) is Date");
+  test.equals(rows[0].datetime.toUTCString(), "Tue, 25 Oct 1988 02:50:00 GMT", "SELECT CAST('1988-10-25 2:50' AS TIME) is correct");
+  
+  rows = conn.querySync("SELECT CAST('1988-10-25 3:50' AS DATETIME) as datetime;").fetchAllSync();
+  test.ok(rows[0].datetime instanceof Date, "SELECT CAST('1988-10-25 3:50' AS DATETIME) is Date");
+  test.equals(rows[0].datetime.toUTCString(), "Tue, 25 Oct 1988 03:50:00 GMT", "SELECT CAST('1988-10-25 3:50' AS TIME) is correct");
+  
+  rows = conn.querySync("SELECT CAST('1988-10-25 23:50' AS DATETIME) as datetime;").fetchAllSync();
+  test.ok(rows[0].datetime instanceof Date, "SELECT CAST('1988-10-25 23:50' AS DATETIME) is Date");
+  test.equals(rows[0].datetime.toUTCString(), "Tue, 25 Oct 1988 23:50:00 GMT", "SELECT CAST('1988-10-25 23:50' AS TIME) is correct");
+  
+  rows = conn.querySync("SELECT CAST('1988-10-25 18:50' AS DATETIME) as datetime;").fetchAllSync();
+  test.ok(rows[0].datetime instanceof Date, "SELECT CAST('1988-10-25 18:50' AS DATETIME) is Date");
+  test.equals(rows[0].datetime.toUTCString(), "Tue, 25 Oct 1988 18:50:00 GMT", "SELECT CAST('1988-10-25 18:50' AS TIME) is correct");
   
   conn.closeSync();
   
