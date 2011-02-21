@@ -15,8 +15,7 @@ Extra information available in [wiki].
 Dependencies
 ------------
 
-This module tested with Node version v0.2.6 (@v1.1.1-2-g7014034).
-Also it pass all tests on 0.3.4 (@v1.1.1-2-g7014034).
+This module tested with Node version v0.2.6 (@v1.1.1-2-g7014034) and 0.4.1 (@v1.1.2).
 
 To build it you must install libmysqlclient library and development files for it.
 Node-waf use mysql_config to determine the paths to the library and header files.
@@ -69,9 +68,13 @@ To rebuild:
 
 To run tests:
 
-    $> git submodule init
-    $> git submodule update
+    $> npm install nodeunit
     $> node-waf test
+
+To lint code:
+
+    $> npm install nodelint
+    $> # install cpplint.py
 
 The two files required to use these bindings are ./mysql-libmysqlclient.js and
 ./mysql\_bindings.node (build/default/mysql\_bindings.node).
