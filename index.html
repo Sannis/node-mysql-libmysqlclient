@@ -133,11 +133,11 @@ pre.shell code .prompt-root { color: #912121; }
 <p>Extra information: <a href="./changelog.html">ChangeLog</a>, <a href="./api.html">API</a>, <a href="./examples.html">Examples</a>, <a href="http://github.com/Sannis/node-mysql-libmysqlclient/wiki">Wiki</a>.</p>
                 </td>
                 <td>
-Latest version 1.2.1:<br/>
-<a href=http://github.com/Sannis/node-mysql-libmysqlclient/zipball/v1.2.1>
+Latest version 1.2.2:<br/>
+<a href=http://github.com/Sannis/node-mysql-libmysqlclient/zipball/v1.2.2>
  <img width=90 src=http://github.com/images/modules/download/zip.png />
 </a>
-<a href=http://github.com/Sannis/node-mysql-libmysqlclient/tarball/v1.2.1>
+<a href=http://github.com/Sannis/node-mysql-libmysqlclient/tarball/v1.2.2>
  <img width=90 src=http://github.com/images/modules/download/tar.png />
 </a>
                 </td>
@@ -147,8 +147,7 @@ Latest version 1.2.1:<br/>
 <h2>Dependencies</h2>
                 </td>
                 <td>
-<p>This module tested with Node version v0.2.6 (@v1.1.1-2-g7014034).
-Also it pass all tests on 0.3.4 (@v1.1.1-2-g7014034).</p>
+<p>This module tested with Node version v0.2.6 (@v1.1.1-2-g7014034) and 0.4.1 (@v1.1.2).</p>
 
 <p>To build it you must install libmysqlclient library and development files for it.
 Node-waf use mysql_config to determine the paths to the library and header files.
@@ -205,9 +204,13 @@ To install these dependencies, you can use the console.</p>
 
 <p>To run tests:</p>
 
-<pre class="shell"><code><span class="prompt-user">$&gt;</span> git submodule init
-<span class="prompt-user">$&gt;</span> git submodule update
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> npm install nodeunit
 <span class="prompt-user">$&gt;</span> node-waf test</code></pre>
+
+<p>To lint code:</p>
+
+<pre class="shell"><code><span class="prompt-user">$&gt;</span> npm install nodelint
+<span class="prompt-user">$&gt;</span> # install cpplint.py</code></pre>
 
 <p>The two files required to use these bindings are ./mysql-libmysqlclient.js and
 ./mysql_bindings.node (build/default/mysql_bindings.node).
