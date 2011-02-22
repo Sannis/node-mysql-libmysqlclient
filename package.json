@@ -48,7 +48,7 @@
   ]
 , "main" : "./mysql-libmysqlclient"
 , "scripts" :
-  { "build" : "node-waf configure build"
+  { "install" : "node-waf configure build"
   , "test" : "node-waf test"
   , "doc" : "node-waf doc"
   }
