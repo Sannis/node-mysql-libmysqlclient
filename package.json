@@ -49,7 +49,7 @@
   , "test" : "node-waf test"
   , "doc" : "node-waf doc"
   }
-, "engines" : { "node" : ">=0.2.5" }
+, "engines" : { "node" : ">=0.4" }
 , "devDependencies" :
   { "nodeunit" : "*"
   , "nodelint" : "*"

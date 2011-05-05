@@ -215,18 +215,12 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
         case MYSQL_TYPE_VAR_STRING:
             if (field_value) {
                 if (field.flags & BINARY_FLAG) {
-                    #if NODE_MINOR_VERSION < 3
-                    node::Buffer *bp = node::Buffer::New(field_length);
-                    memcpy(bp->data(), field_value, field_length);
-                    js_field = Local<Value>::New(bp->handle_);
-                    #else  // NODE_VERSION
                     // SlowBuffer
                     // node::Buffer *bp = node::Buffer::New(field_value,
                     //                                      field_length);
                     js_field = Local<Value>::New(
                                    node::Buffer::New(
                                        V8STR2(field_value, field_length)));
-                    #endif  // NODE_VERSION
                 } else {
                     js_field = V8STR2(field_value, field_length);
                 }
@@ -906,4 +900,3 @@ Handle<Value> MysqlResult::NumRowsSync(const Arguments& args) {
 
     return scope.Close(Integer::New(mysql_num_rows(res->_res)));
 }
-
