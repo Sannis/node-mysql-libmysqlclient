@@ -27,7 +27,6 @@ void MysqlStatement::Init(Handle<Object> target) {
 
     // Constructor
     constructor_template = Persistent<FunctionTemplate>::New(t);
-    constructor_template->Inherit(EventEmitter::constructor_template);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlStatement"));
 
@@ -42,7 +41,7 @@ void MysqlStatement::Init(Handle<Object> target) {
                 constructor_template->GetFunction());
 }
 
-MysqlStatement::MysqlStatement(): EventEmitter() {
+MysqlStatement::MysqlStatement(): ObjectWrap() {
     _stmt = NULL;
 }
 

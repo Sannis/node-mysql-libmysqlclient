@@ -28,7 +28,6 @@ void MysqlConnection::Init(Handle<Object> target) {
 
     // Constructor
     constructor_template = Persistent<FunctionTemplate>::New(t);
-    constructor_template->Inherit(EventEmitter::constructor_template);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlConnection"));
 
@@ -251,7 +250,7 @@ void MysqlConnection::Close() {
     }
 }
 
-MysqlConnection::MysqlConnection(): EventEmitter() {
+MysqlConnection::MysqlConnection(): ObjectWrap() {
     this->_conn = NULL;
     this->connected = false;
     this->multi_query = false;
@@ -452,7 +451,7 @@ int MysqlConnection::EIO_After_Connect(eio_req *req) {
     return 0;
 }
 
-int MysqlConnection::EIO_Connect(eio_req *req) {
+void MysqlConnection::EIO_Connect(eio_req *req) {
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
     req->result = conn_req->conn->Connect(
@@ -473,8 +472,6 @@ int MysqlConnection::EIO_Connect(eio_req *req) {
     delete conn_req->user;
     delete conn_req->password;
     delete conn_req->socket;
-
-    return 0;
 }
 #endif
 
@@ -1090,14 +1087,14 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
     return 0;
 }
 
-int MysqlConnection::EIO_Query(eio_req *req) {
+void MysqlConnection::EIO_Query(eio_req *req) {
     struct query_request *query_req = (struct query_request *)(req->data);
 
     MysqlConnection *conn = query_req->conn;
 
     if (!conn->_conn) {
         req->result = 1;
-        return 0;
+        return;
     }
 
     MYSQLCONN_DISABLE_MQ;
@@ -1136,7 +1133,6 @@ int MysqlConnection::EIO_Query(eio_req *req) {
         }
     }
     pthread_mutex_unlock(&conn->query_lock);
-    return 0;
 }
 #endif
 
