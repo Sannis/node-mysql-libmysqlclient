@@ -130,81 +130,35 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
         case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
         case MYSQL_TYPE_DATETIME:  // DATETIME field
             if (field_value) {
-              int year = 0, month = 0, day = 0;
-              int hour = 0, min = 0, sec = 0;
-              int h1 = 0, h2 = 0, m1 = 0, m2 = 0;
-              sscanf(field_value, "%d-%d-%d %d:%d:%d",
-                                  &year, &month, &day, &hour, &min, &sec);
-              time_t rawtime;
-              struct tm timeinfo;
-              time(&rawtime);
-              if (!localtime_r(&rawtime, &timeinfo)) {
-                  js_field = V8STR(field_value);
-                  break;
-              }
-              h1 = timeinfo.tm_hour - (timeinfo.tm_isdst > 0 ? 1 : 0);
-              m1 = timeinfo.tm_min;
-              if (!gmtime_r(&rawtime, &timeinfo)) {
-                  js_field = V8STR(field_value);
-                  break;
-              }
-              h2 = timeinfo.tm_hour;
-              m2 = timeinfo.tm_min;
-              int gmt_delta = ((h1 - h2)*60 + (m1-m2))*60;
-              if (gmt_delta <= -12*60*60) {
-                  gmt_delta += 24*60*60;
-              }
-              if (gmt_delta > 12*60*60) {
-                  gmt_delta -= 24*60*60;
-              }
-              timeinfo.tm_year = year - 1900;
-              timeinfo.tm_mon = month - 1;
-              timeinfo.tm_mday = day;
-              timeinfo.tm_hour = hour;
-              timeinfo.tm_min = min;
-              timeinfo.tm_sec = sec;
-              rawtime = mktime(&timeinfo);
-              js_field = Date::New(
-                             static_cast<double>(rawtime + gmt_delta)*1000);
+                // First step is to get a handle to the global object:
+                Local<v8::Object> globalObj = Context::GetCurrent()->Global();
+                
+                // Now we need to grab the Date constructor function:
+                Local<v8::Function> dateConstructor = Local<Function>::Cast(globalObj->Get(V8STR("Date")));
+                
+                // Great. We can use this constructor function to allocate new Dates:
+                int argc = 1;
+                Local<Value> argv[1] = { String::Concat(V8STR(field_value), V8STR(" GMT")) };
+                
+                // Now we have our constructor, and our constructor args. Let's create the Date:
+                js_field = dateConstructor->NewInstance(argc, argv);
             }
             break;
         case MYSQL_TYPE_DATE:  // DATE field
         case MYSQL_TYPE_NEWDATE:  // Newer const used > 5.0
             if (field_value) {
-              int year = 0, month = 0, day = 0;
-              int h1 = 0, h2 = 0, m1 = 0, m2 = 0;
-              sscanf(field_value, "%d-%d-%d", &year, &month, &day);
-              time_t rawtime;
-              struct tm timeinfo;
-              time(&rawtime);
-              if (!localtime_r(&rawtime, &timeinfo)) {
-                  js_field = V8STR(field_value);
-                  break;
-              }
-              h1 = timeinfo.tm_hour - (timeinfo.tm_isdst > 0 ? 1 : 0);
-              m1 = timeinfo.tm_min;
-              if (!gmtime_r(&rawtime, &timeinfo)) {
-                  js_field = V8STR(field_value);
-                  break;
-              }
-              h2 = timeinfo.tm_hour;
-              m2 = timeinfo.tm_min;
-              int gmt_delta = ((h1 - h2)*60 + (m1-m2))*60;
-              if (gmt_delta <= -12*60*60) {
-                  gmt_delta += 24*60*60;
-              }
-              if (gmt_delta > 12*60*60) {
-                  gmt_delta -= 24*60*60;
-              }
-              timeinfo.tm_year = year - 1900;
-              timeinfo.tm_mon = month - 1;
-              timeinfo.tm_mday = day;
-              timeinfo.tm_hour = 0;
-              timeinfo.tm_min = 0;
-              timeinfo.tm_sec = 0;
-              rawtime = mktime(&timeinfo);
-              js_field = Date::New(
-                             static_cast<double>(rawtime + gmt_delta)*1000);
+                // First step is to get a handle to the global object:
+                Local<v8::Object> globalObj = Context::GetCurrent()->Global();
+                
+                // Now we need to grab the Date constructor function:
+                Local<v8::Function> dateConstructor = Local<Function>::Cast(globalObj->Get(V8STR("Date")));
+                
+                // Great. We can use this constructor function to allocate new Dates:
+                int argc = 1;
+                Local<Value> argv[1] = { V8STR(field_value) };
+                
+                // Now we have our constructor, and our constructor args. Let's create the Date:
+                js_field = dateConstructor->NewInstance(argc, argv);
             }
             break;
         case MYSQL_TYPE_TINY_BLOB:
