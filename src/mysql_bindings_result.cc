@@ -155,7 +155,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
                 
                 // Great. We can use this constructor function to allocate new Dates:
                 int argc = 1;
-                Local<Value> argv[1] = { V8STR(field_value) };
+                Local<Value> argv[1] = { String::Concat(V8STR(field_value), V8STR(" GMT")) };
                 
                 // Now we have our constructor, and our constructor args. Let's create the Date:
                 js_field = dateConstructor->NewInstance(argc, argv);
