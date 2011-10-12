@@ -12,13 +12,13 @@
 
 #include <v8.h>
 #include <node.h>
-#include <node_events.h>
+#include <node_object_wrap.h>
 
 #include "./mysql_bindings.h"
 
 static Persistent<String> statement_prepareSync_symbol;
 
-class MysqlStatement : public node::EventEmitter {
+class MysqlStatement : public node::ObjectWrap {
   public:
     static Persistent<FunctionTemplate> constructor_template;
 
@@ -30,7 +30,7 @@ class MysqlStatement : public node::EventEmitter {
     MysqlStatement();
 
     explicit MysqlStatement(MYSQL_STMT *my_stmt):
-                                    EventEmitter(), _stmt(my_stmt) {}
+                                    ObjectWrap(), _stmt(my_stmt) {}
 
     ~MysqlStatement();
 

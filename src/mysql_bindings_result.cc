@@ -27,7 +27,6 @@ void MysqlResult::Init(Handle<Object> target) {
 
     // Constructor
     constructor_template = Persistent<FunctionTemplate>::New(t);
-    constructor_template->Inherit(EventEmitter::constructor_template);
     constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlResult"));
 
@@ -57,7 +56,7 @@ void MysqlResult::Init(Handle<Object> target) {
                 constructor_template->GetFunction());
 }
 
-MysqlResult::MysqlResult(): EventEmitter() {}
+MysqlResult::MysqlResult(): ObjectWrap() {}
 
 MysqlResult::~MysqlResult() {
     this->Free();
@@ -421,7 +420,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
     return 0;
 }
 
-int MysqlResult::EIO_FetchAll(eio_req *req) {
+void MysqlResult::EIO_FetchAll(eio_req *req) {
     struct fetchAll_request *fetchAll_req =
         reinterpret_cast<struct fetchAll_request *>(req->data);
     MysqlResult *res = fetchAll_req->res;
@@ -432,8 +431,6 @@ int MysqlResult::EIO_FetchAll(eio_req *req) {
     fetchAll_req->num_fields = mysql_num_fields(res->_res);
 
     req->result = 0;
-
-    return 0;
 }
 #endif
 

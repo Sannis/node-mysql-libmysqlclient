@@ -12,7 +12,7 @@
 
 #include <v8.h>
 #include <node.h>
-#include <node_events.h>
+#include <node_object_wrap.h>
 #include <node_buffer.h>
 #include <node_version.h>
 
@@ -42,7 +42,7 @@ static Persistent<String> result_fieldTellSync_symbol;
 static Persistent<String> result_freeSync_symbol;
 static Persistent<String> result_numRowsSync_symbol;
 
-class MysqlResult : public node::EventEmitter {
+class MysqlResult : public node::ObjectWrap {
   public:
     static Persistent<FunctionTemplate> constructor_template;
 
@@ -69,7 +69,7 @@ class MysqlResult : public node::EventEmitter {
     explicit MysqlResult(MYSQL *my_connection,
                           MYSQL_RES *my_result,
                           uint32_t my_field_count):
-                                                EventEmitter(),
+                                                ObjectWrap(),
                                                 _conn(my_connection),
                                                 _res(my_result),
                                                 field_count(my_field_count) {}
@@ -100,7 +100,7 @@ class MysqlResult : public node::EventEmitter {
         bool results_structured;
     };
     static int EIO_After_FetchAll(eio_req *req);
-    static int EIO_FetchAll(eio_req *req);
+    static void EIO_FetchAll(eio_req *req);
 #endif
     static Handle<Value> FetchAll(const Arguments& args);
 

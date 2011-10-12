@@ -147,6 +147,6 @@ def shutdown():
   if Options.commands['clean']:
     if exists(t): unlink(t)
   else:
-    if exists('build/default/' + t) and not exists(t):
-      symlink('build/default/' + t, t)
+    if exists('build/Release/' + t) and not exists(t):
+      symlink('build/Release/' + t, t)
 

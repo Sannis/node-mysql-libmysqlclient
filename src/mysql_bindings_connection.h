@@ -12,7 +12,7 @@
 
 #include <v8.h>
 #include <node.h>
-#include <node_events.h>
+#include <node_object_wrap.h>
 
 #include <unistd.h>
 #include <pthread.h>
@@ -90,7 +90,7 @@ static Persistent<String> connection_threadSafeSync_symbol;
 static Persistent<String> connection_useResultSync_symbol;
 static Persistent<String> connection_warningCountSync_symbol;
 
-class MysqlConnection : public node::EventEmitter {
+class MysqlConnection : public node::ObjectWrap {
   public:
     static Persistent<FunctionTemplate> constructor_template;
 
@@ -169,7 +169,7 @@ class MysqlConnection : public node::EventEmitter {
         const char *error;
     };
     static int EIO_After_Connect(eio_req *req);
-    static int EIO_Connect(eio_req *req);
+    static void EIO_Connect(eio_req *req);
 #endif
     static Handle<Value> Connect(const Arguments& args);
 
@@ -232,7 +232,7 @@ class MysqlConnection : public node::EventEmitter {
         const char *error;
     };
     static int EIO_After_Query(eio_req *req);
-    static int EIO_Query(eio_req *req);
+    static void EIO_Query(eio_req *req);
 #endif
     static Handle<Value> Query(const Arguments& args);
 
