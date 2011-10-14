@@ -1,6 +1,11 @@
 Changelog (revision history) for node-mysql-libmysqlclient,
 the full MySQL bindings for Node.js using libmysqlclient.
 
+## Version 1.2.4
+
+  * Use Date.parse in C++ code to parse date from string to Date object
+  * Make compatible with upcoming Node v0.6.x
+
 ## Version 1.2.3
 
   * Make compatible with latest NPM
