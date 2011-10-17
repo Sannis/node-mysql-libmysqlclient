@@ -35,6 +35,9 @@
   , { "name": "Roman Shtylman"
     , "email": "shtylman@gmail.com"
     }
+  , { "name": "Sergey Novgorodsky"
+    , "email": "svnovgorodsky@hotmail.com"
+    }
   ]
 , "bugs" : { "web" : "http://github.com/Sannis/node-mysql-libmysqlclient/issues" }
 , "licenses" : [ { "type" : "MIT" } ]

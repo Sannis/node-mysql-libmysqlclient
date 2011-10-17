@@ -164,6 +164,12 @@ Contributors
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=kristsk).
 
 
+* **Sergey Novgorodsky** ( [E-mail](mailto:svnovgorodsky@hotmail.com), [GitHub](https://github.com/snovgorodsky) \)
+
+  Fixes for compilation errors.  
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=snovgorodsky).
+
+
 [Full contributors list](https://github.com/Sannis/node-mysql-libmysqlclient/contributors).
 
 
