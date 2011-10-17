@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --expose-gc
 /*
 Copyright by Oleg Efimov and node-mysql-libmysqlclient contributors
 See contributors list in README
@@ -8,15 +8,13 @@ See license text in LICENSE file
 
 var
 // Require modules
-  sys = require("sys"),
-  stdin,
+  util = require("util"),
   readline = require('readline'),
   rli,
-  node_gc,
-  gc,
   mysql_libmysqlclient = require("../mysql-libmysqlclient"),
   mysql_bindings = require("../mysql_bindings"),
-  cfg = require("../tests/config").cfg,
+  cfg = require("../tests/config"),
+  profiler,
 // Params
   prompt = "mlf> ",
   commands,
@@ -25,9 +23,9 @@ var
 
 function show_memory_usage_line(title, value0, value1) {
   if (value1) {
-    stdin.write(title + ": " + value1 + (value1 > value0 ? " (+" : " (") + (100 * (value1 - value0) / value0).toFixed(2) + "%)\n");
+    process.stdin.write(title + ": " + value1 + (value1 > value0 ? " (+" : " (") + (100 * (value1 - value0) / value0).toFixed(2) + "%)\n");
   } else {
-    sys.puts(title + ": " + value0 + "\n");
+    process.stdin.write(title + ": " + value0 + "\n");
   }
 }
 
@@ -35,14 +33,14 @@ function show_memory_usage() {
   if (!initial_mu) {
     initial_mu = process.memoryUsage();
     
-    sys.puts("Initial memory usage:");
-    sys.puts("rss: " + initial_mu.rss);
-    sys.puts("vsize: " + initial_mu.vsize);
-    sys.puts("heapUsed: " + initial_mu.heapUsed);
+    process.stdin.write("Initial memory usage:\n");
+    process.stdin.write("rss: " + initial_mu.rss + "\n");
+    process.stdin.write("vsize: " + initial_mu.vsize + "\n");
+    process.stdin.write("heapUsed: " + initial_mu.heapUsed + "\n");
   } else {
     var mu = process.memoryUsage();
     
-    stdin.write("Currect memory usage:\n");
+    process.stdin.write("Currect memory usage:\n");
     show_memory_usage_line("rss", initial_mu.rss, mu.rss);
     show_memory_usage_line("vsize", initial_mu.vsize, mu.vsize);
     show_memory_usage_line("heapUsed", initial_mu.heapUsed, mu.heapUsed);
@@ -53,18 +51,23 @@ commands = {
   quit: function () {
     process.exit(0);
   },
-  show_memory_usage: function () {
+  usage: function () {
     show_memory_usage();
   },
   gc: function () {
-    gc.collect();
+    gc();
+  },
+  snapshot: function () {
+    if (profiler) {
+      profiler.takeSnapshot();
+    }
   },
   help: function () {
     var cmd;
-    stdin.write("List of commands:\n");
+    process.stdin.write("List of commands:\n");
     for (cmd in commands) {
       if (commands.hasOwnProperty(cmd)) {
-        stdin.write(cmd + "\n");
+        process.stdin.write(cmd + "\n");
       }
     }
   },
@@ -120,7 +123,6 @@ commands = {
     
     while ((row = res.fetchArraySync())) {
       // Empty block
-      sys.print('');
     }
     
     conn.closeSync();
@@ -136,7 +138,6 @@ commands = {
     
     while ((row = res.fetchArraySync())) {
       // Empty block
-      sys.print('');
     }
     
     res.freeSync();
@@ -150,28 +151,29 @@ commands = {
     str = conn.escapeSync("some string");
     
     conn.closeSync();
+  },
+  resultFreeAfterConnectionClosed: function () {
+    var
+      conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+      str;
+    
+    res = conn.querySync("SELECT 'some string' as str;");
+
+    conn.closeSync();
   }
 };
 
 // Main program
-
-try {
-  node_gc = require("gc");
-} catch (e) {
-  sys.puts("\u001b[31mNode-GC doesn't exists or doesn't builded.\u001b[39m\n");
-  process.exit(1);
-}
-
-gc = new node_gc.GC();
-
-sys.puts("Welcome to the memory leaks finder!");
-sys.puts("Type 'help' for options.");
-gc.collect();
+process.stdin.write("Welcome to the memory leaks finder!\n");
+process.stdin.write("Type 'help' for options.\n");
+gc();
 show_memory_usage();
 
-stdin = process.openStdin();
-rli = readline.createInterface(stdin, function (text) {
-  //return complete(text);
+try {
+  profiler = require('v8-profiler');
+} catch (e) {};
+
+rli = readline.createInterface(process.stdin, process.stdout, function completer (text) {
   var
     completions = [],
     completeOn,
@@ -191,12 +193,12 @@ rli.on("SIGINT", function () {
   rli.close();
 });
 
-rli.addListener('close', function () {
+rli.on('close', function () {
   show_memory_usage();
-  stdin.destroy();
+  process.stdin.destroy();
 });
 
-rli.addListener('line', function (cmd) {
+rli.on('line', function (cmd) {
   var
     pair = cmd.trim().split(/\s+/),
     i;
@@ -206,26 +208,26 @@ rli.addListener('line', function (cmd) {
 
   if (commands[pair[0]]) {
     try {
+      process.stdin.write("Run " + pair[0] + " for " + pair[1] + " times:");
       for (i = 0; i < pair[1]; i += 1) {
         commands[pair[0]].apply();
       }
+      process.stdin.write(" done.\n");
     } catch (e) {
-      stdin.write("Exception caused!\n");
-      stdin.write(sys.inspect(e.stack) + "\n");
+      process.stdin.write("Exception caused!\n");
+      process.stdin.write(util.inspect(e.stack) + "\n");
     }
     if (pair[0] !== "help") {
       show_memory_usage();
     }
   } else if (pair[0] !== "") {
-    stdin.write("Unrecognized command: " + pair[0] + "\n");
+    process.stdin.write("Unrecognized command: " + pair[0] + "\n");
     commands.help();
   }
 
   rli.prompt();
 });
-stdin.addListener("data", function (chunk) {
-  rli.write(chunk);
-});
+
 rli.setPrompt(prompt);
 rli.prompt();
 

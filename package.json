@@ -53,5 +53,6 @@
 , "devDependencies" :
   { "nodeunit" : "*"
   , "nodelint" : "*"
+  , "node-inspector" : "*"
   }
 }
