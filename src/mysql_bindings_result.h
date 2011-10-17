@@ -100,7 +100,11 @@ class MysqlResult : public node::ObjectWrap {
         bool results_structured;
     };
     static int EIO_After_FetchAll(eio_req *req);
+#if NODE_MINOR_VERSION == 4
     static int EIO_FetchAll(eio_req *req);
+#else  // NODE_MINOR_VERSION > 4
+    static void EIO_FetchAll(eio_req *req);
+#endif  // NODE_MINOR_VERSION
 #endif
     static Handle<Value> FetchAll(const Arguments& args);
 

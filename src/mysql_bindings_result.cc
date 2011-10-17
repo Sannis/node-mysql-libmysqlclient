@@ -420,7 +420,11 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
     return 0;
 }
 
+#if NODE_MINOR_VERSION == 4
 int MysqlResult::EIO_FetchAll(eio_req *req) {
+#else  // NODE_MINOR_VERSION > 4
+void MysqlResult::EIO_FetchAll(eio_req *req) {
+#endif  // NODE_MINOR_VERSION
     struct fetchAll_request *fetchAll_req =
         reinterpret_cast<struct fetchAll_request *>(req->data);
     MysqlResult *res = fetchAll_req->res;
@@ -431,7 +435,9 @@ int MysqlResult::EIO_FetchAll(eio_req *req) {
     fetchAll_req->num_fields = mysql_num_fields(res->_res);
 
     req->result = 0;
+#if NODE_MINOR_VERSION == 4
     return req->result;
+#endif  // NODE_MINOR_VERSION
 }
 #endif
 

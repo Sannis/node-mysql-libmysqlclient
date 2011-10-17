@@ -169,7 +169,11 @@ class MysqlConnection : public node::ObjectWrap {
         const char *error;
     };
     static int EIO_After_Connect(eio_req *req);
+#if NODE_MINOR_VERSION == 4
     static int EIO_Connect(eio_req *req);
+#else  // NODE_MINOR_VERSION > 4
+    static void EIO_Connect(eio_req *req);
+#endif  // NODE_MINOR_VERSION
 #endif
     static Handle<Value> Connect(const Arguments& args);
 
@@ -232,7 +236,11 @@ class MysqlConnection : public node::ObjectWrap {
         const char *error;
     };
     static int EIO_After_Query(eio_req *req);
+#if NODE_MINOR_VERSION == 4
     static int EIO_Query(eio_req *req);
+#else  // NODE_MINOR_VERSION > 4
+    static void EIO_Query(eio_req *req);
+#endif  // NODE_MINOR_VERSION
 #endif
     static Handle<Value> Query(const Arguments& args);
 

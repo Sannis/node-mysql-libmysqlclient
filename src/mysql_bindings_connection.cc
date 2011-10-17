@@ -451,7 +451,11 @@ int MysqlConnection::EIO_After_Connect(eio_req *req) {
     return 0;
 }
 
+#if NODE_MINOR_VERSION == 4
 int MysqlConnection::EIO_Connect(eio_req *req) {
+#else  // NODE_MINOR_VERSION > 4
+void MysqlConnection::EIO_Connect(eio_req *req) {
+#endif  // NODE_MINOR_VERSION
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
     req->result = conn_req->conn->Connect(
@@ -472,7 +476,9 @@ int MysqlConnection::EIO_Connect(eio_req *req) {
     delete conn_req->user;
     delete conn_req->password;
     delete conn_req->socket;
+#if NODE_MINOR_VERSION == 4
     return req->result;
+#endif  // NODE_MINOR_VERSION
 }
 #endif
 
@@ -1088,14 +1094,20 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
     return 0;
 }
 
+#if NODE_MINOR_VERSION == 4
 int MysqlConnection::EIO_Query(eio_req *req) {
+#else  // NODE_MINOR_VERSION > 4
+void MysqlConnection::EIO_Query(eio_req *req) {
+#endif  // NODE_MINOR_VERSION
     struct query_request *query_req = (struct query_request *)(req->data);
 
     MysqlConnection *conn = query_req->conn;
 
     if (!conn->_conn) {
         req->result = 1;
+#if NODE_MINOR_VERSION == 4
         return req->result;
+#endif  // NODE_MINOR_VERSION
     }
 
     MYSQLCONN_DISABLE_MQ;
@@ -1134,7 +1146,9 @@ int MysqlConnection::EIO_Query(eio_req *req) {
         }
     }
     pthread_mutex_unlock(&conn->query_lock);
+#if NODE_MINOR_VERSION == 4
     return req->result;
+#endif  // NODE_MINOR_VERSION
 }
 #endif
 
