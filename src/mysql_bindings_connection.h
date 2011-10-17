@@ -169,7 +169,7 @@ class MysqlConnection : public node::ObjectWrap {
         const char *error;
     };
     static int EIO_After_Connect(eio_req *req);
-    static void EIO_Connect(eio_req *req);
+    static int EIO_Connect(eio_req *req);
 #endif
     static Handle<Value> Connect(const Arguments& args);
 
@@ -232,7 +232,7 @@ class MysqlConnection : public node::ObjectWrap {
         const char *error;
     };
     static int EIO_After_Query(eio_req *req);
-    static void EIO_Query(eio_req *req);
+    static int EIO_Query(eio_req *req);
 #endif
     static Handle<Value> Query(const Arguments& args);
 

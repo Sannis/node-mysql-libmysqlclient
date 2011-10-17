@@ -100,7 +100,7 @@ class MysqlResult : public node::ObjectWrap {
         bool results_structured;
     };
     static int EIO_After_FetchAll(eio_req *req);
-    static void EIO_FetchAll(eio_req *req);
+    static int EIO_FetchAll(eio_req *req);
 #endif
     static Handle<Value> FetchAll(const Arguments& args);
 
