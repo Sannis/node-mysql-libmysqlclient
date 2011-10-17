@@ -420,7 +420,7 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
     return 0;
 }
 
-void MysqlResult::EIO_FetchAll(eio_req *req) {
+int MysqlResult::EIO_FetchAll(eio_req *req) {
     struct fetchAll_request *fetchAll_req =
         reinterpret_cast<struct fetchAll_request *>(req->data);
     MysqlResult *res = fetchAll_req->res;
@@ -431,6 +431,7 @@ void MysqlResult::EIO_FetchAll(eio_req *req) {
     fetchAll_req->num_fields = mysql_num_fields(res->_res);
 
     req->result = 0;
+    return req->result;
 }
 #endif
 

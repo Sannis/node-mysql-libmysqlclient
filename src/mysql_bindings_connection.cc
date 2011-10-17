@@ -451,7 +451,7 @@ int MysqlConnection::EIO_After_Connect(eio_req *req) {
     return 0;
 }
 
-void MysqlConnection::EIO_Connect(eio_req *req) {
+int MysqlConnection::EIO_Connect(eio_req *req) {
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
     req->result = conn_req->conn->Connect(
@@ -472,6 +472,7 @@ void MysqlConnection::EIO_Connect(eio_req *req) {
     delete conn_req->user;
     delete conn_req->password;
     delete conn_req->socket;
+    return req->result;
 }
 #endif
 
@@ -1087,14 +1088,14 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
     return 0;
 }
 
-void MysqlConnection::EIO_Query(eio_req *req) {
+int MysqlConnection::EIO_Query(eio_req *req) {
     struct query_request *query_req = (struct query_request *)(req->data);
 
     MysqlConnection *conn = query_req->conn;
 
     if (!conn->_conn) {
         req->result = 1;
-        return;
+        return req->result;
     }
 
     MYSQLCONN_DISABLE_MQ;
@@ -1133,6 +1134,7 @@ void MysqlConnection::EIO_Query(eio_req *req) {
         }
     }
     pthread_mutex_unlock(&conn->query_lock);
+    return req->result;
 }
 #endif
 
