@@ -16,10 +16,6 @@ VERSION = "1.2.4"
 def set_options(opt):
   opt.tool_options("compiler_cxx")
   opt.add_option('--mysql-config', action='store', default='mysql_config', help='Path to mysql_config, e.g. /usr/bin/mysql_config')
-  opt.add_option('--all', action='store_true', help='Run all tests (include slow, exclude ignored)')
-  opt.add_option('--slow', action='store_true', help='Run slow tests')
-  opt.add_option('--ignored', action='store_true', help='Run ignored tests')
-  opt.add_option('--debug', action='store_true', help='Run tests with node_g')
   opt.add_option('--warn', action='store_true', help='Enable extra -W* compiler flags')
 
 def configure(conf):
@@ -54,25 +50,6 @@ def build(bld):
   obj.target = "mysql_bindings"
   obj.source = "./src/mysql_bindings.cc ./src/mysql_bindings_connection.cc ./src/mysql_bindings_result.cc ./src/mysql_bindings_statement.cc"
   obj.uselib = "MYSQLCLIENT"
-
-def test(tst):
-  nodeunit_binary = 'nodeunit'
-  if Options.options.debug:
-    nodeunit_binary = 'nodeunit_g'
-  
-  if Options.options.slow and Options.options.ignored:
-    Utils.exec_command(nodeunit_binary + ' tests/slow tests/ignored')
-  else:
-    if Options.options.slow:
-      Utils.exec_command(nodeunit_binary + ' tests/slow')
-    else:
-      if Options.options.ignored:
-        Utils.exec_command(nodeunit_binary + ' tests/ignored')
-      else:
-        if Options.options.all:
-          Utils.exec_command(nodeunit_binary + ' tests/simple tests/complex tests/slow')
-        else:
-          Utils.exec_command(nodeunit_binary + ' tests/simple tests/complex')
 
 def lint(lnt):
   # Bindings C++ source code
@@ -144,9 +121,6 @@ def shutdown():
   # HACK to get bindings.node out of build directory.
   # better way to do this?
   t = 'mysql_bindings.node'
-  if Options.commands['clean']:
-    if exists(t): unlink(t)
-  else:
-    if exists('build/Release/' + t) and not exists(t):
-      symlink('build/Release/' + t, t)
+  if exists('build/Release/' + t) and not exists(t):
+    symlink('build/Release/' + t, t)
 
