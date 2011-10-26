@@ -629,6 +629,12 @@ exports.SetOptionSync = function (test) {
   conn.realConnectSync(cfg.host, cfg.user, cfg.password);
   conn.closeSync();
   
+  // Test MYSQL_OPT_RECONNECT (issue #90)
+  conn.initSync();
+  conn.setOptionSync(conn.MYSQL_OPT_CONNECT_TIMEOUT, 3);
+  conn.realConnectSync(cfg.host, cfg.user, cfg.password);
+  conn.closeSync();
+  
   test.done();
 };
 
