@@ -39,7 +39,7 @@
     , "email": "svnovgorodsky@hotmail.com"
     }
   ]
-, "bugs" : { "web" : "http://github.com/Sannis/node-mysql-libmysqlclient/issues" }
+, "bugs" : { "url" : "http://github.com/Sannis/node-mysql-libmysqlclient/issues" }
 , "licenses" : [ { "type" : "MIT" } ]
 , "repositories" :
   [ { "type" : "git"
