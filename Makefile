@@ -6,42 +6,50 @@ NI_DEBUG_PORT=5858
 NI_WEB_PORT=8888
 WEB_BROWSER=google-chrome
 
-all: ./mysql_bindings.node
+all: conf build
 
-./mysql_bindings.node: ./src/*
-		node-waf build
+conf: clean conf-stamp
+
+conf-stamp:
+		touch conf-stamp
+		node-waf configure
 
 clean:
 		rm -rf ./build
 		rm -f ./mysql_bindings.node
+		rm -f conf-stamp
+		rm -f build-stamp
+		rm -f devdependencies-stamp
 
-conf: clean
-		node-waf configure
+build: build-stamp
 
-./node_modules/.bin/nodeunit:
-		npm install nodeunit
+build-stamp: ./src/*
+		touch build-stamp
+		node-waf build
 
-test: ./node_modules/.bin/nodeunit
+test: devdependencies
 		./node_modules/.bin/nodeunit tests/simple tests/complex
 
-test-all: ./node_modules/.bin/nodeunit
+test-all: devdependencies
 		./node_modules/.bin/nodeunit tests/simple tests/complex tests/slow
 
-test-profile: ./node_modules/.bin/nodeunit
+test-profile: devdependencies
 		rm -f v8.log
 		/usr/bin/env node --prof ./node_modules/.bin/nodeunit tests/simple tests/complex
 		/usr/bin/env linux-tick-processor v8.log > v8.processed.log
 
-${NI}:
-		npm install node-inspector
-		npm install v8-profiler
-
-inspector: ${NI}
+inspector: devdependencies
 		${NI} --web-port=${NI_WEB_PORT} &
 		${WEB_BROWSER} http://127.0.0.1:${NI_WEB_PORT}/debug?port=${NI_DEBUG_PORT}
 
-mlf: ${MLF} ./mysql-libmysqlclient.js ./mysql_bindings.node
+mlf: devdependencies build ./mysql-libmysqlclient.js
 		/usr/bin/env node --expose-gc --debug ${MLF} #--debugger_port=${NI_DEBUG_PORT} ${MLF}
 
-.PHONY: all clean conf test test-all test-profile inspector mlf
+devdependencies: devdependencies-stamp
+
+devdependencies-stamp:
+		touch devdependencies-stamp
+		npm install --dev .
+
+.PHONY: all build clean conf test test-all test-profile inspector mlf
 

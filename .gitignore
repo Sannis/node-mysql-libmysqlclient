@@ -4,3 +4,6 @@ build
 mysql_bindings.node
 .idea
 node_modules
+conf-stamp
+build-stamp
+devdependencies-stamp
