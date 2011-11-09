@@ -7,3 +7,4 @@ node_modules
 conf-stamp
 build-stamp
 devdependencies-stamp
+node-mysql-libmysqlclient
