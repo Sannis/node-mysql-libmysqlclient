@@ -1,6 +1,10 @@
 Changelog (revision history) for node-mysql-libmysqlclient,
 the full MySQL bindings for Node.js using libmysqlclient.
 
+## Version 1.2.8
+
+  * Fix building with Node.js v0.4.x
+
 ## Versions 1.2.5-1.2.7
 
   * Node.js v0.6.0 support, late 0.5.x support
