@@ -19,6 +19,8 @@ clean:
 		rm -f ./mysql_bindings.node
 		rm -f conf-stamp
 		rm -f build-stamp
+
+cleanall: clean
 		rm -f devdependencies-stamp
 
 build: build-stamp

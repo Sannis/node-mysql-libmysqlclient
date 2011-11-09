@@ -15,7 +15,7 @@ exports.Setup = function (test) {
   
   conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
   conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (number INT(8) NOT NULL) TYPE=MEMORY;");
+    " (number INT(8) NOT NULL) ENGINE=MEMORY;");
   
   conn.closeSync();
   

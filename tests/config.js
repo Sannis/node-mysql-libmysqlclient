@@ -26,7 +26,7 @@ module.exports = {
   test_table2: "test_table2",
   test_table_notexists: "test_table_notexists",
   charset: "utf8",
-  store_engine: "TYPE=MyISAM",
+  store_engine: "ENGINE=MyISAM",
 
   // Operations count for continuous tests
   reconnect_count: 10000,

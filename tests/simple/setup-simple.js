@@ -16,7 +16,7 @@ exports.createTestTableSimple = function (test) {
     res,
     tables;
   
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, cfg.database)");
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
   conn.querySync("CREATE TABLE " + cfg.test_table +
