@@ -15,7 +15,7 @@ Extra information available in [wiki].
 Dependencies
 ------------
 
-This module tested with Node.js version v0.2.6 (@v1.1.1-2-g7014034), 0.4.12 (@v1.2.5) and 0.5.10 (@v1.2.5).
+This module tested with Node.js version 0.4.12 (@v1.2.5) and 0.6.0 (@v1.2.7).
 
 To build it you must install libmysqlclient library and development files for it.
 Node-waf use mysql_config to determine the paths to the library and header files.
@@ -168,6 +168,12 @@ Contributors
 
   Fixes for compilation errors.  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=snovgorodsky).
+
+
+* **Ștefan Rusu** ( [E-mail](mailto:saltwaterc@gmail.com), [GitHub](https://github.com/SaltwaterC) \)
+
+  Fixes for Node.js 0.4/0.6 compatibility.
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=SaltwaterC).
 
 
 [Full contributors list](https://github.com/Sannis/node-mysql-libmysqlclient/contributors).
