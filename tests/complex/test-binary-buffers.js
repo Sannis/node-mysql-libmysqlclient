@@ -47,23 +47,26 @@ exports.FetchAllSyncWithBinaryFields = function (test) {
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
-    rows;
+    rows,
+    rowsExpected;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("SELECT vc, vbi, bi, t, b FROM " + cfg.test_table2 + ";");
   test.ok(res, "SELECT");
   
   rows = res.fetchAllSync(true);
-  test.same(rows,
-            [ [ 'qwerty',          new Buffer('qwerty'),  new Buffer('qwerty\0\0'),     'qwerty',          new Buffer('qwerty') ],
-              [ 'qwe\u0000\u0000', new Buffer('qwe\0\0'), new Buffer('qwe\0\0\0\0\0'),  'qwe\u0000\u0000', new Buffer('qwe\0\0') ],
-              [ '12\u0000\u0000',  new Buffer('12\0\0'),  new Buffer('12\0\0\0\0\0\0'), '12\u0000\u0000',  null ],
-              [ '34\u0000\u0000',  new Buffer('34\0\0'),  new Buffer('34\0\0\0\0\0\0'), null,              new Buffer('34\0\0') ] ],
-    "conn.querySync('SELECT ...').fetchAllSync(true)"
-  );
+
+  rowsExpected = [ [ 'qwerty',          new Buffer('qwerty'),  new Buffer('qwerty\0\0'),     'qwerty',          new Buffer('qwerty') ],
+                   [ 'qwe\u0000\u0000', new Buffer('qwe\0\0'), new Buffer('qwe\0\0\0\0\0'),  'qwe\u0000\u0000', new Buffer('qwe\0\0') ],
+                   [ '12\u0000\u0000',  new Buffer('12\0\0'),  new Buffer('12\0\0\0\0\0\0'), '12\u0000\u0000',  null ],
+                   [ '34\u0000\u0000',  new Buffer('34\0\0'),  new Buffer('34\0\0\0\0\0\0'), null,              new Buffer('34\0\0') ] ];
+
+  test.same(cfg.util.inspect(rows), cfg.util.inspect(rowsExpected), "conn.querySync('SELECT ...').fetchAllSync(true)");
+
   res.freeSync();
   
   conn.closeSync();
+  
   test.done();
 };
 

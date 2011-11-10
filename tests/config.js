@@ -15,6 +15,7 @@ module.exports = {
   // Required modules
   mysql_libmysqlclient: require("../mysql-libmysqlclient"),
   mysql_bindings: require("../mysql_bindings"),
+  util: require("util"),
   
   // Database connection settings
   host: "localhost",
