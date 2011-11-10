@@ -30,14 +30,14 @@ build-stamp: ./src/*
 		node-waf build
 
 test: devdependencies
-		./node_modules/.bin/nodeunit tests/simple tests/complex
+		./node_modules/.bin/nodeunit tests/simple tests/complex tests/issues
 
 test-all: devdependencies
-		./node_modules/.bin/nodeunit tests/simple tests/complex tests/slow
+		./node_modules/.bin/nodeunit tests/simple tests/complex tests/slow tests/issues
 
 test-profile: devdependencies
 		rm -f v8.log
-		/usr/bin/env node --prof ./node_modules/.bin/nodeunit tests/simple tests/complex
+		/usr/bin/env node --prof ./node_modules/.bin/nodeunit tests/simple tests/complex tests/issues
 		/usr/bin/env linux-tick-processor v8.log > v8.processed.log
 
 inspector: devdependencies
