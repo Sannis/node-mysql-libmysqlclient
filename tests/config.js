@@ -18,9 +18,9 @@ module.exports = {
   util: require("util"),
   
   // Database connection settings
-  host: "localhost",
-  user: "test",
-  password: "",
+  host: process.env["TRAVIS"]     ? "0.0.0.0" : "localhost",
+  user: process.env["TRAVIS"]     ? ""        : "test",
+  password: process.env["TRAVIS"] ? null      : "",
   database: "test",
   database_denied: "mysql",
   test_table: "test_table",
@@ -40,4 +40,3 @@ module.exports = {
   slow_fetches_nested:  20000,
   slow_fetches_inloop:  20000
 };
-
