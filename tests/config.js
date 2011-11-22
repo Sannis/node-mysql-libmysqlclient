@@ -22,7 +22,7 @@ module.exports = {
   user: process.env["TRAVIS"]     ? ""        : "test",
   password: process.env["TRAVIS"] ? null      : "",
   database: "test",
-  database_denied: "mysql",
+  database_denied: process.env["TRAVIS"] ? "test_denied" : "mysql",
   test_table: "test_table",
   test_table2: "test_table2",
   test_table_notexists: "test_table_notexists",

@@ -4,4 +4,6 @@ node_js:
   - 0.5
   - 0.6
 before_script:
-  - "mysql -e 'CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;'"
+  - "mysql -e 'CREATE DATABASE IF NOT EXISTS test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;'"
+  - "mysql -e 'CREATE DATABASE IF NOT EXISTS test_denied DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;'"
+  - "mysql -e 'GRANT RELOAD ON test_denied.* TO test@0.0.0.0;'"
