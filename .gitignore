@@ -8,3 +8,8 @@ conf-stamp
 build-stamp
 devdependencies-stamp
 node-mysql-libmysqlclient
+
+*.gcda
+*.gcno
+*.gcov
+
