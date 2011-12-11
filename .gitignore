@@ -13,3 +13,4 @@ node-mysql-libmysqlclient
 *.gcno
 *.gcov
 
+.DS_Store
