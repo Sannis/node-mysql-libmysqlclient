@@ -1114,11 +1114,12 @@ void MysqlConnection::EIO_Query(eio_req *req) {
 
     pthread_mutex_lock(&conn->query_lock);
     int r = mysql_query(conn->_conn, query_req->query);
-    if (r != 0) {
+    int errno = mysql_errno(conn->_conn);
+    if (r != 0 || errno != 0) {
         // Query error
         req->result = 1;
 
-        query_req->errno = mysql_errno(conn->_conn);
+        query_req->errno = errno;
         query_req->error = mysql_error(conn->_conn);
     } else {
         req->result = 0;
@@ -1142,6 +1143,8 @@ void MysqlConnection::EIO_Query(eio_req *req) {
             } else {
                 // Result store error
                 req->result = 1;
+                query_req->errno = errno;
+                query_req->error = mysql_error(conn->_conn);
             }
         }
     }
