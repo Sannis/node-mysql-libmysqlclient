@@ -176,6 +176,11 @@ Contributors
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=SaltwaterC).
 
 
+* **Zhiqiang Zhao** ( [E-mail](mailto:zzqvincent@gmail.com), [GitHub](https://github.com/vincent-zhao) \)
+
+  Fix bug with wrong 1194 erro handling.
+  [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=vincent-zhao).
+
 [Full contributors list](https://github.com/Sannis/node-mysql-libmysqlclient/contributors).
 
 
