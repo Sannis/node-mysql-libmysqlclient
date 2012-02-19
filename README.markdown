@@ -6,6 +6,9 @@ Check out the [Github repo] for the source code.
 Visit [module site] for API docs and examples.  
 Extra information available in [wiki].
 
+Master (development) branch build status:
+[![Build Status](https://secure.travis-ci.org/Sannis/node-mysql-libmysqlclient.png?branch=master)](http://travis-ci.org/Sannis/node-mysql-libmysqlclient)
+
 [Node.js]: http://nodejs.org/
 [Github repo]: https://github.com/Sannis/node-mysql-libmysqlclient
 [module site]: http://sannis.github.com/node-mysql-libmysqlclient

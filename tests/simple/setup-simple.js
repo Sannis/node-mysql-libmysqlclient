@@ -16,6 +16,10 @@ exports.createTestTableSimple = function (test) {
     res,
     tables;
   
+  if (conn.connectErrno) {
+    console.log("Failed to connect as " + cfg.user + "@" + cfg.host + ": " + conn.connectError);
+  }
+  
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");

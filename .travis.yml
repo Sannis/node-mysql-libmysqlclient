@@ -1,9 +1,8 @@
 language: node_js
 node_js:
   - 0.4
-  - 0.5
   - 0.6
 before_script:
-  - "mysql -e 'CREATE DATABASE IF NOT EXISTS test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;'"
-  - "mysql -e 'CREATE DATABASE IF NOT EXISTS test_denied DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;'"
-  - "mysql -e 'GRANT RELOAD ON test_denied.* TO test@0.0.0.0;'"
+  - "mysql -uroot -e \"CREATE DATABASE IF NOT EXISTS test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
+  - "mysql -uroot -e \"CREATE DATABASE IF NOT EXISTS test_denied DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
+  - "mysql -uroot -e \"GRANT ALL PRIVILEGES ON test.* TO 'test_user'@'localhost' IDENTIFIED BY '1234';\""

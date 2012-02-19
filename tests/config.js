@@ -16,11 +16,11 @@ module.exports = {
   mysql_libmysqlclient: require("../mysql-libmysqlclient"),
   mysql_bindings: require("../mysql_bindings"),
   util: require("util"),
-  
+
   // Database connection settings
-  host: process.env["TRAVIS"]     ? "0.0.0.0" : "localhost",
-  user: process.env["TRAVIS"]     ? ""        : "test",
-  password: process.env["TRAVIS"] ? null      : "",
+  host:     process.env["TRAVIS"] ? "localhost" : "localhost",
+  user:     process.env["TRAVIS"] ? "test_user" : "test",
+  password: process.env["TRAVIS"] ? "1234"      : "",
   database: "test",
   database_denied: process.env["TRAVIS"] ? "test_denied" : "mysql",
   test_table: "test_table",
