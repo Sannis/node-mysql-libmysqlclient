@@ -18,7 +18,7 @@ Master (development) branch build status:
 Dependencies
 ------------
 
-This module tested with Node.js version 0.4.12 (@v1.2.5) and 0.6.0 (@v1.2.7).
+This module tested with Node.js version 0.4.12 (@v1.2.5) and 0.6.11 (@v1.2.10).
 
 To build it you must install libmysqlclient library and development files for it.
 Node-waf use mysql_config to determine the paths to the library and header files.
@@ -175,13 +175,13 @@ Contributors
 
 * **Ștefan Rusu** ( [E-mail](mailto:saltwaterc@gmail.com), [GitHub](https://github.com/SaltwaterC) \)
 
-  Fixes for Node.js 0.4/0.6 compatibility.
+  Fixes for Node.js 0.4/0.6 compatibility.  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=SaltwaterC).
 
 
 * **Zhiqiang Zhao** ( [E-mail](mailto:zzqvincent@gmail.com), [GitHub](https://github.com/vincent-zhao) \)
 
-  Fix bug with wrong 1194 erro handling.
+  Fix bug with wrong 1194 erro handling.  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=vincent-zhao).
 
 [Full contributors list](https://github.com/Sannis/node-mysql-libmysqlclient/contributors).

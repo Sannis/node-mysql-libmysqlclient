@@ -1,6 +1,11 @@
 Changelog (revision history) for node-mysql-libmysqlclient,
 the full MySQL bindings for Node.js using libmysqlclient.
 
+## Version 1.2.10
+
+  * Fix bug with wrong 1194 erro handling, #109
+  * Add build testing throught Travis CI
+
 ## Version 1.2.9
 
   * Fix test assert for binary buffers
