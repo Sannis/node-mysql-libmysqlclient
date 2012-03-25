@@ -74,6 +74,7 @@ static Persistent<String> connection_multiNextResultSync_symbol;
 static Persistent<String> connection_multiRealQuerySync_symbol;
 static Persistent<String> connection_pingSync_symbol;
 static Persistent<String> connection_query_symbol;
+static Persistent<String> connection_queryAsync_symbol;
 static Persistent<String> connection_querySync_symbol;
 static Persistent<String> connection_realConnectSync_symbol;
 static Persistent<String> connection_realQuerySync_symbol;
@@ -236,6 +237,8 @@ class MysqlConnection : public node::ObjectWrap {
         const char *error;
     };
     static int EIO_After_Query(eio_req *req);
+
+    static void EV_After_Query(struct ev_loop *loop, ev_io *req, int revents);
 #if NODE_MINOR_VERSION == 4
     static int EIO_Query(eio_req *req);
 #else  // NODE_MINOR_VERSION > 4
@@ -243,6 +246,8 @@ class MysqlConnection : public node::ObjectWrap {
 #endif  // NODE_MINOR_VERSION
 #endif
     static Handle<Value> Query(const Arguments& args);
+
+    static Handle<Value> QueryAsync(const Arguments& args);
 
     static Handle<Value> QuerySync(const Arguments& args);
 

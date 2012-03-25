@@ -120,6 +120,7 @@ void MysqlConnection::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, multiRealQuerySync, MultiRealQuerySync);
     ADD_PROTOTYPE_METHOD(connection, pingSync, PingSync);
     ADD_PROTOTYPE_METHOD(connection, query, Query);
+    ADD_PROTOTYPE_METHOD(connection, queryAsync, QueryAsync);
     ADD_PROTOTYPE_METHOD(connection, querySync, QuerySync);
     ADD_PROTOTYPE_METHOD(connection, realConnectSync, RealConnectSync);
     ADD_PROTOTYPE_METHOD(connection, realQuerySync, RealQuerySync);
@@ -1094,6 +1095,122 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
     return 0;
 }
 
+
+
+/**
+ * EV wrapper functions for MysqlConnection::Query
+ */
+void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents) {
+    HandleScope scope;
+
+    //ev_unref(EV_DEFAULT_UC);
+    struct query_request *query_req = (struct query_request *)(w->data);
+
+		int r = mysql_read_query_result(query_req->conn->_conn);
+
+    int errno = mysql_errno(query_req->conn->_conn);
+
+		int resultNo = 0;
+
+		int int1 = 0;
+
+    if (r != 0 || errno != 0) {
+        // Query error
+        //req->result = 1;
+        resultNo = 1;
+
+        query_req->errno = errno;
+        query_req->error = mysql_error(query_req->conn->_conn);
+    } else {
+        resultNo = 0;
+
+        MYSQL_RES *my_result = mysql_store_result(query_req->conn->_conn);
+
+        query_req->field_count = mysql_field_count(query_req->conn->_conn);
+
+        if (my_result) {
+            // Valid result set (may be empty, of cause)
+            int1 = 1;
+            query_req->my_result = my_result;
+        } else {
+            if (query_req->field_count == 0) {
+                // No result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN
+                // UPDATE or DELETE?
+                query_req->affected_rows = mysql_affected_rows(query_req->conn->_conn);
+                // INSERT?
+                query_req->insert_id = mysql_insert_id(query_req->conn->_conn);
+                int1 = 0;
+            } else {
+                // Result store error
+                resultNo = 1;
+                query_req->errno = errno;
+                query_req->error = mysql_error(query_req->conn->_conn);
+            }
+        }
+    }
+
+    int argc = 1;
+    Local<Value> argv[3];
+
+    if (resultNo) {
+        unsigned int error_string_length = strlen(query_req->error) + 20;
+        char* error_string = new char[error_string_length];
+        snprintf(error_string, error_string_length, "Query error #%d: %s",
+                 query_req->errno, query_req->error);
+
+        argv[0] = V8EXC(error_string);
+        delete[] error_string;
+    } else {
+        if (int1) {
+            argv[0] = External::New(query_req->conn->_conn);
+            argv[1] = External::New(query_req->my_result);
+            argv[2] = Integer::NewFromUnsigned(query_req->field_count);
+            Persistent<Object> js_result(MysqlResult::constructor_template->
+                                     GetFunction()->NewInstance(3, argv));
+
+            argv[1] = Local<Object>::New(js_result);
+        } else {
+            Local<Object> js_result = Object::New();
+            js_result->Set(V8STR("affectedRows"),
+                           Integer::New(query_req->affected_rows));
+            js_result->Set(V8STR("insertId"),
+                           Integer::New(query_req->insert_id));
+            argv[1] = Local<Object>::New(js_result);
+        }
+        argc = 2;
+        argv[0] = Local<Value>::New(Null());
+    }
+
+    if (query_req->callback->IsFunction()) {
+        TryCatch try_catch;
+
+        Persistent<Function>::Cast(query_req->callback)->
+                              Call(Context::GetCurrent()->Global(), argc, argv);
+
+        if (try_catch.HasCaught()) {
+            node::FatalException(try_catch);
+        }
+
+        query_req->callback.Dispose();
+    }
+
+    //query_req->conn->Unref();
+
+    free(query_req->query);
+    free(query_req);
+		ev_io_stop (loop, w);
+		ev_break (EV_A_ EVBREAK_ONE);
+
+    //return 0;
+}
+
+
+
+
+
+
+
+
 #if NODE_MINOR_VERSION == 4
 int MysqlConnection::EIO_Query(eio_req *req) {
 #else  // NODE_MINOR_VERSION > 4
@@ -1201,6 +1318,72 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
     return Undefined();
 #endif
 }
+
+
+
+/**
+ * Performs a query on the database
+ *
+ * @param {String} queryAsync
+ * @param {Function(error, result)} callback
+ */
+Handle<Value> MysqlConnection::QueryAsync(const Arguments& args) {
+    HandleScope scope;
+#ifdef MYSQL_NON_THREADSAFE
+    return THREXC(MYSQL_NON_THREADSAFE_ERRORSTRING);
+#else
+    REQ_STR_ARG(0, query);
+    OPTIONAL_FUN_ARG(1, callback);
+
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+
+    MYSQLCONN_MUSTBE_CONNECTED;
+
+    struct query_request *query_req = (struct query_request *)
+        calloc(1, sizeof(struct query_request));
+
+    if (!query_req) {
+        V8::LowMemoryNotification();
+        return THREXC("Could not allocate enough memory");
+    }
+
+    unsigned int query_len = static_cast<unsigned int>(query.length());
+    query_req->query =
+        reinterpret_cast<char *>(calloc(query_len + 1, sizeof(char))); // NOLINT (have no char var)
+
+    if (snprintf(query_req->query, query_len + 1, "%s", *query) !=
+                                                static_cast<int>(query_len)) {
+        return THREXC("Snprintf() error");
+    }
+
+    query_req->callback = Persistent<Value>::New(callback);
+    query_req->conn = conn;
+
+
+    //eio_custom(EIO_Query, EIO_PRI_DEFAULT, EIO_After_Query, query_req);
+
+		mysql_send_query(conn->_conn, query_req->query, query_len + 1);
+
+		ev_io io_watcher;
+		struct ev_loop *loop = ev_default_loop (0);
+
+		ev_init(&io_watcher, EV_After_Query);
+
+		io_watcher.data = query_req;
+
+		ev_io_set(&io_watcher, conn->_conn->net.fd, EV_READ);
+
+		ev_io_start(loop, &io_watcher);
+		ev_run (loop, 0);
+
+
+    //ev_ref(EV_DEFAULT_UC);
+    //conn->Ref();
+
+    return Undefined();
+#endif
+}
+
 
 /**
  * Performs a query on the database
