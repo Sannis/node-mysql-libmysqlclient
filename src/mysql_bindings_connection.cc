@@ -1181,6 +1181,9 @@ void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents
         argv[0] = Local<Value>::New(Null());
     }
 
+		ev_io_stop (loop, w);
+		ev_break (EV_A_ EVBREAK_ONE);
+
     if (query_req->callback->IsFunction()) {
         TryCatch try_catch;
 
@@ -1198,10 +1201,6 @@ void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents
 
     free(query_req->query);
     free(query_req);
-		ev_io_stop (loop, w);
-		ev_break (EV_A_ EVBREAK_ONE);
-
-    //return 0;
 }
 
 
@@ -1359,8 +1358,6 @@ Handle<Value> MysqlConnection::QueryAsync(const Arguments& args) {
     query_req->callback = Persistent<Value>::New(callback);
     query_req->conn = conn;
 
-
-    //eio_custom(EIO_Query, EIO_PRI_DEFAULT, EIO_After_Query, query_req);
 
 		mysql_send_query(conn->_conn, query_req->query, query_len + 1);
 
