@@ -1099,7 +1099,7 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
 
 
 /**
- * EV wrapper functions for MysqlConnection::Query
+ * EV wrapper functions for MysqlConnection::QueryAsync
  */
 void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents) {
     HandleScope scope;
@@ -1155,7 +1155,7 @@ void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents
     }
 
     // The callback part, just call the exsisting code
-    EIO_After_Query(&fake_req);
+    EIO_After_Query(req);
 
     // Don't forget to free io_watcher
     free(w);
