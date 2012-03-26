@@ -1106,13 +1106,13 @@ void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents
     //ev_unref(EV_DEFAULT_UC);
     struct query_request *query_req = (struct query_request *)(w->data);
 
-		int r = mysql_read_query_result(query_req->conn->_conn);
+    int r = mysql_read_query_result(query_req->conn->_conn);
 
     int errno = mysql_errno(query_req->conn->_conn);
 
-		int resultNo = 0;
+    int resultNo = 0;
 
-		int int1 = 0;
+    int int1 = 0;
 
     if (r != 0 || errno != 0) {
         // Query error
@@ -1181,8 +1181,8 @@ void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents
         argv[0] = Local<Value>::New(Null());
     }
 
-		ev_io_stop (loop, w);
-		ev_break (EV_A_ EVBREAK_ONE);
+    ev_io_stop (loop, w);
+    ev_break (EV_A_ EVBREAK_ONE);
 
     if (query_req->callback->IsFunction()) {
         TryCatch try_catch;
@@ -1359,19 +1359,19 @@ Handle<Value> MysqlConnection::QueryAsync(const Arguments& args) {
     query_req->conn = conn;
 
 
-		mysql_send_query(conn->_conn, query_req->query, query_len + 1);
+    mysql_send_query(conn->_conn, query_req->query, query_len + 1);
 
-		ev_io io_watcher;
-		struct ev_loop *loop = ev_default_loop (0);
+    ev_io io_watcher;
+    struct ev_loop *loop = ev_default_loop (0);
 
-		ev_init(&io_watcher, EV_After_Query);
+    ev_init(&io_watcher, EV_After_Query);
 
-		io_watcher.data = query_req;
+    io_watcher.data = query_req;
 
-		ev_io_set(&io_watcher, conn->_conn->net.fd, EV_READ);
+    ev_io_set(&io_watcher, conn->_conn->net.fd, EV_READ);
 
-		ev_io_start(loop, &io_watcher);
-		ev_run (loop, 0);
+    ev_io_start(loop, &io_watcher);
+    ev_run (loop, 0);
 
 
     //ev_ref(EV_DEFAULT_UC);
