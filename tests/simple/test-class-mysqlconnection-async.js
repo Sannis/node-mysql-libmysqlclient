@@ -249,32 +249,3 @@ exports.QueryAsyncWithError = function (test) {
     test.done();
   });
 };
-
-exports.QueryAsyncWithoutCallback = function (test) {
-  test.expect(6);
-  
-  var
-    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
-  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
-  
-  test.doesNotThrow(function () {
-    conn.query("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('1', '0');");
-  });
-  
-  conn.queryAsync("SELECT random_number, random_boolean FROM " + cfg.test_table + ";", function (err, result) {
-    test.ok(result, "Result is defined");
-    test.ok(!err, "Error object is not present");
-    
-    var res = result.fetchAllSync();
-    test.same(res, [{random_number: 1, random_boolean: 0}],
-              "Right result, one row, [{random_number: 1, random_boolean: 0}]]");
-    conn.closeSync();
-    test.done();
-  });
-};
-
