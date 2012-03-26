@@ -263,7 +263,7 @@ exports.QueryAsyncWithoutCallback = function (test) {
   test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
   
   test.doesNotThrow(function () {
-    conn.query("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('1', '0');");
+    conn.queryAsync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('1', '0');");
   });
   
   conn.queryAsync("SELECT random_number, random_boolean FROM " + cfg.test_table + ";", function (err, result) {
