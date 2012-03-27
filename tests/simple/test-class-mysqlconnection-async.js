@@ -250,8 +250,8 @@ exports.QueryAsyncWithError = function (test) {
   });
 };
 
-exports.ConcurrentQueryAsync = function (test) {
-  test.expect(33);
+exports.QueryAsyncWithoutCallback = function (test) {
+  test.expect(6);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
@@ -263,24 +263,18 @@ exports.ConcurrentQueryAsync = function (test) {
   test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
   
   test.doesNotThrow(function () {
-    conn.querySync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('1', '0');");
+    conn.queryAsync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('1', '0');");
   });
-
-  var count = 0;
-  for(var i = 0; i < 10; i++){
-    (function(i){
-      conn.queryAsync("SELECT random_number, random_boolean FROM " + cfg.test_table + ";", function (err, result) {
-        count ++;
-        test.ok(result, "Result is defined");
-        test.ok(!err, "Error object is not present");
-        var res = result.fetchAllSync();
-        test.same(res, [{random_number: 1, random_boolean: 0}],
-                  "Right result, one row, [{random_number: 1, random_boolean: 0}]]");
-        if(count == 10){
-          conn.closeSync();
-          test.done();
-        }
-      });
-    })(i);
-  }
+  
+  conn.queryAsync("SELECT random_number, random_boolean FROM " + cfg.test_table + ";", function (err, result) {
+    test.ok(result, "Result is defined");
+    test.ok(!err, "Error object is not present");
+    
+    var res = result.fetchAllSync();
+    test.same(res, [{random_number: 1, random_boolean: 0}],
+              "Right result, one row, [{random_number: 1, random_boolean: 0}]]");
+    conn.closeSync();
+    test.done();
+  });
 };
+

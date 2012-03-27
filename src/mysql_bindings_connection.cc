@@ -1103,6 +1103,7 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
 void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents) {
     HandleScope scope;
 
+    //ev_unref(EV_DEFAULT_UC);
     struct query_request *query_req = (struct query_request *)(w->data);
 
     int r = mysql_read_query_result(query_req->conn->_conn);
@@ -1180,9 +1181,7 @@ void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents
         argv[0] = Local<Value>::New(Null());
     }
 
-    ev_unref(EV_DEFAULT_UC);
-    //ev_io_stop (loop, w);
-    ev_io_stop (EV_A_ w);
+    ev_io_stop (loop, w);
     ev_break (EV_A_ EVBREAK_ONE);
 
     if (query_req->callback->IsFunction()) {
@@ -1198,10 +1197,10 @@ void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents
         query_req->callback.Dispose();
     }
 
-    query_req->conn->Unref();
+    //query_req->conn->Unref();
+
     free(query_req->query);
     free(query_req);
-    free(w);
 }
 
 
@@ -1362,25 +1361,21 @@ Handle<Value> MysqlConnection::QueryAsync(const Arguments& args) {
 
     mysql_send_query(conn->_conn, query_req->query, query_len + 1);
 
-    //ev_io io_watcher;
-    ev_io *io_watcher = reinterpret_cast<ev_io*>(malloc(sizeof(ev_io)));
+    ev_io io_watcher;
+    struct ev_loop *loop = ev_default_loop (0);
 
-    //struct ev_loop *loop = ev_default_loop (0);
+    ev_init(&io_watcher, EV_After_Query);
 
-    io_watcher->data = query_req;
-    ev_init(io_watcher, EV_After_Query);
+    io_watcher.data = query_req;
 
+    ev_io_set(&io_watcher, conn->_conn->net.fd, EV_READ);
 
-    ev_io_set(io_watcher, conn->_conn->net.fd, EV_READ);
-
-    //ev_io_start(loop, &io_watcher);
-    ev_io_start(EV_DEFAULT_ io_watcher);
-
-    //ev_run (loop, 0);
+    ev_io_start(loop, &io_watcher);
+    ev_run (loop, 0);
 
 
-    ev_ref(EV_DEFAULT_UC);
-    conn->Ref();
+    //ev_ref(EV_DEFAULT_UC);
+    //conn->Ref();
 
     return Undefined();
 #endif
