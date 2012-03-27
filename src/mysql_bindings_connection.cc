@@ -13,6 +13,7 @@
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
+#include <alloca.h>
 
 /**
  * Init V8 structures for MysqlConnection class
@@ -1098,39 +1099,43 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
 
 
 /**
- * EV wrapper functions for MysqlConnection::Query
+ * EV wrapper functions for MysqlConnection::QueryAsync
  */
 void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents) {
     HandleScope scope;
 
-    //ev_unref(EV_DEFAULT_UC);
+    // Fake eio_req struct
+    eio_req fake_req;
+    eio_req *req = &fake_req;
+    req->data = w->data;
+
+    // Stop io_watcher
+    ev_io_stop(EV_A_ w);
+
     struct query_request *query_req = (struct query_request *)(w->data);
 
-    int r = mysql_read_query_result(query_req->conn->_conn);
+    MysqlConnection *conn = query_req->conn;
 
-    int errno = mysql_errno(query_req->conn->_conn);
-
-    int resultNo = 0;
-
-    int int1 = 0;
-
+    // The query part, mostly same with EIO_Query
+    // TODO merge the same parts with EIO_Query
+    int r = mysql_read_query_result(conn->_conn);
+    int errno = mysql_errno(conn->_conn);
     if (r != 0 || errno != 0) {
         // Query error
-        //req->result = 1;
-        resultNo = 1;
+        req->result = 1;
 
         query_req->errno = errno;
-        query_req->error = mysql_error(query_req->conn->_conn);
+        query_req->error = mysql_error(conn->_conn);
     } else {
-        resultNo = 0;
+        req->result = 0;
 
-        MYSQL_RES *my_result = mysql_store_result(query_req->conn->_conn);
+        MYSQL_RES *my_result = mysql_store_result(conn->_conn);
 
-        query_req->field_count = mysql_field_count(query_req->conn->_conn);
+        query_req->field_count = mysql_field_count(conn->_conn);
 
         if (my_result) {
             // Valid result set (may be empty, of cause)
-            int1 = 1;
+            req->int1 = 1;
             query_req->my_result = my_result;
         } else {
             if (query_req->field_count == 0) {
@@ -1139,74 +1144,22 @@ void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents
                 query_req->affected_rows = mysql_affected_rows(query_req->conn->_conn);
                 // INSERT?
                 query_req->insert_id = mysql_insert_id(query_req->conn->_conn);
-                int1 = 0;
+                req->int1 = 0;
             } else {
                 // Result store error
-                resultNo = 1;
+                req->result = 1;
                 query_req->errno = errno;
                 query_req->error = mysql_error(query_req->conn->_conn);
             }
         }
     }
 
-    int argc = 1;
-    Local<Value> argv[3];
+    // The callback part, just call the exsisting code
+    EIO_After_Query(req);
 
-    if (resultNo) {
-        unsigned int error_string_length = strlen(query_req->error) + 20;
-        char* error_string = new char[error_string_length];
-        snprintf(error_string, error_string_length, "Query error #%d: %s",
-                 query_req->errno, query_req->error);
-
-        argv[0] = V8EXC(error_string);
-        delete[] error_string;
-    } else {
-        if (int1) {
-            argv[0] = External::New(query_req->conn->_conn);
-            argv[1] = External::New(query_req->my_result);
-            argv[2] = Integer::NewFromUnsigned(query_req->field_count);
-            Persistent<Object> js_result(MysqlResult::constructor_template->
-                                     GetFunction()->NewInstance(3, argv));
-
-            argv[1] = Local<Object>::New(js_result);
-        } else {
-            Local<Object> js_result = Object::New();
-            js_result->Set(V8STR("affectedRows"),
-                           Integer::New(query_req->affected_rows));
-            js_result->Set(V8STR("insertId"),
-                           Integer::New(query_req->insert_id));
-            argv[1] = Local<Object>::New(js_result);
-        }
-        argc = 2;
-        argv[0] = Local<Value>::New(Null());
-    }
-
-    ev_io_stop (loop, w);
-    ev_break (EV_A_ EVBREAK_ONE);
-
-    if (query_req->callback->IsFunction()) {
-        TryCatch try_catch;
-
-        Persistent<Function>::Cast(query_req->callback)->
-                              Call(Context::GetCurrent()->Global(), argc, argv);
-
-        if (try_catch.HasCaught()) {
-            node::FatalException(try_catch);
-        }
-
-        query_req->callback.Dispose();
-    }
-
-    //query_req->conn->Unref();
-
-    free(query_req->query);
-    free(query_req);
+    // Don't forget to free io_watcher
+    free(w);
 }
-
-
-
-
-
 
 
 
@@ -1358,24 +1311,18 @@ Handle<Value> MysqlConnection::QueryAsync(const Arguments& args) {
     query_req->callback = Persistent<Value>::New(callback);
     query_req->conn = conn;
 
-
+    // Send query
     mysql_send_query(conn->_conn, query_req->query, query_len + 1);
 
-    ev_io io_watcher;
-    struct ev_loop *loop = ev_default_loop (0);
+    // Init ev watcher
+    ev_io *io_watcher = reinterpret_cast<ev_io*>(malloc(sizeof(ev_io)));
+    io_watcher->data = query_req;
+    ev_init(io_watcher, EV_After_Query);
+    ev_io_set(io_watcher, conn->_conn->net.fd, EV_READ);
+    ev_io_start(EV_DEFAULT_ io_watcher);
 
-    ev_init(&io_watcher, EV_After_Query);
-
-    io_watcher.data = query_req;
-
-    ev_io_set(&io_watcher, conn->_conn->net.fd, EV_READ);
-
-    ev_io_start(loop, &io_watcher);
-    ev_run (loop, 0);
-
-
-    //ev_ref(EV_DEFAULT_UC);
-    //conn->Ref();
+    ev_ref(EV_DEFAULT_UC);
+    conn->Ref();
 
     return Undefined();
 #endif
