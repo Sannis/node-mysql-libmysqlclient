@@ -251,7 +251,7 @@ exports.QueryAsyncWithError = function (test) {
 };
 
 exports.ConcurrentQueryAsync = function (test) {
-  test.expect(6);
+  test.expect(33);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
