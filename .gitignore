@@ -4,10 +4,12 @@ build
 mysql_bindings.node
 .idea
 node_modules
+
 conf-stamp
 build-stamp
+waf-stamp
+gyp-stamp
 devdependencies-stamp
-node-mysql-libmysqlclient
 
 *.gcda
 *.gcno

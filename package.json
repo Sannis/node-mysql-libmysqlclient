@@ -47,8 +47,7 @@
   }
 , "main" : "./mysql-libmysqlclient"
 , "scripts" :
-  { "install" : "make conf all"
-  , "test" : "make test"
+  { "test" : "make test"
   , "doc" : "make doc"
   }
 , "engines" : { "node" : "0.4.x || 0.5.x || 0.6.x" }

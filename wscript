@@ -114,13 +114,3 @@ def doc(doc):
 
 def gh_pages(context):
   Utils.exec_command('./gh_pages.sh')
-
-def shutdown(bld):
-  if Options.commands['clean'] and not Options.commands['build']:
-    if lexists('mysql_bindings.node'):
-      unlink('mysql_bindings.node')
-  elif Options.commands['build']:
-    if exists('build/default/mysql_bindings.node') and not lexists('mysql_bindings.node'):
-      symlink('build/default/mysql_bindings.node', 'mysql_bindings.node')
-    if exists('build/Release/mysql_bindings.node') and not lexists('mysql_bindings.node'):
-      symlink('build/Release/mysql_bindings.node', 'mysql_bindings.node')

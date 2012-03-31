@@ -6,28 +6,30 @@ NI_DEBUG_PORT=5858
 NI_WEB_PORT=8888
 WEB_BROWSER=google-chrome
 
-all: conf build
-
-conf: clean conf-stamp
-
-conf-stamp:
-		touch conf-stamp
-		node-waf configure
+all: waf
 
 clean:
 		rm -rf ./build
 		rm -f ./mysql_bindings.node
-		rm -f conf-stamp
-		rm -f build-stamp
+		rm -f waf-stamp
+		rm -f gyp-stamp
 
-cleanall: clean
+clean-all: clean
 		rm -f devdependencies-stamp
 
-build: build-stamp
+waf: waf-stamp
 
-build-stamp: ./src/*
-		touch build-stamp
+waf-stamp: ./wscript ./src/*
+		touch waf-stamp
+		node-waf configure
 		node-waf build
+
+gyp: gyp-stamp
+
+gyp-stamp: ./binding.gyp ./src/*
+		touch gyp-stamp
+		node-gyp configure
+		node-gyp build
 
 test: devdependencies
 		./node_modules/.bin/nodeunit tests/simple tests/complex tests/issues
@@ -53,5 +55,4 @@ devdependencies-stamp:
 		touch devdependencies-stamp
 		npm install --dev .
 
-.PHONY: all build clean conf test test-all test-profile inspector mlf
-
+.PHONY: all waf gyp clean clean-all test test-all test-profile inspector mlf

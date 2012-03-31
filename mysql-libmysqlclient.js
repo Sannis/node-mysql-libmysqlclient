@@ -10,7 +10,7 @@
  *
  * @ignore
  */
-var binding = require("./mysql_bindings");
+var bindings = require("./mysql-libmysqlclient-bindings");
 
 /**
  * Create connection to database
@@ -23,8 +23,8 @@ var binding = require("./mysql_bindings");
  * @param {String|null} socket
  * @return {MysqlConnection}
  */
-exports.createConnectionSync = function () {
-  var db = new binding.MysqlConnection();
+exports.createConnectionSync = function createConnectionSync() {
+  var db = new bindings.MysqlConnection();
   if (arguments.length > 0) {
     db.connectSync.apply(db, Array.prototype.slice.call(arguments, 0, 6));
   }
