@@ -34,13 +34,11 @@ def configure(conf):
   conf.env.append_unique('CXXFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --include').split())
   conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs_r').split())
   
-  if not conf.check_cxx(lib="mysqlclient_r", errmsg="not found, try to find nonthreadsafe libmysqlclient"):
+  if conf.check_cxx(lib="mysqlclient", errmsg="not found"):
     # link flags are needed to find the libraries
     conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs').split())
-    if conf.check_cxx(lib="mysqlclient"):
-      conf.env.append_unique('CXXDEFINES', ["MYSQL_NON_THREADSAFE"])
-    else:
-      conf.fatal("Missing both libmysqlclient_r and libmysqlclient from libmysqlclient-devel or mysql-devel package")
+  else:
+    conf.fatal("Missing libmysqlclient library from libmysqlclient-devel or mysql-devel package")
   
   if not conf.check_cxx(header_name='mysql.h'):
     conf.fatal("Missing mysql.h header from libmysqlclient-devel or mysql-devel package")

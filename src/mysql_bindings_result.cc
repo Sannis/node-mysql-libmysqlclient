@@ -311,7 +311,6 @@ Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
 /**
  * EIO wrapper functions for MysqlResult::FetchAll
  */
-#ifndef MYSQL_NON_THREADSAFE
 int MysqlResult::EIO_After_FetchAll(eio_req *req) {
     HandleScope scope;
 
@@ -439,7 +438,6 @@ void MysqlResult::EIO_FetchAll(eio_req *req) {
     return req->result;
 #endif  // NODE_MINOR_VERSION
 }
-#endif
 
 /**
  * Fetches all result rows as an array
@@ -449,9 +447,7 @@ void MysqlResult::EIO_FetchAll(eio_req *req) {
  */
 Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     HandleScope scope;
-#ifdef MYSQL_NON_THREADSAFE
-    return THREXC(MYSQL_NON_THREADSAFE_ERRORSTRING);
-#else
+
     int arg_pos = 0;
     bool results_array = false;
     bool results_structured = false;
@@ -504,7 +500,6 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     res->Ref();
 
     return Undefined();
-#endif
 }
 
 /**

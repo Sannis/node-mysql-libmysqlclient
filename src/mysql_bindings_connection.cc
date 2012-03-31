@@ -114,8 +114,7 @@ void MysqlConnection::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, initSync, InitSync);
     ADD_PROTOTYPE_METHOD(connection, initStatementSync, InitStatementSync);
     ADD_PROTOTYPE_METHOD(connection, lastInsertIdSync, LastInsertIdSync);
-    ADD_PROTOTYPE_METHOD(connection, multiMoreResultsSync,
-        MultiMoreResultsSync);
+    ADD_PROTOTYPE_METHOD(connection, multiMoreResultsSync, MultiMoreResultsSync);
     ADD_PROTOTYPE_METHOD(connection, multiNextResultSync, MultiNextResultSync);
     ADD_PROTOTYPE_METHOD(connection, multiRealQuerySync, MultiRealQuerySync);
     ADD_PROTOTYPE_METHOD(connection, pingSync, PingSync);
@@ -415,7 +414,6 @@ Handle<Value> MysqlConnection::CommitSync(const Arguments& args) {
 /**
  * EIO wrapper functions for MysqlConnection::Connect
  */
-#ifndef MYSQL_NON_THREADSAFE
 int MysqlConnection::EIO_After_Connect(eio_req *req) {
     ev_unref(EV_DEFAULT_UC);
     HandleScope scope;
@@ -480,7 +478,6 @@ void MysqlConnection::EIO_Connect(eio_req *req) {
     return req->result;
 #endif  // NODE_MINOR_VERSION
 }
-#endif
 
 /**
  * Opens a new connection to the MySQL server
@@ -495,9 +492,7 @@ void MysqlConnection::EIO_Connect(eio_req *req) {
  */
 Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     HandleScope scope;
-#ifdef MYSQL_NON_THREADSAFE
-    return THREXC(MYSQL_NON_THREADSAFE_ERRORSTRING);
-#else
+
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
     struct connect_request *conn_req =
@@ -532,7 +527,6 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     conn->Ref();
 
     return Undefined();
-#endif
 }
 
 /**
@@ -1034,7 +1028,6 @@ Handle<Value> MysqlConnection::PingSync(const Arguments& args) {
 /**
  * EIO wrapper functions for MysqlConnection::Query
  */
-#ifndef MYSQL_NON_THREADSAFE
 int MysqlConnection::EIO_After_Query(eio_req *req) {
     HandleScope scope;
 
@@ -1153,7 +1146,6 @@ void MysqlConnection::EIO_Query(eio_req *req) {
     return req->result;
 #endif  // NODE_MINOR_VERSION
 }
-#endif
 
 /**
  * Performs a query on the database
@@ -1163,9 +1155,7 @@ void MysqlConnection::EIO_Query(eio_req *req) {
  */
 Handle<Value> MysqlConnection::Query(const Arguments& args) {
     HandleScope scope;
-#ifdef MYSQL_NON_THREADSAFE
-    return THREXC(MYSQL_NON_THREADSAFE_ERRORSTRING);
-#else
+
     REQ_STR_ARG(0, query);
     OPTIONAL_FUN_ARG(1, callback);
 
@@ -1199,7 +1189,6 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
     conn->Ref();
 
     return Undefined();
-#endif
 }
 
 /**

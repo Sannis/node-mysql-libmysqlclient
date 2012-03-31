@@ -152,7 +152,6 @@ class MysqlConnection : public node::ObjectWrap {
 
     static Handle<Value> CommitSync(const Arguments& args);
 
-#ifndef MYSQL_NON_THREADSAFE
     struct connect_request {
         Persistent<Function> callback;
         MysqlConnection *conn;
@@ -174,7 +173,7 @@ class MysqlConnection : public node::ObjectWrap {
 #else  // NODE_MINOR_VERSION > 4
     static void EIO_Connect(eio_req *req);
 #endif  // NODE_MINOR_VERSION
-#endif
+
     static Handle<Value> Connect(const Arguments& args);
 
     static Handle<Value> ConnectSync(const Arguments& args);
@@ -221,7 +220,6 @@ class MysqlConnection : public node::ObjectWrap {
 
     static Handle<Value> PingSync(const Arguments& args);
 
-#ifndef MYSQL_NON_THREADSAFE
     struct query_request {
         Persistent<Value> callback;
         MysqlConnection *conn;
@@ -241,7 +239,7 @@ class MysqlConnection : public node::ObjectWrap {
 #else  // NODE_MINOR_VERSION > 4
     static void EIO_Query(eio_req *req);
 #endif  // NODE_MINOR_VERSION
-#endif
+
     static Handle<Value> Query(const Arguments& args);
 
     static Handle<Value> QuerySync(const Arguments& args);

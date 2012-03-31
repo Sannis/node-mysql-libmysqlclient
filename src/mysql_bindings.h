@@ -73,8 +73,5 @@ if (args.Length() > (I) && args[I]->IsFunction()) {\
     VAR = Null(); \
 }
 
-#define MYSQL_NON_THREADSAFE_ERRORSTRING \
-    "Asynchronous functions works only with threadsafe libmysqlclient_r"
-
 #endif  // SRC_MYSQL_BINDINGS_H_
 

@@ -88,7 +88,6 @@ class MysqlResult : public node::ObjectWrap {
 
     static Handle<Value> DataSeekSync(const Arguments& args);
 
-#ifndef MYSQL_NON_THREADSAFE
     struct fetchAll_request {
         Persistent<Function> callback;
         MysqlResult *res;
@@ -104,7 +103,7 @@ class MysqlResult : public node::ObjectWrap {
 #else  // NODE_MINOR_VERSION > 4
     static void EIO_FetchAll(eio_req *req);
 #endif  // NODE_MINOR_VERSION
-#endif
+
     static Handle<Value> FetchAll(const Arguments& args);
 
     static Handle<Value> FetchAllSync(const Arguments& args);
