@@ -321,17 +321,15 @@ Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
 /**
  * EIO wrapper functions for MysqlResult::FetchAll
  */
-int MysqlResult::EIO_After_FetchAll(eio_req *req) {
+async_rtn MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
     HandleScope scope;
 
-    ev_unref(EV_DEFAULT_UC);
-    struct fetchAll_request *fetchAll_req =
-        reinterpret_cast<struct fetchAll_request *>(req->data);
+    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
 
     int argc = 1; /* node.js convention, there is always one argument */
     Local<Value> argv[3];
 
-    if (req->result) {
+    if (!fetchAll_req->ok) {
         argv[0] = V8EXC("Error on fetching fields");
     } else {
         MYSQL_FIELD *fields = fetchAll_req->fields;
@@ -423,19 +421,13 @@ int MysqlResult::EIO_After_FetchAll(eio_req *req) {
     // all of the rows have been gotten at this point
     fetchAll_req->res->Free();
 
-    // free eio state object
     free(fetchAll_req);
 
-    return 0;
+    RETURN_ASYNC_AFTER
 }
 
-#if NODE_MINOR_VERSION == 4
-int MysqlResult::EIO_FetchAll(eio_req *req) {
-#else  // NODE_MINOR_VERSION > 4
-void MysqlResult::EIO_FetchAll(eio_req *req) {
-#endif  // NODE_MINOR_VERSION
-    struct fetchAll_request *fetchAll_req =
-        reinterpret_cast<struct fetchAll_request *>(req->data);
+async_rtn MysqlResult::EIO_FetchAll(uv_work_t *req) {
+    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
     MysqlResult *res = fetchAll_req->res;
 
     // Errors: none
@@ -443,10 +435,9 @@ void MysqlResult::EIO_FetchAll(eio_req *req) {
     // Errors: none
     fetchAll_req->num_fields = mysql_num_fields(res->_res);
 
-    req->result = 0;
-#if NODE_MINOR_VERSION == 4
-    return req->result;
-#endif  // NODE_MINOR_VERSION
+    fetchAll_req->ok = true;
+    
+    RETURN_ASYNC
 }
 
 /**
@@ -501,13 +492,12 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 
     fetchAll_req->callback = Persistent<Function>::New(callback);
     fetchAll_req->res = res;
+    res->Ref();
+    
     fetchAll_req->results_array = results_array;
     fetchAll_req->results_structured = results_structured;
 
-    eio_custom(EIO_FetchAll, EIO_PRI_DEFAULT, EIO_After_FetchAll, fetchAll_req);
-
-    ev_ref(EV_DEFAULT_UC);
-    res->Ref();
+    BEGIN_ASYNC(fetchAll_req, EIO_FetchAll, EIO_After_FetchAll)
 
     return Undefined();
 }

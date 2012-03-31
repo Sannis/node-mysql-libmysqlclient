@@ -9,6 +9,12 @@
 #define SRC_MYSQL_BINDINGS_H_
 
 /**
+ * Use this header file to conditionally invoke eio_custom() or uv_queue_work(),
+ * depending on the node version that the module is being compiled for.
+ */
+#include "./node_async_shim.h"
+
+/**
  * Usefull macroses for unility operations
  * such as agrument checking and C=+ <-> V8 type convertions
  */

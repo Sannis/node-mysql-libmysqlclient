@@ -414,14 +414,14 @@ Handle<Value> MysqlConnection::CommitSync(const Arguments& args) {
 /**
  * EIO wrapper functions for MysqlConnection::Connect
  */
-int MysqlConnection::EIO_After_Connect(eio_req *req) {
-    ev_unref(EV_DEFAULT_UC);
+async_rtn MysqlConnection::EIO_After_Connect(uv_work_t *req) {
     HandleScope scope;
+    
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
     Local<Value> argv[1];
 
-    if (req->result) {
+    if (!conn_req->ok) {
         unsigned int error_string_length =
                                     strlen(conn_req->conn->connect_error) + 25;
         char* error_string = new char[error_string_length];
@@ -446,26 +446,23 @@ int MysqlConnection::EIO_After_Connect(eio_req *req) {
     conn_req->conn->Unref();
     free(conn_req);
 
-    return 0;
+    RETURN_ASYNC_AFTER
 }
 
-#if NODE_MINOR_VERSION == 4
-int MysqlConnection::EIO_Connect(eio_req *req) {
-#else  // NODE_MINOR_VERSION > 4
-void MysqlConnection::EIO_Connect(eio_req *req) {
-#endif  // NODE_MINOR_VERSION
+async_rtn MysqlConnection::EIO_Connect(uv_work_t *req) {
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
-    req->result = conn_req->conn->Connect(
-                    conn_req->hostname ? **(conn_req->hostname) : NULL,
-                    conn_req->user ? **(conn_req->user) : NULL,
-                    conn_req->password ? **(conn_req->password) : NULL,
-                    conn_req->dbname ? **(conn_req->dbname) : NULL,
-                    conn_req->port,
-                    conn_req->socket ? **(conn_req->socket) : NULL,
-                    conn_req->flags) ? 0 : 1;
+    conn_req->ok = conn_req->conn->Connect(
+                        conn_req->hostname ? **(conn_req->hostname) : NULL,
+                        conn_req->user ? **(conn_req->user) : NULL,
+                        conn_req->password ? **(conn_req->password) : NULL,
+                        conn_req->dbname ? **(conn_req->dbname) : NULL,
+                        conn_req->port,
+                        conn_req->socket ? **(conn_req->socket) : NULL,
+                        conn_req->flags
+                    ) ? true : false;
 
-    if (req->result) {
+    if (!conn_req->ok) {
         conn_req->errno = conn_req->conn->connect_errno;
         conn_req->error = conn_req->conn->connect_error;
     }
@@ -474,9 +471,8 @@ void MysqlConnection::EIO_Connect(eio_req *req) {
     delete conn_req->user;
     delete conn_req->password;
     delete conn_req->socket;
-#if NODE_MINOR_VERSION == 4
-    return req->result;
-#endif  // NODE_MINOR_VERSION
+
+    RETURN_ASYNC
 }
 
 /**
@@ -506,6 +502,7 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     REQ_FUN_ARG(args.Length() - 1, callback);
     conn_req->callback = Persistent<Function>::New(callback);
     conn_req->conn = conn;
+    conn->Ref();
 
     conn_req->hostname = args.Length() > 1 && args[0]->IsString() ?
         new String::Utf8Value(args[0]->ToString()) : NULL;
@@ -521,10 +518,8 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
         new String::Utf8Value(args[5]->ToString()) : NULL;
     conn_req->flags = args.Length() > 7 && args[6]->IsUint32() ?
                             args[6]->Uint32Value() : 0;
-    eio_custom(EIO_Connect, EIO_PRI_DEFAULT, EIO_After_Connect, conn_req);
 
-    ev_ref(EV_DEFAULT_UC);
-    conn->Ref();
+    BEGIN_ASYNC(conn_req, EIO_Connect, EIO_After_Connect)
 
     return Undefined();
 }
@@ -1028,16 +1023,15 @@ Handle<Value> MysqlConnection::PingSync(const Arguments& args) {
 /**
  * EIO wrapper functions for MysqlConnection::Query
  */
-int MysqlConnection::EIO_After_Query(eio_req *req) {
+async_rtn MysqlConnection::EIO_After_Query(uv_work_t *req) {
     HandleScope scope;
 
-    ev_unref(EV_DEFAULT_UC);
     struct query_request *query_req = (struct query_request *)(req->data);
 
     int argc = 1;
     Local<Value> argv[3];
 
-    if (req->result) {
+    if (!query_req->ok) {
         unsigned int error_string_length = strlen(query_req->error) + 20;
         char* error_string = new char[error_string_length];
         snprintf(error_string, error_string_length, "Query error #%d: %s",
@@ -1046,7 +1040,7 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
         argv[0] = V8EXC(error_string);
         delete[] error_string;
     } else {
-        if (req->int1) {
+        if (query_req->have_result_set) {
             argv[0] = External::New(query_req->conn->_conn);
             argv[1] = External::New(query_req->my_result);
             argv[2] = Integer::NewFromUnsigned(query_req->field_count);
@@ -1084,23 +1078,17 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
     free(query_req->query);
     free(query_req);
 
-    return 0;
+    RETURN_ASYNC_AFTER
 }
 
-#if NODE_MINOR_VERSION == 4
-int MysqlConnection::EIO_Query(eio_req *req) {
-#else  // NODE_MINOR_VERSION > 4
-void MysqlConnection::EIO_Query(eio_req *req) {
-#endif  // NODE_MINOR_VERSION
+async_rtn MysqlConnection::EIO_Query(uv_work_t *req) {
     struct query_request *query_req = (struct query_request *)(req->data);
 
     MysqlConnection *conn = query_req->conn;
 
     if (!conn->_conn) {
-        req->result = 1;
-#if NODE_MINOR_VERSION == 4
-        return req->result;
-#endif  // NODE_MINOR_VERSION
+        query_req->ok = false;
+        RETURN_ASYNC
     }
 
     MYSQLCONN_DISABLE_MQ;
@@ -1110,12 +1098,11 @@ void MysqlConnection::EIO_Query(eio_req *req) {
     int errno = mysql_errno(conn->_conn);
     if (r != 0 || errno != 0) {
         // Query error
-        req->result = 1;
-
+        query_req->ok = false;
         query_req->errno = errno;
         query_req->error = mysql_error(conn->_conn);
     } else {
-        req->result = 0;
+        query_req->ok = true;
 
         MYSQL_RES *my_result = mysql_store_result(conn->_conn);
 
@@ -1123,28 +1110,27 @@ void MysqlConnection::EIO_Query(eio_req *req) {
 
         if (my_result) {
             // Valid result set (may be empty, of cause)
-            req->int1 = 1;
+            query_req->have_result_set = true;
             query_req->my_result = my_result;
         } else {
             if (query_req->field_count == 0) {
                 // No result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN
+                query_req->have_result_set = false;
                 // UPDATE or DELETE?
                 query_req->affected_rows = mysql_affected_rows(conn->_conn);
                 // INSERT?
                 query_req->insert_id = mysql_insert_id(conn->_conn);
-                req->int1 = 0;
             } else {
                 // Result store error
-                req->result = 1;
+                query_req->ok = false;
                 query_req->errno = errno;
                 query_req->error = mysql_error(conn->_conn);
             }
         }
     }
     pthread_mutex_unlock(&conn->query_lock);
-#if NODE_MINOR_VERSION == 4
-    return req->result;
-#endif  // NODE_MINOR_VERSION
+    
+    RETURN_ASYNC
 }
 
 /**
@@ -1182,11 +1168,9 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
 
     query_req->callback = Persistent<Value>::New(callback);
     query_req->conn = conn;
-
-    eio_custom(EIO_Query, EIO_PRI_DEFAULT, EIO_After_Query, query_req);
-
-    ev_ref(EV_DEFAULT_UC);
     conn->Ref();
+
+    BEGIN_ASYNC(query_req, EIO_Query, EIO_After_Query)
 
     return Undefined();
 }

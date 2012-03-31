@@ -89,6 +89,8 @@ class MysqlResult : public node::ObjectWrap {
     static Handle<Value> DataSeekSync(const Arguments& args);
 
     struct fetchAll_request {
+        bool ok;
+        
         Persistent<Function> callback;
         MysqlResult *res;
 
@@ -97,12 +99,8 @@ class MysqlResult : public node::ObjectWrap {
         bool results_array;
         bool results_structured;
     };
-    static int EIO_After_FetchAll(eio_req *req);
-#if NODE_MINOR_VERSION == 4
-    static int EIO_FetchAll(eio_req *req);
-#else  // NODE_MINOR_VERSION > 4
-    static void EIO_FetchAll(eio_req *req);
-#endif  // NODE_MINOR_VERSION
+    static async_rtn EIO_After_FetchAll(uv_work_t *req);
+    static async_rtn EIO_FetchAll(uv_work_t *req);
 
     static Handle<Value> FetchAll(const Arguments& args);
 

@@ -153,6 +153,8 @@ class MysqlConnection : public node::ObjectWrap {
     static Handle<Value> CommitSync(const Arguments& args);
 
     struct connect_request {
+        bool ok;
+        
         Persistent<Function> callback;
         MysqlConnection *conn;
 
@@ -167,12 +169,8 @@ class MysqlConnection : public node::ObjectWrap {
         unsigned int errno;
         const char *error;
     };
-    static int EIO_After_Connect(eio_req *req);
-#if NODE_MINOR_VERSION == 4
-    static int EIO_Connect(eio_req *req);
-#else  // NODE_MINOR_VERSION > 4
-    static void EIO_Connect(eio_req *req);
-#endif  // NODE_MINOR_VERSION
+    static async_rtn EIO_After_Connect(uv_work_t *req);
+    static async_rtn EIO_Connect(uv_work_t *req);
 
     static Handle<Value> Connect(const Arguments& args);
 
@@ -221,6 +219,9 @@ class MysqlConnection : public node::ObjectWrap {
     static Handle<Value> PingSync(const Arguments& args);
 
     struct query_request {
+        bool ok;
+        bool have_result_set;
+        
         Persistent<Value> callback;
         MysqlConnection *conn;
 
@@ -233,12 +234,8 @@ class MysqlConnection : public node::ObjectWrap {
         unsigned int errno;
         const char *error;
     };
-    static int EIO_After_Query(eio_req *req);
-#if NODE_MINOR_VERSION == 4
-    static int EIO_Query(eio_req *req);
-#else  // NODE_MINOR_VERSION > 4
-    static void EIO_Query(eio_req *req);
-#endif  // NODE_MINOR_VERSION
+    static async_rtn EIO_After_Query(uv_work_t *req);
+    static async_rtn EIO_Query(uv_work_t *req);
 
     static Handle<Value> Query(const Arguments& args);
 
