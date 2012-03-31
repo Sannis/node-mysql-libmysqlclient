@@ -103,18 +103,28 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
         case MYSQL_TYPE_SHORT:  // SMALLINT field
         case MYSQL_TYPE_LONG:  // INTEGER field
         case MYSQL_TYPE_INT24:  // MEDIUMINT field
-        case MYSQL_TYPE_LONGLONG:  // BIGINT field
         case MYSQL_TYPE_YEAR:  // YEAR field
             if (field_value) {
               js_field = V8STR(field_value)->ToInteger();
             }
             break;
-        case MYSQL_TYPE_DECIMAL:  // DECIMAL or NUMERIC field
-        case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
+        case MYSQL_TYPE_LONGLONG:  // BIGINT field
+            // Return BIGINT as string, see #110
+            if (field_value) {
+              js_field = V8STR(field_value);
+            }
+            break;
         case MYSQL_TYPE_FLOAT:  // FLOAT field
         case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
             if (field_value) {
               js_field = V8STR(field_value)->ToNumber();
+            }
+            break;
+        case MYSQL_TYPE_DECIMAL:  // DECIMAL or NUMERIC field
+        case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
+            // Return DECIMAL/NUMERIC as string, see #110
+            if (field_value) {
+              js_field = V8STR(field_value);
             }
             break;
         case MYSQL_TYPE_TIME:  // TIME field
