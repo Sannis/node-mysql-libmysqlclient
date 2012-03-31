@@ -1,6 +1,17 @@
 Changelog (revision history) for node-mysql-libmysqlclient,
 the full MySQL bindings for Node.js using libmysqlclient.
 
+### In next version
+
+  * Improvements:
+    * Add binding.gyp sypport for node v0.6.x and newer, refs #111
+    * Introduce node_async_shim.h for transparent eio_custom()/uv_queue_work() support
+    * Add some new tests with proper CALL results handling, refs #108
+    * Merge statements branch withpart of prepared statements supports (unstable)
+  * Uncompatible changes:
+    * Return BIGINT/DECIMAL/NUMERIC fields as strings to JavaScript land, fixes #110
+    * Remove libmysqlclient_r support
+
 ## Version 1.2.10
 
   * Fix bug with wrong 1194 erro handling, #109
@@ -43,11 +54,13 @@ the full MySQL bindings for Node.js using libmysqlclient.
 Special thanks to Vitaly Puzrin
 
 ## Version 1.2.1
+
   * Fix wrong gmt_delta calculation in datetime casting, closes #72
   * Revert "build: add check for ev library before adding it to link line"
   * Revert "link libev for 'ev_default_loop_ptr' symbol"
 
 ## Version 1.2.0
+
   * Improvements:
     * Use Buffer(v0.2.x)/FastBuffer(v0.3.x) instead of V8 strings to encode binary data, closes #30
     * Free result object after res.fetchAll() callback, closes #60
@@ -60,6 +73,7 @@ Special thanks to Roman Shtylman
 Thanks for Krists Krīgers first buffers implementation, 6826022fb8a34f48d0c4e51a6cd1af487293e89d
 
 ## Version 1.1.1
+
   * Fixes:
     * Fix mysql_options() recall after mysql_real_connect(), closes #71 part 1
     * Fix logic error in res.fetchAll(), closes #71 past 2
@@ -70,6 +84,7 @@ Thanks for Krists Krīgers first buffers implementation, 6826022fb8a34f48d0c4e51
 Special thanks to Krists Krīgers
 
 ## Version 1.1.0
+
   * Fixes:
     * Don't ignore connect arguments after any null, closes #63
     * Reset connect_error in MysqlConnection::Close()
@@ -104,17 +119,20 @@ Special thanks to Pavel Ponomarenko and Surendra Singhi
 Thanks to Michael Pearson, who pointed out the problem with stored procedures
 
 ## Version 1.0.3
+
   * Update nodeunit from cf2f529 to d4949a4
   * Add HTML documentation into repo
   * Add .npmignore file, closes #54
 
 ## Version 1.0.2
+
   * Tested with Node version v0.2.3
   * Some changes to make the module build with specific libmysqlclient path, closes #50
 
 Special thanks to Benjmain Reesman
 
 ## Version 1.0.1
+
   * Change node-gc to Sannis' fork with some fixes
   * Improve simple.conn.ConnectWithError test, tests cleanup
   * Add gh_pages.sh to simplify docs update
@@ -124,6 +142,7 @@ Special thanks to Benjmain Reesman
 Special thanks to Surendra Singhi and http://fallen.habrahabr.ru
 
 ## Version 1.0.0
+
   * Fixes:
     * Rewrite fetchAll function, move V8 stuff to EIO\_After\_FetchAll, closes #34
     * Rewrite MysqlResult::SetFieldValue() procedure to GetFieldValue() function
@@ -149,6 +168,7 @@ Special thanks to Surendra Singhi and http://fallen.habrahabr.ru
 Special thanks to Ben Noordhuis
 
 ## Version 0.0.10
+
   * Add JSDocs into bindings code
   * Add API documentation page
   * Add examples.js and Dox-generated examples.html
@@ -157,6 +177,7 @@ Special thanks to Ben Noordhuis
   * Other cleanup in tests and files
 
 ## Version 0.0.9
+
   * Add MYSQL\_TYPE\_TIME and MYSQL\_TYPE\_SET handling
   * Rename MysqlConn to MysqlConnection
   * Change some methods to read-only properties:
@@ -176,6 +197,7 @@ Special thanks to Ben Noordhuis
 Special thanks to Akzhan Abdulin and Surendra Singhi
 
 ## Version 0.0.8
+
   * Make asynchronous connect and fetchAll
   * Tested with Node version v0.2.0
   * Small improves in tests, README
@@ -187,6 +209,7 @@ Special thanks to Akzhan Abdulin and Surendra Singhi
 Special thanks to Surendra Singhi
 
 ## Version 0.0.7
+
   * Make asynchronous querying work
   * Simplify javascript logic of createConnection()
   * Allow reconnecting after failed connect
@@ -200,6 +223,7 @@ Special thanks to Surendra Singhi
 Special thanks to Surendra Singhi
 
 ## Version 0.0.6
+
   * Update package.json and make small fixes in docs and README
   * Rename MysqlResult::FetchResult method to FetchAll
   * Implemented methods:
@@ -218,6 +242,7 @@ Special thanks to Surendra Singhi
   * MysqlResult class finished
 
 ## Version 0.0.5
+
   * Remove 'Sync' from classes names,
     rename main module file to mysql-libmysqlclient.js
   * Add example MysqlConn::queryAsync() and MysqlConn::async() methods
@@ -226,6 +251,7 @@ Special thanks to Surendra Singhi
   * Add speedtest
 
 ## Version 0.0.4
+
   * Split source code into separate files for database connection,
     query result and prepared statements
   * Add nodeunit as the test framework for project
@@ -253,6 +279,7 @@ Special thanks to Surendra Singhi
   * Decrease number of cpplint warnings (dirty hack? maybe)
 
 ## Version 0.0.3
+
   * Add 'lint' target for node-waf
   * Add docs dir, docs/examples.md,
     docs/api\_php\_mysqli.md and docs/api\_node\_mysql\_sync.md
@@ -270,11 +297,13 @@ Special thanks to Surendra Singhi
   * Improve MysqlSyncConn::Connect() functionality, see d2d9ae2
 
 ## Version 0.0.2
+
   * Split MysqlDbSync into MysqlSyncConn and MysqlSyncRes
   * Add unit tests suite
   * Query() API is more clear to PHP MySQLi
 
 ## Version 0.0.1
+
   * Basic functionality: connect/close/query/fenchAll/getInfo/error/etc.
   * Implemented methods:
     * MysqlDbSync::AffectedRows()

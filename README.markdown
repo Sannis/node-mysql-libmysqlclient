@@ -18,7 +18,7 @@ Master (development) branch build status:
 Dependencies
 ------------
 
-This module tested with Node.js version 0.4.12 (@v1.2.5) and 0.6.11 (@v1.2.10).
+This module tested with Node.js stable versions 0.4.12 and 0.6.12, and with unstable 0.7.6.
 
 To build it you must install libmysqlclient library and development files for it.
 Node-waf use mysql_config to determine the paths to the library and header files.
@@ -61,23 +61,26 @@ If you want to build specific version of node-mysql-libmysqlclient, checkout it:
 
     $> git checkout v1.0.2
 
-To build the bindings you should run:
+To build the binding using `node-waf` you should run:
 
-    $> node-waf configure build
+    $> make waf
 
-To rebuild:
+To build the binding using `node-gyp` you should run:
 
-    $> node-waf distclean configure build
+    $> make gyp
+
+To cleanup:
+
+    $> make clean
 
 To run tests:
 
-    $> npm install nodeunit
-    $> node-waf test
+    $> make test
 
 To lint code:
 
-    $> npm install nodelint
     $> # install cpplint.py
+    $> make lint
 
 The two files required to use these bindings are ./mysql-libmysqlclient.js and
 ./mysql\_bindings.node (build/default/mysql\_bindings.node).
@@ -181,7 +184,7 @@ Contributors
 
 * **Zhiqiang Zhao** ( [E-mail](mailto:zzqvincent@gmail.com), [GitHub](https://github.com/vincent-zhao) \)
 
-  Fix bug with wrong 1194 erro handling.  
+  Fix bug with wrong 1194 error handling.  
   [All commits](https://github.com/Sannis/node-mysql-libmysqlclient/commits/master?author=vincent-zhao).
 
 [Full contributors list](https://github.com/Sannis/node-mysql-libmysqlclient/contributors).
