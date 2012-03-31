@@ -11,7 +11,7 @@ from os.path import exists, lexists
 
 srcdir = "."
 blddir = "build"
-VERSION = "1.2.9"
+VERSION = "1.2.10"
 
 def set_options(opt):
   opt.tool_options("compiler_cxx")
@@ -48,17 +48,6 @@ def build(bld):
   obj.target = "mysql_bindings"
   obj.source = "./src/mysql_bindings.cc ./src/mysql_bindings_connection.cc ./src/mysql_bindings_result.cc ./src/mysql_bindings_statement.cc"
   obj.uselib = "MYSQLCLIENT"
-
-def lint(lnt):
-  # Bindings C++ source code
-  print("Run CPPLint:")
-  Utils.exec_command('cpplint ./src/*.h ./src/*.cc')
-  # Bindings javascript code, docs and tools
-  print("Run Nodelint for sources:")
-  Utils.exec_command('nodelint ./package.json ./mysql-libmysqlclient.js ./doc ./tools/*.js')
-  # Bindings tests
-  print("Run Nodelint for tests:")
-  Utils.exec_command('nodelint ./tests')
 
 def doc(doc):
   description = ('--desc "MySQL bindings for [Node.js](http://nodejs.org) using libmysqlclient.\n\n' +

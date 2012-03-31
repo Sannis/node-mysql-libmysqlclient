@@ -13,97 +13,347 @@ var cfg = require('../config');
  * http://dev.mysql.com/doc/refman/5.1/en/create-procedure.html
  * http://dev.mysql.com/doc/refman/5.1/en/call.html
  */
-exports.CallStoredProcedureSync = function (test) {
-  test.expect(12);
+
+exports.CallStoredProcedureSelectSync = function (test) {
+  test.expect(5);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(),
     res,
-    max_num,
-    max_num_proc,
-    max_num_func,
-    rows;
+    num = 1234,
+    numFromProcedure;
   
   conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+
+  res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
+  test.ok(res, "DROP PROCEDURE IF EXISTS test_procedure;");
   
-  // Insert some rows
-  res = conn.querySync("INSERT INTO " + cfg.test_table + " (num) VALUES (1);");
-  res = conn.querySync("INSERT INTO " + cfg.test_table + " (num) VALUES (2);") && res;
-  res = conn.querySync("INSERT INTO " + cfg.test_table + " (num) VALUES (654);") && res;
-  res = conn.querySync("INSERT INTO " + cfg.test_table + " (num) VALUES (3415);") && res;
-  test.ok(res, "conn.querySync('INSERT INTO test_table ...')");
+  res = conn.querySync("CREATE PROCEDURE test_procedure() SELECT " + num + " AS num;");
+  test.ok(res, "CREATE PROCEDURE test_procedure");
   
-  // Calc MAX(num) with simple SELECT query
-  res = conn.querySync("SELECT MAX(num) FROM " + cfg.test_table + ";");
-  test.ok(res, "SELECT MAX(num) FROM test_table;')");
+  res = conn.querySync("CALL test_procedure();");
+  test.ok(res, "CALL test_procedure();");
   
-  max_num = res.fetchAllSync()[0]['MAX(num)'];
+  numFromProcedure = res.fetchAllSync()[0].num;
   res.freeSync();
   
-  // Calc MAX(num) with stored procedure
-  res = conn.querySync("DROP PROCEDURE IF EXISTS maxnum_proc;");
-  test.ok(res, "DROP PROCEDURE IF EXISTS maxnum_proc");
-  
-  res = conn.querySync("CREATE PROCEDURE maxnum_proc(OUT max_num INT) SELECT MAX(num) FROM " + cfg.test_table + " INTO max_num;");
-  test.ok(res, "CREATE PROCEDURE maxnum_proc");
-  
-  res = conn.querySync("CALL maxnum_proc(@max_num);");
-  test.ok(res, "CALL maxnum_proc(@max_num);");
-  
-  res = conn.querySync("SELECT @max_num;");
-  test.ok(res, "SELECT @max_num;");
-  
-  max_num_proc = res.fetchAllSync()[0]['@max_num'];
-  res.freeSync();
-  
-  /*
-  // Calc MAX(num) with stored function
-  res = conn.querySync("DROP FUNCTION IF EXISTS maxnum_func;");
-  test.ok(res, "DROP FUNCTION IF EXISTS maxnum_func");
-  
-  res = conn.querySync("CREATE FUNCTION maxnum_func() RETURNS INT DETERMINISTIC RETURN 1;");
-  test.ok(res, "CREATE FUNCTION maxnum_func");
-  if (!res) {
-    error = conn.errorSync();
-    console.log(error);
-    if (error.match(new RegExp("You do not have the SUPER privilege and binary logging is enabled"))) {
-      console.log("Known MySQL bug: run `SET GLOBAL log_bin_trust_function_creators = 1;` in MySQL console to fix this.");
-    }
-  }
-  
-  res = conn.querySync("SELECT maxnum_func();");
-  test.ok(res, "SELECT maxnum_func();");
-  if (!res) {
-    console.log(conn.errorSync());
-  }
-  console.log(res.fetchAllSync());
-  max_num_func = res.fetchAllSync()[0]['maxnum_func()'];
-  res.freeSync();
-  */
-  
-  // max_num_proc should equals max_num
-  test.equals(max_num_proc, max_num, "max_num_proc == max_num");
-  // max_num_func should equals max_num
-  //test.equals(max_num_func, max_num, "max_num_func == max_num");
-  
-  // Select all rows with stored procedure
-  res = conn.querySync("DROP PROCEDURE IF EXISTS select_num_proc;");
-  test.ok(res, "DROP PROCEDURE IF EXISTS select_num_proc");
-  
-  res = conn.querySync("CREATE PROCEDURE select_num_proc() SELECT num FROM " + cfg.test_table + " WHERE num > 2;");
-  test.ok(res, "CREATE PROCEDURE select_num_proc");
-  
-  res = conn.querySync("CALL select_num_proc();");
-  test.ok(res, "CALL select_num_proc()");
-  
-  rows = res.fetchAllSync();
-  test.same(rows, [{num: 654}, {num: 3415}], "Select rows by stored procedure");
-  
-  res.freeSync();
+  test.equals(numFromProcedure, num, "numFromProcedure == num");
   
   conn.closeSync();
   test.done();
 };
 
+exports.CallStoredProcedureSelectTwiceSync = function (test) {
+  test.expect(7);
+  
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(),
+    res,
+    num = 1234,
+    numFromProcedure;
+  
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
+  res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
+  test.ok(res, "DROP PROCEDURE IF EXISTS test_procedure;");
+  
+  res = conn.querySync("CREATE PROCEDURE test_procedure() SELECT " + num + " AS num;");
+  test.ok(res, "CREATE PROCEDURE test_procedure");
+  
+  res = conn.querySync("CALL test_procedure();");
+  test.ok(res, "CALL test_procedure();");
+  
+  numFromProcedure = res.fetchAllSync()[0].num;
+  res.freeSync();
+  
+  test.equals(numFromProcedure, num, "numFromProcedure == num");
+  
+  // We need to get second result from set, that contains execution status
+  while (conn.multiMoreResultsSync()) {
+    // Go to next result in set
+    conn.multiNextResultSync();
+    // Store result
+    res = conn.storeResultSync();
+    if (typeof res.freeSync === 'function') {
+      // Free result if it is not simple true/false
+      res.freeSync();
+    }
+  }
+  
+  res = conn.querySync("CALL test_procedure();");
+  
+  test.ok(res, "CALL test_procedure();");
+
+  numFromProcedure = res.fetchAllSync()[0].num;
+  res.freeSync();
+  
+  test.equals(numFromProcedure, num, "numFromProcedure == num");
+  
+  // We need to get second result from set, that contains execution status
+  while (conn.multiMoreResultsSync()) {
+    // Go to next result in set
+    conn.multiNextResultSync();
+    // Store result
+    res = conn.storeResultSync();
+    if (typeof res.freeSync === 'function') {
+      // Free result if it is not simple true/false
+      res.freeSync();
+    }
+  }
+  
+  conn.closeSync();
+  test.done();
+};
+
+exports.CallStoredProcedureSelectIntoSync = function (test) {
+  test.expect(6);
+  
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(),
+    res,
+    num = 1234,
+    numFromProcedure;
+  
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+
+  res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
+  test.ok(res, "DROP PROCEDURE IF EXISTS test_procedure;");
+  
+  res = conn.querySync("CREATE PROCEDURE test_procedure(OUT num INT) SELECT " + num + " INTO num;");
+  test.ok(res, "CREATE PROCEDURE test_procedure");
+  
+  res = conn.querySync("CALL test_procedure(@num);");
+  test.ok(res, "CALL test_procedure(@num);");
+  
+  res = conn.querySync("SELECT @num AS num;");
+  test.ok(res, "SELECT @num AS num;");
+  
+  numFromProcedure = res.fetchAllSync()[0].num;
+  res.freeSync();
+  
+  test.equals(numFromProcedure, num, "numFromProcedure == num");
+  
+  conn.closeSync();
+  test.done();
+};
+
+exports.CallStoredProcedureSelectIntoTwiceSync = function (test) {
+  test.expect(9);
+  
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(),
+    res,
+    num = 1234,
+    numFromProcedure;
+  
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+
+  res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
+  test.ok(res, "DROP PROCEDURE IF EXISTS test_procedure;");
+  
+  res = conn.querySync("CREATE PROCEDURE test_procedure(OUT num INT) SELECT " + num + " INTO num;");
+  test.ok(res, "CREATE PROCEDURE test_procedure");
+  
+  res = conn.querySync("CALL test_procedure(@num);");
+  test.ok(res, "CALL test_procedure(@num);");
+  
+  res = conn.querySync("SELECT @num AS num;");
+  test.ok(res, "SELECT @num AS num;");
+  
+  numFromProcedure = res.fetchAllSync()[0].num;
+  res.freeSync();
+  
+  test.equals(numFromProcedure, num, "numFromProcedure == num");
+  
+  // We need to get second result from set, that contains execution status
+  while (conn.multiMoreResultsSync()) {
+    // Go to next result in set
+    conn.multiNextResultSync();
+    // Store result
+    res = conn.storeResultSync();
+    if (typeof res.freeSync === 'function') {
+      // Free result if it is not simple true/false
+      res.freeSync();
+    }
+  }
+  
+  res = conn.querySync("CALL test_procedure(@num);");
+  test.ok(res, "CALL test_procedure(@num);");
+  
+  res = conn.querySync("SELECT @num AS num;");
+  test.ok(res, "SELECT @num AS num;");
+  
+  numFromProcedure = res.fetchAllSync()[0].num;
+  res.freeSync();
+  
+  test.equals(numFromProcedure, num, "numFromProcedure == num");
+  
+  // We need to get second result from set, that contains execution status
+  while (conn.multiMoreResultsSync()) {
+    // Go to next result in set
+    conn.multiNextResultSync();
+    // Store result
+    res = conn.storeResultSync();
+    if (typeof res.freeSync === 'function') {
+      // Free result if it is not simple true/false
+      res.freeSync();
+    }
+  }
+  
+  conn.closeSync();
+  test.done();
+};
+
+exports.CallStoredFunctionSync = function (test) {
+  test.expect(5);
+  
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(),
+    res,
+    error,
+    num = 1234,
+    numFromFunction;
+  
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  res = conn.querySync("DROP FUNCTION IF EXISTS test_function;");
+  test.ok(res, "DROP FUNCTION IF EXISTS test_function;");
+  
+  res = conn.querySync("CREATE FUNCTION test_function() RETURNS INT DETERMINISTIC RETURN " + num + ";");
+  test.ok(res, "CREATE FUNCTION test_function");
+  if (!res) {
+    error = conn.errorSync();
+    if (error.match(new RegExp("You do not have the SUPER privilege and binary logging is enabled"))) {
+      console.log("Known MySQL bug: run `SET GLOBAL log_bin_trust_function_creators = 1;` "
+                + "in MySQL console to fix this.");
+    }
+  }
+  
+  res = conn.querySync("SELECT test_function() AS num;");
+  test.ok(res, "SELECT test_function() AS num;");
+
+  numFromFunction = res.fetchAllSync()[0].num;
+  res.freeSync();
+  
+  test.equals(numFromFunction, num, "numFromFunction == num");
+  
+  conn.closeSync();
+  test.done();
+};
+
+exports.CallStoredFunctionTwiceSync = function (test) {
+  test.expect(7);
+  
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(),
+    res,
+    error,
+    num = 1234,
+    numFromFunction;
+  
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  res = conn.querySync("DROP FUNCTION IF EXISTS test_function;");
+  test.ok(res, "DROP FUNCTION IF EXISTS test_function;");
+  
+  res = conn.querySync("CREATE FUNCTION test_function() RETURNS INT DETERMINISTIC RETURN " + num + ";");
+  test.ok(res, "CREATE FUNCTION test_function");
+  if (!res) {
+    error = conn.errorSync();
+    if (error.match(new RegExp("You do not have the SUPER privilege and binary logging is enabled"))) {
+      console.log("Known MySQL bug: run `SET GLOBAL log_bin_trust_function_creators = 1;` "
+                + "in MySQL console to fix this.");
+    }
+  }
+  
+  res = conn.querySync("SELECT test_function() AS num;");
+  test.ok(res, "SELECT test_function() AS num;");
+
+  numFromFunction = res.fetchAllSync()[0].num;
+  res.freeSync();
+  
+  test.equals(numFromFunction, num, "numFromFunction == num");
+  
+  res = conn.querySync("SELECT test_function() AS num;");
+  test.ok(res, "SELECT test_function() AS num;");
+
+  numFromFunction = res.fetchAllSync()[0].num;
+  res.freeSync();
+  
+  test.equals(numFromFunction, num, "numFromFunction == num");
+  
+  conn.closeSync();
+  test.done();
+};
+
+exports.CallStoredProcedureSelectNested = function (test) {
+  test.expect(8);
+  
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(),
+    res,
+    num = 1234,
+    numFromProcedure;
+  
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+
+  res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
+  test.ok(res, "DROP PROCEDURE IF EXISTS test_procedure;");
+  
+  res = conn.querySync("CREATE PROCEDURE test_procedure() SELECT " + num + " AS num;");
+  test.ok(res, "CREATE PROCEDURE test_procedure");
+  
+  conn.query("CALL test_procedure();", function (err, res) {
+    test.ok(err === null, "conn.query() err===null");
+    
+    numFromProcedure = res.fetchAllSync()[0].num;
+    res.freeSync();
+    
+    test.equals(numFromProcedure, num, "numFromProcedure == num");
+    
+    // We need to get second result from set, that contains execution status
+    while (conn.multiMoreResultsSync()) {
+      // Go to next result in set
+      conn.multiNextResultSync();
+      // Store result
+      res = conn.storeResultSync();
+      if (typeof res.freeSync === 'function') {
+        // Free result if it is not simple true/false
+        res.freeSync();
+      }
+    }
+    
+    conn.query("CALL test_procedure();", function (err, res) {
+      test.ok(err === null, "conn.query() err===null");
+      
+      test.ok(res, "CALL test_procedure();");
+    
+      numFromProcedure = res.fetchAllSync()[0].num;
+      res.freeSync();
+      
+      test.equals(numFromProcedure, num, "numFromProcedure == num");
+      
+      // We need to get second result from set, that contains execution status
+      while (conn.multiMoreResultsSync()) {
+        // Go to next result in set
+        conn.multiNextResultSync();
+        // Store result
+        res = conn.storeResultSync();
+        if (typeof res.freeSync === 'function') {
+          // Free result if it is not simple true/false
+          res.freeSync();
+        }
+      }
+      
+      conn.closeSync();
+      test.done();
+    });
+  });
+};

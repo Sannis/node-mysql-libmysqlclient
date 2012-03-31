@@ -52,8 +52,7 @@
   }
 , "engines" : { "node" : "0.4.x || 0.5.x || 0.6.x" }
 , "devDependencies" :
-  { "nodeunit" : "*"
-  , "nodelint" : "*"
-  , "node-inspector" : "*"
+  { "nodeunit" : ">= 0.7"
+  , "nodelint" : ">= 0.6"
   }
 }

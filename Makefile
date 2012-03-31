@@ -42,6 +42,11 @@ test-profile: devdependencies
 		/usr/bin/env node --prof ./node_modules/.bin/nodeunit tests/simple tests/complex tests/issues
 		/usr/bin/env linux-tick-processor v8.log > v8.processed.log
 
+#lint: devdependencies
+		#cpplint ./src/*.h ./src/*.cc
+		#./node_modules/.bin/nodelint --config ./nodelint.conf ./package.json ./mysql-libmysqlclient.js ./doc ./tools/*.js
+		#./node_modules/.bin/nodelint --config ./nodelint.conf ./tests
+
 inspector: devdependencies
 		${NI} --web-port=${NI_WEB_PORT} &
 		${WEB_BROWSER} http://127.0.0.1:${NI_WEB_PORT}/debug?port=${NI_DEBUG_PORT}
@@ -55,4 +60,4 @@ devdependencies-stamp:
 		touch devdependencies-stamp
 		npm install --dev .
 
-.PHONY: all waf gyp clean clean-all test test-all test-profile inspector mlf
+.PHONY: all waf gyp clean clean-all test test-all test-profile lint inspector mlf
