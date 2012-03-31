@@ -3,6 +3,10 @@ the full MySQL bindings for Node.js using libmysqlclient.
 
 ### In next version
 
+  * ...
+
+## Version 1.3.0
+
   * Improvements:
     * Add binding.gyp sypport for node v0.6.x and newer, refs #111
     * Introduce node_async_shim.h for transparent eio_custom()/uv_queue_work() support
