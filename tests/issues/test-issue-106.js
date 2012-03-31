@@ -38,17 +38,17 @@ exports.createTestTableForIssue106 = function (test) {
 };
 
 exports.issue106 = function (test) {
-  test.expect(5);
+  test.expect(10);
 
   var
-    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
-
-  var queryTemplate = "SELECT * FROM " + cfg.test_table + " WHERE `value` = '%'";
-  var queries = [];
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    queryTemplate = "SELECT * FROM " + cfg.test_table + " WHERE `value` = '%'",
+    queries = [];
+  
   queries.push(queryTemplate.replace('%', 'one'));
   queries.push(queryTemplate.replace('%', 'three'));
 
-  res = conn.query(queries.join(' UNION ALL '), function (err, res) {
+  conn.query(queries.join(' UNION ALL '), function (err, res) {
     test.ok(res, "Result is defined");
     test.ok(!err, "Error object is not present");
 
@@ -58,7 +58,19 @@ exports.issue106 = function (test) {
 
       test.deepEqual(rows, [ { id: 1, value: 'one' }, { id: 3, value: 'three' } ]);
 
-      test.done();
+      conn.query(queries.join(' UNION ALL '), function (err, res) {
+        test.ok(res, "Result is defined");
+        test.ok(!err, "Error object is not present");
+    
+        res.fetchAll(function (err, rows) {
+          test.ok(res, "Result is defined");
+          test.ok(!err, "Error object is not present");
+    
+          test.deepEqual(rows, [ { id: 1, value: 'one' }, { id: 3, value: 'three' } ]);
+
+          test.done();
+        });
+      });
     });
   });
 };
