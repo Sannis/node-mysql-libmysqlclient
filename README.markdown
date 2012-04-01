@@ -1,15 +1,29 @@
 Node-mysql-libmysqlclient
 =========================
 
-MySQL bindings for [Node.js] using libmysqlclient.  
-Check out the [Github repo] for the source code.  
-Visit [module site] for API docs and examples.  
-Extra information available in [wiki].
-
+Asynchronous MySQL binding for [Node.js] using libmysqlclient.  
+This module tested with Node.js versions 0.4.12 and 0.6.12 (stable), and else with 0.7.6.  
 Master (development) branch build status:
-[![Build Status](https://secure.travis-ci.org/Sannis/node-mysql-libmysqlclient.png?branch=master)](http://travis-ci.org/Sannis/node-mysql-libmysqlclient)
+[![Build status](https://secure.travis-ci.org/Sannis/node-mysql-libmysqlclient.png?branch=master)](http://travis-ci.org/Sannis/node-mysql-libmysqlclient)
 
 [Node.js]: http://nodejs.org/
+
+
+Overview
+--------
+
+This bindings provides all general connection/querying functions from MySQL C API,
+and part of prepared statements support. `Connect`, `query` and `fetchAll` are asynchronous.
+
+I start this project in 2010 when Node.js is growing and Ryan had plans to write this binding as part of [GSoC].
+Now it is used by many projects and have more than 10 contributors (listed below).
+I am also maintaining [Node.js MySQL bindings benchmark] that shows great performance of this module.
+
+Node-mysql-libmysqlclient source code is available in the [Github repo] and you can place issues at the project tracker.
+Visit [module site] for API docs and examples. Also you can read some extra information in [wiki].
+
+[GSoC]: http://code.google.com/soc/
+[Node.js MySQL bindings benchmark]: https://github.com/Sannis/node-mysql-bindings-benchmarks
 [Github repo]: https://github.com/Sannis/node-mysql-libmysqlclient
 [module site]: http://sannis.github.com/node-mysql-libmysqlclient
 [wiki]: https://github.com/Sannis/node-mysql-libmysqlclient/wiki
@@ -18,11 +32,9 @@ Master (development) branch build status:
 Dependencies
 ------------
 
-This module tested with Node.js stable versions 0.4.12 and 0.6.12, and with unstable 0.7.6.
-
-To build it you must install libmysqlclient library and development files for it.
-Node-waf use mysql_config to determine the paths to the library and header files.
-To install these dependencies, you can use the console.
+To build this module you must install libmysqlclient library and development files for it.  
+`mysql_config` is used to determine the paths to the library and header files.  
+To install these dependencies, you can use the command shell.
 
 For CentOS:
 
@@ -38,9 +50,11 @@ For Debian/Ubuntu:
 
 Yes, you would use aptitude if you want.
 
+Please refer to your system documentation on oner systems and feel free to send me a patch for this readme. 
 
-Installation
-------------
+
+Installation (for users)
+------------------------
 
 You can install this module via NPM:
 
@@ -49,8 +63,8 @@ You can install this module via NPM:
 Also you can build latest source code from repository, see below.
 
 
-Build and use
--------------
+Build and use (for developers)
+------------------------------
 
 To get source code:
 
@@ -193,5 +207,5 @@ Contributors
 License
 -------
 
-MIT license. See license text in file [LICENSE](https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/LICENSE).
-
+Node-mysql-libmysqlcleint is published under MIT license.  
+See license text in file [LICENSE](https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/LICENSE).
