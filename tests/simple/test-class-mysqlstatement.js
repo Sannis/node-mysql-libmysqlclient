@@ -44,56 +44,7 @@ var testAttrGetAndSetSync = function (test) {
   test.done();
 };
 
-exports.ParamCountGetter = function (test) {
-  test.expect(5);
-  
-  var
-    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res,
-    stmt;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
-  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
-  
-  stmt = conn.initStatementSync();
-  test.ok(stmt);
-  test.ok(stmt.prepareSync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES (?, ?);"));
-  test.equals(stmt.paramCount, 2, "Param count in INSERT INTO test_table + (random_number, random_boolean) VALUES (?, ?) query");
-  stmt.closeSync();
-  
-  conn.closeSync();
-  
-  test.done();
-};
-
-exports.AttrGetSync = function (test) {
-  testAttrGetAndSetSync(test);
-};
-
-exports.AttrSetSync = function (test) {
-  testAttrGetAndSetSync(test);
-};
-
-exports.SqlStateSync = function (test) {
-  test.expect(2);
-  
-  var
-    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    stmt;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
-  stmt = conn.initStatementSync();
-  test.equals(stmt.sqlStateSync(), "00000", "stmt.sqlStateSync()");
-  
-  conn.closeSync();
-  
-  test.done();
-};
-
-exports.BindParamsSync = function (test) {
+var testBindParamsAndExecuteSync = function (test) {
   test.expect(31);
   
   var
@@ -141,6 +92,8 @@ exports.BindParamsSync = function (test) {
   row = res.fetchArraySync();
   test.same(row, [3, 0], "conn.querySync('SELECT ... WHERE random_boolean=0').fetchArraySync()");
   
+  stmt.closeSync();
+  
   // Check inserting for VARCHAR, DOUBLE and NULL
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
@@ -164,6 +117,8 @@ exports.BindParamsSync = function (test) {
   
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " DROP title, DROP number, DROP for_null;");
   test.ok(res, "conn.querySync('ALTER TABLE test_table  DROP title, DROP number, DROP for_null')");
+  
+  stmt2.closeSync();
   
   // Check inserting for VARCHAR, DOUBLE and NULL
   
@@ -190,8 +145,172 @@ exports.BindParamsSync = function (test) {
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " DROP date, DROP time, DROP datetime, DROP timestamp;");
   test.ok(res, "conn.querySync('ALTER TABLE test_table DROP date, DROP time, DROP datetime, DROP timestamp')");
   
+  stmt3.closeSync();
+  
   conn.closeSync();
   
+  test.done();
+};
+
+exports.ParamCountGetter = function (test) {
+  test.expect(5);
+  
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res,
+    stmt;
+  
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
+  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  
+  stmt = conn.initStatementSync();
+  test.ok(stmt);
+  test.ok(stmt.prepareSync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES (?, ?);"));
+  test.equals(stmt.paramCount, 2, "Param count in INSERT INTO test_table + (random_number, random_boolean) VALUES (?, ?) query");
+  stmt.closeSync();
+  
+  conn.closeSync();
+  
+  test.done();
+};
+
+exports.AffectedRowsSync = function (test) {
+  test.expect(0);
+  console.log("AffectedRowsSync test is not implementd yet");
+  test.done();
+};
+
+exports.AttrGetSync = function (test) {
+  testAttrGetAndSetSync(test);
+};
+
+exports.AttrSetSync = function (test) {
+  testAttrGetAndSetSync(test);
+};
+
+exports.BindParamsSync = function (test) {
+  testBindParamsAndExecuteSync(test);
+};
+
+exports.CloseSync = function (test) {
+  test.expect(4);
+  
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res,
+    stmt;
+  
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  stmt = conn.initStatementSync();
+  test.ok(stmt);
+  test.ok(stmt.prepareSync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES (?, ?);"));
+
+  stmt.closeSync();
+  
+  test.throws(function () {
+    stmt.closeSync();
+  }, Error, "Statement not initialized");
+  
+  conn.closeSync();
+  
+  test.done();
+};
+
+exports.DataSeekSync = function (test) {
+  test.expect(0);
+  console.log("DataSeekSync test is not implementd yet");
+  test.done();
+};
+
+exports.ErrnoSync = function (test) {
+  test.expect(0);
+  console.log("ErrnoSync test is not implementd yet");
+  test.done();
+};
+
+exports.ErrorSync = function (test) {
+  test.expect(0);
+  console.log("ErrorSync test is not implementd yet");
+  test.done();
+};
+
+exports.ExecuteSync = function (test) {
+  testBindParamsAndExecuteSync(test);
+};
+
+exports.FieldCountSync = function (test) {
+  test.expect(0);
+  console.log("FieldCountSync test is not implementd yet");
+  test.done();
+};
+
+exports.FreeResultSync = function (test) {
+  test.expect(0);
+  console.log("FreeResultSync test is not implementd yet");
+  test.done();
+};
+
+exports.LastInsertIdSync = function (test) {
+  test.expect(11);
+  
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res,
+    stmt,
+    lastInsertId;
+  
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  res = conn.querySync("TRUNCATE " + cfg.test_table + ";");
+  test.ok(res, "conn.querySync('TRUNCATE cfg.test_table')");
+  
+  stmt = conn.initStatementSync();
+  test.ok(stmt);
+  test.ok(stmt.prepareSync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES (?, ?);"));
+
+  test.ok(stmt.bindParamsSync([1, 1]), "stmt.bindParamSync([1, 1])");
+  test.ok(stmt.executeSync(), "stmt.bindParamSync(1, 1).executeSync()");
+  
+  test.ok(stmt.bindParamsSync([2, 1]), "stmt.bindParamSync([2, 1])");
+  test.ok(stmt.executeSync(), "stmt.bindParamSync(1, 1).executeSync()");
+  
+  test.ok(stmt.bindParamsSync([3, 0]), "stmt.bindParamSync([3, 0])");
+  test.ok(stmt.executeSync(), "stmt.bindParamSync(1, 1).executeSync()");
+  
+  lastInsertId = stmt.lastInsertIdSync();
+  test.equals(lastInsertId, 3, "Last insert id after 3 rows inserded");
+  
+  stmt.closeSync();
+  
+  conn.closeSync();
+  
+  test.done();
+};
+
+exports.NumRowsSync = function (test) {
+  test.expect(0);
+  console.log("NumRowsSync test is not implementd yet");
+  test.done();
+};
+
+exports.PrepareSync = function (test) {
+  test.expect(0);
+  console.log("PrepareSync test is not implementd yet");
+  test.done();
+};
+
+exports.ResetSync = function (test) {
+  test.expect(0);
+  console.log("ResetSync test is not implementd yet");
+  test.done();
+};
+
+exports.ResultMetadataSync = function (test) {
+  test.expect(0);
+  console.log("ResultMetadataSync test is not implementd yet");
   test.done();
 };
 
@@ -241,3 +360,25 @@ exports.SendLongDataSync = function (test) {
   test.done();
 };
 
+exports.SqlStateSync = function (test) {
+  test.expect(2);
+  
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    stmt;
+  
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+  
+  stmt = conn.initStatementSync();
+  test.equals(stmt.sqlStateSync(), "00000", "stmt.sqlStateSync()");
+  
+  conn.closeSync();
+  
+  test.done();
+};
+
+exports.StoreResultSync = function (test) {
+  test.expect(0);
+  console.log("StoreResultSync test is not implementd yet");
+  test.done();
+};

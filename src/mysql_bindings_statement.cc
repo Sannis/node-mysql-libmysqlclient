@@ -679,4 +679,3 @@ Handle<Value> MysqlStatement::StoreResultSync(const Arguments& args) {
 
     return scope.Close(True());
 }
-
