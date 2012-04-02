@@ -97,7 +97,7 @@ exports.ManyConnectsInLoop = function (test) {
   for (i = 0; i < cfg.slow_connects_inloop; i += 1) {
     connections[i].connect(cfg.host, cfg.user, cfg.password, cfg.database, function (err) {
       if (err) {
-        console.log(err);
+        console.log("Error:" + err);
         throw err;
       }
       

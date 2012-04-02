@@ -21,7 +21,7 @@ exports.fetchDateAndTimeValues = function (test) {
   test.ok(rows[0].time instanceof Date, "SELECT CAST('2 2:50' AS TIME) is Date");
   test.equals(rows[0].time.toUTCString(), "Sat, 03 Jan 1970 02:50:00 GMT", "SELECT CAST('2 2:50' AS TIME) is correct");
   
-  rows = conn.querySync("SELECT CAST('2000-01-01' AS DATE) as date;").fetchAllSync();console.log(rows[0].date);
+  rows = conn.querySync("SELECT CAST('2000-01-01' AS DATE) as date;").fetchAllSync();
   test.ok(rows[0].date instanceof Date, "SELECT CAST('2000-01-01' AS DATE) is Date");
   test.equals(rows[0].date.toUTCString(), "Sat, 01 Jan 2000 00:00:00 GMT", "SELECT CAST('2000-01-01' AS DATE) is correct");
   

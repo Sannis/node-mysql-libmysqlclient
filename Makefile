@@ -34,8 +34,10 @@ gyp-stamp: ./binding.gyp ./src/*
 test: devdependencies
 		./node_modules/.bin/nodeunit tests/simple tests/complex tests/issues
 
-test-all: devdependencies
-		./node_modules/.bin/nodeunit tests/simple tests/complex tests/slow tests/issues
+test-slow: devdependencies
+		./node_modules/.bin/nodeunit tests/slow
+
+test-all: test test-slow
 
 test-profile: devdependencies
 		rm -f v8.log
@@ -60,4 +62,4 @@ devdependencies-stamp:
 		touch devdependencies-stamp
 		npm install --dev .
 
-.PHONY: all waf gyp clean clean-all test test-all test-profile lint inspector mlf
+.PHONY: all waf gyp clean clean-all test test-slow test-all test-profile lint inspector mlf
