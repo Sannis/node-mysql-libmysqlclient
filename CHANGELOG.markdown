@@ -1,9 +1,12 @@
-Changelog (revision history) for node-mysql-libmysqlclient,
-the full MySQL bindings for Node.js using libmysqlclient.
+# Changelog
 
-### In next version
+Revision history for node-mysql-libmysqlclient,
+the asynchronous MySQL binding for Node.js using libmysqlclient.
 
-  * ...
+## Version 1.3.1
+
+  * Fix link against thread-safe libmysqlclient_r
+  * Fix FetchAllSyncWithBinaryFields and ThreadSafeSync tests
 
 ## Version 1.3.0
 
