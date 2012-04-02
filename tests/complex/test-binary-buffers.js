@@ -18,7 +18,7 @@ exports.createTestTableComplex2BinaryBlobs = function (test) {
   
   conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table2 + ";");
   conn.querySync("CREATE TABLE " + cfg.test_table2 +
-    " (vc VARCHAR(8), vbi VARBINARY(8), bi BINARY(8), t TEXT, b BLOB) " + cfg.store_engine + ";");
+    " (id INT AUTO_INCREMENT, vc VARCHAR(8), vbi VARBINARY(8), bi BINARY(8), t TEXT, b BLOB, PRIMARY KEY (id)) " + cfg.store_engine + ";");
   res = conn.querySync("SHOW TABLES");
   tables = res.fetchAllSync();
   
@@ -51,7 +51,7 @@ exports.FetchAllSyncWithBinaryFields = function (test) {
     rowsExpected;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  res = conn.querySync("SELECT vc, vbi, bi, t, b FROM " + cfg.test_table2 + ";");
+  res = conn.querySync("SELECT vc, vbi, bi, t, b FROM " + cfg.test_table2 + " ORDER BY id;");
   test.ok(res, "SELECT");
   
   rows = res.fetchAllSync(true);
