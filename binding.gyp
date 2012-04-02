@@ -14,7 +14,7 @@
           # no Windows support yet...
         }, {
           'libraries': [
-            '<!@(mysql_config --libs)'
+            '<!@(mysql_config --libs_r)'
           ],
         }],
         ['OS=="mac"', {

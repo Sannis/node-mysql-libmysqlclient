@@ -30,18 +30,17 @@ def configure(conf):
     # Extra warnings, gcc 4.4
     conf.env.append_unique('CXXFLAGS', ["-Wconversion", "-Wshadow", "-Wsign-conversion", "-Wunreachable-code", "-Wredundant-decls", "-Wcast-qual"])
   
-  # MySQL flags and libraries
+  # MySQL headers
   conf.env.append_unique('CXXFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --include').split())
-  conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs_r').split())
-  
-  if conf.check_cxx(lib="mysqlclient", errmsg="not found"):
-    # link flags are needed to find the libraries
-    conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs').split())
-  else:
-    conf.fatal("Missing libmysqlclient library from libmysqlclient-devel or mysql-devel package")
   
   if not conf.check_cxx(header_name='mysql.h'):
     conf.fatal("Missing mysql.h header from libmysqlclient-devel or mysql-devel package")
+  
+  # MySQL libraries
+  conf.env.append_unique('LINKFLAGS', Utils.cmd_output(Options.options.mysql_config + ' --libs_r').split())
+  
+  if not conf.check_cxx(lib="mysqlclient_r", errmsg="not found"):
+    conf.fatal("Missing thread-safe libmysqlclient_r library from libmysqlclient-devel or mysql-devel package")
 
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
