@@ -226,6 +226,8 @@ class MysqlConnection : public node::ObjectWrap {
         MysqlConnection *conn;
 
         char *query;
+        unsigned int query_len;
+        
         MYSQL_RES *my_result;
         uint32_t field_count;
         my_ulonglong affected_rows;

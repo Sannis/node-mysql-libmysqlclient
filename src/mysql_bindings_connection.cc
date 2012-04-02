@@ -1094,7 +1094,7 @@ async_rtn MysqlConnection::EIO_Query(uv_work_t *req) {
     MYSQLCONN_DISABLE_MQ;
 
     pthread_mutex_lock(&conn->query_lock);
-    int r = mysql_query(conn->_conn, query_req->query);
+    int r = mysql_real_query(conn->_conn, query_req->query, query_req->query_len);
     int errno = mysql_errno(conn->_conn);
     if (r != 0 || errno != 0) {
         // Query error
@@ -1158,13 +1158,14 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
     }
 
     unsigned int query_len = static_cast<unsigned int>(query.length());
+    
     query_req->query =
         reinterpret_cast<char *>(calloc(query_len + 1, sizeof(char))); // NOLINT (have no char var)
+    query_req->query_len = query_len;
 
-    if (snprintf(query_req->query, query_len + 1, "%s", *query) !=
-                                                static_cast<int>(query_len)) {
-        return THREXC("Snprintf() error");
-    }
+    // Copy query from V8 var to buffer
+    memcpy(query_req->query, *query, query_len);
+    query_req->query[query_len] = '\0';
 
     query_req->callback = Persistent<Value>::New(callback);
     query_req->conn = conn;
@@ -1194,11 +1195,13 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
 
     MYSQL_RES *my_result = NULL;
     unsigned int field_count;
+    
+    unsigned int query_len = static_cast<unsigned int>(query.length());
 
     // Only one query can be executed on a connection at a time
     pthread_mutex_lock(&conn->query_lock);
 
-    int r = mysql_query(conn->_conn, *query);
+    int r = mysql_real_query(conn->_conn, *query, query_len);
     if (r == 0) {
         my_result = mysql_store_result(conn->_conn);
         field_count = mysql_field_count(conn->_conn);
