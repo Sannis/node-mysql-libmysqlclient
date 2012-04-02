@@ -37,8 +37,11 @@ exports.createTestTableComplex2BinaryBlobs = function (test) {
                    " (vc, vbi, bi, b) VALUES ('34\\0\\0', '34\\0\\0', '34\\0\\0', '34\\0\\0');") && res;
   test.ok(res, "conn.querySync('INSERT INTO test_table2 ...')");
   
-  conn.closeSync();
-  test.done();
+  // Ensure all rows are inserted
+  setTimeout(function () {
+    conn.closeSync();
+    test.done();
+  }, 100);
 };
 
 exports.FetchAllSyncWithBinaryFields = function (test) {

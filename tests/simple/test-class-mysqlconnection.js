@@ -507,12 +507,15 @@ exports.LastInsertIdSync = function (test) {
   }
   
   test.equals(res, true, "Insert " + cfg.insert_rows_count + " rows into table " + cfg.test_table);
-  last_insert_id = conn.lastInsertIdSync();
-  test.equals(last_insert_id, cfg.insert_rows_count, "conn.lastInsertIdSync()");
   
-  conn.closeSync();
-  
-  test.done();
+  // Ensure all rows are inserted
+  setTimeout(function () {
+    last_insert_id = conn.lastInsertIdSync();
+    test.equals(last_insert_id, cfg.insert_rows_count, "conn.lastInsertIdSync()");
+    
+    conn.closeSync();
+    test.done();
+  }, 100);
 };
 
 exports.MultiMoreResultsSync = function (test) {
