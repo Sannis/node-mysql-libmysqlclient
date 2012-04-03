@@ -176,7 +176,7 @@ exports.AffectedRowsSync = function (test) {
   test.expect(5);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res = true,
+    res,
     random_number,
     random_boolean,
     affected_rows,
@@ -199,7 +199,6 @@ exports.AffectedRowsSync = function (test) {
   test.equals(res, true, "Update " + cfg.insert_rows_count + " rows in table " + cfg.test_table);
   
   affected_rows = conn.affectedRowsSync();
-  
   test.equals(affected_rows, cfg.insert_rows_count, "conn.affectedRowsSync()");
   
   conn.closeSync();

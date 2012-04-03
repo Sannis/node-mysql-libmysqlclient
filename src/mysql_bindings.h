@@ -68,7 +68,7 @@ Local<Array> VAR = Local<Array>::Cast(args[I]);
 #define REQ_EXT_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsExternal()) \
 return ThrowException(Exception::TypeError( \
-String::New("Argument " #I " invalid"))); \
+String::New("Argument " #I " must be an external"))); \
 Local<External> VAR = Local<External>::Cast(args[I]);
 
 #define REQ_FUN_ARG(I, VAR) \

@@ -177,8 +177,41 @@ exports.ParamCountGetter = function (test) {
 };
 
 exports.AffectedRowsSync = function (test) {
-  test.expect(0);
-  console.log("AffectedRowsSync test is not implementd yet");
+  test.expect(8);
+
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res,
+    random_number,
+    random_boolean,
+    stmt,
+    affected_rows,
+    i;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
+  test.ok(res, "conn.querySync('DELETE FROM test_table')");
+
+  for (i = 0; i < cfg.insert_rows_count; i += 1) {
+    random_number = Math.round(Math.random() * 1000000);
+    random_boolean = (Math.random() > 0.5) ? 1 : 0;
+    res = conn.querySync("INSERT INTO " + cfg.test_table +
+      " (random_number, random_boolean) VALUES ('" + random_number +
+      "', '" + random_boolean + "');") && res;
+  }
+  test.equals(res, true, "Insert " + cfg.insert_rows_count + " rows into table " + cfg.test_table);
+
+  stmt = conn.initStatementSync();
+  test.ok(stmt);
+  test.ok(stmt.prepareSync("UPDATE " + cfg.test_table + " SET random_number=?;"));
+  test.ok(stmt.bindParamsSync([1]), "stmt.bindParamSync([1])");
+
+  test.ok(stmt.executeSync(), "stmt.bindParamSync([1]).executeSync()");
+
+  affected_rows = stmt.affectedRowsSync();
+  test.equals(affected_rows, cfg.insert_rows_count, "stmt.affectedRowsSync()");
+
+  conn.closeSync();
+
   test.done();
 };
 
@@ -309,8 +342,26 @@ exports.ResetSync = function (test) {
 };
 
 exports.ResultMetadataSync = function (test) {
-  test.expect(0);
-  console.log("ResultMetadataSync test is not implementd yet");
+  test.expect(5);
+
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    stmt,
+    resultMetadata;
+
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+
+  stmt = conn.initStatementSync();
+  test.ok(stmt);
+
+  test.ok(stmt.prepareSync("SELECT 1 AS one, 2 AS two;"));
+
+  test.ok(stmt.executeSync(), "stmt.bindParamSync([1]).executeSync()");
+
+  resultMetadata = stmt.resultMetadataSync();
+  test.ok(resultMetadata instanceof cfg.mysql_bindings.MysqlResult, "resultMetadata instanceof MysqlResult");
+
+  conn.closeSync();
+
   test.done();
 };
 

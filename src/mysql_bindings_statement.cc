@@ -607,10 +607,11 @@ Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
         return scope.Close(False());
     }
 
-    int argc = 2;
-    Local<Value> argv[2];
-    argv[0] = External::New(my_result);
-    argv[1] = Integer::New(mysql_stmt_field_count(stmt->_stmt));
+    int argc = 3;
+    Local<Value> argv[argc];
+    argv[0] = External::New(stmt->_stmt->mysql); // MySQL connection handle
+    argv[1] = External::New(my_result);
+    argv[2] = Integer::New(mysql_stmt_field_count(stmt->_stmt));
     Persistent<Object> js_result(MysqlResult::constructor_template->
                              GetFunction()->NewInstance(argc, argv));
 
