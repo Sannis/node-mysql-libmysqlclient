@@ -6,7 +6,7 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require('../config');
+var cfg = require('../config.js');
 
 exports.mysql_libmysqlclient_createConnectionSync_0 = function (test) {
   test.expect(1);

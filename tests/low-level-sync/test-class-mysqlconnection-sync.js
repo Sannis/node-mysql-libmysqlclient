@@ -6,7 +6,7 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require('../config');
+var cfg = require('../config.js');
 
 var initAndRealConnectSync = function (test) {
   test.expect(5);
