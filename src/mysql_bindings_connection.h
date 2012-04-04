@@ -74,6 +74,7 @@ static Persistent<String> connection_multiNextResultSync_symbol;
 static Persistent<String> connection_multiRealQuerySync_symbol;
 static Persistent<String> connection_pingSync_symbol;
 static Persistent<String> connection_query_symbol;
+static Persistent<String> connection_querySend_symbol;
 static Persistent<String> connection_querySync_symbol;
 static Persistent<String> connection_realConnectSync_symbol;
 static Persistent<String> connection_realQuerySync_symbol;
@@ -236,10 +237,15 @@ class MysqlConnection : public node::ObjectWrap {
         unsigned int errno;
         const char *error;
     };
+
     static async_rtn EIO_After_Query(uv_work_t *req);
     static async_rtn EIO_Query(uv_work_t *req);
 
     static Handle<Value> Query(const Arguments& args);
+
+    static void EV_After_QuerySend(struct ev_loop *loop, ev_io *req, int revents);
+    
+    static Handle<Value> QuerySend(const Arguments& args);
 
     static Handle<Value> QuerySync(const Arguments& args);
 

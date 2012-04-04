@@ -13,6 +13,7 @@
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
+#include <alloca.h>
 
 /**
  * Init V8 structures for MysqlConnection class
@@ -119,6 +120,7 @@ void MysqlConnection::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, multiRealQuerySync, MultiRealQuerySync);
     ADD_PROTOTYPE_METHOD(connection, pingSync, PingSync);
     ADD_PROTOTYPE_METHOD(connection, query, Query);
+    ADD_PROTOTYPE_METHOD(connection, querySend, QuerySend);
     ADD_PROTOTYPE_METHOD(connection, querySync, QuerySync);
     ADD_PROTOTYPE_METHOD(connection, realConnectSync, RealConnectSync);
     ADD_PROTOTYPE_METHOD(connection, realQuerySync, RealQuerySync);
@@ -1175,6 +1177,121 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
 
     return Undefined();
 }
+
+/**
+ * EV wrapper functions for MysqlConnection::QuerySend
+ */
+void MysqlConnection::EV_After_QuerySend(struct ev_loop *loop, ev_io *w, int revents) {
+    HandleScope scope;
+
+    // Fake uv_work_t struct for EIO_After_Query call
+    uv_work_t fake_req;
+    uv_work_t *req = &fake_req;
+    req->data = w->data;
+
+    // Stop io_watcher
+    ev_io_stop(EV_A_ w);
+
+    struct query_request *query_req = (struct query_request *)(w->data);
+
+    MysqlConnection *conn = query_req->conn;
+
+    // The query part, mostly same with EIO_Query
+    // TODO merge the same parts with EIO_Query
+    int r = mysql_read_query_result(conn->_conn);
+    int errno = mysql_errno(conn->_conn);
+    if (r != 0 || errno != 0) {
+        // Query error
+        query_req->ok = false;
+        query_req->errno = errno;
+        query_req->error = mysql_error(conn->_conn);
+    } else {
+        query_req->ok = true;
+
+        MYSQL_RES *my_result = mysql_store_result(conn->_conn);
+
+        query_req->field_count = mysql_field_count(conn->_conn);
+
+        if (my_result) {
+            // Valid result set (may be empty, of cause)
+            query_req->have_result_set = true;
+            query_req->my_result = my_result;
+        } else {
+            if (query_req->field_count == 0) {
+                // No result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN
+                query_req->have_result_set = false;
+                // UPDATE or DELETE?
+                query_req->affected_rows = mysql_affected_rows(query_req->conn->_conn);
+                // INSERT?
+                query_req->insert_id = mysql_insert_id(query_req->conn->_conn);
+            } else {
+                // Result store error
+                query_req->ok = false;
+                query_req->errno = errno;
+                query_req->error = mysql_error(query_req->conn->_conn);
+            }
+        }
+    }
+
+    // The callback part, just call the exsisting code
+    EIO_After_Query(req);
+
+    // Don't forget to free io_watcher
+    free(w);
+}
+
+/**
+ * Performs a query on the database
+ *
+ * @param {String} querySend
+ * @param {Function(error, result)} callback
+ */
+Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
+    HandleScope scope;
+
+    REQ_STR_ARG(0, query);
+    OPTIONAL_FUN_ARG(1, callback);
+
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+
+    MYSQLCONN_MUSTBE_CONNECTED;
+
+    struct query_request *query_req = (struct query_request *)
+        calloc(1, sizeof(struct query_request));
+
+    if (!query_req) {
+        V8::LowMemoryNotification();
+        return THREXC("Could not allocate enough memory");
+    }
+
+    unsigned int query_len = static_cast<unsigned int>(query.length());
+    query_req->query =
+        reinterpret_cast<char *>(calloc(query_len + 1, sizeof(char))); // NOLINT (have no char var)
+
+    if (snprintf(query_req->query, query_len + 1, "%s", *query) !=
+                                                static_cast<int>(query_len)) {
+        return THREXC("Snprintf() error");
+    }
+
+    query_req->callback = Persistent<Value>::New(callback);
+    query_req->conn = conn;
+
+    // Send query
+    mysql_send_query(conn->_conn, query_req->query, query_len + 1);
+
+    // Init ev watcher
+    ev_io *io_watcher = reinterpret_cast<ev_io*>(malloc(sizeof(ev_io)));
+    io_watcher->data = query_req;
+    ev_init(io_watcher, EV_After_QuerySend);
+    ev_io_set(io_watcher, conn->_conn->net.fd, EV_READ);
+    ev_io_start(EV_DEFAULT_ io_watcher);
+
+    ev_ref(EV_DEFAULT_UC);
+    conn->Ref();
+
+    return Undefined();
+}
+
 
 /**
  * Performs a query on the database
