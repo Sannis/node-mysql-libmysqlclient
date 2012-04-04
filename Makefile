@@ -32,7 +32,7 @@ gyp-stamp: ./binding.gyp ./src/*
 		node-gyp build
 
 test: devdependencies
-		ldd ./build/Release/mysql_bindings.node || ldd ./build/default/Release/mysql_bindings.node || true
+		# ldd ./build/Release/mysql_bindings.node || ldd ./build/default/Release/mysql_bindings.node || true
 		./node_modules/.bin/nodeunit --reporter=minimal tests/low-level-sync tests/low-level-async tests/high-level tests/complex tests/issues
 
 test-slow: devdependencies
