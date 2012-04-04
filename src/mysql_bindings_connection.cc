@@ -121,7 +121,7 @@ void MysqlConnection::Init(Handle<Object> target) {
     ADD_PROTOTYPE_METHOD(connection, multiRealQuerySync, MultiRealQuerySync);
     ADD_PROTOTYPE_METHOD(connection, pingSync, PingSync);
     ADD_PROTOTYPE_METHOD(connection, query, Query);
-    ADD_PROTOTYPE_METHOD(connection, queryAsync, QueryAsync);
+    ADD_PROTOTYPE_METHOD(connection, querySend, QuerySend);
     ADD_PROTOTYPE_METHOD(connection, querySync, QuerySync);
     ADD_PROTOTYPE_METHOD(connection, realConnectSync, RealConnectSync);
     ADD_PROTOTYPE_METHOD(connection, realQuerySync, RealQuerySync);
@@ -1099,7 +1099,7 @@ int MysqlConnection::EIO_After_Query(eio_req *req) {
 
 
 /**
- * EV wrapper functions for MysqlConnection::QueryAsync
+ * EV wrapper functions for MysqlConnection::QuerySend
  */
 void MysqlConnection::EV_After_Query(struct ev_loop *loop, ev_io *w, int revents) {
     HandleScope scope;
@@ -1276,10 +1276,10 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
 /**
  * Performs a query on the database
  *
- * @param {String} queryAsync
+ * @param {String} querySend
  * @param {Function(error, result)} callback
  */
-Handle<Value> MysqlConnection::QueryAsync(const Arguments& args) {
+Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
     HandleScope scope;
 #ifdef MYSQL_NON_THREADSAFE
     return THREXC(MYSQL_NON_THREADSAFE_ERRORSTRING);

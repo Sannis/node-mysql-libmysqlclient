@@ -167,7 +167,7 @@ exports.QueryAsync = function (test) {
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  conn.queryAsync("SHOW TABLES", function (err, res) {
+  conn.querySend("SHOW TABLES", function (err, res) {
     test.ok(res.fieldCount === 1, "show results field count === 1");
     var rows = res.fetchAllSync();
     res.freeSync();
@@ -194,24 +194,24 @@ exports.QueryAsyncWithLastInsertIdAndAffectedRows = function (test) {
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " AUTO_INCREMENT = 1;");
   test.ok(res, "conn.querySync('ALTER TABLE test_table AUTO_INCREMENT = 1;')");
   
-  conn.queryAsync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('1', '0');", function (err, info) {
+  conn.querySend("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('1', '0');", function (err, info) {
     test.equals(info.insertId, 1, "Last insert id");
     
-    conn.queryAsync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('2', '0'), ('3', '0');", function (err, info) {
+    conn.querySend("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('2', '0'), ('3', '0');", function (err, info) {
       // For MySQL version >= 5.1.12
       test.equals(info.insertId, 2, "Last insert id");
       
-      conn.queryAsync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('4', '1'), ('5', '1');", function (err, info) {
+      conn.querySend("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('4', '1'), ('5', '1');", function (err, info) {
         // For MySQL version >= 5.1.12
         test.equals(info.insertId, 4, "Last insert id");
         
         var insertIdSync = conn.lastInsertIdSync();
         test.equals(insertIdSync, 4, "Last insert id");
         
-        conn.queryAsync("UPDATE " + cfg.test_table + " SET random_number = '0' WHERE random_boolean='0';", function (err, info) {
+        conn.querySend("UPDATE " + cfg.test_table + " SET random_number = '0' WHERE random_boolean='0';", function (err, info) {
           test.equals(info.affectedRows, 3, "Affected rows count");
           
-          conn.queryAsync("DELETE FROM " + cfg.test_table + " WHERE random_boolean='1';", function (err, info) {
+          conn.querySend("DELETE FROM " + cfg.test_table + " WHERE random_boolean='1';", function (err, info) {
             test.equals(info.affectedRows, 2, "Affected rows count");
             
             conn.closeSync();
@@ -232,7 +232,7 @@ exports.QueryAsyncWithError = function (test) {
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  conn.queryAsync("SHOW TABLESaagh", function (err, res) {
+  conn.querySend("SHOW TABLESaagh", function (err, res) {
     test.ok(err, "Error object is present");
     test.ok(!res, "Result is not defined");
     

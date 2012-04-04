@@ -74,7 +74,7 @@ static Persistent<String> connection_multiNextResultSync_symbol;
 static Persistent<String> connection_multiRealQuerySync_symbol;
 static Persistent<String> connection_pingSync_symbol;
 static Persistent<String> connection_query_symbol;
-static Persistent<String> connection_queryAsync_symbol;
+static Persistent<String> connection_querySend_symbol;
 static Persistent<String> connection_querySync_symbol;
 static Persistent<String> connection_realConnectSync_symbol;
 static Persistent<String> connection_realQuerySync_symbol;
@@ -247,7 +247,7 @@ class MysqlConnection : public node::ObjectWrap {
 #endif
     static Handle<Value> Query(const Arguments& args);
 
-    static Handle<Value> QueryAsync(const Arguments& args);
+    static Handle<Value> QuerySend(const Arguments& args);
 
     static Handle<Value> QuerySync(const Arguments& args);
 
