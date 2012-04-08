@@ -1170,7 +1170,7 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
 /**
  * EV wrapper functions for MysqlConnection::QuerySend
  */
-void MysqlConnection::EV_After_QuerySend(struct ev_loop *loop, ev_io *io_watcher, int revents) {
+void MysqlConnection::EV_After_QuerySend(EV_P_ ev_io *io_watcher, int revents) {
     HandleScope scope;
 
     // Fake uv_work_t struct for EIO_After_Query call
@@ -1263,10 +1263,9 @@ Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
     // Init ev watcher
     ev_io* io_watcher = new ev_io;
     io_watcher->data = query_req;
-    ev_init(io_watcher, EV_After_QuerySend);
-    ev_io_set(io_watcher, conn->_conn->net.fd, EV_READ);
-    ev_io_start(EV_DEFAULT_UC, io_watcher);
-    
+
+    BEGIN_EV_IO_WATCH(io_watcher, EV_After_QuerySend, conn->_conn->net.fd, EV_READ)
+
     return Undefined();
 }
 

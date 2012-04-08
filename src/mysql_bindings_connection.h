@@ -240,7 +240,7 @@ class MysqlConnection : public node::ObjectWrap {
     static async_rtn EIO_Query(uv_work_t *req);
     static Handle<Value> Query(const Arguments& args);
 
-    static void EV_After_QuerySend(struct ev_loop *loop, ev_io *io_watcher, int revents);
+    static void EV_After_QuerySend(EV_P_ ev_io *io_watcher, int revents);
     static Handle<Value> QuerySend(const Arguments& args);
 
     static Handle<Value> QuerySync(const Arguments& args);

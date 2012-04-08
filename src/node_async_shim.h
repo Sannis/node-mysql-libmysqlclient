@@ -40,3 +40,17 @@
     ev_unref(EV_DEFAULT_UC); \
     RETURN_ASYNC
 #endif
+
+/* Node libev version compat */
+#if NODE_VERSION_AT_LEAST(0, 5, 6)
+  #define BEGIN_EV_IO_WATCH(io_watcher, after, fd, event_type) \
+    ev_init(io_watcher, after); \
+    ev_io_set(io_watcher, fd, event_type); \
+    ev_io_start(EV_DEFAULT_UC_ io_watcher);
+#else
+  #define BEGIN_EV_IO_WATCH(io_watcher, after, fd, event_type) \
+    ev_init(io_watcher, after); \
+    ev_io_set(io_watcher, fd, event_type); \
+    ev_io_start(EV_DEFAULT_UC_ io_watcher); \
+    ev_ref(EV_DEFAULT_UC);
+#endif
