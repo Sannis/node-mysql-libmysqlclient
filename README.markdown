@@ -2,8 +2,7 @@ Node-mysql-libmysqlclient [![Build status](https://secure.travis-ci.org/Sannis/n
 =========================
 
 Asynchronous MySQL binding for [Node.js] using libmysqlclient.  
-This module tested with Node.js versions 0.4.12 and 0.6.12 (stable), and else with 0.7.6.  
-Master (development) branch build status:
+This module tested with Node.js versions 0.4.12 and 0.6.14, and also with 0.7.7.  
 
 [Node.js]: http://nodejs.org/
 
@@ -13,6 +12,7 @@ Overview
 
 This bindings provides all general connection/querying functions from MySQL C API,
 and part of prepared statements support. `Connect`, `query` and `fetchAll` are asynchronous.
+This module also includes experimental support for asynchronous `querySend` from internals of `libmysqlclient`.
 
 I start this project in 2010 when Node.js is growing and Ryan had plans to write this binding as part of [GSoC].
 Now it is used by many projects and have more than 10 contributors,
