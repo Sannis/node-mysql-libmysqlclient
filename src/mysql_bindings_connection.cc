@@ -13,7 +13,6 @@
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
-#include <alloca.h>
 
 /**
  * Init V8 structures for MysqlConnection class
@@ -445,8 +444,10 @@ async_rtn MysqlConnection::EIO_After_Connect(uv_work_t *req) {
     }
 
     conn_req->callback.Dispose();
+    
     conn_req->conn->Unref();
-    free(conn_req);
+    
+    delete conn_req;
 
     RETURN_ASYNC_AFTER
 }
@@ -490,18 +491,13 @@ async_rtn MysqlConnection::EIO_Connect(uv_work_t *req) {
  */
 Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     HandleScope scope;
+    
+    REQ_FUN_ARG(args.Length() - 1, callback);
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
 
-    struct connect_request *conn_req =
-         (struct connect_request *)calloc(1, sizeof(struct connect_request));
-
-    if (!conn_req) {
-      V8::LowMemoryNotification();
-      return THREXC("Could not allocate enough memory");
-    }
-
-    REQ_FUN_ARG(args.Length() - 1, callback);
+    connect_request *conn_req = new connect_request;
+    
     conn_req->callback = Persistent<Function>::New(callback);
     conn_req->conn = conn;
     conn->Ref();
@@ -1077,8 +1073,8 @@ async_rtn MysqlConnection::EIO_After_Query(uv_work_t *req) {
 
     query_req->conn->Unref();
 
-    free(query_req->query);
-    free(query_req);
+    delete[] query_req->query;
+    delete query_req;
 
     RETURN_ASYNC_AFTER
 }
@@ -1151,21 +1147,14 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    struct query_request *query_req = (struct query_request *)
-        calloc(1, sizeof(struct query_request));
-
-    if (!query_req) {
-        V8::LowMemoryNotification();
-        return THREXC("Could not allocate enough memory");
-    }
+    query_request *query_req = new query_request;
 
     unsigned int query_len = static_cast<unsigned int>(query.length());
     
-    query_req->query =
-        reinterpret_cast<char *>(calloc(query_len + 1, sizeof(char))); // NOLINT (have no char var)
+    query_req->query = new char[query_len + 1];
     query_req->query_len = query_len;
 
-    // Copy query from V8 var to buffer
+    // Copy query from V8 value to buffer
     memcpy(query_req->query, *query, query_len);
     query_req->query[query_len] = '\0';
 
@@ -1255,17 +1244,10 @@ Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    struct query_request *query_req = (struct query_request *)
-        calloc(1, sizeof(struct query_request));
-
-    if (!query_req) {
-        V8::LowMemoryNotification();
-        return THREXC("Could not allocate enough memory");
-    }
+    query_request *query_req = new query_request;
 
     unsigned int query_len = static_cast<unsigned int>(query.length());
-    query_req->query =
-        reinterpret_cast<char *>(calloc(query_len + 1, sizeof(char))); // NOLINT (have no char var)
+    query_req->query = new char[query_len + 1];
 
     // Copy query from V8 var to buffer
     memcpy(query_req->query, *query, query_len);

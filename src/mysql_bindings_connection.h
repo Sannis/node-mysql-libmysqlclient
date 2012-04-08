@@ -172,7 +172,6 @@ class MysqlConnection : public node::ObjectWrap {
     };
     static async_rtn EIO_After_Connect(uv_work_t *req);
     static async_rtn EIO_Connect(uv_work_t *req);
-
     static Handle<Value> Connect(const Arguments& args);
 
     static Handle<Value> ConnectSync(const Arguments& args);
@@ -237,14 +236,11 @@ class MysqlConnection : public node::ObjectWrap {
         unsigned int errno;
         const char *error;
     };
-
     static async_rtn EIO_After_Query(uv_work_t *req);
     static async_rtn EIO_Query(uv_work_t *req);
-
     static Handle<Value> Query(const Arguments& args);
 
     static void EV_After_QuerySend(struct ev_loop *loop, ev_io *io_watcher, int revents);
-    
     static Handle<Value> QuerySend(const Arguments& args);
 
     static Handle<Value> QuerySync(const Arguments& args);

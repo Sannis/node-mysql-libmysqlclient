@@ -415,13 +415,17 @@ async_rtn MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
     }
 
     fetchAll_req->callback.Dispose();
+    
     fetchAll_req->res->Unref();
 
     // free the result object after callback
     // all of the rows have been gotten at this point
     fetchAll_req->res->Free();
 
-    free(fetchAll_req);
+    // TODO: Is this a memory leak?
+    // delete fetchAll_req->res;
+    
+    delete fetchAll_req;
 
     RETURN_ASYNC_AFTER
 }
@@ -482,13 +486,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 
     MYSQLRES_MUSTBE_VALID;
 
-    struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)
-        calloc(1, sizeof(struct fetchAll_request));
-
-    if (!fetchAll_req) {
-        V8::LowMemoryNotification();
-        return THREXC("Could not allocate enough memory");
-    }
+    fetchAll_request *fetchAll_req = new fetchAll_request;
 
     fetchAll_req->callback = Persistent<Function>::New(callback);
     fetchAll_req->res = res;

@@ -101,7 +101,6 @@ class MysqlResult : public node::ObjectWrap {
     };
     static async_rtn EIO_After_FetchAll(uv_work_t *req);
     static async_rtn EIO_FetchAll(uv_work_t *req);
-
     static Handle<Value> FetchAll(const Arguments& args);
 
     static Handle<Value> FetchAllSync(const Arguments& args);

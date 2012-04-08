@@ -553,10 +553,6 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
 
     if (stmt->param_count > 0) {
         stmt->binds = new MYSQL_BIND[stmt->param_count];
-        if (!stmt->binds) {
-            V8::LowMemoryNotification();
-            return THREXC("Could not allocate enough memory");
-        }
         memset(stmt->binds, 0, stmt->param_count*sizeof(MYSQL_BIND));
 
         // TODO(Sannis): Smth else?

@@ -38,5 +38,5 @@
   #define RETURN_ASYNC return 0;
   #define RETURN_ASYNC_AFTER \
     ev_unref(EV_DEFAULT_UC); \
-    RETURN_ASYNC;
+    RETURN_ASYNC
 #endif
