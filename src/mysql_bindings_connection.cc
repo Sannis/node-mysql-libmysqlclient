@@ -1181,18 +1181,17 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
 /**
  * EV wrapper functions for MysqlConnection::QuerySend
  */
-void MysqlConnection::EV_After_QuerySend(struct ev_loop *loop, ev_io *w, int revents) {
+void MysqlConnection::EV_After_QuerySend(struct ev_loop *loop, ev_io *io_watcher, int revents) {
     HandleScope scope;
 
     // Fake uv_work_t struct for EIO_After_Query call
-    uv_work_t fake_req;
-    uv_work_t *req = &fake_req;
-    req->data = w->data;
+    uv_work_t *_req = new uv_work_t;
+    _req->data = io_watcher->data;
 
     // Stop io_watcher
-    ev_io_stop(EV_A_ w);
+    ev_io_stop(EV_A_ io_watcher);
 
-    struct query_request *query_req = (struct query_request *)(w->data);
+    struct query_request *query_req = (struct query_request *)(io_watcher->data);
 
     MysqlConnection *conn = query_req->conn;
 
@@ -1233,11 +1232,11 @@ void MysqlConnection::EV_After_QuerySend(struct ev_loop *loop, ev_io *w, int rev
         }
     }
 
-    // The callback part, just call the exsisting code
-    EIO_After_Query(req);
+    // The callback part, just call the existing code
+    EIO_After_Query(_req);
 
-    // Don't forget to free io_watcher
-    free(w);
+    // Don't forget to delete io_watcher
+    delete io_watcher;
 }
 
 /**
@@ -1268,27 +1267,24 @@ Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
     query_req->query =
         reinterpret_cast<char *>(calloc(query_len + 1, sizeof(char))); // NOLINT (have no char var)
 
-    if (snprintf(query_req->query, query_len + 1, "%s", *query) !=
-                                                static_cast<int>(query_len)) {
-        return THREXC("Snprintf() error");
-    }
+    // Copy query from V8 var to buffer
+    memcpy(query_req->query, *query, query_len);
+    query_req->query[query_len] = '\0';
 
     query_req->callback = Persistent<Value>::New(callback);
     query_req->conn = conn;
+    conn->Ref();
 
     // Send query
     mysql_send_query(conn->_conn, query_req->query, query_len + 1);
 
     // Init ev watcher
-    ev_io *io_watcher = reinterpret_cast<ev_io*>(malloc(sizeof(ev_io)));
+    ev_io* io_watcher = new ev_io;
     io_watcher->data = query_req;
     ev_init(io_watcher, EV_After_QuerySend);
     ev_io_set(io_watcher, conn->_conn->net.fd, EV_READ);
-    ev_io_start(EV_DEFAULT_ io_watcher);
-
-    ev_ref(EV_DEFAULT_UC);
-    conn->Ref();
-
+    ev_io_start(EV_DEFAULT_UC, io_watcher);
+    
     return Undefined();
 }
 

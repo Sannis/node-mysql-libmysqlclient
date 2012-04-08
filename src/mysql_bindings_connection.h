@@ -243,7 +243,7 @@ class MysqlConnection : public node::ObjectWrap {
 
     static Handle<Value> Query(const Arguments& args);
 
-    static void EV_After_QuerySend(struct ev_loop *loop, ev_io *req, int revents);
+    static void EV_After_QuerySend(struct ev_loop *loop, ev_io *io_watcher, int revents);
     
     static Handle<Value> QuerySend(const Arguments& args);
 
