@@ -159,7 +159,7 @@ exports.QueryWithoutCallback = function (test) {
   });
 };
 
-exports.QueryAsync = function (test) {
+exports.QuerySend = function (test) {
   test.expect(3);
   
   var
@@ -179,7 +179,7 @@ exports.QueryAsync = function (test) {
   });
 };
 
-exports.QueryAsyncWithLastInsertIdAndAffectedRows = function (test) {
+exports.QuerySendWithLastInsertIdAndAffectedRows = function (test) {
   test.expect(9);
   
   var
@@ -223,7 +223,7 @@ exports.QueryAsyncWithLastInsertIdAndAffectedRows = function (test) {
   });
 };
 
-exports.QueryAsyncWithError = function (test) {
+exports.QuerySendWithError = function (test) {
   test.expect(6);
   
   var
