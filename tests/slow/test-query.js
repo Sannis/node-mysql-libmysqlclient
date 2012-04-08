@@ -22,7 +22,7 @@ exports.Setup = function (test) {
   test.done();
 };
 
-exports.QueriesNested = function (test) {
+exports.QueryNested = function (test) {
   test.expect(2);
   
   var
@@ -69,7 +69,7 @@ exports.QueriesNested = function (test) {
   test_order += "f";
 };
 
-exports.ManyQueriesNested = function (test) {
+exports.QueryNestedDeeper = function (test) {
   test.expect(1);
   
   var
@@ -100,7 +100,7 @@ exports.ManyQueriesNested = function (test) {
   helper();
 };
 
-exports.ManyQueriesInLoop = function (test) {
+exports.QueryInLoop = function (test) {
   test.expect(1);
   
   var
