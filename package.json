@@ -44,6 +44,12 @@
   , { "name": "Zhiqiang Zhaoy"
     , "email": "zzqvincent@gmail.com"
     }
+  , { "name": "Zhao Cheng"
+    , "email": "zcbenz@gmail.com"
+    }
+  , { "name": "Zhao Lei"
+    , "email": "iseeyou1987@sina.com"
+    }
   ]
 , "bugs" : { "url" : "http://github.com/Sannis/node-mysql-libmysqlclient/issues" }
 , "licenses" : [ { "type" : "MIT" } ]
