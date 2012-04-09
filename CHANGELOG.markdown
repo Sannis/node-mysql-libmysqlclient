@@ -3,6 +3,13 @@
 Revision history for node-mysql-libmysqlclient,
 the asynchronous MySQL binding for Node.js using libmysqlclient.
 
+## Version 1.3.2
+
+  * Experimental mysql_send_query() support
+  * Fix '\0' handling in query()/querySync() code, fixes #83
+  * Add more tests for prepared statements
+  * Rewrite README
+
 ## Version 1.3.1
 
   * Fix link against thread-safe libmysqlclient_r
