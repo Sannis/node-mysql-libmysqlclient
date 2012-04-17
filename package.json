@@ -57,7 +57,7 @@
   { "type" : "git"
   , "url" : "http://github.com/Sannis/node-mysql-libmysqlclient.git"
   }
-, "main" : "./mysql-libmysqlclient"
+, "main" : "./lib/mysql-libmysqlclient.js"
 , "scripts" :
   { "test" : "make test"
   , "doc" : "make doc"
