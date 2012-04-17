@@ -13,8 +13,8 @@ GRANT ALL ON test.* TO test@localhost IDENTIFIED BY "";
 
 module.exports = {
   // Required modules
-  mysql_libmysqlclient: require("../mysql-libmysqlclient"),
-  mysql_bindings: require("../mysql-libmysqlclient-bindings"),
+  mysql_libmysqlclient: require("../lib/mysql-libmysqlclient.js"),
+  mysql_bindings: require("../lib/mysql-libmysqlclient.js").bindings,
   util: require("util"),
 
   // Database connection settings
