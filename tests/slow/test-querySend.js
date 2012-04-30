@@ -100,31 +100,21 @@ exports.QuerySendNestedDeeper = function (test) {
   helper();
 };
 
-/*
-exports.QuerySendInLoop = function (test) {
-  test.expect(1);
+exports.QuerySendParallelShouldFail = function (test) {
+  test.expect(0);
   
   var
-    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    test_result,
-    i = 0, ci = 0;
-  
-  for (i = 0; i < cfg.slow_inserts_count; i += 1) {
-    conn.querySend("INSERT INTO " + cfg.test_table + " (number) VALUES ('" + i + "');", function (err, result) {
-      if (err) {
-        throw err;
-      }
-      
-      ci += 1;
-      
-      if (ci === cfg.slow_inserts_count) {
-        test_result = conn.querySync("SELECT COUNT(number) AS c FROM " + cfg.test_table + ";").fetchAllSync()[0].c;
-        test.equals(test_result, 2 * cfg.slow_inserts_count + 3);
-        
-        conn.closeSync();
-        test.done();
-      }
-    });
-  }
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+
+  conn.querySend("SELECT SLEEP(2);", function (err, result) {
+    if (err) {
+      throw err;
+    }
+  });
+
+  conn.querySend("SELECT SLEEP(1);", function (err, result) {
+    if (err) {
+      test.done();
+    }
+  });
 };
-*/
