@@ -27,20 +27,6 @@
         return THREXC("Result has been freed."); \
     }
 
-static Persistent<String> result_dataSeekSync_symbol;
-static Persistent<String> result_fetchAll_symbol;
-static Persistent<String> result_fetchAllSync_symbol;
-static Persistent<String> result_fetchArraySync_symbol;
-static Persistent<String> result_fetchFieldSync_symbol;
-static Persistent<String> result_fetchFieldDirectSync_symbol;
-static Persistent<String> result_fetchFieldsSync_symbol;
-static Persistent<String> result_fetchLengthsSync_symbol;
-static Persistent<String> result_fetchObjectSync_symbol;
-static Persistent<String> result_fieldSeekSync_symbol;
-static Persistent<String> result_fieldTellSync_symbol;
-static Persistent<String> result_freeSync_symbol;
-static Persistent<String> result_numRowsSync_symbol;
-
 class MysqlResult : public node::ObjectWrap {
   public:
     static Persistent<FunctionTemplate> constructor_template;

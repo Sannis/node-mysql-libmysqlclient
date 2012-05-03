@@ -24,15 +24,15 @@ Persistent<FunctionTemplate> MysqlConnection::constructor_template;
 void MysqlConnection::Init(Handle<Object> target) {
     HandleScope scope;
 
-    Local<FunctionTemplate> t = FunctionTemplate::New(New);
+    Local<FunctionTemplate> t = FunctionTemplate::New(MysqlConnection::New);
 
-    // Constructor
+    // Constructor template
     constructor_template = Persistent<FunctionTemplate>::New(t);
-    constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlConnection"));
 
-    Local<ObjectTemplate> instance_template =
-        constructor_template->InstanceTemplate();
+    // Instance template
+    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate();
+    instance_template->SetInternalFieldCount(1);
 
     // Constants for connect flags
     NODE_DEFINE_CONSTANT(instance_template, CLIENT_COMPRESS);
@@ -87,58 +87,57 @@ void MysqlConnection::Init(Handle<Object> target) {
     // NODE_DEFINE_CONSTANT(instance_template, MYSQL_SHARED_MEMORY_BASE_NAME);
 
     // Properties
-    instance_template->SetAccessor(V8STR("connectErrno"), ConnectErrnoGetter);
-    instance_template->SetAccessor(V8STR("connectError"), ConnectErrorGetter);
+    instance_template->SetAccessor(V8STR("connectErrno"), MysqlConnection::ConnectErrnoGetter);
+    instance_template->SetAccessor(V8STR("connectError"), MysqlConnection::ConnectErrorGetter);
 
     // Methods
-    ADD_PROTOTYPE_METHOD(connection, affectedRowsSync, AffectedRowsSync);
-    ADD_PROTOTYPE_METHOD(connection, autoCommitSync, AutoCommitSync);
-    ADD_PROTOTYPE_METHOD(connection, changeUserSync, ChangeUserSync);
-    ADD_PROTOTYPE_METHOD(connection, commitSync, CommitSync);
-    ADD_PROTOTYPE_METHOD(connection, connect, Connect);
-    ADD_PROTOTYPE_METHOD(connection, connectSync, ConnectSync);
-    ADD_PROTOTYPE_METHOD(connection, connectedSync, ConnectedSync);
-    ADD_PROTOTYPE_METHOD(connection, closeSync, CloseSync);
-    ADD_PROTOTYPE_METHOD(connection, debugSync, DebugSync);
-    ADD_PROTOTYPE_METHOD(connection, dumpDebugInfoSync, DumpDebugInfoSync);
-    ADD_PROTOTYPE_METHOD(connection, errnoSync, ErrnoSync);
-    ADD_PROTOTYPE_METHOD(connection, errorSync, ErrorSync);
-    ADD_PROTOTYPE_METHOD(connection, escapeSync, EscapeSync);
-    ADD_PROTOTYPE_METHOD(connection, fieldCountSync, FieldCountSync);
-    ADD_PROTOTYPE_METHOD(connection, getCharsetSync, GetCharsetSync);
-    ADD_PROTOTYPE_METHOD(connection, getCharsetNameSync, GetCharsetNameSync);
-    ADD_PROTOTYPE_METHOD(connection, getClientInfoSync, GetClientInfoSync);
-    ADD_PROTOTYPE_METHOD(connection, getInfoSync, GetInfoSync);
-    ADD_PROTOTYPE_METHOD(connection, getInfoStringSync, GetInfoStringSync);
-    ADD_PROTOTYPE_METHOD(connection, getWarningsSync, GetWarningsSync);
-    ADD_PROTOTYPE_METHOD(connection, initSync, InitSync);
-    ADD_PROTOTYPE_METHOD(connection, initStatementSync, InitStatementSync);
-    ADD_PROTOTYPE_METHOD(connection, lastInsertIdSync, LastInsertIdSync);
-    ADD_PROTOTYPE_METHOD(connection, multiMoreResultsSync, MultiMoreResultsSync);
-    ADD_PROTOTYPE_METHOD(connection, multiNextResultSync, MultiNextResultSync);
-    ADD_PROTOTYPE_METHOD(connection, multiRealQuerySync, MultiRealQuerySync);
-    ADD_PROTOTYPE_METHOD(connection, pingSync, PingSync);
-    ADD_PROTOTYPE_METHOD(connection, query, Query);
-    ADD_PROTOTYPE_METHOD(connection, querySend, QuerySend);
-    ADD_PROTOTYPE_METHOD(connection, querySync, QuerySync);
-    ADD_PROTOTYPE_METHOD(connection, realConnectSync, RealConnectSync);
-    ADD_PROTOTYPE_METHOD(connection, realQuerySync, RealQuerySync);
-    ADD_PROTOTYPE_METHOD(connection, rollbackSync, RollbackSync);
-    ADD_PROTOTYPE_METHOD(connection, selectDbSync, SelectDbSync);
-    ADD_PROTOTYPE_METHOD(connection, setCharsetSync, SetCharsetSync);
-    ADD_PROTOTYPE_METHOD(connection, setOptionSync, SetOptionSync);
-    ADD_PROTOTYPE_METHOD(connection, setSslSync, SetSslSync);
-    ADD_PROTOTYPE_METHOD(connection, sqlStateSync, SqlStateSync);
-    ADD_PROTOTYPE_METHOD(connection, statSync, StatSync);
-    ADD_PROTOTYPE_METHOD(connection, storeResultSync, StoreResultSync);
-    ADD_PROTOTYPE_METHOD(connection, threadIdSync, ThreadIdSync);
-    ADD_PROTOTYPE_METHOD(connection, threadSafeSync, ThreadSafeSync);
-    ADD_PROTOTYPE_METHOD(connection, useResultSync, UseResultSync);
-    ADD_PROTOTYPE_METHOD(connection, warningCountSync, WarningCountSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "affectedRowsSync",     MysqlConnection::AffectedRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "autoCommitSync",       MysqlConnection::AutoCommitSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "changeUserSync",       MysqlConnection::ChangeUserSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "commitSync",           MysqlConnection::CommitSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "connect",              MysqlConnection::Connect);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "connectSync",          MysqlConnection::ConnectSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "connectedSync",        MysqlConnection::ConnectedSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "closeSync",            MysqlConnection::CloseSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "debugSync",            MysqlConnection::DebugSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "dumpDebugInfoSync",    MysqlConnection::DumpDebugInfoSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "errnoSync",            MysqlConnection::ErrnoSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "errorSync",            MysqlConnection::ErrorSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "escapeSync",           MysqlConnection::EscapeSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldCountSync",       MysqlConnection::FieldCountSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getCharsetSync",       MysqlConnection::GetCharsetSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getCharsetNameSync",   MysqlConnection::GetCharsetNameSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getClientInfoSync",    MysqlConnection::GetClientInfoSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getInfoSync",          MysqlConnection::GetInfoSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getInfoStringSync",    MysqlConnection::GetInfoStringSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getWarningsSync",      MysqlConnection::GetWarningsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "initSync",             MysqlConnection::InitSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "initStatementSync",    MysqlConnection::InitStatementSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "lastInsertIdSync",     MysqlConnection::LastInsertIdSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "multiMoreResultsSync", MysqlConnection::MultiMoreResultsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "multiNextResultSync",  MysqlConnection::MultiNextResultSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "multiRealQuerySync",   MysqlConnection::MultiRealQuerySync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "pingSync",             MysqlConnection::PingSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "query",                MysqlConnection::Query);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "querySend",            MysqlConnection::QuerySend);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "querySync",            MysqlConnection::QuerySync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "realConnectSync",      MysqlConnection::RealConnectSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "realQuerySync",        MysqlConnection::RealQuerySync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "rollbackSync",         MysqlConnection::RollbackSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "selectDbSync",         MysqlConnection::SelectDbSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setCharsetSync",       MysqlConnection::SetCharsetSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setOptionSync",        MysqlConnection::SetOptionSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setSslSync",           MysqlConnection::SetSslSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "sqlStateSync",         MysqlConnection::SqlStateSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "statSync",             MysqlConnection::StatSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "storeResultSync",      MysqlConnection::StoreResultSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "threadIdSync",         MysqlConnection::ThreadIdSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "threadSafeSync",       MysqlConnection::ThreadSafeSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "useResultSync",        MysqlConnection::UseResultSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "warningCountSync",     MysqlConnection::WarningCountSync);
 
     // Make it visible in JavaScript
-    target->Set(String::NewSymbol("MysqlConnection"),
-                constructor_template->GetFunction());
+    target->Set(String::NewSymbol("MysqlConnection"), constructor_template->GetFunction());
 }
 
 bool MysqlConnection::Connect(const char* hostname,

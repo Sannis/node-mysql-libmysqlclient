@@ -23,16 +23,16 @@
 #include "./mysql_bindings.h"
 
 #define MYSQLCONN_DISABLE_MQ \
-if (conn->multi_query) { \
-    mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_OFF); \
-    conn->multi_query = false; \
-}
+    if (conn->multi_query) { \
+        mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_OFF); \
+        conn->multi_query = false; \
+    }
 
 #define MYSQLCONN_ENABLE_MQ \
-if (!conn->multi_query) { \
-    mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_ON); \
-    conn->multi_query = true; \
-}
+    if (!conn->multi_query) { \
+        mysql_set_server_option(conn->_conn, MYSQL_OPTION_MULTI_STATEMENTS_ON); \
+        conn->multi_query = true; \
+    }
 
 #define MYSQLCONN_MUSTBE_CONNECTED \
     if (!conn->_conn || !conn->connected) { \
@@ -45,51 +45,6 @@ if (!conn->multi_query) { \
     }
 
 using namespace v8; // NOLINT
-
-static Persistent<String> connection_affectedRowsSync_symbol;
-static Persistent<String> connection_autoCommitSync_symbol;
-static Persistent<String> connection_changeUserSync_symbol;
-static Persistent<String> connection_commitSync_symbol;
-static Persistent<String> connection_connect_symbol;
-static Persistent<String> connection_connectSync_symbol;
-static Persistent<String> connection_connectedSync_symbol;
-static Persistent<String> connection_closeSync_symbol;
-static Persistent<String> connection_debugSync_symbol;
-static Persistent<String> connection_dumpDebugInfoSync_symbol;
-static Persistent<String> connection_errnoSync_symbol;
-static Persistent<String> connection_errorSync_symbol;
-static Persistent<String> connection_escapeSync_symbol;
-static Persistent<String> connection_fieldCountSync_symbol;
-static Persistent<String> connection_getCharsetSync_symbol;
-static Persistent<String> connection_getCharsetNameSync_symbol;
-static Persistent<String> connection_getClientInfoSync_symbol;
-static Persistent<String> connection_getInfoSync_symbol;
-static Persistent<String> connection_getInfoStringSync_symbol;
-static Persistent<String> connection_getWarningsSync_symbol;
-static Persistent<String> connection_initSync_symbol;
-static Persistent<String> connection_initStatementSync_symbol;
-static Persistent<String> connection_lastInsertIdSync_symbol;
-static Persistent<String> connection_multiMoreResultsSync_symbol;
-static Persistent<String> connection_multiNextResultSync_symbol;
-static Persistent<String> connection_multiRealQuerySync_symbol;
-static Persistent<String> connection_pingSync_symbol;
-static Persistent<String> connection_query_symbol;
-static Persistent<String> connection_querySend_symbol;
-static Persistent<String> connection_querySync_symbol;
-static Persistent<String> connection_realConnectSync_symbol;
-static Persistent<String> connection_realQuerySync_symbol;
-static Persistent<String> connection_rollbackSync_symbol;
-static Persistent<String> connection_selectDbSync_symbol;
-static Persistent<String> connection_setCharsetSync_symbol;
-static Persistent<String> connection_setOptionSync_symbol;
-static Persistent<String> connection_setSslSync_symbol;
-static Persistent<String> connection_sqlStateSync_symbol;
-static Persistent<String> connection_statSync_symbol;
-static Persistent<String> connection_storeResultSync_symbol;
-static Persistent<String> connection_threadIdSync_symbol;
-static Persistent<String> connection_threadSafeSync_symbol;
-static Persistent<String> connection_useResultSync_symbol;
-static Persistent<String> connection_warningCountSync_symbol;
 
 class MysqlConnection : public node::ObjectWrap {
   public:

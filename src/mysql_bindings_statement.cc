@@ -24,15 +24,15 @@ Persistent<FunctionTemplate> MysqlStatement::constructor_template;
 void MysqlStatement::Init(Handle<Object> target) {
     HandleScope scope;
 
-    Local<FunctionTemplate> t = FunctionTemplate::New(New);
+    Local<FunctionTemplate> t = FunctionTemplate::New(MysqlStatement::New);
 
-    // Constructor
+    // Constructor template
     constructor_template = Persistent<FunctionTemplate>::New(t);
-    constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlStatement"));
 
-    Local<ObjectTemplate> instance_template =
-        constructor_template->InstanceTemplate();
+    // Instance template
+    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate();
+    instance_template->SetInternalFieldCount(1);
 
     // Constants
     NODE_DEFINE_CONSTANT(instance_template, STMT_ATTR_UPDATE_MAX_LENGTH);
@@ -43,29 +43,28 @@ void MysqlStatement::Init(Handle<Object> target) {
     instance_template->SetAccessor(V8STR("paramCount"), ParamCountGetter);
 
     // Methods
-    ADD_PROTOTYPE_METHOD(statement, affectedRowsSync, AffectedRowsSync);
-    ADD_PROTOTYPE_METHOD(statement, attrGetSync, AttrGetSync);
-    ADD_PROTOTYPE_METHOD(statement, attrSetSync, AttrSetSync);
-    ADD_PROTOTYPE_METHOD(statement, bindParamsSync, BindParamsSync);
-    ADD_PROTOTYPE_METHOD(statement, closeSync, CloseSync);
-    ADD_PROTOTYPE_METHOD(statement, dataSeekSync, DataSeekSync);
-    ADD_PROTOTYPE_METHOD(statement, errnoSync, ErrnoSync);
-    ADD_PROTOTYPE_METHOD(statement, errorSync, ErrorSync);
-    ADD_PROTOTYPE_METHOD(statement, executeSync, ExecuteSync);
-    ADD_PROTOTYPE_METHOD(statement, fieldCountSync, FieldCountSync);
-    ADD_PROTOTYPE_METHOD(statement, freeResultSync, FreeResultSync);
-    ADD_PROTOTYPE_METHOD(statement, lastInsertIdSync, LastInsertIdSync);
-    ADD_PROTOTYPE_METHOD(statement, numRowsSync, NumRowsSync);
-    ADD_PROTOTYPE_METHOD(statement, prepareSync, PrepareSync);
-    ADD_PROTOTYPE_METHOD(statement, resetSync, ResetSync);
-    ADD_PROTOTYPE_METHOD(statement, resultMetadataSync, ResultMetadataSync);
-    ADD_PROTOTYPE_METHOD(statement, sendLongDataSync, SendLongDataSync);
-    ADD_PROTOTYPE_METHOD(statement, storeResultSync, StoreResultSync);
-    ADD_PROTOTYPE_METHOD(statement, sqlStateSync, SqlStateSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "affectedRowsSync",   MysqlStatement::AffectedRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "attrGetSync",        MysqlStatement::AttrGetSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "attrSetSync",        MysqlStatement::AttrSetSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "bindParamsSync",     MysqlStatement::BindParamsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "closeSync",          MysqlStatement::CloseSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "dataSeekSync",       MysqlStatement::DataSeekSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "errnoSync",          MysqlStatement::ErrnoSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "errorSync",          MysqlStatement::ErrorSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "executeSync",        MysqlStatement::ExecuteSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldCountSync",     MysqlStatement::FieldCountSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "freeResultSync",     MysqlStatement::FreeResultSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "lastInsertIdSync",   MysqlStatement::LastInsertIdSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "numRowsSync",        MysqlStatement::NumRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "prepareSync",        MysqlStatement::PrepareSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "resetSync",          MysqlStatement::ResetSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "resultMetadataSync", MysqlStatement::ResultMetadataSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "sendLongDataSync",   MysqlStatement::SendLongDataSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "storeResultSync",    MysqlStatement::StoreResultSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "sqlStateSync",       MysqlStatement::SqlStateSync);
 
     // Make it visible in JavaScript
-    target->Set(String::NewSymbol("MysqlStatement"),
-                constructor_template->GetFunction());
+    target->Set(String::NewSymbol("MysqlStatement"), constructor_template->GetFunction());
 }
 
 MysqlStatement::MysqlStatement(MYSQL_STMT *my_stmt): ObjectWrap() {
