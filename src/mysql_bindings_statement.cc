@@ -115,9 +115,9 @@ Handle<Value> MysqlStatement::New(const Arguments& args) {
     REQ_EXT_ARG(0, js_stmt);
     MYSQL_STMT *my_stmt = static_cast<MYSQL_STMT*>(js_stmt->Value());
     MysqlStatement *binding_stmt = new MysqlStatement(my_stmt);
-    binding_stmt->Wrap(args.This());
+    binding_stmt->Wrap(args.Holder());
 
-    return args.This();
+    return args.Holder();
 }
 
 /**
@@ -146,7 +146,7 @@ Handle<Value> MysqlStatement::ParamCountGetter(Local<String> property,
 Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
@@ -169,7 +169,7 @@ Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
 Handle<Value> MysqlStatement::AttrGetSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
@@ -209,7 +209,7 @@ Handle<Value> MysqlStatement::AttrGetSync(const Arguments& args) {
 Handle<Value> MysqlStatement::AttrSetSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
@@ -252,7 +252,7 @@ Handle<Value> MysqlStatement::AttrSetSync(const Arguments& args) {
 Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
@@ -364,7 +364,7 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
 Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
@@ -385,7 +385,7 @@ Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
 Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
@@ -410,7 +410,7 @@ Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
 Handle<Value> MysqlStatement::ErrnoSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
@@ -427,7 +427,7 @@ Handle<Value> MysqlStatement::ErrnoSync(const Arguments& args) {
 Handle<Value> MysqlStatement::ErrorSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
@@ -444,7 +444,7 @@ Handle<Value> MysqlStatement::ErrorSync(const Arguments& args) {
 Handle<Value> MysqlStatement::ExecuteSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
@@ -464,7 +464,7 @@ Handle<Value> MysqlStatement::ExecuteSync(const Arguments& args) {
 Handle<Value> MysqlStatement::FieldCountSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
@@ -480,7 +480,7 @@ Handle<Value> MysqlStatement::FieldCountSync(const Arguments& args) {
 Handle<Value> MysqlStatement::FreeResultSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
@@ -495,7 +495,7 @@ Handle<Value> MysqlStatement::FreeResultSync(const Arguments& args) {
 Handle<Value> MysqlStatement::LastInsertIdSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
@@ -511,7 +511,7 @@ Handle<Value> MysqlStatement::LastInsertIdSync(const Arguments& args) {
 Handle<Value> MysqlStatement::NumRowsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
@@ -529,7 +529,7 @@ Handle<Value> MysqlStatement::NumRowsSync(const Arguments& args) {
 Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
@@ -570,7 +570,7 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
 Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
@@ -591,7 +591,7 @@ Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
 Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
@@ -623,7 +623,7 @@ Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
 Handle<Value> MysqlStatement::SendLongDataSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
@@ -647,7 +647,7 @@ Handle<Value> MysqlStatement::SendLongDataSync(const Arguments& args) {
 Handle<Value> MysqlStatement::SqlStateSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
@@ -662,7 +662,7 @@ Handle<Value> MysqlStatement::SqlStateSync(const Arguments& args) {
 Handle<Value> MysqlStatement::StoreResultSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;

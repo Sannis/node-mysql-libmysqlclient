@@ -264,9 +264,9 @@ Handle<Value> MysqlResult::New(const Arguments& args) {
     MYSQL *connection = static_cast<MYSQL*>(js_connection->Value());
     MYSQL_RES *result = static_cast<MYSQL_RES*>(js_result->Value());
     MysqlResult *my_res = new MysqlResult(connection, result, field_count);
-    my_res->Wrap(args.This());
+    my_res->Wrap(args.Holder());
 
-    return args.This();
+    return args.Holder();
 }
 
 /**
@@ -298,7 +298,7 @@ Handle<Value> MysqlResult::FieldCountGetter(Local<String> property,
 Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -481,7 +481,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 
     REQ_FUN_ARG(arg_pos, callback)
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This()); // NOLINT
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder()); // NOLINT
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -508,7 +508,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -590,7 +590,7 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -628,7 +628,7 @@ Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
 Handle<Value> MysqlResult::FetchFieldSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -657,7 +657,7 @@ Handle<Value> MysqlResult::FetchFieldSync(const Arguments& args) {
 Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLINT
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -687,7 +687,7 @@ Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLI
 Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -718,7 +718,7 @@ Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
 Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -748,7 +748,7 @@ Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
 Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -787,7 +787,7 @@ Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
 Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -810,7 +810,7 @@ Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
 Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -823,7 +823,7 @@ Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
 Handle<Value> MysqlResult::FreeSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -840,7 +840,7 @@ Handle<Value> MysqlResult::FreeSync(const Arguments& args) {
 Handle<Value> MysqlResult::NumRowsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
