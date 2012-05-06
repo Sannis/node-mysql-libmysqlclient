@@ -22,6 +22,38 @@ exports.Setup = function (test) {
   test.done();
 };
 
+exports.QueryParallel = function (test) {
+  test.expect(0);
+
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    i = 0;
+
+  conn.query("SELECT 1;", function (err, result) {
+    if (err) {
+      throw err;
+    }
+
+    i++;
+
+    if (i == 2) {
+      test.done();
+    }
+  });
+
+  conn.query("SELECT 2;", function (err, result) {
+    if (err) {
+      throw err;
+    }
+
+    i++;
+
+    if (i == 2) {
+      test.done();
+    }
+  });
+};
+
 exports.QuerySendParallel = function (test) {
   test.expect(0);
 
@@ -53,3 +85,63 @@ exports.QuerySendParallel = function (test) {
     }
   });
 };
+
+exports.QueryAndQuerySendParallel = function (test) {
+  test.expect(0);
+
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    i = 0;
+
+  conn.query("SELECT 1;", function (err, result) {
+    if (err) {
+      throw err;
+    }
+
+    i++;
+
+    if (i == 4) {
+      test.done();
+    }
+  });
+
+  conn.querySend("SELECT 2;", function (err, result) {
+    if (err) {
+      throw err;
+    }
+
+    i++;
+
+    if (i == 4) {
+      test.done();
+    }
+  });
+  
+  conn.query("SELECT 3;", function (err, result) {
+    if (err) {
+      throw err;
+    }
+
+    i++;
+
+    if (i == 4) {
+      test.done();
+    }
+  });
+  
+  conn.querySend("SELECT 4;", function (err, result) {
+    if (err) {
+      throw err;
+    }
+
+    i++;
+
+    if (i == 4) {
+      test.done();
+    }
+  });
+};
+
+delete exports.QueryParallel;
+delete exports.QuerySendParallel;
+//delete exports.QueryAndQuerySendParallel;
