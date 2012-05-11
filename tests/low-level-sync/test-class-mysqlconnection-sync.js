@@ -205,15 +205,17 @@ exports.AffectedRowsSync = function (test) {
   }
   test.equals(res, true, "Insert " + cfg.insert_rows_count + " rows into table " + cfg.test_table);
 
-  res = conn.querySync("UPDATE " + cfg.test_table + " SET random_number=1;");
-  test.equals(res, true, "Update " + cfg.insert_rows_count + " rows in table " + cfg.test_table);
-  
-  affected_rows = conn.affectedRowsSync();
-  test.equals(affected_rows, cfg.insert_rows_count, "conn.affectedRowsSync()");
-  
-  conn.closeSync();
-  
-  test.done();
+  setTimeout(function () {
+    res = conn.querySync("UPDATE " + cfg.test_table + " SET random_number=1;");
+    test.equals(res, true, "Update " + cfg.insert_rows_count + " rows in table " + cfg.test_table);
+
+    affected_rows = conn.affectedRowsSync();
+    test.equals(affected_rows, cfg.insert_rows_count, "conn.affectedRowsSync()");
+
+    conn.closeSync();
+
+    test.done();
+  }, cfg.delay);
 };
 
 exports.ChangeUserSync = function (test) {
