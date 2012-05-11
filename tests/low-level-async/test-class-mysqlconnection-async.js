@@ -28,13 +28,18 @@ exports.ConnectWithError = function (test) {
   
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (err) {
     var
-      errno = conn.connectErrno,
-      error = conn.connectError;
+      connectErrno = conn.connectErrno,
+      connectError = conn.connectError,
+      isMatched = connectError.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'"));
     
-    test.equals(errno, 1044, "conn.connectErrno");
-    test.ok(error.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")), "conn.connectError");
+    test.equals(connectErrno, 1044, "conn.connectErrno");
+
+    if (!isMatched) {
+      console.log("Connect error: " + connectError);
+    }
+    test.ok(isMatched, "conn.connectError");
     
-    test.equals(err.message, "Connection error #" + errno + ": " + error, "Callback exception in conn.connect() to denied database");
+    test.equals(err.message, "Connection error #" + connectErrno + ": " + connectError, "Callback exception in conn.connect() to denied database");
     
     test.done();
   });
