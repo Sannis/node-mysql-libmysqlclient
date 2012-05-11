@@ -200,19 +200,21 @@ exports.AffectedRowsSync = function (test) {
   }
   test.equals(res, true, "Insert " + cfg.insert_rows_count + " rows into table " + cfg.test_table);
 
-  stmt = conn.initStatementSync();
-  test.ok(stmt);
-  test.ok(stmt.prepareSync("UPDATE " + cfg.test_table + " SET random_number=?;"));
-  test.ok(stmt.bindParamsSync([1]), "stmt.bindParamSync([1])");
+  setTimeout(function () {
+    stmt = conn.initStatementSync();
+    test.ok(stmt);
+    test.ok(stmt.prepareSync("UPDATE " + cfg.test_table + " SET random_number=?;"));
+    test.ok(stmt.bindParamsSync([1]), "stmt.bindParamSync([1])");
 
-  test.ok(stmt.executeSync(), "stmt.bindParamSync([1]).executeSync()");
+    test.ok(stmt.executeSync(), "stmt.bindParamSync([1]).executeSync()");
 
-  affected_rows = stmt.affectedRowsSync();
-  test.equals(affected_rows, cfg.insert_rows_count, "stmt.affectedRowsSync()");
+    affected_rows = stmt.affectedRowsSync();
+    test.equals(affected_rows, cfg.insert_rows_count, "stmt.affectedRowsSync()");
 
-  conn.closeSync();
+    conn.closeSync();
 
-  test.done();
+    test.done();
+  }, cfg.delay);
 };
 
 exports.AttrGetSync = function (test) {
@@ -232,7 +234,6 @@ exports.CloseSync = function (test) {
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res,
     stmt;
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
