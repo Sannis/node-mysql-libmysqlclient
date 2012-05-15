@@ -21,7 +21,6 @@ var testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFieldsSync = function (tes
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
-    row,
     field1,
     field2,
     fields,

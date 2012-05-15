@@ -392,13 +392,14 @@ Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
     MYSQLSTMT_MUSTBE_PREPARED;
     MYSQLSTMT_MUSTBE_STORED;
 
-    REQ_UINT_ARG(0, offset)
+    REQ_NUMBER_ARG(0, offset_double)
+    REQ_UINT_ARG(0, offset_uint)
 
-    if (offset < 0 || offset >= mysql_stmt_num_rows(stmt->_stmt)) {
+    if (offset_double < 0 || offset_uint >= mysql_stmt_num_rows(stmt->_stmt)) {
         return THREXC("Invalid row offset");
     }
 
-    mysql_stmt_data_seek(stmt->_stmt, offset);
+    mysql_stmt_data_seek(stmt->_stmt, offset_uint);
 
     return Undefined();
 }
