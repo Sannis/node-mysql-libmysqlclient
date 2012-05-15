@@ -603,7 +603,7 @@ Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
         return scope.Close(False());
     }
 
-    int argc = 3;
+    const int argc = 3;
     Local<Value> argv[argc];
     argv[0] = External::New(stmt->_stmt->mysql); // MySQL connection handle
     argv[1] = External::New(my_result);

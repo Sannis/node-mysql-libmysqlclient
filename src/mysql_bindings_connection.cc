@@ -1026,7 +1026,9 @@ async_rtn MysqlConnection::EIO_After_Query(uv_work_t *req) {
 
     struct query_request *query_req = (struct query_request *)(req->data);
 
-    int argc = 1;
+    // We can't use const int argc here because argv is used
+    // for both MysqlResult creation and callback call
+    int argc = 1; // node.js convention, there is always at least one argument for callback
     Local<Value> argv[3];
 
     if (!query_req->ok) {
@@ -1318,7 +1320,7 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
         }
     }
 
-    int argc = 3;
+    const int argc = 3;
     Local<Value> argv[argc];
     argv[0] = External::New(conn->_conn);
     argv[1] = External::New(my_result);
@@ -1623,7 +1625,7 @@ Handle<Value> MysqlConnection::StoreResultSync(const Arguments& args) {
         return scope.Close(False());
     }
 
-    int argc = 3;
+    const int argc = 3;
     Local<Value> argv[argc];
     argv[0] = External::New(conn->_conn);
     argv[1] = External::New(my_result);
@@ -1687,7 +1689,7 @@ Handle<Value> MysqlConnection::UseResultSync(const Arguments& args) {
         return scope.Close(False());
     }
 
-    int argc = 3;
+    const int argc = 3;
     Local<Value> argv[argc];
     argv[0] = External::New(conn->_conn);
     argv[1] = External::New(my_result);

@@ -146,8 +146,8 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
                 Local<v8::Function> dateConstructor = Local<Function>::Cast(globalObj->Get(V8STR("Date")));
                 
                 // Great. We can use this constructor function to allocate new Dates:
-                int argc = 1;
-                Local<Value> argv[1] = { String::Concat(V8STR(field_value), V8STR(" GMT")) };
+                const int argc = 1;
+                Local<Value> argv[argc] = { String::Concat(V8STR(field_value), V8STR(" GMT")) };
                 
                 // Now we have our constructor, and our constructor args. Let's create the Date:
                 js_field = dateConstructor->NewInstance(argc, argv);
@@ -163,8 +163,8 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
                 Local<v8::Function> dateConstructor = Local<Function>::Cast(globalObj->Get(V8STR("Date")));
                 
                 // Great. We can use this constructor function to allocate new Dates:
-                int argc = 1;
-                Local<Value> argv[1] = { String::Concat(V8STR(field_value), V8STR(" GMT")) };
+                const int argc = 1;
+                Local<Value> argv[argc] = { String::Concat(V8STR(field_value), V8STR(" GMT")) };
                 
                 // Now we have our constructor, and our constructor args. Let's create the Date:
                 js_field = dateConstructor->NewInstance(argc, argv);
@@ -326,7 +326,9 @@ async_rtn MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
 
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
 
-    int argc = 1; /* node.js convention, there is always one argument */
+    // We can't use const int argc here because argv is used
+    // for both MysqlResult creation and callback call
+    int argc = 1; // node.js convention, there is always at least one argument for callback
     Local<Value> argv[3];
 
     if (!fetchAll_req->ok) {
