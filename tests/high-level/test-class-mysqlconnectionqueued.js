@@ -142,6 +142,3 @@ exports.QueryAndQuerySendParallel = function (test) {
   });
 };
 
-delete exports.QueryParallel;
-delete exports.QuerySendParallel;
-//delete exports.QueryAndQuerySendParallel;
