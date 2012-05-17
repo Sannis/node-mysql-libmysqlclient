@@ -14,12 +14,75 @@ exports.Setup = function (test) {
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
 
   conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
-  conn.querySync("CREATE TABLE " + cfg.test_table +
-    " (number INT(8) NOT NULL) ENGINE=MEMORY;");
+  conn.querySync("CREATE TABLE " + cfg.test_table + " (number INT(8) NOT NULL) ENGINE=MEMORY;");
 
   conn.closeSync();
 
   test.done();
+};
+
+exports.ConnectWithCallback = function (test) {
+  test.expect(0);
+
+  var conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync();
+
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function () {
+    test.done();
+  });
+};
+
+exports.ConnectWithQueryInCallback = function (test) {
+  test.expect(0);
+
+  var conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync();
+
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function () {
+    conn.query("SELECT 1;", function (err) {
+      if (err) {
+        throw err;
+      }
+
+      test.done();
+    });
+  });
+};
+
+exports.ConnectWithoutCallbackAndThenQueryWithCallback = function (test) {
+  test.expect(0);
+
+  var conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync();
+
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database);
+
+  conn.query("SELECT 1;", function (err) {
+    if (err) {
+      throw err;
+    }
+
+    test.done();
+  });
+};
+
+exports.ConnectWithoutCallbackAndThenTwoQueriesWithCallbacks = function (test) {
+  test.expect(0);
+
+  var conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync();
+
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database);
+
+  conn.query("SELECT 1;", function (err) {
+    if (err) {
+      throw err;
+    }
+  });
+
+  conn.query("SELECT 2;", function (err) {
+    if (err) {
+      throw err;
+    }
+
+    test.done();
+  });
 };
 
 exports.QueryParallel = function (test) {

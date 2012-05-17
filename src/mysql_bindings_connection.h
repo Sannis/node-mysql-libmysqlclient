@@ -61,12 +61,12 @@ class MysqlConnection : public node::ObjectWrap {
                  uint64_t flags);
 
     bool RealConnect(const char* hostname,
-                 const char* user,
-                 const char* password,
-                 const char* dbname,
-                 uint32_t port,
-                 const char* socket,
-                 uint64_t flags);
+                     const char* user,
+                     const char* password,
+                     const char* dbname,
+                     uint32_t port,
+                     const char* socket,
+                     uint64_t flags);
 
     void Close();
 
@@ -121,9 +121,6 @@ class MysqlConnection : public node::ObjectWrap {
         uint32_t port;
         String::Utf8Value *socket;
         uint64_t flags;
-
-        unsigned int errno;
-        const char *error;
     };
     static async_rtn EIO_After_Connect(uv_work_t *req);
     static async_rtn EIO_Connect(uv_work_t *req);

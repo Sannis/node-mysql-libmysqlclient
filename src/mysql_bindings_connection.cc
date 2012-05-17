@@ -141,12 +141,13 @@ void MysqlConnection::Init(Handle<Object> target) {
 }
 
 bool MysqlConnection::Connect(const char* hostname,
-                        const char* user,
-                        const char* password,
-                        const char* dbname,
-                        uint32_t port,
-                        const char* socket,
-                        uint64_t flags) {
+                              const char* user,
+                              const char* password,
+                              const char* dbname,
+                              uint32_t port,
+                              const char* socket,
+                              uint64_t flags) {
+
     if (this->_conn) {
         return false;
     }
@@ -422,11 +423,14 @@ async_rtn MysqlConnection::EIO_After_Connect(uv_work_t *req) {
     Local<Value> argv[1];
 
     if (!conn_req->ok) {
-        unsigned int error_string_length =
-                                    strlen(conn_req->conn->connect_error) + 25;
+
+        unsigned int error_string_length = strlen(conn_req->conn->connect_error) + 25;
         char* error_string = new char[error_string_length];
-        snprintf(error_string, error_string_length, "Connection error #%d: %s",
-               conn_req->errno, conn_req->error);
+        snprintf(
+            error_string, error_string_length,
+            "Connection error #%d: %s",
+            conn_req->conn->connect_errno, conn_req->conn->connect_error
+        );
 
         argv[0] = V8EXC(error_string);
         delete[] error_string;
@@ -464,11 +468,6 @@ async_rtn MysqlConnection::EIO_Connect(uv_work_t *req) {
                         conn_req->flags
                     ) ? true : false;
 
-    if (!conn_req->ok) {
-        conn_req->errno = conn_req->conn->connect_errno;
-        conn_req->error = conn_req->conn->connect_error;
-    }
-
     delete conn_req->hostname;
     delete conn_req->user;
     delete conn_req->password;
@@ -478,7 +477,7 @@ async_rtn MysqlConnection::EIO_Connect(uv_work_t *req) {
 }
 
 /**
- * Opens a new connection to the MySQL server
+ * Connects to the MySQL server
  *
  * @param {String|null} hostname
  * @param {String|null} user
@@ -490,13 +489,13 @@ async_rtn MysqlConnection::EIO_Connect(uv_work_t *req) {
  */
 Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     HandleScope scope;
-    
+
     REQ_FUN_ARG(args.Length() - 1, callback);
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     connect_request *conn_req = new connect_request;
-    
+
     conn_req->callback = Persistent<Function>::New(callback);
     conn_req->conn = conn;
     conn->Ref();
@@ -522,7 +521,7 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
 }
 
 /**
- * Opens a new connection to the MySQL server
+ * Connects to the MySQL server
  *
  * @param {String|null} hostname
  * @param {String|null} user
