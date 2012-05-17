@@ -1133,6 +1133,8 @@ async_rtn MysqlConnection::EIO_Query(uv_work_t *req) {
 /**
  * Performs a query on the database
  *
+ * Uses mysql_real_query
+ *
  * @param {String} query
  * @param {Function(error, result)} callback
  */
@@ -1229,6 +1231,8 @@ void MysqlConnection::EV_After_QuerySend(EV_P_ ev_io *io_watcher, int revents) {
 
 /**
  * Performs a query on the database
+ *
+ * Uses mysql_send_query
  *
  * @param {String} querySend
  * @param {Function(error, result)} callback
