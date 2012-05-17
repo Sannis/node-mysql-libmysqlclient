@@ -9,14 +9,17 @@ See license text in LICENSE file
 var cfg = require('../config.js');
 
 var initAndRealConnectSync = function (test) {
-  test.expect(5);
+  test.expect(6);
   
   var conn = cfg.mysql_libmysqlclient.createConnectionSync();
   
   // Test right code
   conn.initSync();
   test.ok(!conn.connectedSync(), "conn.connectedSync() after conn.initSync()");
-  conn.realConnectSync(cfg.host, cfg.user, cfg.password);
+  test.ok(
+    conn.realConnectSync(cfg.host, cfg.user, cfg.password),
+    "conn.realConnectSync(cfg.host, cfg.user, cfg.password)"
+  );
   test.ok(conn.connectedSync(), "conn.connectedSync() after conn.realConnectSync()");
   conn.closeSync();
   
@@ -99,18 +102,19 @@ var realQueryAndUseAndStoreResultSync = function (test) {
 
 exports.New = function (test) {
   test.expect(1);
-  
-  var conn = new cfg.mysql_bindings.MysqlConnection();
-  test.ok(conn, "var conn = new mysql_bindings.MysqlConnection()");
-  
+
+  test.doesNotThrow(function () {
+    var conn = new cfg.mysql_bindings.MysqlConnection();
+  });
+
   test.done();
 };
 
 exports.ConnectFlagsConstants = function (test) {
   test.expect(9);
-  
+
   var conn = cfg.mysql_libmysqlclient.createConnectionSync();
-  
+
   test.equals(conn.CLIENT_COMPRESS, 32);
   test.equals(conn.CLIENT_FOUND_ROWS, 2);
   test.equals(conn.CLIENT_IGNORE_SIGPIPE, 4096);
@@ -123,19 +127,18 @@ exports.ConnectFlagsConstants = function (test) {
   test.equals(conn.CLIENT_NO_SCHEMA, 16);
   // Known issue: conn.CLIENT_REMEMBER_OPTIONS === -2147483648
   test.equals(conn.CLIENT_REMEMBER_OPTIONS, -2147483648);
-  
+
   conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_REMEMBER_OPTIONS);
   conn.closeSync();
-  
-  
+
   test.done();
 };
 
 exports.SetOptionsConstants = function (test) {
   test.expect(11);
-  
+
   var conn = cfg.mysql_libmysqlclient.createConnectionSync();
-  
+
   test.equals(conn.MYSQL_INIT_COMMAND, 3);
   test.equals(conn.MYSQL_OPT_COMPRESS, 1);
   test.equals(conn.MYSQL_OPT_CONNECT_TIMEOUT, 0);
@@ -157,7 +160,6 @@ exports.ConnectErrnoGetter = function (test) {
   test.expect(1);
   
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
-
   test.equals(conn.connectErrno, 1044, "conn.connectErrno");
   
   test.done();
@@ -166,18 +168,8 @@ exports.ConnectErrnoGetter = function (test) {
 exports.ConnectErrorGetter = function (test) {
   test.expect(1);
   
-  var
-    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied),
-    connectError,
-    isMatched;
-
-  connectError = conn.connectError;
-  isMatched = connectError.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'"));
-
-  if (!isMatched) {
-    console.log("Connect error: " + connectError);
-  }
-  test.ok(isMatched, "conn.connectError");
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
+  test.ok(conn.connectError.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")), "conn.connectError");
   
   test.done();
 };
