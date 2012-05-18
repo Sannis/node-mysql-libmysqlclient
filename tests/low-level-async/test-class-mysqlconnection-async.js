@@ -15,6 +15,7 @@ exports.Connect = function (test) {
   
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
     test.ok(error === null, "conn.connect() for allowed database");
+
     conn.closeSync();
     
     test.done();
@@ -41,6 +42,42 @@ exports.ConnectWithError = function (test) {
     
     test.equals(err.message, "Connection error #" + connectErrno + ": " + connectError, "Callback exception in conn.connect() to denied database");
     
+    test.done();
+  });
+};
+
+exports.Connect2Times = function (test) {
+  test.expect(3);
+
+  var conn = new cfg.mysql_bindings.MysqlConnection();
+
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
+    test.ok(error === null, "conn.connect() for allowed database");
+
+    conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
+      test.ok(error instanceof Error, "conn.connect() fails if already");
+      test.equal(error.message, "Already initialized. Use conn.realConnectSync() after conn.initSync()");
+
+      conn.closeSync();
+
+      test.done();
+    });
+  });
+};
+
+exports.ConnectAfterConnectSync2 = function (test) {
+  test.expect(3);
+
+  var conn = new cfg.mysql_bindings.MysqlConnection();
+
+  test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database));
+
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
+    test.ok(error instanceof Error, "conn.connect() fails if already");
+    test.equal(error.message, "Already initialized. Use conn.realConnectSync() after conn.initSync()");
+
+    conn.closeSync();
+
     test.done();
   });
 };

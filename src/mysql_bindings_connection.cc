@@ -420,7 +420,8 @@ async_rtn MysqlConnection::EIO_After_Connect(uv_work_t *req) {
     
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
-    Local<Value> argv[1];
+    const int argc = 1;
+    Local<Value> argv[argc];
 
     if (!conn_req->ok) {
 
@@ -440,7 +441,7 @@ async_rtn MysqlConnection::EIO_After_Connect(uv_work_t *req) {
 
     TryCatch try_catch;
 
-    conn_req->callback->Call(Context::GetCurrent()->Global(), 1, argv);
+    conn_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
 
     if (try_catch.HasCaught()) {
         node::FatalException(try_catch);
@@ -493,6 +494,24 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     REQ_FUN_ARG(args.Length() - 1, callback);
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
+
+    if (conn->_conn) {
+        const int argc = 1;
+        Local<Value> argv[argc];
+
+        argv[0] = V8EXC("Already initialized. "
+                        "Use conn.realConnectSync() after conn.initSync()");
+
+        TryCatch try_catch;
+
+        callback->Call(Context::GetCurrent()->Global(), argc, argv);
+
+        if (try_catch.HasCaught()) {
+            node::FatalException(try_catch);
+        }
+
+        return Undefined();
+    }
 
     connect_request *conn_req = new connect_request;
 
