@@ -43,6 +43,12 @@ return ThrowException(Exception::TypeError( \
 String::New("Argument " #I " must be an integer"))); \
 uint32_t VAR = args[I]->Uint32Value();
 
+#define REQ_NUMBER_ARG(I, VAR) \
+if (args.Length() <= (I) || !args[I]->IsNumber()) \
+return ThrowException(Exception::TypeError( \
+String::New("Argument " #I " must be an integer"))); \
+double VAR = args[I]->NumberValue();
+
 #define REQ_STR_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsString()) \
 return ThrowException(Exception::TypeError( \

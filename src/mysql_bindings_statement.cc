@@ -391,13 +391,14 @@ Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
     MYSQLSTMT_MUSTBE_PREPARED;
     MYSQLSTMT_MUSTBE_STORED;
 
-    REQ_UINT_ARG(0, offset)
+    REQ_NUMBER_ARG(0, offset_double)
+    REQ_UINT_ARG(0, offset_uint)
 
-    if (offset < 0 || offset >= mysql_stmt_num_rows(stmt->_stmt)) {
+    if (offset_double < 0 || offset_uint >= mysql_stmt_num_rows(stmt->_stmt)) {
         return THREXC("Invalid row offset");
     }
 
-    mysql_stmt_data_seek(stmt->_stmt, offset);
+    mysql_stmt_data_seek(stmt->_stmt, offset_uint);
 
     return Undefined();
 }
@@ -602,7 +603,7 @@ Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
         return scope.Close(False());
     }
 
-    int argc = 3;
+    const int argc = 3;
     Local<Value> argv[argc];
     argv[0] = External::New(stmt->_stmt->mysql); // MySQL connection handle
     argv[1] = External::New(my_result);

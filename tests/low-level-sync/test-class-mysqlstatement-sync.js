@@ -254,9 +254,47 @@ exports.CloseSync = function (test) {
 };
 
 exports.DataSeekSync = function (test) {
-  test.expect(0);
-  console.log("DataSeekSync test is not implementd yet");
-  test.done();
+  test.expect(5);
+
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+    res,
+    random_number,
+    random_boolean,
+    stmt,
+    i;
+  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
+
+  res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
+  test.ok(res, "conn.querySync('DELETE FROM test_table')");
+
+  for (i = 0; i < cfg.insert_rows_count; i += 1) {
+    random_number = Math.round(Math.random() * 1000000);
+    random_boolean = 1;
+    res = conn.querySync("INSERT INTO " + cfg.test_table +
+      " (random_number, random_boolean) VALUES ('" + random_number +
+      "', '" + random_boolean + "');") && res;
+  }
+  test.equals(res, true, "Insert " + cfg.insert_rows_count + " rows into table " + cfg.test_table);
+
+  setTimeout(function () {
+    stmt = conn.initStatementSync();
+    stmt.prepareSync("SELECT random_boolean FROM " + cfg.test_table + ";");
+    stmt.executeSync();
+    stmt.storeResultSync();
+
+    test.throws(function () {
+      stmt.dataSeekSync(-1);
+    }, "Invalid row offset -1");
+
+    test.throws(function () {
+      stmt.dataSeekSync(-100);
+    }, "Invalid row offset -100");
+
+    conn.closeSync();
+
+    console.log("DataSeekSync test is not finished yet");
+    test.done();
+  }, cfg.delay);
 };
 
 exports.ErrnoSync = function (test) {
