@@ -24,15 +24,15 @@ Persistent<FunctionTemplate> MysqlConnection::constructor_template;
 void MysqlConnection::Init(Handle<Object> target) {
     HandleScope scope;
 
-    Local<FunctionTemplate> t = FunctionTemplate::New(New);
+    Local<FunctionTemplate> t = FunctionTemplate::New(MysqlConnection::New);
 
-    // Constructor
+    // Constructor template
     constructor_template = Persistent<FunctionTemplate>::New(t);
-    constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlConnection"));
 
-    Local<ObjectTemplate> instance_template =
-        constructor_template->InstanceTemplate();
+    // Instance template
+    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate();
+    instance_template->SetInternalFieldCount(1);
 
     // Constants for connect flags
     NODE_DEFINE_CONSTANT(instance_template, CLIENT_COMPRESS);
@@ -87,67 +87,67 @@ void MysqlConnection::Init(Handle<Object> target) {
     // NODE_DEFINE_CONSTANT(instance_template, MYSQL_SHARED_MEMORY_BASE_NAME);
 
     // Properties
-    instance_template->SetAccessor(V8STR("connectErrno"), ConnectErrnoGetter);
-    instance_template->SetAccessor(V8STR("connectError"), ConnectErrorGetter);
+    instance_template->SetAccessor(V8STR("connectErrno"), MysqlConnection::ConnectErrnoGetter);
+    instance_template->SetAccessor(V8STR("connectError"), MysqlConnection::ConnectErrorGetter);
 
     // Methods
-    ADD_PROTOTYPE_METHOD(connection, affectedRowsSync, AffectedRowsSync);
-    ADD_PROTOTYPE_METHOD(connection, autoCommitSync, AutoCommitSync);
-    ADD_PROTOTYPE_METHOD(connection, changeUserSync, ChangeUserSync);
-    ADD_PROTOTYPE_METHOD(connection, commitSync, CommitSync);
-    ADD_PROTOTYPE_METHOD(connection, connect, Connect);
-    ADD_PROTOTYPE_METHOD(connection, connectSync, ConnectSync);
-    ADD_PROTOTYPE_METHOD(connection, connectedSync, ConnectedSync);
-    ADD_PROTOTYPE_METHOD(connection, closeSync, CloseSync);
-    ADD_PROTOTYPE_METHOD(connection, debugSync, DebugSync);
-    ADD_PROTOTYPE_METHOD(connection, dumpDebugInfoSync, DumpDebugInfoSync);
-    ADD_PROTOTYPE_METHOD(connection, errnoSync, ErrnoSync);
-    ADD_PROTOTYPE_METHOD(connection, errorSync, ErrorSync);
-    ADD_PROTOTYPE_METHOD(connection, escapeSync, EscapeSync);
-    ADD_PROTOTYPE_METHOD(connection, fieldCountSync, FieldCountSync);
-    ADD_PROTOTYPE_METHOD(connection, getCharsetSync, GetCharsetSync);
-    ADD_PROTOTYPE_METHOD(connection, getCharsetNameSync, GetCharsetNameSync);
-    ADD_PROTOTYPE_METHOD(connection, getClientInfoSync, GetClientInfoSync);
-    ADD_PROTOTYPE_METHOD(connection, getInfoSync, GetInfoSync);
-    ADD_PROTOTYPE_METHOD(connection, getInfoStringSync, GetInfoStringSync);
-    ADD_PROTOTYPE_METHOD(connection, getWarningsSync, GetWarningsSync);
-    ADD_PROTOTYPE_METHOD(connection, initSync, InitSync);
-    ADD_PROTOTYPE_METHOD(connection, initStatementSync, InitStatementSync);
-    ADD_PROTOTYPE_METHOD(connection, lastInsertIdSync, LastInsertIdSync);
-    ADD_PROTOTYPE_METHOD(connection, multiMoreResultsSync, MultiMoreResultsSync);
-    ADD_PROTOTYPE_METHOD(connection, multiNextResultSync, MultiNextResultSync);
-    ADD_PROTOTYPE_METHOD(connection, multiRealQuerySync, MultiRealQuerySync);
-    ADD_PROTOTYPE_METHOD(connection, pingSync, PingSync);
-    ADD_PROTOTYPE_METHOD(connection, query, Query);
-    ADD_PROTOTYPE_METHOD(connection, querySend, QuerySend);
-    ADD_PROTOTYPE_METHOD(connection, querySync, QuerySync);
-    ADD_PROTOTYPE_METHOD(connection, realConnectSync, RealConnectSync);
-    ADD_PROTOTYPE_METHOD(connection, realQuerySync, RealQuerySync);
-    ADD_PROTOTYPE_METHOD(connection, rollbackSync, RollbackSync);
-    ADD_PROTOTYPE_METHOD(connection, selectDbSync, SelectDbSync);
-    ADD_PROTOTYPE_METHOD(connection, setCharsetSync, SetCharsetSync);
-    ADD_PROTOTYPE_METHOD(connection, setOptionSync, SetOptionSync);
-    ADD_PROTOTYPE_METHOD(connection, setSslSync, SetSslSync);
-    ADD_PROTOTYPE_METHOD(connection, sqlStateSync, SqlStateSync);
-    ADD_PROTOTYPE_METHOD(connection, statSync, StatSync);
-    ADD_PROTOTYPE_METHOD(connection, storeResultSync, StoreResultSync);
-    ADD_PROTOTYPE_METHOD(connection, threadIdSync, ThreadIdSync);
-    ADD_PROTOTYPE_METHOD(connection, threadSafeSync, ThreadSafeSync);
-    ADD_PROTOTYPE_METHOD(connection, useResultSync, UseResultSync);
-    ADD_PROTOTYPE_METHOD(connection, warningCountSync, WarningCountSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "affectedRowsSync",     MysqlConnection::AffectedRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "autoCommitSync",       MysqlConnection::AutoCommitSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "changeUserSync",       MysqlConnection::ChangeUserSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "commitSync",           MysqlConnection::CommitSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "connect",              MysqlConnection::Connect);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "connectSync",          MysqlConnection::ConnectSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "connectedSync",        MysqlConnection::ConnectedSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "closeSync",            MysqlConnection::CloseSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "debugSync",            MysqlConnection::DebugSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "dumpDebugInfoSync",    MysqlConnection::DumpDebugInfoSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "errnoSync",            MysqlConnection::ErrnoSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "errorSync",            MysqlConnection::ErrorSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "escapeSync",           MysqlConnection::EscapeSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldCountSync",       MysqlConnection::FieldCountSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getCharsetSync",       MysqlConnection::GetCharsetSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getCharsetNameSync",   MysqlConnection::GetCharsetNameSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getClientInfoSync",    MysqlConnection::GetClientInfoSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getInfoSync",          MysqlConnection::GetInfoSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getInfoStringSync",    MysqlConnection::GetInfoStringSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getWarningsSync",      MysqlConnection::GetWarningsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "initSync",             MysqlConnection::InitSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "initStatementSync",    MysqlConnection::InitStatementSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "lastInsertIdSync",     MysqlConnection::LastInsertIdSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "multiMoreResultsSync", MysqlConnection::MultiMoreResultsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "multiNextResultSync",  MysqlConnection::MultiNextResultSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "multiRealQuerySync",   MysqlConnection::MultiRealQuerySync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "pingSync",             MysqlConnection::PingSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "query",                MysqlConnection::Query);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "querySend",            MysqlConnection::QuerySend);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "querySync",            MysqlConnection::QuerySync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "realConnectSync",      MysqlConnection::RealConnectSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "realQuerySync",        MysqlConnection::RealQuerySync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "rollbackSync",         MysqlConnection::RollbackSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "selectDbSync",         MysqlConnection::SelectDbSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setCharsetSync",       MysqlConnection::SetCharsetSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setOptionSync",        MysqlConnection::SetOptionSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setSslSync",           MysqlConnection::SetSslSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "sqlStateSync",         MysqlConnection::SqlStateSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "statSync",             MysqlConnection::StatSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "storeResultSync",      MysqlConnection::StoreResultSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "threadIdSync",         MysqlConnection::ThreadIdSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "threadSafeSync",       MysqlConnection::ThreadSafeSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "useResultSync",        MysqlConnection::UseResultSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "warningCountSync",     MysqlConnection::WarningCountSync);
 
     // Make it visible in JavaScript
-    target->Set(String::NewSymbol("MysqlConnection"),
-                constructor_template->GetFunction());
+    target->Set(String::NewSymbol("MysqlConnection"), constructor_template->GetFunction());
 }
 
 bool MysqlConnection::Connect(const char* hostname,
-                        const char* user,
-                        const char* password,
-                        const char* dbname,
-                        uint32_t port,
-                        const char* socket,
-                        uint64_t flags) {
+                              const char* user,
+                              const char* password,
+                              const char* dbname,
+                              uint32_t port,
+                              const char* socket,
+                              uint64_t flags) {
+
     if (this->_conn) {
         return false;
     }
@@ -274,9 +274,9 @@ Handle<Value> MysqlConnection::New(const Arguments& args) {
     HandleScope scope;
 
     MysqlConnection *conn = new MysqlConnection();
-    conn->Wrap(args.This());
+    conn->Wrap(args.Holder());
 
-    return args.This();
+    return args.Holder();
 }
 
 /**
@@ -317,7 +317,7 @@ Handle<Value> MysqlConnection::ConnectErrorGetter(Local<String> property,
 Handle<Value> MysqlConnection::AffectedRowsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -339,7 +339,7 @@ Handle<Value> MysqlConnection::AffectedRowsSync(const Arguments& args) {
 Handle<Value> MysqlConnection::AutoCommitSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -363,7 +363,7 @@ Handle<Value> MysqlConnection::AutoCommitSync(const Arguments& args) {
 Handle<Value> MysqlConnection::ChangeUserSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -401,7 +401,7 @@ Handle<Value> MysqlConnection::ChangeUserSync(const Arguments& args) {
 Handle<Value> MysqlConnection::CommitSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -420,14 +420,18 @@ async_rtn MysqlConnection::EIO_After_Connect(uv_work_t *req) {
     
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
-    Local<Value> argv[1];
+    const int argc = 1;
+    Local<Value> argv[argc];
 
     if (!conn_req->ok) {
-        unsigned int error_string_length =
-                                    strlen(conn_req->conn->connect_error) + 25;
+
+        unsigned int error_string_length = strlen(conn_req->conn->connect_error) + 25;
         char* error_string = new char[error_string_length];
-        snprintf(error_string, error_string_length, "Connection error #%d: %s",
-               conn_req->errno, conn_req->error);
+        snprintf(
+            error_string, error_string_length,
+            "Connection error #%d: %s",
+            conn_req->conn->connect_errno, conn_req->conn->connect_error
+        );
 
         argv[0] = V8EXC(error_string);
         delete[] error_string;
@@ -437,7 +441,7 @@ async_rtn MysqlConnection::EIO_After_Connect(uv_work_t *req) {
 
     TryCatch try_catch;
 
-    conn_req->callback->Call(Context::GetCurrent()->Global(), 1, argv);
+    conn_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
 
     if (try_catch.HasCaught()) {
         node::FatalException(try_catch);
@@ -465,11 +469,6 @@ async_rtn MysqlConnection::EIO_Connect(uv_work_t *req) {
                         conn_req->flags
                     ) ? true : false;
 
-    if (!conn_req->ok) {
-        conn_req->errno = conn_req->conn->connect_errno;
-        conn_req->error = conn_req->conn->connect_error;
-    }
-
     delete conn_req->hostname;
     delete conn_req->user;
     delete conn_req->password;
@@ -479,7 +478,7 @@ async_rtn MysqlConnection::EIO_Connect(uv_work_t *req) {
 }
 
 /**
- * Opens a new connection to the MySQL server
+ * Connects to the MySQL server
  *
  * @param {String|null} hostname
  * @param {String|null} user
@@ -491,13 +490,31 @@ async_rtn MysqlConnection::EIO_Connect(uv_work_t *req) {
  */
 Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     HandleScope scope;
-    
+
     REQ_FUN_ARG(args.Length() - 1, callback);
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
+
+    if (conn->_conn) {
+        const int argc = 1;
+        Local<Value> argv[argc];
+
+        argv[0] = V8EXC("Already initialized. "
+                        "Use conn.realConnectSync() after conn.initSync()");
+
+        TryCatch try_catch;
+
+        callback->Call(Context::GetCurrent()->Global(), argc, argv);
+
+        if (try_catch.HasCaught()) {
+            node::FatalException(try_catch);
+        }
+
+        return Undefined();
+    }
 
     connect_request *conn_req = new connect_request;
-    
+
     conn_req->callback = Persistent<Function>::New(callback);
     conn_req->conn = conn;
     conn->Ref();
@@ -523,7 +540,7 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
 }
 
 /**
- * Opens a new connection to the MySQL server
+ * Connects to the MySQL server
  *
  * @param {String|null} hostname
  * @param {String|null} user
@@ -536,7 +553,7 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
 Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     if (conn->_conn) {
         return THREXC("Already initialized. "
@@ -574,7 +591,7 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
 Handle<Value> MysqlConnection::ConnectedSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     return scope.Close(conn->connected ? True() : False());
 }
@@ -585,7 +602,7 @@ Handle<Value> MysqlConnection::ConnectedSync(const Arguments& args) {
 Handle<Value> MysqlConnection::CloseSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -602,7 +619,7 @@ Handle<Value> MysqlConnection::CloseSync(const Arguments& args) {
 Handle<Value> MysqlConnection::DebugSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -620,7 +637,7 @@ Handle<Value> MysqlConnection::DebugSync(const Arguments& args) {
  */
 Handle<Value> MysqlConnection::DumpDebugInfoSync(const Arguments& args) {
     HandleScope scope;
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -635,7 +652,7 @@ Handle<Value> MysqlConnection::DumpDebugInfoSync(const Arguments& args) {
 Handle<Value> MysqlConnection::ErrnoSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -650,7 +667,7 @@ Handle<Value> MysqlConnection::ErrnoSync(const Arguments& args) {
 Handle<Value> MysqlConnection::ErrorSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -669,7 +686,7 @@ Handle<Value> MysqlConnection::ErrorSync(const Arguments& args) {
 Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -698,7 +715,7 @@ Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
 Handle<Value> MysqlConnection::FieldCountSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -715,7 +732,7 @@ Handle<Value> MysqlConnection::FieldCountSync(const Arguments& args) {
 Handle<Value> MysqlConnection::GetCharsetSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -745,7 +762,7 @@ Handle<Value> MysqlConnection::GetCharsetSync(const Arguments& args) {
 Handle<Value> MysqlConnection::GetCharsetNameSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -778,7 +795,7 @@ Handle<Value> MysqlConnection::GetClientInfoSync(const Arguments& args) {
 Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -809,7 +826,7 @@ Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
 Handle<Value> MysqlConnection::GetInfoStringSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -826,7 +843,7 @@ Handle<Value> MysqlConnection::GetInfoStringSync(const Arguments& args) {
 Handle<Value> MysqlConnection::GetWarningsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -866,7 +883,7 @@ Handle<Value> MysqlConnection::GetWarningsSync(const Arguments& args) {
 Handle<Value> MysqlConnection::InitSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     if (conn->_conn) {
         return THREXC("Already initialized");
@@ -889,7 +906,7 @@ Handle<Value> MysqlConnection::InitSync(const Arguments& args) {
 Handle<Value> MysqlConnection::InitStatementSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQL_STMT *my_statement = mysql_stmt_init(conn->_conn);
 
@@ -912,7 +929,7 @@ Handle<Value> MysqlConnection::InitStatementSync(const Arguments& args) {
 Handle<Value> MysqlConnection::LastInsertIdSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -936,7 +953,7 @@ Handle<Value> MysqlConnection::LastInsertIdSync(const Arguments& args) {
 Handle<Value> MysqlConnection::MultiMoreResultsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -955,7 +972,7 @@ Handle<Value> MysqlConnection::MultiMoreResultsSync(const Arguments& args) {
 Handle<Value> MysqlConnection::MultiNextResultSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -981,7 +998,7 @@ Handle<Value> MysqlConnection::MultiNextResultSync(const Arguments& args) {
 Handle<Value> MysqlConnection::MultiRealQuerySync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     REQ_STR_ARG(0, query)
 
@@ -1007,7 +1024,7 @@ Handle<Value> MysqlConnection::MultiRealQuerySync(const Arguments& args) {
 Handle<Value> MysqlConnection::PingSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -1136,6 +1153,8 @@ async_rtn MysqlConnection::EIO_Query(uv_work_t *req) {
 /**
  * Performs a query on the database
  *
+ * Uses mysql_real_query
+ *
  * @param {String} query
  * @param {Function(error, result)} callback
  */
@@ -1145,7 +1164,7 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
     REQ_STR_ARG(0, query);
     OPTIONAL_FUN_ARG(1, callback);
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -1233,6 +1252,8 @@ void MysqlConnection::EV_After_QuerySend(EV_P_ ev_io *io_watcher, int revents) {
 /**
  * Performs a query on the database
  *
+ * Uses mysql_send_query
+ *
  * @param {String} querySend
  * @param {Function(error, result)} callback
  */
@@ -1242,7 +1263,7 @@ Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
     REQ_STR_ARG(0, query);
     OPTIONAL_FUN_ARG(1, callback);
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -1281,7 +1302,7 @@ Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
 Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     REQ_STR_ARG(0, query)
 
@@ -1339,7 +1360,7 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
 Handle<Value> MysqlConnection::RollbackSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -1364,7 +1385,7 @@ Handle<Value> MysqlConnection::RollbackSync(const Arguments& args) {
 Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_INITIALIZED;
 
@@ -1400,7 +1421,7 @@ Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
 Handle<Value> MysqlConnection::RealQuerySync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     REQ_STR_ARG(0, query)
 
@@ -1430,7 +1451,7 @@ Handle<Value> MysqlConnection::RealQuerySync(const Arguments& args) {
 Handle<Value> MysqlConnection::SelectDbSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -1452,7 +1473,7 @@ Handle<Value> MysqlConnection::SelectDbSync(const Arguments& args) {
 Handle<Value> MysqlConnection::SetCharsetSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -1475,7 +1496,7 @@ Handle<Value> MysqlConnection::SetCharsetSync(const Arguments& args) {
 Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     REQ_INT_ARG(0, option_integer_key);
     mysql_option option_key = static_cast<mysql_option>(option_integer_key);
@@ -1557,7 +1578,7 @@ Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
 Handle<Value> MysqlConnection::SetSslSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -1580,7 +1601,7 @@ Handle<Value> MysqlConnection::SetSslSync(const Arguments& args) {
 Handle<Value> MysqlConnection::SqlStateSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -1595,7 +1616,7 @@ Handle<Value> MysqlConnection::SqlStateSync(const Arguments& args) {
 Handle<Value> MysqlConnection::StatSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -1612,7 +1633,7 @@ Handle<Value> MysqlConnection::StatSync(const Arguments& args) {
 Handle<Value> MysqlConnection::StoreResultSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     if (!mysql_field_count(conn->_conn)) {
         /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
@@ -1644,7 +1665,7 @@ Handle<Value> MysqlConnection::StoreResultSync(const Arguments& args) {
 Handle<Value> MysqlConnection::ThreadIdSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -1676,7 +1697,7 @@ Handle<Value> MysqlConnection::ThreadSafeSync(const Arguments& args) {
 Handle<Value> MysqlConnection::UseResultSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     if (!mysql_field_count(conn->_conn)) {
         /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
@@ -1708,7 +1729,7 @@ Handle<Value> MysqlConnection::UseResultSync(const Arguments& args) {
 Handle<Value> MysqlConnection::WarningCountSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.This());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 

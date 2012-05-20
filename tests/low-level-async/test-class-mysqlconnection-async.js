@@ -15,6 +15,7 @@ exports.Connect = function (test) {
   
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
     test.ok(error === null, "conn.connect() for allowed database");
+
     conn.closeSync();
     
     test.done();
@@ -28,14 +29,55 @@ exports.ConnectWithError = function (test) {
   
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (err) {
     var
-      errno = conn.connectErrno,
-      error = conn.connectError;
+      connectErrno = conn.connectErrno,
+      connectError = conn.connectError,
+      isMatched = connectError.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'"));
     
-    test.equals(errno, 1044, "conn.connectErrno");
-    test.ok(error.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")), "conn.connectError");
+    test.equals(connectErrno, 1044, "conn.connectErrno");
+
+    if (!isMatched) {
+      console.log("Connect error: " + connectError);
+    }
+    test.ok(isMatched, "conn.connectError");
     
-    test.equals(err.message, "Connection error #" + errno + ": " + error, "Callback exception in conn.connect() to denied database");
+    test.equals(err.message, "Connection error #" + connectErrno + ": " + connectError, "Callback exception in conn.connect() to denied database");
     
+    test.done();
+  });
+};
+
+exports.Connect2Times = function (test) {
+  test.expect(3);
+
+  var conn = new cfg.mysql_bindings.MysqlConnection();
+
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
+    test.ok(error === null, "conn.connect() for allowed database");
+
+    conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
+      test.ok(error instanceof Error, "conn.connect() fails if already");
+      test.equal(error.message, "Already initialized. Use conn.realConnectSync() after conn.initSync()");
+
+      conn.closeSync();
+
+      test.done();
+    });
+  });
+};
+
+exports.ConnectAfterConnectSync2 = function (test) {
+  test.expect(3);
+
+  var conn = new cfg.mysql_bindings.MysqlConnection();
+
+  test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database));
+
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
+    test.ok(error instanceof Error, "conn.connect() fails if already");
+    test.equal(error.message, "Already initialized. Use conn.realConnectSync() after conn.initSync()");
+
+    conn.closeSync();
+
     test.done();
   });
 };

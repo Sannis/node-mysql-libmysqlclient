@@ -16,37 +16,20 @@
 
 #include "./mysql_bindings.h"
 
-#define MYSQLSTMT_MUSTBE_INITIALIZED     if (!stmt->_stmt) { \
+#define MYSQLSTMT_MUSTBE_INITIALIZED \
+    if (!stmt->_stmt) { \
         return THREXC("Statement not initialized"); \
     }
 
-#define MYSQLSTMT_MUSTBE_PREPARED     if (!stmt->prepared) { \
+#define MYSQLSTMT_MUSTBE_PREPARED \
+    if (!stmt->prepared) { \
         return THREXC("Statement not prepared"); \
     }
 
-#define MYSQLSTMT_MUSTBE_STORED     if (!stmt->stored) { \
+#define MYSQLSTMT_MUSTBE_STORED \
+    if (!stmt->stored) { \
         return THREXC("Statement result not stored"); \
     }
-
-static Persistent<String> statement_affectedRowsSync_symbol;
-static Persistent<String> statement_attrGetSync_symbol;
-static Persistent<String> statement_attrSetSync_symbol;
-static Persistent<String> statement_bindParamsSync_symbol;
-static Persistent<String> statement_closeSync_symbol;
-static Persistent<String> statement_dataSeekSync_symbol;
-static Persistent<String> statement_errnoSync_symbol;
-static Persistent<String> statement_errorSync_symbol;
-static Persistent<String> statement_executeSync_symbol;
-static Persistent<String> statement_fieldCountSync_symbol;
-static Persistent<String> statement_freeResultSync_symbol;
-static Persistent<String> statement_lastInsertIdSync_symbol;
-static Persistent<String> statement_numRowsSync_symbol;
-static Persistent<String> statement_prepareSync_symbol;
-static Persistent<String> statement_resetSync_symbol;
-static Persistent<String> statement_resultMetadataSync_symbol;
-static Persistent<String> statement_sendLongDataSync_symbol;
-static Persistent<String> statement_storeResultSync_symbol;
-static Persistent<String> statement_sqlStateSync_symbol;
 
 class MysqlStatement : public node::ObjectWrap {
   public:

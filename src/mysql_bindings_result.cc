@@ -23,37 +23,36 @@ Persistent<FunctionTemplate> MysqlResult::constructor_template;
 void MysqlResult::Init(Handle<Object> target) {
     HandleScope scope;
 
-    Local<FunctionTemplate> t = FunctionTemplate::New(New);
+    Local<FunctionTemplate> t = FunctionTemplate::New(MysqlResult::New);
 
-    // Constructor
+    // Constructor template
     constructor_template = Persistent<FunctionTemplate>::New(t);
-    constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
     constructor_template->SetClassName(String::NewSymbol("MysqlResult"));
 
-    Local<ObjectTemplate> instance_template =
-        constructor_template->InstanceTemplate();
+    // Instance template
+    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate();
+    instance_template->SetInternalFieldCount(1);
 
     // Properties
     instance_template->SetAccessor(V8STR("fieldCount"), FieldCountGetter);
 
     // Methods
-    ADD_PROTOTYPE_METHOD(result, dataSeekSync, DataSeekSync);
-    ADD_PROTOTYPE_METHOD(result, fetchAll, FetchAll);
-    ADD_PROTOTYPE_METHOD(result, fetchAllSync, FetchAllSync);
-    ADD_PROTOTYPE_METHOD(result, fetchArraySync, FetchArraySync);
-    ADD_PROTOTYPE_METHOD(result, fetchFieldSync, FetchFieldSync);
-    ADD_PROTOTYPE_METHOD(result, fetchFieldDirectSync, FetchFieldDirectSync);
-    ADD_PROTOTYPE_METHOD(result, fetchFieldsSync, FetchFieldsSync);
-    ADD_PROTOTYPE_METHOD(result, fetchLengthsSync, FetchLengthsSync);
-    ADD_PROTOTYPE_METHOD(result, fetchObjectSync, FetchObjectSync);
-    ADD_PROTOTYPE_METHOD(result, fieldSeekSync, FieldSeekSync);
-    ADD_PROTOTYPE_METHOD(result, fieldTellSync, FieldTellSync);
-    ADD_PROTOTYPE_METHOD(result, freeSync, FreeSync);
-    ADD_PROTOTYPE_METHOD(result, numRowsSync, NumRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "dataSeekSync",         MysqlResult::DataSeekSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAll",             MysqlResult::FetchAll);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAllSync",         MysqlResult::FetchAllSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchArraySync",       MysqlResult::FetchArraySync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchFieldSync",       MysqlResult::FetchFieldSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchFieldDirectSync", MysqlResult::FetchFieldDirectSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchFieldsSync",      MysqlResult::FetchFieldsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchLengthsSync",     MysqlResult::FetchLengthsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchObjectSync",      MysqlResult::FetchObjectSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldSeekSync",        MysqlResult::FieldSeekSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldTellSync",        MysqlResult::FieldTellSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "freeSync",             MysqlResult::FreeSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "numRowsSync",          MysqlResult::NumRowsSync);
 
     // Make it visible in JavaScript
-    target->Set(String::NewSymbol("MysqlResult"),
-                constructor_template->GetFunction());
+    target->Set(String::NewSymbol("MysqlResult"), constructor_template->GetFunction());
 }
 
 MysqlResult::MysqlResult(): ObjectWrap() {}
@@ -265,9 +264,9 @@ Handle<Value> MysqlResult::New(const Arguments& args) {
     MYSQL *connection = static_cast<MYSQL*>(js_connection->Value());
     MYSQL_RES *result = static_cast<MYSQL_RES*>(js_result->Value());
     MysqlResult *my_res = new MysqlResult(connection, result, field_count);
-    my_res->Wrap(args.This());
+    my_res->Wrap(args.Holder());
 
-    return args.This();
+    return args.Holder();
 }
 
 /**
@@ -299,7 +298,7 @@ Handle<Value> MysqlResult::FieldCountGetter(Local<String> property,
 Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -484,7 +483,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 
     REQ_FUN_ARG(arg_pos, callback)
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This()); // NOLINT
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder()); // NOLINT
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -511,7 +510,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -593,7 +592,7 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -631,7 +630,7 @@ Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
 Handle<Value> MysqlResult::FetchFieldSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -660,7 +659,7 @@ Handle<Value> MysqlResult::FetchFieldSync(const Arguments& args) {
 Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLINT
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -690,7 +689,7 @@ Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLI
 Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -721,7 +720,7 @@ Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
 Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -751,7 +750,7 @@ Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
 Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -790,7 +789,7 @@ Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
 Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -813,7 +812,7 @@ Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
 Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -826,7 +825,7 @@ Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
 Handle<Value> MysqlResult::FreeSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -843,7 +842,7 @@ Handle<Value> MysqlResult::FreeSync(const Arguments& args) {
 Handle<Value> MysqlResult::NumRowsSync(const Arguments& args) {
     HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.This());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
