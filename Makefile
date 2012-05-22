@@ -19,14 +19,13 @@ waf: waf-stamp
 
 waf-stamp: ./wscript ./src/*
 		touch waf-stamp
-		node-waf configure
-		node-waf build
+		node-waf configure build
 
 clean:
 		rm -rf ./build
 		rm -f ./mysql_bindings.node
+		rm -f npm-install-stamp
 		rm -f waf-stamp
-		rm -f gyp-stamp
 
 clean-all: clean
 		rm -f devdependencies-stamp

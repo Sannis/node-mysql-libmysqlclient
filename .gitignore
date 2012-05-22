@@ -2,17 +2,12 @@
 build
 .lock-wscript
 mysql_bindings.node
-.idea
 node_modules
 
-conf-stamp
-build-stamp
+npm-install-stamp
 waf-stamp
-gyp-stamp
 devdependencies-stamp
 
 *.gcda
 *.gcno
 *.gcov
-
-.DS_Store
