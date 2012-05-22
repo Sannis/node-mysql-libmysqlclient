@@ -435,13 +435,7 @@ async_rtn MysqlConnection::EIO_After_Connect(uv_work_t *req) {
         argv[0] = Local<Value>::New(Null());
     }
 
-    TryCatch try_catch;
-
-    conn_req->callback->Call(Context::GetCurrent()->Global(), 1, argv);
-
-    if (try_catch.HasCaught()) {
-        node::FatalException(try_catch);
-    }
+    node::MakeCallback(Context::GetCurrent()->Global(), conn_req->callback, 1, argv);
 
     conn_req->callback.Dispose();
     
@@ -1061,14 +1055,11 @@ async_rtn MysqlConnection::EIO_After_Query(uv_work_t *req) {
     }
 
     if (query_req->callback->IsFunction()) {
-        TryCatch try_catch;
-
-        Persistent<Function>::Cast(query_req->callback)->
-                              Call(Context::GetCurrent()->Global(), argc, argv);
-
-        if (try_catch.HasCaught()) {
-            node::FatalException(try_catch);
-        }
+        node::MakeCallback(
+            Context::GetCurrent()->Global(),
+            Persistent<Function>::Cast(query_req->callback),
+            argc, argv
+        );
 
         query_req->callback.Dispose();
     }

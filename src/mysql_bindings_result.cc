@@ -408,13 +408,7 @@ async_rtn MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
         }
     }
 
-    TryCatch try_catch;
-
-    fetchAll_req->callback->Call(Context::GetCurrent()->Global(), argc, argv);
-
-    if (try_catch.HasCaught()) {
-        node::FatalException(try_catch);
-    }
+    node::MakeCallback(Context::GetCurrent()->Global(), fetchAll_req->callback, 1, argv);
 
     fetchAll_req->callback.Dispose();
     
