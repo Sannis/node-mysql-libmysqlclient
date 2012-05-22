@@ -83,14 +83,14 @@ exports.mysql_libmysqlclient_createConnectionSync_3 = function (test) {
   test.done();
 };
 
-exports.mysql_libmysqlclient_createConnectionSync_4_allowed = function (test) {
+exports.mysql_libmysqlclient_createConnectionSync_4_Accessllowed = function (test) {
   test.expect(2);
   
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), isConnected;
   test.ok(conn, "cfg.mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   isConnected = conn.connectedSync();
-  test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnectionSync(host, user, password, database).connectedSync()");
+  test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   if (!isConnected) {
     // Extra debug output
@@ -102,13 +102,13 @@ exports.mysql_libmysqlclient_createConnectionSync_4_allowed = function (test) {
   test.done();
 };
 
-exports.mysql_libmysqlclient_createConnectionSync_4_denied = function (test) {
+exports.mysql_libmysqlclient_createConnectionSync_4_AccessDenied = function (test) {
   test.expect(2);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied), isConnected;
 
   isConnected = conn.connectedSync();
-  test.ok(!isConnected, "!cfg.mysql_libmysqlclient.createConnectionSync(host, user, password, database_denied).connectedSync()");
+  test.ok(!isConnected, "!cfg.mysql_libmysqlclient.createConnectionSync(host, user, password, database_denied)");
   test.equals(conn.connectError,
               "Access denied for user '" + cfg.user + "'@'" + cfg.host + "' to database '" + cfg.database_denied + "'",
               "cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied).connectError");
@@ -119,4 +119,3 @@ exports.mysql_libmysqlclient_createConnectionSync_4_denied = function (test) {
 
   test.done();
 };
-
