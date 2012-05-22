@@ -5,6 +5,10 @@
  * See license text in LICENSE file
  */
 
+#define BUILDING_NODE_EXTENSION
+
+#include <node.h>
+
 /**
  * Include headers
  *
@@ -51,9 +55,12 @@
  * * MysqlResult
  * * MysqlStatement
  */
-extern "C" void init(Handle<Object> target) {
+void InitMysqlLibmysqlclient(Handle<Object> target) {
+    HandleScope scope;
+
     MysqlConnection::Init(target);
     MysqlResult::Init(target);
     MysqlStatement::Init(target);
 }
 
+NODE_MODULE(mysql_bindings, InitMysqlLibmysqlclient)

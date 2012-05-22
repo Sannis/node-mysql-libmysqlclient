@@ -7,32 +7,32 @@ See license text in LICENSE file
 */
 
 // Load configuration
-var cfg = require("../tests/config").cfg;
+var cfg = require("../tests/config");
 
 // Require modules
 var
-  sys = require("sys"),
+  util = require("util"),
   events = require('events'),
-  mysql_libmysqlclient = require("../mysql-libmysqlclient"),
-  mysql_bindings = require("../mysql_bindings"),
+  mysql_libmysqlclient = require("../lib/mysql-libmysqlclient"),
+  mysql_bindings = mysql_libmysqlclient.bindings,
   conn,
   res;
 
 function debug(title, obj) {
-  var i = 0;
+  var i;
   
-  sys.puts("Debug '" + title + "':");
-  sys.puts("  Inspect:");
-  sys.puts(sys.inspect(obj).replace(/^/gm, "    "));
-  sys.puts("  Foreach exclude EventEmitter.prototype:");
+  util.puts("Debug '" + title + "':");
+  util.puts("  Inspect:");
+  util.puts(util.inspect(obj).replace(/^/gm, "    "));
+  util.puts("  Foreach exclude EventEmitter.prototype:");
   for (i in obj) {
     if ((typeof i === "string") && (typeof events.EventEmitter.prototype[i] === "undefined")) {
-      sys.puts("    " + i + " (typeof " + (typeof obj[i]) + "): " + obj[i].toString());
+      util.puts("    " + i + " (typeof " + (typeof obj[i]) + "): " + obj[i].toString());
     }
   }
 }
 
-sys.print("Show debug information for NodeJS MySQL/libmysqlclient bindings...\n");
+util.print("Show debug information for NodeJS MySQL/libmysqlclient bindings...\n");
 
 conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
 

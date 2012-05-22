@@ -21,10 +21,6 @@
  * such as agrument checking and C=+ <-> V8 type convertions
  */
 
-#define ADD_PROTOTYPE_METHOD(class, name, method) \
-class ## _ ## name ## _symbol = NODE_PSYMBOL(#name); \
-NODE_SET_PROTOTYPE_METHOD(constructor_template, #name, method);
-
 // Only for fixing some cpplint.py errors:
 // Lines should be <= 80 characters long
 // [whitespace/line_length] [2]

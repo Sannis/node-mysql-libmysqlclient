@@ -9,7 +9,7 @@ See license text in LICENSE file
 var cfg = require('../config.js');
 
 var initAndRealConnectSync = function (test) {
-  test.expect(6);
+  test.expect(7);
   
   var conn = cfg.mysql_libmysqlclient.createConnectionSync();
   
@@ -23,17 +23,24 @@ var initAndRealConnectSync = function (test) {
   test.ok(conn.connectedSync(), "conn.connectedSync() after conn.realConnectSync()");
   conn.closeSync();
   
-  // Test code without init
+  // Test realConnectSync() without initSync()
   test.throws(function () {
     conn.realConnectSync(cfg.host, cfg.user, cfg.password);
-  }, Error, "Not initialized");
+  }, "Not initialized");
   
-  // Test other wrong code
+  // Test connectSync() after initSync()
   conn.initSync();
   test.ok(!conn.connectedSync(), "conn.connectedSync() after conn.initSync()");
   test.throws(function () {
     conn.connectSync(cfg.host, cfg.user, cfg.password);
-  }, Error, "Not initialized");
+  }, "Already initialized. Use conn.realConnectSync() after conn.initSync()");
+
+  // Test realConnectSync() if already connected
+  test.doesNotThrow(function () {
+    conn.realConnectSync(cfg.host, cfg.user, cfg.password);
+    conn.realConnectSync(cfg.host, cfg.user, cfg.password);
+  });
+  conn.closeSync();
   
   test.done();
 };
@@ -243,15 +250,30 @@ exports.ChangeUserSync = function (test) {
 };
 
 exports.ConnectSync = function (test) {
+  test.expect(1);
+  
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync();
+
+  test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database), "conn.connectSync()");
+
+  conn.closeSync();
+  
+  test.done();
+};
+
+exports.ConnectSync2Times = function (test) {
   test.expect(2);
-  
-  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync();
+
+  test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database), "conn.connectSync()");
+
+  test.throws(function () {
+    conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database);
+  }, "Already initialized. Use conn.realConnectSync() after conn.initSync()");
+
   conn.closeSync();
-  test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password), "conn.connectSync() without database selection");
-  conn.closeSync();
-  
+
   test.done();
 };
 
