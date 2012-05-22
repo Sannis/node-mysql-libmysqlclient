@@ -8,6 +8,8 @@
 #ifndef SRC_MYSQL_BINDINGS_H_
 #define SRC_MYSQL_BINDINGS_H_
 
+#include <v8.h>
+
 /**
  * Use this header file to conditionally invoke eio_custom() or uv_queue_work(),
  * depending on the node version that the module is being compiled for.
@@ -90,6 +92,19 @@ if (args.Length() > (I) && args[I]->IsFunction()) {\
 } else { \
     VAR = Null(); \
 }
+
+/* Backport MakeCallback from Node v0.7.8 */
+#if NODE_VERSION_AT_LEAST(0, 7, 8)
+  // Nothing
+#else
+    namespace node {
+        v8::Handle<v8::Value>
+        MakeCallback(const v8::Handle<v8::Object> object,
+                     const v8::Handle<v8::Function> callback,
+                     int argc,
+                     v8::Handle<v8::Value> argv[]);
+    }  // namespace node
+#endif
 
 #endif  // SRC_MYSQL_BINDINGS_H_
 
