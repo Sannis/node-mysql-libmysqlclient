@@ -408,7 +408,7 @@ async_rtn MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
         }
     }
 
-    node::MakeCallback(Context::GetCurrent()->Global(), fetchAll_req->callback, 1, argv);
+    node::MakeCallback(Context::GetCurrent()->Global(), fetchAll_req->callback, argc, argv);
 
     fetchAll_req->callback.Dispose();
     
