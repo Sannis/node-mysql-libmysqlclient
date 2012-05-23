@@ -17,6 +17,9 @@ module.exports = {
   mysql_bindings: require("../lib/mysql-libmysqlclient.js").bindings,
   util: require("util"),
 
+  // Check environment
+  is_travis: process.env["TRAVIS"] ? true : false,
+
   // Database connection settings
   host:     process.env["TRAVIS"] ? "localhost" : "localhost",
   user:     process.env["TRAVIS"] ? "test_user" : "test",

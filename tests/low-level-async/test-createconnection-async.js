@@ -73,6 +73,11 @@ exports.mysql_libmysqlclient_createConnection_3_Function = function (test) {
   });
 };
 
+if (cfg.is_travis) {
+  // Disable this test
+  delete exports.mysql_libmysqlclient_createConnection_3_Function;
+}
+
 exports.mysql_libmysqlclient_createConnection_3_NoFunction = function (test) {
   test.expect(1);
 
