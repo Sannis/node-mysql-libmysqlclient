@@ -68,7 +68,7 @@ var testBindParamsAndExecuteSync = function (test) {
   // Check inserting for INT
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   stmt = conn.initStatementSync();
   test.ok(stmt);
@@ -97,11 +97,11 @@ var testBindParamsAndExecuteSync = function (test) {
   // Check inserting for VARCHAR, DOUBLE and NULL
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " ADD title VARCHAR(255), ADD number DOUBLE, ADD for_null INT;");
-  test.ok(res, "conn.querySync('ALTER TABLE test_table ADD title VARCHAR(255)'), ADD number DOUBLE, ADD for_null INT");
-  
+  test.strictEqual(res, true);
+
   stmt2 = conn.initStatementSync();
   test.ok(stmt2);
   
@@ -116,18 +116,18 @@ var testBindParamsAndExecuteSync = function (test) {
   test.same(rows, [{title: test_string, number: test_double, for_null: null}], "conn.querySync('SELECT title, number, for_null ... ').fetchAllSync()");
   
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " DROP title, DROP number, DROP for_null;");
-  test.ok(res, "conn.querySync('ALTER TABLE test_table  DROP title, DROP number, DROP for_null')");
-  
+  test.strictEqual(res, true);
+
   stmt2.closeSync();
   
   // Check inserting for VARCHAR, DOUBLE and NULL
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " ADD date DATE, ADD time TIME, ADD datetime DATETIME, ADD timestamp TIMESTAMP;");
-  test.ok(res, "conn.querySync('ALTER TABLE test_table ADD date DATE, ADD time TIME, ADD datetime DATETIME, ADD timestamp TIMESTAMP");
-  
+  test.strictEqual(res, true);
+
   stmt3 = conn.initStatementSync();
   test.ok(stmt3);
   
@@ -143,8 +143,8 @@ var testBindParamsAndExecuteSync = function (test) {
   test.same(rows, [{date: date, time: time_out, datetime: datetime, timestamp: timestamp}], "conn.querySync('SELECT date, time, datetime, timestamp ... ').fetchAllSync()");
   
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " DROP date, DROP time, DROP datetime, DROP timestamp;");
-  test.ok(res, "conn.querySync('ALTER TABLE test_table DROP date, DROP time, DROP datetime, DROP timestamp')");
-  
+  test.strictEqual(res, true);
+
   stmt3.closeSync();
   
   conn.closeSync();
@@ -163,7 +163,7 @@ exports.ParamCountGetter = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   stmt = conn.initStatementSync();
   test.ok(stmt);
@@ -189,7 +189,7 @@ exports.AffectedRowsSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM test_table')");
+  test.strictEqual(res, true);
 
   for (i = 0; i < cfg.insert_rows_count; i += 1) {
     random_number = Math.round(Math.random() * 1000000);
@@ -198,7 +198,7 @@ exports.AffectedRowsSync = function (test) {
       " (random_number, random_boolean) VALUES ('" + random_number +
       "', '" + random_boolean + "');") && res;
   }
-  test.equals(res, true, "Insert " + cfg.insert_rows_count + " rows into table " + cfg.test_table);
+  test.ok(res);
 
   setTimeout(function () {
     stmt = conn.initStatementSync();
@@ -265,7 +265,7 @@ exports.DataSeekSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM test_table')");
+  test.strictEqual(res, true);
 
   for (i = 0; i < cfg.insert_rows_count; i += 1) {
     random_number = Math.round(Math.random() * 1000000);
@@ -274,7 +274,7 @@ exports.DataSeekSync = function (test) {
       " (random_number, random_boolean) VALUES ('" + random_number +
       "', '" + random_boolean + "');") && res;
   }
-  test.equals(res, true, "Insert " + cfg.insert_rows_count + " rows into table " + cfg.test_table);
+  test.ok(res);
 
   setTimeout(function () {
     stmt = conn.initStatementSync();
@@ -337,7 +337,7 @@ exports.LastInsertIdSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("TRUNCATE " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('TRUNCATE cfg.test_table')");
+  test.strictEqual(res, true);
   
   stmt = conn.initStatementSync();
   test.ok(stmt);
@@ -418,32 +418,32 @@ exports.SendLongDataSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " ADD message TEXT;");
-  test.ok(res, "conn.querySync('ALTER TABLE test_table ADD message TEXT')");
-  
+  test.strictEqual(res, true);
+
   stmt = conn.initStatementSync();
   test.ok(stmt);
   
   res = stmt.prepareSync("INSERT INTO " + cfg.test_table + " (message) VALUES (?);");
-  test.ok(res, "stmt.prepareSync('INSERT INTO test_table (message) VALUES (?)')");
+  test.strictEqual(res, true);
   
   res = stmt.bindParamsSync([""]);
-  test.ok(res, "stmt.bindParamSync([''])");
+  test.strictEqual(res, true);
   
   test.ok(stmt.sendLongDataSync(0, test_message1), "stmt.sendLongDataSync(0, test_message1)");
   test.ok(stmt.sendLongDataSync(0, test_message2), "stmt.sendLongDataSync(0, test_message2)");
   
   res = stmt.executeSync();
-  test.ok(res, "stmt.sendLongDataSync(0, test_message).executeSync()");
+  test.strictEqual(res, true);
   
   res = conn.querySync("SELECT message from " + cfg.test_table + " WHERE message !='';");
   rows = res.fetchAllSync();
   test.same(rows, [{message: test_message1 + test_message2}], "conn.querySync('SELECT message ... ').fetchAllSync()");
   
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " DROP message;");
-  test.ok(res, "conn.querySync('ALTER TABLE test_table  DROP message')");
+  test.strictEqual(res, true);
   
   conn.closeSync();
   

@@ -31,7 +31,7 @@ exports.createTestTableForIssue106 = function (test) {
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (`id`, `value`)" +
                    " VALUES (1, 'one'), (2, 'two'), (3, 'three'), (4, 'four');");
-  test.ok(res, "conn.querySync('INSERT INTO test_table ...')");
+  test.ok(res === true, "conn.querySync('INSERT INTO test_table ...')");
 
   conn.closeSync();
   test.done();
@@ -49,22 +49,22 @@ exports.issue106 = function (test) {
   queries.push(queryTemplate.replace('%', 'three'));
 
   conn.query(queries.join(' UNION ALL '), function (err, res) {
-    test.ok(res, "Result is defined");
-    test.ok(!err, "Error object is not present");
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
+    test.ok(err === null, "Error object is not present");
 
     res.fetchAll(function (err, rows) {
-      test.ok(res, "Result is defined");
-      test.ok(!err, "Error object is not present");
+      test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
+      test.ok(err === null, "Error object is not present");
 
       test.deepEqual(rows, [ { id: 1, value: 'one' }, { id: 3, value: 'three' } ]);
 
       conn.query(queries.join(' UNION ALL '), function (err, res) {
-        test.ok(res, "Result is defined");
-        test.ok(!err, "Error object is not present");
+        test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
+        test.ok(err === null, "Error object is not present");
     
         res.fetchAll(function (err, rows) {
-          test.ok(res, "Result is defined");
-          test.ok(!err, "Error object is not present");
+          test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
+          test.ok(err === null, "Error object is not present");
     
           test.deepEqual(rows, [ { id: 1, value: 'one' }, { id: 3, value: 'three' } ]);
 

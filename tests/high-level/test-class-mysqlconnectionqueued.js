@@ -105,7 +105,7 @@ exports.QueryParallel = function (test) {
     conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync(cfg.host, cfg.user, cfg.password, cfg.database),
     i = 0;
 
-  conn.query("SELECT 1;", function (err, result) {
+  conn.query("SELECT 1;", function (err, res) {
     if (err) {
       throw err;
     }
@@ -117,7 +117,7 @@ exports.QueryParallel = function (test) {
     }
   });
 
-  conn.query("SELECT 2;", function (err, result) {
+  conn.query("SELECT 2;", function (err, res) {
     if (err) {
       throw err;
     }
@@ -137,7 +137,7 @@ exports.QuerySendParallel = function (test) {
     conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync(cfg.host, cfg.user, cfg.password, cfg.database),
     i = 0;
 
-  conn.querySend("SELECT 1;", function (err, result) {
+  conn.querySend("SELECT 1;", function (err, res) {
     if (err) {
       throw err;
     }
@@ -149,7 +149,7 @@ exports.QuerySendParallel = function (test) {
     }
   });
 
-  conn.querySend("SELECT 2;", function (err, result) {
+  conn.querySend("SELECT 2;", function (err, res) {
     if (err) {
       throw err;
     }
@@ -169,7 +169,7 @@ exports.QueryAndQuerySendParallel = function (test) {
     conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync(cfg.host, cfg.user, cfg.password, cfg.database),
     i = 0;
 
-  conn.query("SELECT 1;", function (err, result) {
+  conn.query("SELECT 1;", function (err, res) {
     if (err) {
       throw err;
     }
@@ -181,19 +181,7 @@ exports.QueryAndQuerySendParallel = function (test) {
     }
   });
 
-  conn.querySend("SELECT 2;", function (err, result) {
-    if (err) {
-      throw err;
-    }
-
-    i++;
-
-    if (i == 4) {
-      test.done();
-    }
-  });
-  
-  conn.query("SELECT 3;", function (err, result) {
+  conn.querySend("SELECT 2;", function (err, res) {
     if (err) {
       throw err;
     }
@@ -205,7 +193,19 @@ exports.QueryAndQuerySendParallel = function (test) {
     }
   });
   
-  conn.querySend("SELECT 4;", function (err, result) {
+  conn.query("SELECT 3;", function (err, res) {
+    if (err) {
+      throw err;
+    }
+
+    i++;
+
+    if (i == 4) {
+      test.done();
+    }
+  });
+  
+  conn.querySend("SELECT 4;", function (err, res) {
     if (err) {
       throw err;
     }

@@ -93,11 +93,11 @@ var realQueryAndUseAndStoreResultSync = function (test) {
   conn.realQuerySync("SHOW TABLES;");
   res = conn.storeResultSync();
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SHOW TABLES query res instanceof mysql_bindings.MysqlResult");
-  test.ok(res, "conn.realQuerySync('SHOW TABLES;') and conn.storeResultSync()");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.realQuerySync('SHOW TABLES;') and conn.storeResultSync()");
   r1 = res.fetchAllSync();
   conn.realQuerySync("SHOW TABLES;");
   res = conn.useResultSync();
-  test.ok(res, "conn.realQuerySync('SHOW TABLES;') and conn.useResultSync()");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.realQuerySync('SHOW TABLES;') and conn.useResultSync()");
   r2 = res.fetchAllSync();
   r3 = conn.querySync("SHOW TABLES;").fetchAllSync();
   test.same(r1, r3, "conn.realQuerySync('SHOW TABLES;') + conn.storeResultSync() === conn.querySync('SHOW TABLES;')");
@@ -193,7 +193,7 @@ exports.AffectedRowsSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM test_table')");
+  test.strictEqual(res, true);
   
   for (i = 0; i < cfg.insert_rows_count; i += 1) {
     random_number = Math.round(Math.random() * 1000000);
@@ -202,11 +202,11 @@ exports.AffectedRowsSync = function (test) {
       " (random_number, random_boolean) VALUES ('" + random_number +
       "', '" + random_boolean + "');") && res;
   }
-  test.equals(res, true, "Insert " + cfg.insert_rows_count + " rows into table " + cfg.test_table);
+  test.ok(res);
 
   setTimeout(function () {
     res = conn.querySync("UPDATE " + cfg.test_table + " SET random_number=1;");
-    test.equals(res, true, "Update " + cfg.insert_rows_count + " rows in table " + cfg.test_table);
+    test.ok(res);
 
     affected_rows = conn.affectedRowsSync();
     test.equals(affected_rows, cfg.insert_rows_count, "conn.affectedRowsSync()");
@@ -395,17 +395,17 @@ exports.FieldCountSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (random_number, random_boolean) VALUES ('123456', '0');") && res;
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                     " (random_number, random_boolean) VALUES ('7', '1');") && res;
-  test.ok(res, "conn.querySync('INSERT INTO cfg.test_table ...')");
+  test.ok(res);
   
   res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table +
                    " WHERE random_boolean='0';", 1);
-  test.ok(res, "conn.querySync('SELECT ... 1')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT ... 1')");
   test.equals(conn.fieldCountSync(), 2, "conn.querySync('SELECT ...') && conn.fieldCountSync()");
 
   conn.closeSync();
@@ -477,9 +477,11 @@ exports.GetInfoStringSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.equals(res, true);
+  test.strictEqual(res, true);
+
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " ADD INDEX (random_number)");
-  test.equals(res, true);
+  test.strictEqual(res, true);
+
   test.equals(conn.getInfoStringSync(), "Records: 0  Duplicates: 0  Warnings: 0",
                                     "conn.getInfoStringSync() after ALTER TABLE");
   conn.closeSync();
@@ -510,7 +512,7 @@ exports.LastInsertIdSync = function (test) {
   test.expect(5);
   
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res = true,
+    res,
     random_number,
     random_boolean,
     last_insert_id,
@@ -518,10 +520,10 @@ exports.LastInsertIdSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " AUTO_INCREMENT = 1;");
-  test.ok(res, "conn.querySync('ALTER TABLE test_table AUTO_INCREMENT = 1;')");
+  test.strictEqual(res, true);
   
   for (i = 0; i < cfg.insert_rows_count; i += 1) {
     random_number = Math.round(Math.random() * 1000000);
@@ -530,8 +532,7 @@ exports.LastInsertIdSync = function (test) {
       " (random_number, random_boolean) VALUES ('" + random_number +
       "', '" + random_boolean + "');") && res;
   }
-  
-  test.equals(res, true, "Insert " + cfg.insert_rows_count + " rows into table " + cfg.test_table);
+  test.ok(res);
   
   // Ensure all rows are inserted
   setTimeout(function () {
@@ -561,9 +562,9 @@ exports.QueryWithQuerySync = function (test) {
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  conn.query("SELECT SLEEP(2)", function (err, result) {
-    test.ok(result, "Result is defined");
-    test.ok(!err, "Error object is not present");
+  conn.query("SELECT SLEEP(2)", function (err, res) {
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
+    test.ok(err === null, "Error object is not present");
     test.done();
   });
   
@@ -585,10 +586,10 @@ exports.QuerySync = function (test) {
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SHOW TABLES query res instanceof mysql_bindings.MysqlResult");
   
   res = conn.querySync("SHOW TABLESaagh");
-  test.equals(res, false, "SHOW TABLESaagh wrong query res === false");
+  test.equals(res instanceof cfg.mysql_bindings.MysqlResult, false, "SHOW TABLESaagh wrong query res === false");
   
   res = conn.querySync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES (0, 1);");
-  test.equals(res, true, "INSERT query res === true");
+  test.strictEqual(res, true);
   
   conn.closeSync();
   
@@ -638,7 +639,7 @@ exports.SetOptionSync = function (test) {
     other_cs;
   
   conn.connectSync(cfg.host, cfg.user, cfg.password);
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync().connect(host, user, password)");
+  test.ok(conn.connectedSync(), "mysql_libmysqlclient.createConnectionSync().connectSync(host, user, password).connectedSync()");
   
   default_cs = conn.querySync("SHOW VARIABLES LIKE 'character_set_connection';").fetchAllSync()[0].Value;
   other_cs = charset_map[default_cs] ? charset_map[default_cs] : charset_map.other;

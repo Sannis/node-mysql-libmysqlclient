@@ -38,7 +38,7 @@ exports.createTestTableForIssue102 = function (test) {
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (`user_`, `karma`, `energy`, `zachet`, `hvost`, `digits`, `level`)" +
                    " VALUES (1057691, 0, 400, 5, 5, 0, 1);");
-  test.ok(res, "conn.querySync('INSERT INTO test_table ...')");
+  test.ok(res === true, "conn.querySync('INSERT INTO test_table ...')");
 
   conn.closeSync();
   test.done();
@@ -54,7 +54,7 @@ exports.issue102 = function (test) {
 
   res = conn.querySync("SELECT * FROM " + cfg.test_table + ";");
 
-  test.ok(res, "conn.querySync('SELECT * FROM test_table;')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT * FROM test_table;')");
 
   rows = res.fetchAllSync();
 

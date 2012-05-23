@@ -32,7 +32,7 @@ exports.mysql_libmysqlclient_createConnection_1_Function = function (test) {
   test.expect(2);
 
   cfg.mysql_libmysqlclient.createConnection(function (err, conn) {
-    test.ok(!err, "Error object is not present");
+    test.ok(err === null, "Error object is not present");
     test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
 
     if (conn.connectedSync()) {
@@ -47,7 +47,7 @@ exports.mysql_libmysqlclient_createConnection_2 = function (test) {
   test.expect(2);
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, function (err, conn) {
-    test.ok(!err, "Error object is not present");
+    test.ok(err === null, "Error object is not present");
     test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
 
     if (conn.connectedSync()) {
@@ -62,7 +62,7 @@ exports.mysql_libmysqlclient_createConnection_3_Function = function (test) {
   test.expect(2);
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, function (err, conn) {
-    test.ok(!err, "Error object is not present");
+    test.ok(err === null, "Error object is not present");
     test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
 
     if (conn.connectedSync()) {
@@ -92,7 +92,7 @@ exports.mysql_libmysqlclient_createConnection_4 = function (test) {
   test.expect(2);
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, function (err, conn) {
-    test.ok(!err, "Error object is not present");
+    test.ok(err === null, "Error object is not present");
     test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
 
     if (conn.connectedSync()) {
@@ -107,7 +107,7 @@ exports.mysql_libmysqlclient_createConnection_5_AccessAllowed = function (test) 
   test.expect(3);
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database, function (err, conn) {
-    test.ok(!err, "Error object is not present");
+    test.ok(err === null, "Error object is not present");
     test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
 
     isConnected = conn.connectedSync();

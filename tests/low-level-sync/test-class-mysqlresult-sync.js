@@ -28,7 +28,7 @@ var testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFieldsSync = function (tes
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (random_number, random_boolean) VALUES ('123456', '0');") && res;
@@ -38,7 +38,7 @@ var testFieldSeekAndTellAndFetchAndFetchDirectAndFetchFieldsSync = function (tes
   
   res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table +
                    " WHERE random_boolean='0';", 1);
-  test.ok(res, "conn.querySync('SELECT ... 1')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT ... 1')");
 
   res.fieldSeekSync(1);
   field_tell = res.fieldTellSync();
@@ -78,7 +78,7 @@ exports.DataSeekSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (random_number, random_boolean) VALUES ('1', '1');") && res;
@@ -90,7 +90,7 @@ exports.DataSeekSync = function (test) {
   
   res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table +
                    " WHERE random_boolean='1' ORDER BY random_number ASC;");
-  test.ok(res, "conn.querySync('SELECT ...')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT ...')");
   res.dataSeekSync(1);
   row = res.fetchArraySync();
   test.same(row, [2, 1], "conn.querySync('SELECT ...').dataSeekSync().fetchArraySync()");
@@ -113,7 +113,7 @@ exports.FetchAllSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("SHOW TABLES;");
-  test.ok(res, "conn.querySync('SHOW TABLES;')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SHOW TABLES;')");
   tables = res.fetchAllSync();
   test.ok(tables, "res.fetchAllSync()");
   res = false;
@@ -122,7 +122,7 @@ exports.FetchAllSync = function (test) {
       res = true;
     }
   });
-  test.ok(res, "res.fetchAllSync() show test table");
+  test.ok(res);
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   res = conn.querySync("INSERT INTO " + cfg.test_table +
@@ -131,11 +131,11 @@ exports.FetchAllSync = function (test) {
                     " (random_number, random_boolean) VALUES ('2', '1');") && res;
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (random_number, random_boolean) VALUES ('3', '0');") && res;
-  test.ok(res, "INSERT");
+  test.ok(res);
   
   res = conn.querySync("SELECT random_number from " + cfg.test_table +
-                   " WHERE random_boolean='0';");
-  test.ok(res, "SELECT");
+                       " WHERE random_boolean='0';");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
   rows = res.fetchAllSync();
   test.same(rows, [{random_number: 3}], "conn.querySync('SELECT ...').fetchAllSync()");
   
@@ -153,7 +153,7 @@ exports.FetchArraySync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (random_number, random_boolean) VALUES ('1', '1');") && res;
@@ -165,7 +165,7 @@ exports.FetchArraySync = function (test) {
   
   res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table +
                    " WHERE random_boolean='0';", 1);
-  test.ok(res, "conn.querySync('SELECT ...')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT ...')");
   row = res.fetchArraySync();
   test.same(row, [3, 0], "conn.querySync('SELECT ...').fetchArraySync()");
   
@@ -196,7 +196,7 @@ exports.FetchLengthsSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (random_number, random_boolean) VALUES ('123456', '0');") && res;
@@ -206,14 +206,14 @@ exports.FetchLengthsSync = function (test) {
   
   res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table +
                    " WHERE random_boolean='0';");
-  test.ok(res, "conn.querySync('SELECT ... 1')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT ... 1')");
   row = res.fetchArraySync();
   lengths = res.fetchLengthsSync();
   test.same(lengths, [6, 1], "conn.querySync('SELECT ... 1').fetchArraySync()");
 
   res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table +
                    " WHERE random_boolean='1';");
-  test.ok(res, "conn.querySync('SELECT ... 2')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT ... 2')");
   row = res.fetchArraySync();
   lengths = res.fetchLengthsSync();
   test.same(lengths, [1, 1], "conn.querySync('SELECT ... 2').fetchArraySync()");
@@ -232,7 +232,7 @@ exports.FetchObjectSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (random_number, random_boolean) VALUES ('1', '1');") && res;
@@ -244,7 +244,7 @@ exports.FetchObjectSync = function (test) {
   
   res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table +
                    " WHERE random_boolean='0';", 1);
-  test.ok(res, "conn.querySync('SELECT ...')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT ...')");
   row = res.fetchObjectSync();
   test.same(row, {random_number: 3, random_boolean: 0}, "conn.querySync('SELECT ... 1').fetchObjectSync()");
   
@@ -256,24 +256,21 @@ exports.FetchObjectSync = function (test) {
 exports.FieldCountGetter = function (test) {
   test.expect(5);
   
-  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res,
-    row,
-    field_count;
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), res;
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (random_number, random_boolean) VALUES ('123456', '0');") && res;
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                     " (random_number, random_boolean) VALUES ('7', '1');") && res;
-  test.ok(res, "conn.querySync('INSERT INTO cfg.test_table ...')");
+  test.ok(res);
   
   res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table +
                    " WHERE random_boolean='0';", 1);
-  test.ok(res, "conn.querySync('SELECT ... 1')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT ... 1')");
   test.equals(res.fieldCount, 2, "conn.querySync('SELECT ...') && res.fieldCount");
 
   conn.closeSync();
@@ -299,7 +296,7 @@ exports.FreeSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (random_number, random_boolean) VALUES ('1', '1');") && res;
@@ -310,7 +307,7 @@ exports.FreeSync = function (test) {
   test.ok(res, "conn.querySync('INSERT INTO cfg.test_table ...')");
   
   res = conn.querySync("SELECT random_number from " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('SELECT ... 1')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT ... 1')");
   rows = res.numRowsSync();
   test.equals(rows, 3, "conn.querySync('SELECT * ...').numRowsSync()");
   
@@ -334,7 +331,7 @@ exports.NumRowsSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (random_number, random_boolean) VALUES ('1', '1');") && res;
@@ -342,23 +339,23 @@ exports.NumRowsSync = function (test) {
                     " (random_number, random_boolean) VALUES ('2', '1');") && res;
   res = conn.querySync("INSERT INTO " + cfg.test_table +
                    " (random_number, random_boolean) VALUES ('3', '0');") && res;
-  test.ok(res, "conn.querySync('INSERT INTO cfg.test_table ...')");
+  test.ok(res);
   
   res = conn.querySync("SELECT random_number from " + cfg.test_table +
                    " WHERE random_boolean='0';");
-  test.ok(res, "conn.querySync('SELECT ... 1')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT ... 1')");
   rows = res.numRowsSync();
   test.equals(rows, 1, "conn.querySync('SELECT ... 1').numRowsSync()");
   
   res = conn.querySync("SELECT random_number from " + cfg.test_table +
                    " WHERE random_boolean='1';");
-  test.ok(res, "conn.querySync('SELECT ... 2')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT ... 2')");
   rows = res.numRowsSync();
   test.equals(rows, 2, "conn.querySync('SELECT ... 2').numRowsSync()");
   
   res = conn.querySync("SELECT random_number from " + cfg.test_table +
                    " WHERE random_number>'0';");
-  test.ok(res, "conn.querySync('SELECT ... 3')");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SELECT ... 3')");
   rows = res.numRowsSync();
   test.equals(rows, 3, "conn.querySync('SELECT ... 3').numRowsSync()");
   

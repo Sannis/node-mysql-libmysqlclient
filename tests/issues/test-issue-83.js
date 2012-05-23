@@ -22,8 +22,8 @@ exports.Issue83Query = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.query("SELECT '1\u00002345\0' AS a;", function (err, res) {
-    test.ok(res, "Result is defined");
-    test.ok(!err, "Error object is not present");
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
+    test.ok(err === null, "Error object is not present");
     
     rows = res.fetchAllSync();
     test.same(rows, [{a: "1\u00002345\0"}], "conn.querySync('SELECT ...').fetchAllSync()");
@@ -43,7 +43,7 @@ exports.Issue83QuerySync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("SELECT '1\u00002345\0' AS a;");
-  test.ok(res, "SELECT '1\u00002345\0' AS a;");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT '1\u00002345\0' AS a;");
   
   rows = res.fetchAllSync();
   test.same(rows, [{a: "1\u00002345\0"}], "conn.querySync('SELECT ...').fetchAllSync()");
@@ -64,7 +64,7 @@ exports.Issue83RealQuerySync = function (test) {
   conn.realQuerySync("SELECT '1\u00002345\0' AS a;");
   res = conn.storeResultSync();
   
-  test.ok(res, "SELECT '1\u00002345\0' AS a;");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT '1\u00002345\0' AS a;");
   
   rows = res.fetchAllSync();
   test.same(rows, [{a: "1\u00002345\0"}], "conn.querySync('SELECT ...').fetchAllSync()");
@@ -84,7 +84,7 @@ exports.Issue83MultyQuerySync = function (test) {
   
   conn.multiRealQuerySync("SELECT '1\u00002345\0' AS a; SELECT 'q\u0000werty\0' AS b;");
   res = conn.storeResultSync();
-  test.ok(res, "SELECT '1\u00002345\0' AS a;");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT '1\u00002345\0' AS a;");
   
   rows = res.fetchAllSync();
   test.same(rows, [{a: "1\u00002345\0"}], "conn.querySync('SELECT ...').fetchAllSync()");
@@ -93,7 +93,7 @@ exports.Issue83MultyQuerySync = function (test) {
   
   conn.multiNextResultSync();
   res = conn.storeResultSync();
-  test.ok(res, "SELECT 'q\u0000werty\0' AS b;");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT 'q\u0000werty\0' AS b;");
   
   rows = res.fetchAllSync();
   test.same(rows, [{b: "q\u0000werty\0"}], "conn.querySync('SELECT ...').fetchAllSync()");

@@ -12,7 +12,7 @@ exports.ConnectSync_WithoutDb = function (test) {
   test.expect(1);
   
   var conn = cfg.mysql_libmysqlclient.createConnectionSync();
-  test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password), "conn.connect() without database selection");
+  test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password), "conn.connectSync() without database selection");
   conn.closeSync();
   
   test.done();

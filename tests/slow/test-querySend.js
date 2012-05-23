@@ -32,21 +32,21 @@ exports.QuerySendNested = function (test) {
   
   test_order += "s";
   
-  conn.querySend("INSERT INTO " + cfg.test_table + " (number) VALUES ('1');", function (err, result) {
+  conn.querySend("INSERT INTO " + cfg.test_table + " (number) VALUES ('1');", function (err, res) {
     if (err) {
       throw err;
     }
     
     test_order += "1";
     
-    conn.querySend("INSERT INTO " + cfg.test_table + " (number) VALUES ('2');", function (err, result) {
+    conn.querySend("INSERT INTO " + cfg.test_table + " (number) VALUES ('2');", function (err, res) {
       if (err) {
         throw err;
       }
       
       test_order += "2";
       
-      conn.querySend("INSERT INTO " + cfg.test_table + " (number) VALUES ('3');", function (err, result) {
+      conn.querySend("INSERT INTO " + cfg.test_table + " (number) VALUES ('3');", function (err, res) {
         if (err) {
           throw err;
         }
@@ -81,7 +81,7 @@ exports.QuerySendNestedDeeper = function (test) {
   helper = function () {
     i += 1;
     if (i <= cfg.slow_inserts_count) {
-      conn.querySend("INSERT INTO " + cfg.test_table + " (number) VALUES ('" + i + "');", function (err, result) {
+      conn.querySend("INSERT INTO " + cfg.test_table + " (number) VALUES ('" + i + "');", function (err, res) {
         if (err) {
           throw err;
         }
@@ -106,13 +106,13 @@ exports.QuerySendParallelShouldFail = function (test) {
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
 
-  conn.querySend("SELECT SLEEP(2);", function (err, result) {
+  conn.querySend("SELECT SLEEP(2);", function (err, res) {
     if (err) {
       throw err;
     }
   });
 
-  conn.querySend("SELECT SLEEP(1);", function (err, result) {
+  conn.querySend("SELECT SLEEP(1);", function (err, res) {
     if (err) {
       test.done();
     }

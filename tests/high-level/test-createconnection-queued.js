@@ -54,7 +54,7 @@ exports.mysql_libmysqlclient_createConnectionQueued_1 = function (test) {
   test.expect(3);
 
   cfg.mysql_libmysqlclient.createConnectionQueued(function (err, conn) {
-    test.ok(!err, "Error object is not present");
+    test.ok(err == null, "Error object is not present");
     test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
 
@@ -70,7 +70,7 @@ exports.mysql_libmysqlclient_createConnectionQueued_5 = function (test) {
   test.expect(4);
 
   cfg.mysql_libmysqlclient.createConnectionQueued(cfg.host, cfg.user, cfg.password, cfg.database, function (err, conn) {
-    test.ok(!err, "Error object is not present");
+    test.ok(err === null, "Error object is not present");
     test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
 

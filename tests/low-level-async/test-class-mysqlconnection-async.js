@@ -118,10 +118,10 @@ exports.QueryWithLastInsertIdAndAffectedRows = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " AUTO_INCREMENT = 1;");
-  test.ok(res, "conn.querySync('ALTER TABLE test_table AUTO_INCREMENT = 1;')");
+  test.strictEqual(res, true);
   
   conn.query("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('1', '0');", function (err, info) {
     test.equals(info.insertId, 1, "Last insert id");
@@ -156,8 +156,7 @@ exports.QueryWithError = function (test) {
   test.expect(6);
   
   var
-    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res;
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
   
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
@@ -189,18 +188,18 @@ exports.QueryWithoutCallback = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM cfg.test_table')");
+  test.strictEqual(res, true);
   
   test.doesNotThrow(function () {
     conn.query("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('1', '0');");
   });
   
-  conn.query("SELECT random_number, random_boolean FROM " + cfg.test_table + ";", function (err, result) {
-    test.ok(result, "Result is defined");
-    test.ok(!err, "Error object is not present");
+  conn.query("SELECT random_number, random_boolean FROM " + cfg.test_table + ";", function (err, res) {
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
+    test.ok(err === null, "Error object is not present");
     
-    var res = result.fetchAllSync();
-    test.same(res, [{random_number: 1, random_boolean: 0}],
+    var rows = res.fetchAllSync();
+    test.same(rows, [{random_number: 1, random_boolean: 0}],
               "Right result, one row, [{random_number: 1, random_boolean: 0}]]");
     conn.closeSync();
     test.done();
@@ -237,10 +236,10 @@ exports.QuerySendWithLastInsertIdAndAffectedRows = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
-  test.ok(res, "conn.querySync('DELETE FROM test_table')");
+  test.strictEqual(res, true);
   
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " AUTO_INCREMENT = 1;");
-  test.ok(res, "conn.querySync('ALTER TABLE test_table AUTO_INCREMENT = 1;')");
+  test.strictEqual(res, true);
   
   conn.querySend("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES ('1', '0');", function (err, info) {
     test.equals(info.insertId, 1, "Last insert id");

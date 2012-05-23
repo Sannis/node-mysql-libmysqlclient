@@ -27,13 +27,13 @@ exports.CallStoredProcedureSelectSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
-  test.ok(res, "DROP PROCEDURE IF EXISTS test_procedure;");
+  test.strictEqual(res, true);
   
   res = conn.querySync("CREATE PROCEDURE test_procedure() SELECT " + num + " AS num;");
-  test.ok(res, "CREATE PROCEDURE test_procedure");
+  test.strictEqual(res, true);
   
   res = conn.querySync("CALL test_procedure();");
-  test.ok(res, "CALL test_procedure();");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "CALL test_procedure();");
   
   numFromProcedure = res.fetchAllSync()[0].num;
   res.freeSync();
@@ -57,13 +57,13 @@ exports.CallStoredProcedureSelectTwiceSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
-  test.ok(res, "DROP PROCEDURE IF EXISTS test_procedure;");
+  test.strictEqual(res, true);
   
   res = conn.querySync("CREATE PROCEDURE test_procedure() SELECT " + num + " AS num;");
-  test.ok(res, "CREATE PROCEDURE test_procedure");
+  test.strictEqual(res, true);
   
   res = conn.querySync("CALL test_procedure();");
-  test.ok(res, "CALL test_procedure();");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "CALL test_procedure();");
   
   numFromProcedure = res.fetchAllSync()[0].num;
   res.freeSync();
@@ -84,7 +84,7 @@ exports.CallStoredProcedureSelectTwiceSync = function (test) {
   
   res = conn.querySync("CALL test_procedure();");
   
-  test.ok(res, "CALL test_procedure();");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "CALL test_procedure();");
 
   numFromProcedure = res.fetchAllSync()[0].num;
   res.freeSync();
@@ -120,16 +120,16 @@ exports.CallStoredProcedureSelectIntoSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
-  test.ok(res, "DROP PROCEDURE IF EXISTS test_procedure;");
+  test.strictEqual(res, true);
   
   res = conn.querySync("CREATE PROCEDURE test_procedure(OUT num INT) SELECT " + num + " INTO num;");
-  test.ok(res, "CREATE PROCEDURE test_procedure");
+  test.strictEqual(res, true);
   
   res = conn.querySync("CALL test_procedure(@num);");
-  test.ok(res, "CALL test_procedure(@num);");
+  test.strictEqual(res, true);
   
   res = conn.querySync("SELECT @num AS num;");
-  test.ok(res, "SELECT @num AS num;");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT @num AS num;");
   
   numFromProcedure = res.fetchAllSync()[0].num;
   res.freeSync();
@@ -153,16 +153,16 @@ exports.CallStoredProcedureSelectIntoTwiceSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
-  test.ok(res, "DROP PROCEDURE IF EXISTS test_procedure;");
+  test.strictEqual(res, true);
   
   res = conn.querySync("CREATE PROCEDURE test_procedure(OUT num INT) SELECT " + num + " INTO num;");
-  test.ok(res, "CREATE PROCEDURE test_procedure");
+  test.strictEqual(res, true);
   
   res = conn.querySync("CALL test_procedure(@num);");
-  test.ok(res, "CALL test_procedure(@num);");
+  test.strictEqual(res, true);
   
   res = conn.querySync("SELECT @num AS num;");
-  test.ok(res, "SELECT @num AS num;");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT @num AS num;");
   
   numFromProcedure = res.fetchAllSync()[0].num;
   res.freeSync();
@@ -182,10 +182,10 @@ exports.CallStoredProcedureSelectIntoTwiceSync = function (test) {
   }
   
   res = conn.querySync("CALL test_procedure(@num);");
-  test.ok(res, "CALL test_procedure(@num);");
+  test.strictEqual(res, true);
   
   res = conn.querySync("SELECT @num AS num;");
-  test.ok(res, "SELECT @num AS num;");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT @num AS num;");
   
   numFromProcedure = res.fetchAllSync()[0].num;
   res.freeSync();
@@ -222,10 +222,11 @@ exports.CallStoredFunctionSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DROP FUNCTION IF EXISTS test_function;");
-  test.ok(res, "DROP FUNCTION IF EXISTS test_function;");
+  test.strictEqual(res, true);
   
   res = conn.querySync("CREATE FUNCTION test_function() RETURNS INT DETERMINISTIC RETURN " + num + ";");
-  test.ok(res, "CREATE FUNCTION test_function");
+  test.strictEqual(res, true);
+
   if (!res) {
     error = conn.errorSync();
     if (error.match(new RegExp("You do not have the SUPER privilege and binary logging is enabled"))) {
@@ -235,7 +236,7 @@ exports.CallStoredFunctionSync = function (test) {
   }
   
   res = conn.querySync("SELECT test_function() AS num;");
-  test.ok(res, "SELECT test_function() AS num;");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT test_function() AS num;");
 
   numFromFunction = res.fetchAllSync()[0].num;
   res.freeSync();
@@ -260,10 +261,11 @@ exports.CallStoredFunctionTwiceSync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("DROP FUNCTION IF EXISTS test_function;");
-  test.ok(res, "DROP FUNCTION IF EXISTS test_function;");
+  test.strictEqual(res, true);
   
   res = conn.querySync("CREATE FUNCTION test_function() RETURNS INT DETERMINISTIC RETURN " + num + ";");
-  test.ok(res, "CREATE FUNCTION test_function");
+  test.strictEqual(res, true);
+
   if (!res) {
     error = conn.errorSync();
     if (error.match(new RegExp("You do not have the SUPER privilege and binary logging is enabled"))) {
@@ -273,7 +275,7 @@ exports.CallStoredFunctionTwiceSync = function (test) {
   }
   
   res = conn.querySync("SELECT test_function() AS num;");
-  test.ok(res, "SELECT test_function() AS num;");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT test_function() AS num;");
 
   numFromFunction = res.fetchAllSync()[0].num;
   res.freeSync();
@@ -281,7 +283,7 @@ exports.CallStoredFunctionTwiceSync = function (test) {
   test.equals(numFromFunction, num, "numFromFunction == num");
   
   res = conn.querySync("SELECT test_function() AS num;");
-  test.ok(res, "SELECT test_function() AS num;");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT test_function() AS num;");
 
   numFromFunction = res.fetchAllSync()[0].num;
   res.freeSync();
@@ -305,10 +307,10 @@ exports.CallStoredProcedureSelectNested = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
-  test.ok(res, "DROP PROCEDURE IF EXISTS test_procedure;");
+  test.strictEqual(res, true);
   
   res = conn.querySync("CREATE PROCEDURE test_procedure() SELECT " + num + " AS num;");
-  test.ok(res, "CREATE PROCEDURE test_procedure");
+  test.strictEqual(res, true);
   
   conn.query("CALL test_procedure();", function (err, res) {
     test.ok(err === null, "conn.query() err===null");
@@ -333,7 +335,7 @@ exports.CallStoredProcedureSelectNested = function (test) {
     conn.query("CALL test_procedure();", function (err, res) {
       test.ok(err === null, "conn.query() err===null");
       
-      test.ok(res, "CALL test_procedure();");
+      test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "CALL test_procedure();");
     
       numFromProcedure = res.fetchAllSync()[0].num;
       res.freeSync();

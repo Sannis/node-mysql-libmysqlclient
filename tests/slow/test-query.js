@@ -32,21 +32,21 @@ exports.QueryNested = function (test) {
   
   test_order += "s";
   
-  conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('1');", function (err, result) {
+  conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('1');", function (err, res) {
     if (err) {
       throw err;
     }
     
     test_order += "1";
     
-    conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('2');", function (err, result) {
+    conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('2');", function (err, res) {
       if (err) {
         throw err;
       }
       
       test_order += "2";
       
-      conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('3');", function (err, result) {
+      conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('3');", function (err, res) {
         if (err) {
           throw err;
         }
@@ -81,7 +81,7 @@ exports.QueryNestedDeeper = function (test) {
   helper = function () {
     i += 1;
     if (i <= cfg.slow_inserts_count) {
-      conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('" + i + "');", function (err, result) {
+      conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('" + i + "');", function (err, res) {
         if (err) {
           throw err;
         }
@@ -106,10 +106,10 @@ exports.QueryInLoop = function (test) {
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     test_result,
-    i = 0, ci = 0;
+    i, ci = 0;
   
   for (i = 0; i < cfg.slow_inserts_count; i += 1) {
-    conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('" + i + "');", function (err, result) {
+    conn.query("INSERT INTO " + cfg.test_table + " (number) VALUES ('" + i + "');", function (err, res) {
       if (err) {
         throw err;
       }
