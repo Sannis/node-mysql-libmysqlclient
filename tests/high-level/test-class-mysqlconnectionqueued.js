@@ -21,12 +21,26 @@ exports.Setup = function (test) {
   test.done();
 };
 
+exports.New = function (test) {
+  test.expect(1);
+
+  test.doesNotThrow(function () {
+    var conn = new cfg.mysql_libmysqlclient.MysqlConnectionQueued();
+  });
+
+  test.done();
+};
+
 exports.ConnectWithCallback = function (test) {
-  test.expect(0);
+  test.expect(3);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync();
 
-  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function () {
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (err, conn) {
+    test.ok(!err, "Error object is not present");
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
+
     test.done();
   });
 };

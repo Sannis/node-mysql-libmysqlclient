@@ -29,9 +29,10 @@ exports.mysql_libmysqlclient_createConnection_1_NoFunction = function (test) {
 };
 
 exports.mysql_libmysqlclient_createConnection_1_Function = function (test) {
-  test.expect(1);
+  test.expect(2);
 
-  cfg.mysql_libmysqlclient.createConnection(function (conn) {
+  cfg.mysql_libmysqlclient.createConnection(function (err, conn) {
+    test.ok(!err, "Error object is not present");
     test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
 
     if (conn.connectedSync()) {
