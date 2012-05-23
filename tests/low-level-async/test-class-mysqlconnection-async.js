@@ -9,12 +9,13 @@ See license text in LICENSE file
 var cfg = require('../config.js');
 
 exports.Connect = function (test) {
-  test.expect(1);
+  test.expect(2);
   
   var conn = new cfg.mysql_bindings.MysqlConnection();
   
-  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
-    test.ok(error === null, "conn.connect() for allowed database");
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (err) {
+    test.ok(err === null, "conn.connect() for allowed database");
+    test.ok(arguments.length <= 1, "Only error arguments is possible.");
 
     conn.closeSync();
     
@@ -23,11 +24,13 @@ exports.Connect = function (test) {
 };
 
 exports.ConnectWithError = function (test) {
-  test.expect(3);
+  test.expect(4);
   
   var conn = new cfg.mysql_bindings.MysqlConnection();
   
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (err) {
+    test.ok(err instanceof Error, "Error object is present");
+
     var
       connectErrno = conn.connectErrno,
       connectError = conn.connectError,
@@ -47,16 +50,18 @@ exports.ConnectWithError = function (test) {
 };
 
 exports.Connect2Times = function (test) {
-  test.expect(3);
+  test.expect(5);
 
   var conn = new cfg.mysql_bindings.MysqlConnection();
 
-  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
-    test.ok(error === null, "conn.connect() for allowed database");
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (err) {
+    test.ok(err === null, "conn.connect() for allowed database");
+    test.ok(arguments.length <= 1, "Only error arguments is possible.");
 
-    conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
-      test.ok(error instanceof Error, "conn.connect() fails if already");
-      test.equal(error.message, "Already initialized. Use conn.realConnectSync() after conn.initSync()");
+    conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (err) {
+      test.ok(err instanceof Error, "conn.connect() fails if already");
+      test.equal(err.message, "Already initialized. Use conn.realConnectSync() after conn.initSync()");
+      test.ok(arguments.length <= 1, "Only error arguments is possible.");
 
       conn.closeSync();
 
@@ -66,15 +71,16 @@ exports.Connect2Times = function (test) {
 };
 
 exports.ConnectAfterConnectSync2 = function (test) {
-  test.expect(3);
+  test.expect(4);
 
   var conn = new cfg.mysql_bindings.MysqlConnection();
 
   test.ok(conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database));
 
-  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (error) {
-    test.ok(error instanceof Error, "conn.connect() fails if already");
-    test.equal(error.message, "Already initialized. Use conn.realConnectSync() after conn.initSync()");
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (err) {
+    test.ok(err instanceof Error, "conn.connect() fails if already");
+    test.equal(err.message, "Already initialized. Use conn.realConnectSync() after conn.initSync()");
+    test.ok(arguments.length <= 1, "Only error arguments is possible.");
 
     conn.closeSync();
 

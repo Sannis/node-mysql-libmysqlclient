@@ -32,14 +32,13 @@ exports.New = function (test) {
 };
 
 exports.ConnectWithCallback = function (test) {
-  test.expect(3);
+  test.expect(2);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync();
 
-  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (err, conn) {
-    test.ok(!err, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
-    test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (err) {
+    test.ok(err === null, "Error object is not present");
+    test.ok(arguments.length <= 1, "Only error arguments is possible.");
 
     test.done();
   });
