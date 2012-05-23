@@ -25,7 +25,7 @@ exports.New = function (test) {
   test.expect(1);
 
   test.doesNotThrow(function () {
-    var conn = new cfg.mysql_libmysqlclient.MysqlConnectionQueued();
+    (new cfg.mysql_libmysqlclient.MysqlConnectionQueued());
   });
 
   test.done();
@@ -45,15 +45,17 @@ exports.ConnectWithCallback = function (test) {
 };
 
 exports.ConnectWithQueryInCallback = function (test) {
-  test.expect(0);
+  test.expect(1);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync();
 
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function () {
-    conn.query("SELECT 1;", function (err) {
+    conn.query("SELECT 1;", function (err, res) {
       if (err) {
         throw err;
       }
+
+      test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
 
       test.done();
     });
@@ -61,45 +63,51 @@ exports.ConnectWithQueryInCallback = function (test) {
 };
 
 exports.ConnectWithoutCallbackAndThenQueryWithCallback = function (test) {
-  test.expect(0);
+  test.expect(1);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync();
 
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database);
 
-  conn.query("SELECT 1;", function (err) {
+  conn.query("SELECT 1;", function (err, res) {
     if (err) {
       throw err;
     }
+
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
 
     test.done();
   });
 };
 
 exports.ConnectWithoutCallbackAndThenTwoQueriesWithCallbacks = function (test) {
-  test.expect(0);
+  test.expect(2);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync();
 
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database);
 
-  conn.query("SELECT 1;", function (err) {
+  conn.query("SELECT 1;", function (err, res) {
     if (err) {
       throw err;
     }
+
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   });
 
-  conn.query("SELECT 2;", function (err) {
+  conn.query("SELECT 2;", function (err, res) {
     if (err) {
       throw err;
     }
+
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
 
     test.done();
   });
 };
 
 exports.QueryParallel = function (test) {
-  test.expect(0);
+  test.expect(2);
 
   var
     conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync(cfg.host, cfg.user, cfg.password, cfg.database),
@@ -109,6 +117,8 @@ exports.QueryParallel = function (test) {
     if (err) {
       throw err;
     }
+
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
 
     i++;
 
@@ -122,6 +132,8 @@ exports.QueryParallel = function (test) {
       throw err;
     }
 
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
+
     i++;
 
     if (i == 2) {
@@ -131,7 +143,7 @@ exports.QueryParallel = function (test) {
 };
 
 exports.QuerySendParallel = function (test) {
-  test.expect(0);
+  test.expect(2);
 
   var
     conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync(cfg.host, cfg.user, cfg.password, cfg.database),
@@ -141,6 +153,8 @@ exports.QuerySendParallel = function (test) {
     if (err) {
       throw err;
     }
+
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
 
     i++;
 
@@ -154,6 +168,8 @@ exports.QuerySendParallel = function (test) {
       throw err;
     }
 
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
+
     i++;
 
     if (i == 2) {
@@ -163,7 +179,7 @@ exports.QuerySendParallel = function (test) {
 };
 
 exports.QueryAndQuerySendParallel = function (test) {
-  test.expect(0);
+  test.expect(4);
 
   var
     conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync(cfg.host, cfg.user, cfg.password, cfg.database),
@@ -173,6 +189,8 @@ exports.QueryAndQuerySendParallel = function (test) {
     if (err) {
       throw err;
     }
+
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
 
     i++;
 
@@ -185,6 +203,8 @@ exports.QueryAndQuerySendParallel = function (test) {
     if (err) {
       throw err;
     }
+
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
 
     i++;
 
@@ -198,6 +218,8 @@ exports.QueryAndQuerySendParallel = function (test) {
       throw err;
     }
 
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
+
     i++;
 
     if (i == 4) {
@@ -209,6 +231,8 @@ exports.QueryAndQuerySendParallel = function (test) {
     if (err) {
       throw err;
     }
+
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
 
     i++;
 

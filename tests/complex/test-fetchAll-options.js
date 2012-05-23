@@ -51,7 +51,7 @@ exports.FetchAllWithBooleanOption = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   res.fetchAll(false, function (err, rows) {
     test.ok(err === null, "res.fetchAll() err===null");
@@ -59,7 +59,7 @@ exports.FetchAllWithBooleanOption = function (test) {
     res.freeSync();
     
     res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
     
     res.fetchAll(true, function (err, rows) {
       test.ok(err === null, "res.fetchAll() err===null");
@@ -84,14 +84,14 @@ exports.FetchAllSyncWithBooleanOption = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   rows = res.fetchAllSync(false);
   test.same(rows, [{size: 'small', colors: ['red']}], "conn.querySync('SELECT ...').fetchAllSync(false)");
   res.freeSync();
   
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   rows = res.fetchAllSync(true);
   test.ok(Array.isArray(rows), "Result returns an array");
@@ -112,7 +112,7 @@ exports.FetchAllWithObjectArrayOption = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   res.fetchAll({'array': false}, function (err, rows) {
     test.ok(err === null, "res.fetchAll() err===null");
@@ -120,7 +120,7 @@ exports.FetchAllWithObjectArrayOption = function (test) {
     res.freeSync();
     
     res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
     
     res.fetchAll({'array': true}, function (err, rows) {
       test.ok(err === null, "res.fetchAll() err===null");
@@ -145,14 +145,14 @@ exports.FetchAllSyncWithObjectArrayOption = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   rows = res.fetchAllSync({'array': false});
   test.same(rows, [{size: 'small', colors: ['red']}], "conn.querySync('SELECT ...').fetchAllSync({'array': false})");
   res.freeSync();
   
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   rows = res.fetchAllSync({'array': true});
   test.ok(Array.isArray(rows), "Result returns an array");
@@ -175,7 +175,7 @@ exports.FetchAllWithObjectStructuredOption = function (test) {
   res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
                        "FROM " + cfg.test_table + " t1, " + cfg.test_table2 + " t2 " +
                        "WHERE t1.size = t2.size AND t1.size != 'medium';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   res.fetchAll({'structured': false}, function (err, rows) {
     test.ok(err === null, "res.fetchAll() err===null");
@@ -190,7 +190,7 @@ exports.FetchAllWithObjectStructuredOption = function (test) {
     res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
                          "FROM " + cfg.test_table + " t1, " + cfg.test_table2 + " t2 " +
                          "WHERE t1.size = t2.size AND t1.size != 'medium' AND t1.colors != 'green';");
-    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
     
     res.fetchAll({'structured': true}, function (err, rows) {
       test.ok(err === null, "res.fetchAll() err===null");
@@ -227,7 +227,7 @@ exports.FetchAllSyncWithObjectStructuredOption = function (test) {
   res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
                        "FROM " + cfg.test_table + " t1, " + cfg.test_table2 + " t2 " +
                        "WHERE t1.size = t2.size AND t1.size != 'medium';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   rows = res.fetchAllSync({'structured': false});
   test.same(rows,
@@ -241,7 +241,7 @@ exports.FetchAllSyncWithObjectStructuredOption = function (test) {
   res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
                        "FROM " + cfg.test_table + " t1, " + cfg.test_table2 + " t2 " +
                        "WHERE t1.size = t2.size AND t1.size != 'medium' AND t1.colors != 'green';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   rows = res.fetchAllSync({'structured': true});
   test.ok(Array.isArray(rows), "Result returns an array");
@@ -275,7 +275,7 @@ exports.FetchAllWithObjectOptionsConflicted = function (test) {
   res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
                        "FROM " + cfg.test_table + " t1, " + cfg.test_table2 + " t2 " +
                        "WHERE t1.size = t2.size AND t1.size != 'medium';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   test.throws(function () {
     res.fetchAll({'array': true, 'structured': true}, function (err, rows) {});
@@ -299,7 +299,7 @@ exports.FetchAllSyncWithObjectOptionsConflicted = function (test) {
   res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
                        "FROM " + cfg.test_table + " t1, " + cfg.test_table2 + " t2 " +
                        "WHERE t1.size = t2.size AND t1.size != 'medium';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   test.throws(function () {
     rows = res.fetchAllSync({'array': true, 'structured': true});

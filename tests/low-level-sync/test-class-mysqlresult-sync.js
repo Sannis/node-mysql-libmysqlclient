@@ -135,7 +135,7 @@ exports.FetchAllSync = function (test) {
   
   res = conn.querySync("SELECT random_number from " + cfg.test_table +
                        " WHERE random_boolean='0';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   rows = res.fetchAllSync();
   test.same(rows, [{random_number: 3}], "conn.querySync('SELECT ...').fetchAllSync()");
   

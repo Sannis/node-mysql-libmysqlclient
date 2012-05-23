@@ -55,7 +55,7 @@ exports.FetchAllSyncWithBinaryFields = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   res = conn.querySync("SELECT vc, vbi, bi, t, b FROM " + cfg.test_table2 + " ORDER BY id;");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT");
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   rows = res.fetchAllSync(true);
 
