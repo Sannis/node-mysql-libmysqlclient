@@ -85,7 +85,7 @@ exports.mysql_libmysqlclient_createConnectionSync_3 = function (test) {
   test.done();
 };
 
-exports.mysql_libmysqlclient_createConnectionSync_4_Accessllowed = function (test) {
+exports.mysql_libmysqlclient_createConnectionSync_4_AccessAllowed = function (test) {
   test.expect(2);
   
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), isConnected;

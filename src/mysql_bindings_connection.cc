@@ -454,14 +454,14 @@ async_rtn MysqlConnection::EIO_Connect(uv_work_t *req) {
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
     conn_req->ok = conn_req->conn->Connect(
-                        conn_req->hostname ? **(conn_req->hostname) : NULL,
-                        conn_req->user ? **(conn_req->user) : NULL,
-                        conn_req->password ? **(conn_req->password) : NULL,
-                        conn_req->dbname ? **(conn_req->dbname) : NULL,
-                        conn_req->port,
-                        conn_req->socket ? **(conn_req->socket) : NULL,
-                        conn_req->flags
-                    ) ? true : false;
+        conn_req->hostname ? **(conn_req->hostname) : NULL,
+        conn_req->user ? **(conn_req->user) : NULL,
+        conn_req->password ? **(conn_req->password) : NULL,
+        conn_req->dbname ? **(conn_req->dbname) : NULL,
+        conn_req->port,
+        conn_req->socket ? **(conn_req->socket) : NULL,
+        conn_req->flags
+    ) ? true : false;
 
     delete conn_req->hostname;
     delete conn_req->user;
@@ -513,20 +513,21 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     conn_req->conn = conn;
     conn->Ref();
 
-    conn_req->hostname = args.Length() > 1 && args[0]->IsString() ?
-        new String::Utf8Value(args[0]->ToString()) : NULL;
-    conn_req->user = args.Length() > 2 && args[1]->IsString() ?
-        new String::Utf8Value(args[1]->ToString()) : NULL;
-    conn_req->password = args.Length() > 3 && args[2]->IsString() ?
-        new String::Utf8Value(args[2]->ToString()) : NULL;
-    conn_req->dbname = args.Length() > 4 && args[3]->IsString() ?
-        new String::Utf8Value(args[3]->ToString()) : NULL;
-    conn_req->port = args.Length() > 5 && args[4]->IsUint32() ?
-                            args[4]->Uint32Value() : 0;
-    conn_req->socket = args.Length() > 6 && args[5]->IsString() ?
-        new String::Utf8Value(args[5]->ToString()) : NULL;
-    conn_req->flags = args.Length() > 7 && args[6]->IsUint32() ?
-                            args[6]->Uint32Value() : 0;
+    String::Utf8Value *hostname = new String::Utf8Value(args[0]->ToString());
+    String::Utf8Value *user     = new String::Utf8Value(args[1]->ToString());
+    String::Utf8Value *password = new String::Utf8Value(args[2]->ToString());
+    String::Utf8Value *dbname   = new String::Utf8Value(args[3]->ToString());
+    uint32_t port               =                       args[4]->Uint32Value();
+    String::Utf8Value *socket   = new String::Utf8Value(args[5]->ToString());
+    uint64_t flags              =                       args[6]->Uint32Value();
+
+    conn_req->hostname = args[0]->IsString() ? hostname : NULL;
+    conn_req->user     = args[1]->IsString() ? user     : NULL;
+    conn_req->password = args[2]->IsString() ? password : NULL;
+    conn_req->dbname   = args[3]->IsString() ? dbname   : NULL;
+    conn_req->port     = args[4]->IsUint32() ? port     : 0;
+    conn_req->socket   = args[5]->IsString() ? socket   : NULL;
+    conn_req->flags    = args[6]->IsUint32() ? flags    : 0;
 
     BEGIN_ASYNC(conn_req, EIO_Connect, EIO_After_Connect)
 
@@ -551,7 +552,7 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
 
     if (conn->_conn) {
         return THREXC("Already initialized. "
-                       "Use conn.realConnectSync() after conn.initSync()");
+                      "Use conn.realConnectSync() after conn.initSync()");
     }
 
     String::Utf8Value hostname(args[0]->ToString());
@@ -562,13 +563,15 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
     String::Utf8Value socket(args[5]->ToString());
     uint64_t flags = args[6]->Uint32Value();
 
-    bool r = conn->Connect(args[0]->IsString() ? *hostname : NULL,
-                           args[1]->IsString() ? *user     : NULL,
-                           args[2]->IsString() ? *password : NULL,
-                           args[3]->IsString() ? *dbname   : NULL,
-                           args[4]->IsUint32() ? port      : 0,
-                           args[5]->IsString() ? *socket   : NULL,
-                           args[6]->IsUint32() ? flags     : 0);
+    bool r = conn->Connect(
+        args[0]->IsString() ? *hostname : NULL,
+        args[1]->IsString() ? *user     : NULL,
+        args[2]->IsString() ? *password : NULL,
+        args[3]->IsString() ? *dbname   : NULL,
+        args[4]->IsUint32() ? port      : 0,
+        args[5]->IsString() ? *socket   : NULL,
+        args[6]->IsUint32() ? flags     : 0
+   );
 
     if (!r) {
         return scope.Close(False());
