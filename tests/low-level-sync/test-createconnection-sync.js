@@ -122,3 +122,25 @@ exports.mysql_libmysqlclient_createConnectionSync_4_AccessDenied = function (tes
 
   test.done();
 };
+
+exports.mysql_libmysqlclient_createConnectionSync_5 = function (test) {
+  test.expect(2);
+
+  var
+    compress_flag = cfg.mysql_bindings.CLIENT_COMPRESS,
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database, compress_flag),
+    isConnected;
+  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "cfg.mysql_libmysqlclient.createConnectionSync(host, user, password, database, flags)");
+
+  isConnected = conn.connectedSync();
+  test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnectionSync(host, user, password, database, flags) connects");
+
+  if (!isConnected) {
+    // Extra debug output
+    console.log("Error:" + conn.connectError);
+  } else {
+    conn.closeSync();
+  }
+
+  test.done();
+};

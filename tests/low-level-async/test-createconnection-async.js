@@ -110,7 +110,7 @@ exports.mysql_libmysqlclient_createConnection_5_AccessAllowed = function (test) 
     test.ok(err === null, "Error object is not present");
     test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
 
-    isConnected = conn.connectedSync();
+    var isConnected = conn.connectedSync();
     test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(host, user, password, database, callback)");
 
     if (!isConnected) {
@@ -135,6 +135,29 @@ exports.mysql_libmysqlclient_createConnection_5_AccessDenied = function (test) {
     var errno = 1044;
 
     test.equals(err.message, "Connection error #" + errno + ": " + error, "Callback exception");
+
+    test.done();
+  });
+};
+
+exports.mysql_libmysqlclient_createConnection_6 = function (test) {
+  test.expect(3);
+
+  var compress_flag = cfg.mysql_bindings.CLIENT_COMPRESS;
+
+  cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database, compress_flag, function (err, conn) {
+    test.ok(err === null, "Error object is not present");
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+
+    var isConnected = conn.connectedSync();
+    test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(host, user, password, database, flags, callback)");
+
+    if (!isConnected) {
+      // Extra debug output
+      console.log("Error:" + conn.connectError);
+    } else {
+      conn.closeSync();
+    }
 
     test.done();
   });

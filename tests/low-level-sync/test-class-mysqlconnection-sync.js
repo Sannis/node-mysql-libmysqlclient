@@ -118,7 +118,7 @@ exports.New = function (test) {
 };
 
 exports.ConnectFlagsConstants = function (test) {
-  test.expect(9);
+  test.expect(18);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionSync();
 
@@ -135,7 +135,20 @@ exports.ConnectFlagsConstants = function (test) {
   // Known issue: conn.CLIENT_REMEMBER_OPTIONS === -2147483648
   test.equals(conn.CLIENT_REMEMBER_OPTIONS, -2147483648);
 
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_REMEMBER_OPTIONS);
+  test.equals(cfg.mysql_bindings.CLIENT_COMPRESS, 32);
+  test.equals(cfg.mysql_bindings.CLIENT_FOUND_ROWS, 2);
+  test.equals(cfg.mysql_bindings.CLIENT_IGNORE_SIGPIPE, 4096);
+  test.equals(cfg.mysql_bindings.CLIENT_IGNORE_SPACE, 256);
+  test.equals(cfg.mysql_bindings.CLIENT_INTERACTIVE, 1024);
+  // Not yet implemented
+  // test.equals(cfg.mysql_bindings.CLIENT_LOCAL_FILES, 128);
+  test.equals(cfg.mysql_bindings.CLIENT_MULTI_RESULTS, 131072);
+  test.equals(cfg.mysql_bindings.CLIENT_MULTI_STATEMENTS, 65536);
+  test.equals(cfg.mysql_bindings.CLIENT_NO_SCHEMA, 16);
+  // Known issue: cfg.mysql_bindings.CLIENT_REMEMBER_OPTIONS === -2147483648
+  test.equals(cfg.mysql_bindings.CLIENT_REMEMBER_OPTIONS, -2147483648);
+
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, cfg.mysql_bindings.CLIENT_REMEMBER_OPTIONS);
   conn.closeSync();
 
   test.done();
