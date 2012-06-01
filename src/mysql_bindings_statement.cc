@@ -483,6 +483,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     /* Buffers */
     int int_data[field_count];
+    unsigned uint_data[field_count];
     double double_data[field_count];
     char str_data[field_count][64];
     MYSQL_TIME date_data[field_count];
@@ -496,13 +497,15 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
         switch(fields[i].type) {
             case MYSQL_TYPE_NULL:
-            case MYSQL_TYPE_TINY:
             case MYSQL_TYPE_SHORT:
             case MYSQL_TYPE_LONG:
             case MYSQL_TYPE_LONGLONG:
             case MYSQL_TYPE_INT24:
                 bind[i].buffer = &int_data[i];
                 break;
+            case MYSQL_TYPE_TINY:
+            	bind[i].buffer = &uint_data[i];
+            	break;
             case MYSQL_TYPE_FLOAT:
             case MYSQL_TYPE_DOUBLE:
             case MYSQL_TYPE_DECIMAL:
@@ -559,7 +562,6 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
             //fprintf(stdout, "Value: %s", buffers[j]);
             switch(fields[j].type) {
                 case MYSQL_TYPE_NULL:
-                case MYSQL_TYPE_TINY:
                 case MYSQL_TYPE_SHORT:
                 case MYSQL_TYPE_LONG:
                 case MYSQL_TYPE_LONGLONG:
@@ -567,6 +569,9 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                     //fprintf(stdout, "Value: %d (%ld)\n", int_data[j], length[j]);
                     js_result = Integer::New(int_data[j]);
                     break;
+                case MYSQL_TYPE_TINY:
+                	js_result = Integer::NewFromUnsigned(uint_data[j]);
+                	break;
                 case MYSQL_TYPE_FLOAT:
                 case MYSQL_TYPE_DOUBLE:
                     //js_result = Number::New(double_data[j]);
