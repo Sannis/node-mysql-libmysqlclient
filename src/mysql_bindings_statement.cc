@@ -483,7 +483,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     /* Buffers */
     int int_data[field_count];
-    unsigned uint_data[field_count];
+    unsigned int uint_data[field_count];
     double double_data[field_count];
     char str_data[field_count][64];
     MYSQL_TIME date_data[field_count];
