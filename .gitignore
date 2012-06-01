@@ -11,3 +11,5 @@ devdependencies-stamp
 *.gcda
 *.gcno
 *.gcov
+*.iml
+.idea
