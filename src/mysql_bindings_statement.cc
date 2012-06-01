@@ -483,7 +483,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     /* Buffers */
     int int_data[field_count];
-    unsigned int uint_data[field_count];
+    signed char tiny_data[field_count];
     double double_data[field_count];
     char str_data[field_count][64];
     MYSQL_TIME date_data[field_count];
@@ -504,7 +504,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                 bind[i].buffer = &int_data[i];
                 break;
             case MYSQL_TYPE_TINY:
-            	bind[i].buffer = &uint_data[i];
+            	bind[i].buffer = &tiny_data[i];
             	break;
             case MYSQL_TYPE_FLOAT:
             case MYSQL_TYPE_DOUBLE:
@@ -570,7 +570,8 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                     js_result = Integer::New(int_data[j]);
                     break;
                 case MYSQL_TYPE_TINY:
-                	js_result = Integer::NewFromUnsigned(uint_data[j]);
+                    fprintf(stdout, "Value: %u (%ld)\n", tiny_data[j], length[j]);
+                	js_result = Integer::NewFromUnsigned(tiny_data[j]);
                 	break;
                 case MYSQL_TYPE_FLOAT:
                 case MYSQL_TYPE_DOUBLE:
