@@ -16,6 +16,8 @@ var
   mysql_libmysqlclient = require("../lib/mysql-libmysqlclient"),
   mysql_bindings = mysql_libmysqlclient.bindings,
   conn,
+  connQueued,
+  connHighlevel,
   res;
 
 function debug(title, obj) {
@@ -35,7 +37,6 @@ function debug(title, obj) {
 util.print("Show debug information for NodeJS MySQL/libmysqlclient bindings...\n");
 
 conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
-
 res = conn.querySync("SHOW TABLES;");
 
 debug("mysql_bindings", mysql_bindings);
@@ -45,3 +46,11 @@ debug("res", res);
 
 conn.closeSync();
 
+connQueued = mysql_libmysqlclient.createConnectionQueuedSync(cfg.host, cfg.user, cfg.password, cfg.database);
+connHighlevel = mysql_libmysqlclient.createConnectionHighlevelSync(cfg.host, cfg.user, cfg.password, cfg.database);
+
+debug("connQueued", connQueued);
+debug("connHighlevel", connHighlevel);
+
+connQueued.closeSync();
+connHighlevel.closeSync();
