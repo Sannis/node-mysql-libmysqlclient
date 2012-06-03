@@ -66,5 +66,6 @@
 , "devDependencies" :
   { "nodeunit" : ">= 0.7"
   , "nodelint" : ">= 0.6"
+  , "webkit-devtools-agent" : "0.0.4"
   }
 }

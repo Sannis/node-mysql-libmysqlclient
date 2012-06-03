@@ -1,11 +1,5 @@
 #!/bin/sh
 
-MLF=./tools/run-memoryleaks-finder.js
-NI=./node_modules/.bin/node-inspector
-NI_DEBUG_PORT=5858
-NI_WEB_PORT=8888
-WEB_BROWSER=google-chrome
-
 all: npm-install
 
 npm-install: npm-install-stamp
@@ -49,8 +43,8 @@ lint: devdependencies
 		./node_modules/.bin/nodelint --config ./nodelint.conf ./package.json ./mysql-libmysqlclient.js ./doc ./tools/*.js
 		./node_modules/.bin/nodelint --config ./nodelint.conf ./tests
 
-mlf: devdependencies build ./mysql-libmysqlclient.js
-		/usr/bin/env node --expose-gc --debug ${MLF} #--debugger_port=${NI_DEBUG_PORT} ${MLF}
+mlf: devdependencies build ./lib
+		./tools/memory-leaks-finder-repl.js
 
 devdependencies: devdependencies-stamp
 

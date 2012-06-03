@@ -11,10 +11,9 @@ var
   util = require("util"),
   readline = require('readline'),
   rli,
-  mysql_libmysqlclient = require("../mysql-libmysqlclient"),
-  mysql_bindings = require("../mysql_bindings"),
+  mysql = require("../"),
+  mysql_bindings = mysql.bindings,
   cfg = require("../tests/config"),
-  profiler,
 // Params
   prompt = "mlf> ",
   commands,
@@ -35,15 +34,15 @@ function show_memory_usage() {
     
     process.stdin.write("Initial memory usage:\n");
     process.stdin.write("rss: " + initial_mu.rss + "\n");
-    process.stdin.write("vsize: " + initial_mu.vsize + "\n");
     process.stdin.write("heapUsed: " + initial_mu.heapUsed + "\n");
+    process.stdin.write("heapTotal: " + initial_mu.heapTotal + "\n");
   } else {
     var mu = process.memoryUsage();
     
     process.stdin.write("Currect memory usage:\n");
     show_memory_usage_line("rss", initial_mu.rss, mu.rss);
-    show_memory_usage_line("vsize", initial_mu.vsize, mu.vsize);
     show_memory_usage_line("heapUsed", initial_mu.heapUsed, mu.heapUsed);
+    show_memory_usage_line("heapTotal", initial_mu.heapTotal, mu.heapTotal);
   }
 }
 
@@ -57,11 +56,6 @@ commands = {
   gc: function () {
     gc();
   },
-  snapshot: function () {
-    if (profiler) {
-      profiler.takeSnapshot();
-    }
-  },
   help: function () {
     var cmd;
     process.stdin.write("List of commands:\n");
@@ -71,90 +65,103 @@ commands = {
       }
     }
   },
-  new_connection: function () {
+
+  newConnection: function () {
     var conn = new mysql_bindings.MysqlConnection();
   },
-  error_in_connect: function () {
-    var
-      conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied),
-      error = conn.connectionError;
+  createConnectionSync: function () {
+    var conn = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password);
   },
-  error_in_query: function () {
-    var
-      conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password),
-      error;
-    
+  createConnectionQueuedSync: function () {
+    var conn = mysql.createConnectionQueuedSync(cfg.host, cfg.user, cfg.password);
+  },
+  createConnectionHighlevelSync: function () {
+    var conn = mysql.createConnectionHighlevelSync(cfg.host, cfg.user, cfg.password);
+  },
+
+  errorOnConnect: function () {
+    var conn = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
+
+    var connectionError = conn.connectionError;
+  },
+  errorOnQuery: function () {
+    var conn = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password);
+
     conn.querySync("USE " + cfg.database_denied + ";");
-    error = conn.errorSync();
-    
+
+    var queryError = conn.errorSync();
+
     conn.closeSync();
   },
-  fetch_all: function () {
+
+  fetchAllSync: function () {
     var
-      conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+      conn = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
       res,
       rows;
-    
+
     res = conn.querySync("SELECT 'some string' as str;");
     rows = res.fetchAllSync();
-    
+
     conn.closeSync();
   },
-  fetch_all_and_free: function () {
+  fetchAllSyncAndFree: function () {
     var
-      conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+      conn = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
       res,
       rows;
-    
+
     res = conn.querySync("SELECT 'some string' as str;");
     rows = res.fetchAllSync();
-    
+
     res.freeSync();
     conn.closeSync();
   },
-  fetch_lowlevel: function () {
+  fetchAllByRows: function () {
     var
-      conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+      conn = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
       res,
       row;
-    
+
     conn.realQuerySync("SHOW TABLES;");
     res = conn.storeResultSync();
-    
+
     while ((row = res.fetchArraySync())) {
       // Empty block
     }
-    
+
     conn.closeSync();
   },
-  fetch_lowlevel_and_free: function () {
+  fetchAllByRowsAndFree: function () {
     var
-      conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+      conn = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
       res,
       row;
-    
+
     conn.realQuerySync("SHOW TABLES;");
     res = conn.storeResultSync();
-    
+
     while ((row = res.fetchArraySync())) {
       // Empty block
     }
-    
+
     res.freeSync();
     conn.closeSync();
   },
-  escape: function () {
+
+  escapeSync: function () {
     var
-      conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+      conn = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
       str;
-    
+
     str = conn.escapeSync("some string");
-    
+
     conn.closeSync();
   },
-  resultFreeAfterConnectionClosed: function () {
+
+  testResultsFreeAfterConnectionClose: function () {
     var
-      conn = mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
+      conn = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
       str;
     
     res = conn.querySync("SELECT 'some string' as str;");
@@ -164,14 +171,17 @@ commands = {
 };
 
 // Main program
+process.stdin.write("Starting WebKit development tools agent...\n");
+process.stdin.write("Open http://c4milo.github.com/node-webkit-agent/19.0.1084.46/inspector.html?host=localhost:1337&page=0 to use it.\n");
+require('webkit-devtools-agent');
+process.emit('SIGUSR2');
+process.stdin.write("\n");
+
 process.stdin.write("Welcome to the memory leaks finder!\n");
 process.stdin.write("Type 'help' for options.\n");
+
 gc();
 show_memory_usage();
-
-try {
-  profiler = require('v8-profiler');
-} catch (e) {};
 
 rli = readline.createInterface(process.stdin, process.stdout, function completer (text) {
   var
@@ -230,4 +240,3 @@ rli.on('line', function (cmd) {
 
 rli.setPrompt(prompt);
 rli.prompt();
-
