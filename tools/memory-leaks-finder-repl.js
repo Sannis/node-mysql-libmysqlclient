@@ -61,7 +61,7 @@ commands = {
     process.stdin.write("List of commands:\n");
     for (cmd in commands) {
       if (commands.hasOwnProperty(cmd)) {
-        process.stdin.write(cmd + "\n");
+        process.stdin.write("  " + cmd + "\n");
       }
     }
   },
@@ -160,15 +160,25 @@ commands = {
   },
 
   testResultsFreeAfterConnectionClose: function () {
-    var
-      conn = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-      str;
-    
-    res = conn.querySync("SELECT 'some string' as str;");
+    var conn = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+
+    var res = conn.querySync("SELECT 'some string' AS str;");
 
     conn.closeSync();
+  },
+
+  manyQueries: function (n) {
+    var conn = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+
+    var res;
+
+    for (var i = 0; i < n; i++) {
+      res = conn.querySync("SELECT 'some string' AS str;");
+    }
   }
 };
+
+commands.manyQueries.passTimesAsArgument = true;
 
 // Main program
 process.stdin.write("Starting WebKit development tools agent...\n");
@@ -204,6 +214,7 @@ rli.on("SIGINT", function () {
 });
 
 rli.on('close', function () {
+  process.stdin.write("\n");
   show_memory_usage();
   process.stdin.destroy();
 });
@@ -217,17 +228,25 @@ rli.on('line', function (cmd) {
   pair[1] = parseInt(pair[1], 10) > 0 ? parseInt(pair[1], 10) : 1;
 
   if (commands[pair[0]]) {
-    try {
-      process.stdin.write("Run " + pair[0] + " for " + pair[1] + " times:");
-      for (i = 0; i < pair[1]; i += 1) {
-        commands[pair[0]].apply();
+    if (pair[0] === "help" || pair[0] === "usage") {
+      commands[pair[0]]();
+    } else {
+      try {
+        process.stdin.write("Run " + pair[0] + " for " + pair[1] + " times:");
+
+        if (commands[pair[0]].passTimesAsArgument) {
+          commands[pair[0]](pair[1]);
+        } else {
+          for (i = 0; i < pair[1]; i += 1) {
+            commands[pair[0]]();
+          }
+        }
+
+        process.stdin.write(" done.\n");
+      } catch (e) {
+        process.stdin.write("Exception caused!\n");
+        process.stdin.write(util.inspect(e.stack) + "\n");
       }
-      process.stdin.write(" done.\n");
-    } catch (e) {
-      process.stdin.write("Exception caused!\n");
-      process.stdin.write(util.inspect(e.stack) + "\n");
-    }
-    if (pair[0] !== "help") {
       show_memory_usage();
     }
   } else if (pair[0] !== "") {
