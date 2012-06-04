@@ -13,48 +13,25 @@ var
   rli,
   mysql = require("../"),
   mysql_bindings = mysql.bindings,
+  helper = require("./memory-helper"),
+// Load configuration
   cfg = require("../tests/config"),
 // Params
   prompt = "mlf> ",
-  commands,
-// Initial memory usage
-  initial_mu;
-
-function show_memory_usage_line(title, value0, value1) {
-  if (value1) {
-    process.stdin.write(title + ": " + value1 + (value1 > value0 ? " (+" : " (") + (100 * (value1 - value0) / value0).toFixed(2) + "%)\n");
-  } else {
-    process.stdin.write(title + ": " + value0 + "\n");
-  }
-}
-
-function show_memory_usage() {
-  if (!initial_mu) {
-    initial_mu = process.memoryUsage();
-    
-    process.stdin.write("Initial memory usage:\n");
-    process.stdin.write("rss: " + initial_mu.rss + "\n");
-    process.stdin.write("heapUsed: " + initial_mu.heapUsed + "\n");
-    process.stdin.write("heapTotal: " + initial_mu.heapTotal + "\n");
-  } else {
-    var mu = process.memoryUsage();
-    
-    process.stdin.write("Currect memory usage:\n");
-    show_memory_usage_line("rss", initial_mu.rss, mu.rss);
-    show_memory_usage_line("heapUsed", initial_mu.heapUsed, mu.heapUsed);
-    show_memory_usage_line("heapTotal", initial_mu.heapTotal, mu.heapTotal);
-  }
-}
+  commands;
 
 commands = {
   quit: function () {
     process.exit(0);
   },
-  usage: function () {
-    show_memory_usage();
+  showMemoryUsage: function () {
+    helper.showMemoryUsage();
+  },
+  resetMemoryUsage: function () {
+    helper.resetMemoryUsage();
   },
   gc: function () {
-    gc();
+    helper.heavyGc();
   },
   help: function () {
     var cmd;
@@ -190,8 +167,8 @@ process.stdin.write("\n");
 process.stdin.write("Welcome to the memory leaks finder!\n");
 process.stdin.write("Type 'help' for options.\n");
 
-gc();
-show_memory_usage();
+helper.heavyGc();
+helper.showMemoryUsage();
 
 rli = readline.createInterface(process.stdin, process.stdout, function completer (text) {
   var
@@ -215,7 +192,7 @@ rli.on("SIGINT", function () {
 
 rli.on('close', function () {
   process.stdin.write("\n");
-  show_memory_usage();
+  helper.showMemoryUsage();
   process.stdin.destroy();
 });
 
@@ -228,7 +205,7 @@ rli.on('line', function (cmd) {
   pair[1] = parseInt(pair[1], 10) > 0 ? parseInt(pair[1], 10) : 1;
 
   if (commands[pair[0]]) {
-    if (pair[0] === "help" || pair[0] === "usage") {
+    if (pair[0] === "help" || pair[0] === "showMemoryUsage") {
       commands[pair[0]]();
     } else {
       try {
@@ -247,7 +224,7 @@ rli.on('line', function (cmd) {
         process.stdin.write("Exception caused!\n");
         process.stdin.write(util.inspect(e.stack) + "\n");
       }
-      show_memory_usage();
+      helper.showMemoryUsage();
     }
   } else if (pair[0] !== "") {
     process.stdin.write("Unrecognized command: " + pair[0] + "\n");

@@ -12,3 +12,5 @@ webkit-devtools-agent-stamp
 *.gcda
 *.gcno
 *.gcov
+
+valgrind.log

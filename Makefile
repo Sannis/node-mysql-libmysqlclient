@@ -50,7 +50,15 @@ webkit-devtools-agent-stamp:
 		npm install webkit-devtools-agent@0.0.4
 		touch webkit-devtools-agent-stamp
 
-mlf: npm-install webkit-devtools-agent ./lib
+mlf: npm-install webkit-devtools-agent
 		./tools/memory-leaks-finder-repl.js
+
+valgrind: npm-install webkit-devtools-agent $(time)
+ 		valgrind \
+ 		  --leak-check=full --error-limit=no \
+ 		  --track-origins=yes -v \
+ 		  --log-file=valgrind.log -- \
+ 		  node --expose-gc ./tools/memory-usage-show.js
+
 
 .PHONY: all npm-install waf clean clean-all test test-slow test-all test-profile lint mlf
