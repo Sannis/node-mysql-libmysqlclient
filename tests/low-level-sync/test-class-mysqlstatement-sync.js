@@ -290,39 +290,12 @@ exports.DataSeekSync = function (test) {
       stmt.dataSeekSync(-100);
     }, "Invalid row offset -100");
 
+    stmt.closeSync();
+
     conn.closeSync();
 
-    console.log("DataSeekSync test is not finished yet");
     test.done();
   }, cfg.delay);
-};
-
-exports.ErrnoSync = function (test) {
-  test.expect(0);
-  console.log("ErrnoSync test is not implementd yet");
-  test.done();
-};
-
-exports.ErrorSync = function (test) {
-  test.expect(0);
-  console.log("ErrorSync test is not implementd yet");
-  test.done();
-};
-
-exports.ExecuteSync = function (test) {
-  testBindParamsAndExecuteSync(test);
-};
-
-exports.FieldCountSync = function (test) {
-  test.expect(0);
-  console.log("FieldCountSync test is not implementd yet");
-  test.done();
-};
-
-exports.FreeResultSync = function (test) {
-  test.expect(0);
-  console.log("FreeResultSync test is not implementd yet");
-  test.done();
 };
 
 exports.LastInsertIdSync = function (test) {
@@ -362,24 +335,6 @@ exports.LastInsertIdSync = function (test) {
   test.done();
 };
 
-exports.NumRowsSync = function (test) {
-  test.expect(0);
-  console.log("NumRowsSync test is not implementd yet");
-  test.done();
-};
-
-exports.PrepareSync = function (test) {
-  test.expect(0);
-  console.log("PrepareSync test is not implementd yet");
-  test.done();
-};
-
-exports.ResetSync = function (test) {
-  test.expect(0);
-  console.log("ResetSync test is not implementd yet");
-  test.done();
-};
-
 exports.ResultMetadataSync = function (test) {
   test.expect(5);
 
@@ -398,6 +353,8 @@ exports.ResultMetadataSync = function (test) {
 
   resultMetadata = stmt.resultMetadataSync();
   test.ok(resultMetadata instanceof cfg.mysql_bindings.MysqlResult, "resultMetadata instanceof MysqlResult");
+
+  stmt.closeSync();
 
   conn.closeSync();
 
@@ -444,7 +401,9 @@ exports.SendLongDataSync = function (test) {
   
   res = conn.querySync("ALTER TABLE " + cfg.test_table + " DROP message;");
   test.strictEqual(res, true);
-  
+
+  stmt.closeSync();
+
   conn.closeSync();
   
   test.done();
@@ -461,14 +420,10 @@ exports.SqlStateSync = function (test) {
   
   stmt = conn.initStatementSync();
   test.equals(stmt.sqlStateSync(), "00000", "stmt.sqlStateSync()");
-  
+
+  stmt.closeSync();
+
   conn.closeSync();
   
-  test.done();
-};
-
-exports.StoreResultSync = function (test) {
-  test.expect(0);
-  console.log("StoreResultSync test is not implementd yet");
   test.done();
 };
