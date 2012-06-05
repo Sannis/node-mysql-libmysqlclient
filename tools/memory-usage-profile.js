@@ -15,13 +15,15 @@ var
 // Load configuration
   cfg = require("../tests/config"),
 // Parameters
-  timeLimitInSec = 10 * 60,
+  timeLimitInSec = 30 * 60,
   gcLevel = 0,
   pauseBetweenOperationsInMs = 1,
   dumpMemoryUsageIntervalInMs = 200,
   dumpMemoryUsageInterval = null,
-  drawMemoryUsageGraphIntervalInMs = 60*1000,
+  drawMemoryUsageGraphIntervalInMs = 60 * 1000,
   drawMemoryUsageGraphInterval = null,
+  bufferSize = 16 * 1024,
+  bufferString = '',
 // Start time
   startHrTime = [0, 0],
 // Other
@@ -53,13 +55,57 @@ function performOperation(callback) {
     return;
   }
 
-  connection.query("SELECT 'some string' AS `str`;", function (error, result) {
+  // Run series of queries
+  async.parallel([
+    function (cb) {
+      connection.query("SELECT '" + connection.escapeSync(bufferString) + "' AS `str`;", function (error, result) {
+        if (error) throw error;
+
+        result.fetchAll(function (error, rows) {
+          if (error) throw error;
+
+          rows = null;
+
+          cb(null);
+        });
+      });
+    },
+    function (cb) {
+      connection.query("INSERT INTO `" + cfg.test_table + "` (`text_data`) VALUES ('" + connection.escapeSync(bufferString) + "');", function (error, info) {
+        if (error) throw error;
+
+        info = null;
+        cb(null);
+      });
+    }
+  ], function (error) {
     if (error) throw error;
 
-    result.fetchAll(function (error, rows) {
-      if (error) throw error;
+    async.series([
+      function (cb) {
+        connection.query("SELECT * FROM `" + cfg.test_table + "`;", function (error, result) {
+          if (error) throw error;
 
-      rows = null;
+          result.fetchAll(function (error, rows) {
+            if (error) throw error;
+
+            rows = null;
+
+            cb(null);
+          });
+        });
+      },
+      function (cb) {
+        connection.query("DELETE FROM `" + cfg.test_table + "` WHERE 1;", function (error, info) {
+          if (error) throw error;
+
+          info = null;
+
+          cb(null);
+        });
+      }
+    ], function (error) {
+      if (error) throw error;
 
       process.nextTick(callback);
     });
@@ -95,16 +141,41 @@ filenameData = "memory-usage-profile.dat";
 filenameResult = "memory-usage-profile-gc-" + gcLevel + ".png";
 
 // Main program
-openDataFile();
+createTestTable();
+
+function createTestTable() {
+  console.log("Creating test table...");
+
+  var connection = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), result = true;
+
+  if (!connection.connectedSync()) {
+    throw new Error("Cannot connect to database.");
+  }
+
+  result = result && connection.querySync("DROP TABLE IF EXISTS " + cfg.test_table + ";");
+  result = result && connection.querySync(
+    "CREATE TABLE " + cfg.test_table + " (" +
+    "  id INT(8) NOT NULL AUTO_INCREMENT, " +
+    "  text_data TEXT NULL, " +
+    "  PRIMARY KEY(id)" +
+    ") " + cfg.store_engine + ";"
+  );
+
+  if (!result) {
+    throw new Error("Cannot create test table.");
+  }
+
+  process.nextTick(openDataFile);
+}
 
 function openDataFile() {
   console.log("Opening data file for writing...");
 
   fs.open(__dirname + "/" + filenameData, "w", function (error, fd) {
     if (error) throw error;
-    
+
     dataFd = fd;
-    
+
     process.nextTick(dumpMemoryUsageProfile);
   });
 }
@@ -114,6 +185,11 @@ function dumpMemoryUsageProfile() {
 
   // Write data table header to file
   fs.writeSync(dataFd, "time\tRSS\theapUsed\theapTotal\n");
+
+  // Fill test buffer string
+  for (var i = 0; i < bufferSize; i++) {
+    bufferString += 'X';
+  }
 
   // Start timer, save initial memory usage
   startHrTime = process.hrtime();
