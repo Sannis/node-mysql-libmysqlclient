@@ -21,7 +21,7 @@ function heavyGc() {
 exports.heavyGc = heavyGc;
 
 var initialMemoryUsage = null;
-function showMemoryUsageLine(title, value0, value1) {
+function showMemoryUsageDeltaLine(title, value0, value1) {
   if (value1) {
     process.stdin.write(title + ": " + value1
                       + (value1 > value0 ? " (+" : " (")
@@ -30,7 +30,7 @@ function showMemoryUsageLine(title, value0, value1) {
     process.stdin.write(title + ": " + value0 + "\n");
   }
 }
-function showMemoryUsage() {
+function showMemoryUsageDelta() {
   if (!initialMemoryUsage) {
     initialMemoryUsage = process.memoryUsage();
 
@@ -42,14 +42,14 @@ function showMemoryUsage() {
     var memoryUsage = process.memoryUsage();
 
     process.stdin.write("Currect memory usage:\n");
-    showMemoryUsageLine("rss",       initialMemoryUsage.rss,       memoryUsage.rss      );
-    showMemoryUsageLine("heapUsed",  initialMemoryUsage.heapUsed,  memoryUsage.heapUsed );
-    showMemoryUsageLine("heapTotal", initialMemoryUsage.heapTotal, memoryUsage.heapTotal);
+    showMemoryUsageDeltaLine("rss",       initialMemoryUsage.rss,       memoryUsage.rss      );
+    showMemoryUsageDeltaLine("heapUsed",  initialMemoryUsage.heapUsed,  memoryUsage.heapUsed );
+    showMemoryUsageDeltaLine("heapTotal", initialMemoryUsage.heapTotal, memoryUsage.heapTotal);
   }
 }
-function resetMemoryUsage() {
+function resetMemoryUsageDelta() {
   initialMemoryUsage = null;
 }
 
-exports.showMemoryUsage = showMemoryUsage;
-exports.resetMemoryUsage = resetMemoryUsage;
+exports.showMemoryUsageDelta = showMemoryUsageDelta;
+exports.resetMemoryUsageDelta = resetMemoryUsageDelta;

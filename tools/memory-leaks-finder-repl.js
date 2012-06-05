@@ -24,21 +24,21 @@ commands = {
   quit: function () {
     process.exit(0);
   },
-  showMemoryUsage: function () {
-    helper.showMemoryUsage();
+  showMemoryUsageDelta: function () {
+    helper.showMemoryUsageDelta();
   },
-  resetMemoryUsage: function () {
-    helper.resetMemoryUsage();
+  resetMemoryUsageDelta: function () {
+    helper.resetMemoryUsageDelta();
   },
   gc: function () {
     helper.heavyGc();
   },
   help: function () {
     var cmd;
-    process.stdin.write("List of commands:\n");
+    process.stdout.write("List of commands:\n");
     for (cmd in commands) {
       if (commands.hasOwnProperty(cmd)) {
-        process.stdin.write("  " + cmd + "\n");
+        process.stdout.write("  " + cmd + "\n");
       }
     }
   },
@@ -158,17 +158,17 @@ commands = {
 commands.manyQueries.passTimesAsArgument = true;
 
 // Main program
-process.stdin.write("Starting WebKit development tools agent...\n");
-process.stdin.write("Open http://c4milo.github.com/node-webkit-agent/19.0.1084.46/inspector.html?host=localhost:1337&page=0 to use it.\n");
+process.stdout.write("Starting WebKit development tools agent...\n");
+process.stdout.write("Open http://c4milo.github.com/node-webkit-agent/19.0.1084.46/inspector.html?host=localhost:1337&page=0 to use it.\n");
 require('webkit-devtools-agent');
 process.emit('SIGUSR2');
-process.stdin.write("\n");
+process.stdout.write("\n");
 
-process.stdin.write("Welcome to the memory leaks finder!\n");
-process.stdin.write("Type 'help' for options.\n");
+process.stdout.write("Welcome to the memory leaks finder!\n");
+process.stdout.write("Type 'help' for options.\n");
 
 helper.heavyGc();
-helper.showMemoryUsage();
+helper.showMemoryUsageDelta();
 
 rli = readline.createInterface(process.stdin, process.stdout, function completer (text) {
   var
@@ -191,25 +191,23 @@ rli.on("SIGINT", function () {
 });
 
 rli.on('close', function () {
-  process.stdin.write("\n");
-  helper.showMemoryUsage();
+  process.stdout.write("\n");
+  helper.showMemoryUsageDelta();
   process.stdin.destroy();
 });
 
 rli.on('line', function (cmd) {
-  var
-    pair = cmd.trim().split(/\s+/),
-    i;
+  var pair = cmd.trim().split(/\s+/), i;
 
   pair[0] = pair[0].trim();
   pair[1] = parseInt(pair[1], 10) > 0 ? parseInt(pair[1], 10) : 1;
 
   if (commands[pair[0]]) {
-    if (pair[0] === "help" || pair[0] === "showMemoryUsage") {
+    if (pair[0] === "help" || pair[0] === "quit" || pair[0] === "showMemoryUsage") {
       commands[pair[0]]();
     } else {
       try {
-        process.stdin.write("Run " + pair[0] + " for " + pair[1] + " times:");
+        process.stdout.write("Run " + pair[0] + " for " + pair[1] + " times:");
 
         if (commands[pair[0]].passTimesAsArgument) {
           commands[pair[0]](pair[1]);
@@ -219,15 +217,16 @@ rli.on('line', function (cmd) {
           }
         }
 
-        process.stdin.write(" done.\n");
+        process.stdout.write(" done.\n");
       } catch (e) {
-        process.stdin.write("Exception caused!\n");
-        process.stdin.write(util.inspect(e.stack) + "\n");
+        process.stdout.write("Exception caused!\n");
+        process.stdout.write(util.inspect(e.stack) + "\n");
       }
-      helper.showMemoryUsage();
+
+      helper.showMemoryUsageDelta();
     }
   } else if (pair[0] !== "") {
-    process.stdin.write("Unrecognized command: " + pair[0] + "\n");
+    process.stdout.write("Unrecognized command: " + pair[0] + "\n");
     commands.help();
   }
 

@@ -66,5 +66,6 @@
 , "devDependencies" :
   { "nodeunit" : ">= 0.7"
   , "nodelint" : ">= 0.6"
+  , "async" : ">= 0.1.22"
   }
 }
