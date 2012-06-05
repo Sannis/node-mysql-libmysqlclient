@@ -8,21 +8,28 @@ See license text in LICENSE file
 
 var
 // Require modules
+  fs = require("fs"),
   mysql = require("../"),
   async = require("async"),
   helper = require("./memory-helper"),
 // Load configuration
   cfg = require("../tests/config"),
 // Parameters
-  timeLimitInSec = 10*60*60,
-  forceGc = false,
+  timeLimitInSec = 10 * 60,
+  gcLevel = 0,
   pauseBetweenOperationsInMs = 1,
-  logMemoryUsageIntervalInMs = 400,
-  logMemoryUsageInterval = null,
-  // Start time
-  startHrTime = [0, 0];
+  dumpMemoryUsageIntervalInMs = 200,
+  dumpMemoryUsageInterval = null,
+  drawMemoryUsageGraphIntervalInMs = 60*1000,
+  drawMemoryUsageGraphInterval = null,
+// Start time
+  startHrTime = [0, 0],
+// Other
+  filenameResult = '',
+  filenameData = '',
+  dataFd = null;
 
-function logMemoryUsage() {
+function dumpMemoryUsage() {
   var
     currentHrTime = process.hrtime(),
     timeDelta = '',
@@ -35,7 +42,7 @@ function logMemoryUsage() {
     timeDelta = (currentHrTime[0] - startHrTime[0] - 1) + (currentHrTime[1] - startHrTime[1] + 1e9)/1e9;
   }
 
-  console.log(timeDelta + '\t' + memoryUsage.rss/Mb + '\t' + memoryUsage.heapUsed/Mb + '\t' + memoryUsage.heapTotal/Mb);
+  fs.writeSync(dataFd, timeDelta + '\t' + memoryUsage.rss/Mb + '\t' + memoryUsage.heapUsed/Mb + '\t' + memoryUsage.heapTotal/Mb + "\n");
 }
 
 function performOperation(callback) {
@@ -59,47 +66,119 @@ function performOperation(callback) {
   });
 }
 
-// Main program
-console.log("time\tRSS\theapUsed\theapTotal");
+// Parse program arguments
+params = process.argv.splice(2);
 
-startHrTime = process.hrtime();
-logMemoryUsage();
+var gcLevelFound = false;
+params.forEach(function (param) {
+  if (param.slice(0, 5) === "--gc=") {
+    gcLevel = param.slice(5);
+  } else if (param === '--gc') {
+    gcLevelFound = true;
+  } else if (gcLevelFound) {
+    gcLevel = param;
+    gcLevelFound = false;
+  }
+});
 
-if (logMemoryUsageIntervalInMs > 0) {
-  logMemoryUsageInterval = setInterval(logMemoryUsage, logMemoryUsageIntervalInMs);
+gcLevel = parseInt(gcLevel, 10);
+
+var myGc = function () {};
+if (gcLevel > 0) {
+  myGc = gc;
+}
+if (gcLevel > 1) {
+  myGc = helper.heavyGc;
 }
 
-async.whilst(
-  function () {
-    var currentHrTime = process.hrtime();
+filenameData = "memory-usage-dump.dat";
+filenameResult = "memory-usage-gc-" + gcLevel + ".png";
 
-    return (currentHrTime[0] - startHrTime[0]) < timeLimitInSec;
-  },
-  function (callback) {
-    performOperation(function () {
-      if (forceGc) {
-        helper.heavyGc();
+// Main program
+openDataFile();
+
+function openDataFile() {
+  console.log("Opening data file for writing...");
+
+  fs.open(__dirname + "/" + filenameData, "w", function (error, fd) {
+    if (error) throw error;
+    
+    dataFd = fd;
+    
+    process.nextTick(dumpMemoryUsageProfile);
+  });
+}
+
+function dumpMemoryUsageProfile() {
+  console.log("Start writing...");
+
+  // Write data table header to file
+  fs.writeSync(dataFd, "time\tRSS\theapUsed\theapTotal\n");
+
+  // Start timer, save initial memory usage
+  startHrTime = process.hrtime();
+  if (dumpMemoryUsageIntervalInMs > 0) {
+    dumpMemoryUsageInterval = setInterval(dumpMemoryUsage, dumpMemoryUsageIntervalInMs);
+  }
+  dumpMemoryUsage();
+  if (drawMemoryUsageGraphIntervalInMs > 0) {
+    drawMemoryUsageGraphInterval = setInterval(drawMemoryUsageGraph, drawMemoryUsageGraphIntervalInMs);
+  }
+
+  // Start async operations
+  async.whilst(
+    function () {
+      var currentHrTime = process.hrtime();
+  
+      return (currentHrTime[0] - startHrTime[0]) < timeLimitInSec;
+    },
+    function (callback) {
+      performOperation(function () {
+        myGc();
+  
+        if (dumpMemoryUsageIntervalInMs === 0) {
+          dumpMemoryUsage();
+        }
+  
+        if (pauseBetweenOperationsInMs > 0) {
+          setTimeout(callback, pauseBetweenOperationsInMs);
+        } else {
+          process.nextTick(callback);
+        }
+      });
+    },
+    function (error) {
+      if (error) throw error;
+  
+      // All ok
+      if (dumpMemoryUsageInterval) {
+        clearInterval(dumpMemoryUsageInterval);
       }
-
-      if (logMemoryUsageIntervalInMs == 0) {
-        logMemoryUsage();
+      if (drawMemoryUsageGraphInterval) {
+        clearInterval(drawMemoryUsageGraphInterval);
       }
+      
+      fs.close(dataFd, function (error) {
+        if (error) throw error;
 
-      if (pauseBetweenOperationsInMs > 0) {
-        setTimeout(callback, pauseBetweenOperationsInMs);
-      } else {
+        console.log("Draw graph...");
+        drawMemoryUsageGraph(function () {
+          console.log("Done.");
+        });
+      });
+    }
+  );
+}
+
+function drawMemoryUsageGraph(callback) {
+  require("child_process").exec(
+    "gle -output " + __dirname + "/" + filenameResult +  " " + __dirname + "/memory-usage-dump.gle",
+    function (error) {
+      if (error) throw error;
+
+      if (typeof callback === "function") {
         process.nextTick(callback);
       }
-    });
-  },
-  function (error) {
-    if (error) throw error;
-
-    // All ok
-    if (logMemoryUsageInterval) {
-      clearInterval(logMemoryUsageInterval);
     }
-
-    process.exit(0);
-  }
-);
+  );
+}
