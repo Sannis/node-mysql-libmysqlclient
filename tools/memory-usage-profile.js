@@ -91,8 +91,8 @@ if (gcLevel > 1) {
   myGc = helper.heavyGc;
 }
 
-filenameData = "memory-usage-dump.dat";
-filenameResult = "memory-usage-gc-" + gcLevel + ".png";
+filenameData = "memory-usage-profile.dat";
+filenameResult = "memory-usage-profile-gc-" + gcLevel + ".png";
 
 // Main program
 openDataFile();
@@ -172,7 +172,7 @@ function dumpMemoryUsageProfile() {
 
 function drawMemoryUsageGraph(callback) {
   require("child_process").exec(
-    "gle -output " + __dirname + "/" + filenameResult +  " " + __dirname + "/memory-usage-dump.gle",
+    "gle -output " + __dirname + "/" + filenameResult +  " " + __dirname + "/memory-usage-profile.gle",
     function (error) {
       if (error) throw error;
 

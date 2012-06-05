@@ -6,7 +6,7 @@ begin graph
         yaxis min 0 hei 0.5
 
         title "Memory usage (Mb)" hei 1 dist 0.8
-        data memory-usage-dump.dat
+        data memory-usage-profile.dat
 
         xtitle "Time, seconds" hei 0.5 dist 0.5
 
