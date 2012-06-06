@@ -11,8 +11,8 @@ Overview
 --------
 
 This bindings provides all general connection/querying functions from MySQL C API,
-and part of prepared statements support. `Connect`, `query` and `fetchAll` are asynchronous.
-This module also includes experimental support for asynchronous `querySend` from internals of `libmysqlclient`.
+and part of prepared statements support. `Connect`, `query` and `fetchAll` methods are asynchronous.
+This module also includes support for asynchronous `querySend` from internals of `libmysqlclient`.
 
 I start this project in 2010 when Node.js is growing and Ryan had plans to write this binding as part of [GSoC].
 Now it is used by many projects and have more than 10 contributors,
@@ -50,7 +50,8 @@ For Debian/Ubuntu:
 
 Yes, you would use aptitude if you want.
 
-Please refer to your system documentation on oner systems and feel free to send me a patch for this readme. 
+Please refer to your system documentation on other systems
+and feel free to send me a patch for this readme.
 
 
 Installation
@@ -60,7 +61,8 @@ You can install this module via NPM:
 
     $> npm install mysql-libmysqlclient
 
-Also you can build latest source code from repository. This way is described in developers documentation.
+Also you can build latest source code from repository.
+This way is described in developers documentation.
 
 
 Contributing
@@ -74,8 +76,9 @@ I'll be glad to see your forks and commits in them :)
 To contribute any patches, simply fork this repository using GitHub
 and send a pull request to [me](https://github.com/Sannis). Thanks!
 
-All information about development use and contribution is placed in [DEVELOPMENT](https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/DEVELOPMENT.markdown) file.
+All information about development use and contribution is placed in [DEVELOPMENT] file.
 
+[DEVELOPMENT]: https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/DEVELOPMENT.markdown
 
 Contributors
 ------------
@@ -87,5 +90,5 @@ Contributors
 License
 -------
 
-Node-mysql-libmysqlcleint is published under MIT license.  
+Node-mysql-libmysqlclient is published under MIT license.
 See license text in [LICENSE](https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/LICENSE) file.
