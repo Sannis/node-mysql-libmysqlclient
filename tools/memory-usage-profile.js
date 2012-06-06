@@ -15,12 +15,12 @@ var
 // Load configuration
   cfg = require("../tests/config"),
 // Parameters
-  timeLimitInSec = 30 * 60,
+  timeLimitInSec = 120 * 60,
   gcLevel = 0,
-  pauseBetweenOperationsInMs = 1,
-  dumpMemoryUsageIntervalInMs = 200,
+  pauseBetweenOperationsInMs = 0,
+  dumpMemoryUsageIntervalInMs = 500,
   dumpMemoryUsageInterval = null,
-  drawMemoryUsageGraphIntervalInMs = 60 * 1000,
+  drawMemoryUsageGraphIntervalInMs = 2 * 60 * 1000,
   drawMemoryUsageGraphInterval = null,
   bufferSize = 16 * 1024,
   bufferString = '',
