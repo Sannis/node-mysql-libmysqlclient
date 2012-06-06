@@ -48,7 +48,7 @@ For Debian/Ubuntu:
 
     #> apt-get install libmysqlclient-dev
 
-Yes, you would use aptitude if you want.
+*Yes, you would use aptitude if you want.*
 
 Please refer to your system documentation on other systems
 and feel free to send me a patch for this readme.
@@ -74,10 +74,8 @@ List of [authors ordered by first contribution] also available.
 I will be happy to hear tips and suggestions about this module.
 If you are interested in wide MySQL usage in Node.JS applications,
 leave your comments to the code.
-
 To contribute any patches, simply fork this repository using GitHub
 and send a pull request to [me](https://github.com/Sannis). Thanks!
-
 All information about development use and contribution is placed in [DEVELOPMENT] file.
 
 [GitHub contributors page]: https://github.com/Sannis/node-mysql-libmysqlclient/graphs/contributors
@@ -88,14 +86,12 @@ All information about development use and contribution is placed in [DEVELOPMENT
 Users and related projects
 --------------------------
 
-There is long time developed Node.js ORM library called [noblerecord](https://github.com/noblesamurai/noblerecord).
-It is inspired by Rails and widely used by Noblesamurai.
-
-If you are looking for lightweight Node.js ORM on top of this module,
-try [mapper](https://github.com/mgutz/mapper) by Mario Gutierrez.
-
 This module is used by [Taobao](http://taobao.com) guys
 for their distributed MySQL proxy [Myfox-query](https://github.com/vincent-zhao/Myfox-query-module) module.
+There is long time developed Node.js ORM library called [noblerecord](https://github.com/noblesamurai/noblerecord).
+It is inspired by Rails and widely used by Noblesamurai.
+If you are looking for lightweight Node.js ORM on top of this module,
+try [mapper](https://github.com/mgutz/mapper) by Mario Gutierrez.
 
 
 License
