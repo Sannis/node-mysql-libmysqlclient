@@ -1,5 +1,9 @@
 #!/bin/sh
 
+CURR_HEAD   := $(firstword $(shell git show-ref --hash HEAD | cut -b -6) master)
+GITHUB_PROJ := Sannis/node-mysql-libmysqlclient
+SRC_URL_FMT := https://github.com/${GITHUB_PROJ}/blob/${CURR_HEAD}/{file}\#L{line}
+
 MLF=./tools/run-memoryleaks-finder.js
 NI=./node_modules/.bin/node-inspector
 NI_DEBUG_PORT=5858
@@ -31,22 +35,26 @@ clean-all: clean
 		rm -f devdependencies-stamp
 
 test: devdependencies
-		./node_modules/.bin/nodeunit --reporter=minimal tests/low-level-sync tests/low-level-async tests/high-level tests/complex tests/issues
+		./node_modules/.bin/nodeunit --reporter=minimal tests/low-level-sync tests/low-level-async \
+		                                                tests/high-level tests/complex tests/issues
 
 test-slow: devdependencies
 		./node_modules/.bin/nodeunit --reporter=minimal tests/slow
 
 test-all: devdependencies
-		./node_modules/.bin/nodeunit --reporter=minimal tests/low-level-sync tests/low-level-async tests/high-level tests/complex tests/issues tests/slow
+		./node_modules/.bin/nodeunit --reporter=minimal tests/low-level-sync tests/low-level-async \
+		                                                tests/high-level tests/complex tests/issues \
+		                                                tests/slow
 
 test-profile: devdependencies
 		rm -f v8.log
-		/usr/bin/env node --prof ./node_modules/.bin/nodeunit tests/simple tests/complex tests/issues
+		/usr/bin/env node --prof ./node_modules/.bin/nodeunit tests/low-level-sync tests/low-level-async \
+		                                                      tests/high-level tests/complex tests/issues
 		/usr/bin/env linux-tick-processor v8.log > v8.processed.log
 
 lint: devdependencies
 		cpplint ./src/*.h ./src/*.cc
-		./node_modules/.bin/nodelint --config ./nodelint.conf ./package.json ./mysql-libmysqlclient.js ./doc ./tools/*.js
+		./node_modules/.bin/nodelint --config ./nodelint.conf ./package.json ./lib ./tools/*.js
 		./node_modules/.bin/nodelint --config ./nodelint.conf ./tests
 
 mlf: devdependencies build ./mysql-libmysqlclient.js
@@ -57,5 +65,9 @@ devdependencies: devdependencies-stamp
 devdependencies-stamp:
 		touch devdependencies-stamp
 		npm install --dev .
+
+doc: ./lib ./src
+		rm -rf ./doc
+		./node_modules/.bin/ndoc ./lib -o ./doc --link-format=${SRC_URL_FMT}
 
 .PHONY: all npm-install waf clean clean-all test test-slow test-all test-profile lint mlf
