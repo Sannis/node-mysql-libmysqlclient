@@ -17,6 +17,7 @@ var
 // Parameters
   timeLimitInSec = 120 * 60,
   gcLevel = 0,
+  connType = 'binding',
   pauseBetweenOperationsInMs = 0,
   dumpMemoryUsageIntervalInMs = 500,
   dumpMemoryUsageInterval = null,
@@ -48,7 +49,7 @@ function dumpMemoryUsage() {
 }
 
 function performOperation(callback) {
-  var connection = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
+  var connection = createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
 
   if (!connection.connectedSync()) {
     setTimeout(callback, pauseBetweenOperationsInMs);
@@ -116,6 +117,7 @@ function performOperation(callback) {
 params = process.argv.splice(2);
 
 var gcLevelFound = false;
+var connTypeFound = false;
 params.forEach(function (param) {
   if (param.slice(0, 5) === "--gc=") {
     gcLevel = param.slice(5);
@@ -124,6 +126,13 @@ params.forEach(function (param) {
   } else if (gcLevelFound) {
     gcLevel = param;
     gcLevelFound = false;
+  } else if (param.slice(0, 13) === "--connection=") {
+    connType = param.slice(13);
+  } else if (param === '--connection') {
+    connTypeFound = true;
+  } else if (connTypeFound) {
+    connType = param;
+    connTypeFound = false;
   }
 });
 
@@ -137,8 +146,16 @@ if (gcLevel > 1) {
   myGc = helper.heavyGc;
 }
 
+var createConnectionSync = mysql.createConnectionSync;
+if (connType === 'queued') {
+  createConnectionSync = mysql.createConnectionQueuedSync;
+}
+if (connType === 'highlevel') {
+  createConnectionSync = mysql.createConnectionHighlevelSync;
+}
+
 filenameData = "memory-usage-profile.dat";
-filenameResult = "memory-usage-profile-gc-" + gcLevel + ".png";
+filenameResult = "memory-usage-profile-connection-" + connType + "-gc-" + gcLevel + ".png";
 
 // Main program
 createTestTable();
@@ -146,7 +163,7 @@ createTestTable();
 function createTestTable() {
   console.log("Creating test table...");
 
-  var connection = mysql.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), result = true;
+  var connection = createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), result = true;
 
   if (!connection.connectedSync()) {
     throw new Error("Cannot connect to database.");
