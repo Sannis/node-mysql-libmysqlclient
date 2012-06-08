@@ -27,6 +27,11 @@
         return THREXC("Result has been freed."); \
     }
 
+/**
+ * class MysqlResult
+ *
+ * MySQL results class
+ **/
 class MysqlResult : public node::ObjectWrap {
   public:
     static Persistent<FunctionTemplate> constructor_template;

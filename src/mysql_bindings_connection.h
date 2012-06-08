@@ -46,6 +46,11 @@
 
 using namespace v8; // NOLINT
 
+/**
+ * class MysqlConnection
+ *
+ * MySQL connection class, base version
+ **/
 class MysqlConnection : public node::ObjectWrap {
   public:
     static Persistent<FunctionTemplate> constructor_template;

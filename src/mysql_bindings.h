@@ -10,15 +10,15 @@
 
 #include <v8.h>
 
-/**
+/*!
  * Use this header file to conditionally invoke eio_custom() or uv_queue_work(),
  * depending on the node version that the module is being compiled for.
  */
 #include "./node_async_shim.h"
 
-/**
- * Usefull macroses for unility operations
- * such as agrument checking and C=+ <-> V8 type convertions
+/*!
+ * Useful macroses for utility operations
+ * such as argument checking and C=+ <-> V8 type conversions
  */
 
 // Only for fixing some cpplint.py errors:

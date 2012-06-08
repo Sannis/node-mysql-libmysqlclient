@@ -1,4 +1,4 @@
-/**
+/*!
  * eio_custom() vs. uv_queue_work() file.
  * Original gist: https://gist.github.com/1368935
  *
