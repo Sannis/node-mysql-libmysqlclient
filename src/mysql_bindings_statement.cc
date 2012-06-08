@@ -5,19 +5,15 @@
  * See license text in LICENSE file
  */
 
-/**
+/*!
  * Include headers
- *
- * @ignore
  */
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
 
-/**
+/*!
  * Init V8 structures for MysqlStatement class
- *
- * @ignore
  */
 Persistent<FunctionTemplate> MysqlStatement::constructor_template;
 
@@ -104,11 +100,11 @@ MysqlStatement::~MysqlStatement() {
     }
 }
 
-/**
- * Creates new MySQL statement object
+/** internal
+ * new MysqlStatement()
  *
- * @constructor
- */
+ * Creates new MySQL prepared statement object
+ **/
 Handle<Value> MysqlStatement::New(const Arguments& args) {
     HandleScope scope;
 
@@ -120,7 +116,7 @@ Handle<Value> MysqlStatement::New(const Arguments& args) {
     return args.Holder();
 }
 
-/**
+/*!
  * Returns the number of parameter for the given statement
  *
  * @getter
@@ -138,7 +134,7 @@ Handle<Value> MysqlStatement::ParamCountGetter(Local<String> property,
     return scope.Close(Integer::New(stmt->param_count));
 }
 
-/**
+/*!
  * Returns the total number of rows changed, deleted, or inserted by the last executed statement
  *
  * @return {Integer}
@@ -160,7 +156,7 @@ Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
     return scope.Close(Integer::New(affected_rows));
 }
 
-/**
+/*!
  * Used to get the current value of a statement attribute
  *
  * @param {Integer} attr
@@ -199,7 +195,7 @@ Handle<Value> MysqlStatement::AttrGetSync(const Arguments& args) {
     return THREXC("Control reaches end of non-void function :-D");
 }
 
-/**
+/*!
  * Used to modify the behavior of a prepared statement
  *
  * @param {Integer} attr
@@ -243,7 +239,7 @@ Handle<Value> MysqlStatement::AttrSetSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/**
+/*!
  * Binds variables to a prepared statement as parameters
  *
  * @param {Array} params
@@ -356,7 +352,7 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/**
+/*!
  * Closes a prepared statement
  *
  * @return {Boolean}
@@ -377,7 +373,7 @@ Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/**
+/*!
  * Seeks to an arbitrary row in statement result set
  *
  * @param {Integer} offset
@@ -403,7 +399,7 @@ Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
     return Undefined();
 }
 
-/**
+/*!
  * Returns the error code for the most recent statement call
  *
  * @return {Integer}
@@ -420,7 +416,7 @@ Handle<Value> MysqlStatement::ErrnoSync(const Arguments& args) {
     return scope.Close(Integer::New(errno));
 }
 
-/**
+/*!
  * Returns a string description for last statement error
  *
  * @return {String}
@@ -437,7 +433,7 @@ Handle<Value> MysqlStatement::ErrorSync(const Arguments& args) {
     return scope.Close(V8STR(error));
 }
 
-/**
+/*!
  * Executes a prepared query
  *
  * @return {Boolean}
@@ -457,7 +453,7 @@ Handle<Value> MysqlStatement::ExecuteSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/**
+/*!
  * Returns the number of field in the given statement
  *
  * @return {Integer}
@@ -473,7 +469,7 @@ Handle<Value> MysqlStatement::FieldCountSync(const Arguments& args) {
     return scope.Close(Integer::New(mysql_stmt_field_count(stmt->_stmt)));
 }
 
-/**
+/*!
  * Frees stored result memory for the given statement handle
  *
  * @return {Boolean}
@@ -488,7 +484,7 @@ Handle<Value> MysqlStatement::FreeResultSync(const Arguments& args) {
     return scope.Close(!mysql_stmt_free_result(stmt->_stmt) ? True() : False());
 }
 
-/**
+/*!
  * Get the ID generated from the previous INSERT operation
  *
  * @return {Integer}
@@ -504,7 +500,7 @@ Handle<Value> MysqlStatement::LastInsertIdSync(const Arguments& args) {
     return scope.Close(Integer::New(mysql_stmt_insert_id(stmt->_stmt)));
 }
 
-/**
+/*!
  * Return the number of rows in statements result set
  *
  * @return {Integer}
@@ -521,7 +517,7 @@ Handle<Value> MysqlStatement::NumRowsSync(const Arguments& args) {
     return scope.Close(Integer::New(mysql_stmt_num_rows(stmt->_stmt)));
 }
 
-/**
+/*!
  * Prepare statement by given query
  *
  * @param {String} query
@@ -563,7 +559,7 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/**
+/*!
  * Resets a prepared statement
  *
  * @return {Boolean}
@@ -584,7 +580,7 @@ Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/**
+/*!
  * Returns result set metadata from a prepared statement
  *
  * @return {MysqlResult}
@@ -614,7 +610,7 @@ Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/**
+/*!
  * Send parameter data to the server in blocks (or "chunks")
  *
  * @param {Integer} parameter number, beginning with 0
@@ -640,7 +636,7 @@ Handle<Value> MysqlStatement::SendLongDataSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/**
+/*!
  * Returns SQLSTATE error from previous statement operation
  *
  * @return {String}
@@ -655,7 +651,7 @@ Handle<Value> MysqlStatement::SqlStateSync(const Arguments& args) {
     return scope.Close(V8STR(mysql_stmt_sqlstate(stmt->_stmt)));
 }
 
-/**
+/*!
  * Transfers a result set from a prepared statement
  *
  * @return {Boolean}
