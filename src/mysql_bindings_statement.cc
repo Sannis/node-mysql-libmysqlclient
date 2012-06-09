@@ -116,7 +116,7 @@ Handle<Value> MysqlStatement::New(const Arguments& args) {
     return args.Holder();
 }
 
-/**
+/** read-only
  * MysqlStatement#paramCount -> Integer
  *
  * Returns the number of parameter for the given statement

@@ -265,7 +265,7 @@ Handle<Value> MysqlResult::New(const Arguments& args) {
     return args.Holder();
 }
 
-/**
+/** read-only
  * MysqlResult#fieldCount -> Integer|Undefined
  *
  * Get the number of fields in a result

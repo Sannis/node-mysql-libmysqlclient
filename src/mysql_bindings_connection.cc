@@ -275,7 +275,7 @@ Handle<Value> MysqlConnection::New(const Arguments& args) {
     return args.Holder();
 }
 
-/**
+/** read-only
  * MysqlConnection#connectErrno -> Integer
  *
  * Gets last connect error number
@@ -289,7 +289,7 @@ Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property,
     return scope.Close(Integer::NewFromUnsigned(conn->connect_errno));
 }
 
-/**
+/** read-only
  * MysqlConnection#connectError -> String
  *
  * Gets last connect error string
