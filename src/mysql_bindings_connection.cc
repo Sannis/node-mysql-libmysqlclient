@@ -261,11 +261,11 @@ MysqlConnection::~MysqlConnection() {
     pthread_mutex_destroy(&this->query_lock);
 }
 
-/*!
- * Creates new MysqlConnection object
+/**
+ * new MysqlConnection()
  *
- * @constructor
- */
+ * Creates new MysqlConnection object
+ **/
 Handle<Value> MysqlConnection::New(const Arguments& args) {
     HandleScope scope;
 
@@ -275,12 +275,11 @@ Handle<Value> MysqlConnection::New(const Arguments& args) {
     return args.Holder();
 }
 
-/*!
- * Gets last connect error number
+/**
+ * MysqlConnection#connectErrno -> Integer
  *
- * @getter
- * @return {Integer}
- */
+ * Gets last connect error number
+ **/
 Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property,
                                             const AccessorInfo &info) {
     HandleScope scope;
@@ -290,12 +289,11 @@ Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property,
     return scope.Close(Integer::NewFromUnsigned(conn->connect_errno));
 }
 
-/*!
- * Gets last connect error string
+/**
+ * MysqlConnection#connectError -> String
  *
- * @getter
- * @return {Integer}
- */
+ * Gets last connect error string
+ **/
 Handle<Value> MysqlConnection::ConnectErrorGetter(Local<String> property,
                                             const AccessorInfo &info) {
     HandleScope scope;
@@ -305,11 +303,11 @@ Handle<Value> MysqlConnection::ConnectErrorGetter(Local<String> property,
     return scope.Close(V8STR(conn->connect_error ? conn->connect_error : ""));
 }
 
-/*!
- * Gets number of affected rows in previous operation
+/**
+ * MysqlConnection#affectedRowsSync() -> Integer
  *
- * @return {Integer}
- */
+ * Gets number of affected rows in previous operation
+ **/
 Handle<Value> MysqlConnection::AffectedRowsSync(const Arguments& args) {
     HandleScope scope;
 
@@ -326,12 +324,12 @@ Handle<Value> MysqlConnection::AffectedRowsSync(const Arguments& args) {
     return scope.Close(Integer::New(affected_rows));
 }
 
-/*!
- * Sets autocommit mode
+/**
+ * MysqlConnection#autoCommitSync(mode) -> Boolean
+ * - mode (Boolean): Mode flag
  *
- * @param {Boolean} mode
- * @return {Boolean}
- */
+ * Sets autocommit mode
+ **/
 Handle<Value> MysqlConnection::AutoCommitSync(const Arguments& args) {
     HandleScope scope;
 
@@ -348,14 +346,14 @@ Handle<Value> MysqlConnection::AutoCommitSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/*!
- * Changes the user and causes the database to become the default
+/**
+ * MysqlConnection#changeUserSync(user[, password[, database]]) -> Boolean
+ * - user (String): Username
+ * - password (String): Password
+ * - database (String): Database to use
  *
- * @param {String} user
- * @param {String|null} password
- * @param {String|null} database
- * @return {Boolean}
- */
+ * Changes the user and causes the database to become the default
+ **/
 Handle<Value> MysqlConnection::ChangeUserSync(const Arguments& args) {
     HandleScope scope;
 
@@ -389,11 +387,11 @@ Handle<Value> MysqlConnection::ChangeUserSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/*!
- * Commits the current transaction
+/**
+ * MysqlConnection#commitSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Commits the current transaction
+ **/
 Handle<Value> MysqlConnection::CommitSync(const Arguments& args) {
     HandleScope scope;
 
@@ -467,17 +465,18 @@ async_rtn MysqlConnection::EIO_Connect(uv_work_t *req) {
     RETURN_ASYNC
 }
 
-/*!
- * Connects to the MySQL server
+/**
+ * MysqlConnection#connect([hostname[, user[, password[, database[, port[, socket]]]]]], callback)
+ * - hostname (String): Hostname
+ * - user (String): Username
+ * - password (String): Password
+ * - database (String): Database to use
+ * - port (Integer): Connection port
+ * - socket (String): Connection socket
+ * - callback (Function): Callback function, gets (error)
  *
- * @param {String|null} hostname
- * @param {String|null} user
- * @param {String|null} password
- * @param {String|null} database
- * @param {Integer|null} port
- * @param {String|null} socket
- * @param {Function(error)} callback
- */
+ * Connects to the MySQL server
+ **/
 Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     HandleScope scope;
 
@@ -530,17 +529,17 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     return Undefined();
 }
 
-/*!
- * Connects to the MySQL server
+/**
+ * MysqlConnection#connectSync([hostname[, user[, password[, database[, port[, socket]]]]]]) -> Boolean
+ * - hostname (String): Hostname
+ * - user (String): Username
+ * - password (String): Password
+ * - database (String): Database to use
+ * - port (Integer): Connection port
+ * - socket (String): Connection socket
  *
- * @param {String|null} hostname
- * @param {String|null} user
- * @param {String|null} password
- * @param {String|null} database
- * @param {Integer|null} port
- * @param {String|null} socket
- * @return {Boolean}
- */
+ * Connects to the MySQL server
+ **/
 Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
     HandleScope scope;
 
@@ -576,11 +575,11 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/*!
- * Returns current connected status
+/**
+ * MysqlConnection#connectedSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Returns current connected status
+ **/
 Handle<Value> MysqlConnection::ConnectedSync(const Arguments& args) {
     HandleScope scope;
 
@@ -589,9 +588,11 @@ Handle<Value> MysqlConnection::ConnectedSync(const Arguments& args) {
     return scope.Close(conn->connected ? True() : False());
 }
 
-/*!
+/**
+ * MysqlConnection#closeSync()
+ *
  * Closes database connection
- */
+ **/
 Handle<Value> MysqlConnection::CloseSync(const Arguments& args) {
     HandleScope scope;
 
@@ -604,11 +605,12 @@ Handle<Value> MysqlConnection::CloseSync(const Arguments& args) {
     return Undefined();
 }
 
-/*!
- * Performs debugging operations
+/**
+ * MysqlConnection#debugSync(message)
+ * - message (String): Debug message
  *
- * @param {String} debug message
- */
+ * Performs debug logging
+ **/
 Handle<Value> MysqlConnection::DebugSync(const Arguments& args) {
     HandleScope scope;
 
@@ -623,11 +625,11 @@ Handle<Value> MysqlConnection::DebugSync(const Arguments& args) {
     return Undefined();
 }
 
-/*!
- * Dump debugging information into the log
+/**
+ * MysqlConnection#dumpDebugInfoSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Dump debugging information into the log
+ **/
 Handle<Value> MysqlConnection::DumpDebugInfoSync(const Arguments& args) {
     HandleScope scope;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
@@ -637,11 +639,11 @@ Handle<Value> MysqlConnection::DumpDebugInfoSync(const Arguments& args) {
     return scope.Close(mysql_dump_debug_info(conn->_conn) ? False() : True());
 }
 
-/*!
- * Returns the last error code
+/**
+ * MysqlConnection#errnoSync() -> Integer
  *
- * @return {Integer}
- */
+ * Returns the last error code
+ **/
 Handle<Value> MysqlConnection::ErrnoSync(const Arguments& args) {
     HandleScope scope;
 
@@ -652,11 +654,11 @@ Handle<Value> MysqlConnection::ErrnoSync(const Arguments& args) {
     return scope.Close(Integer::NewFromUnsigned(mysql_errno(conn->_conn)));
 }
 
-/*!
- * Returns a string description of the last error
+/**
+ * MysqlConnection#errorSync() -> String
  *
- * @return {String}
- */
+ * Returns the last error message
+ **/
 Handle<Value> MysqlConnection::ErrorSync(const Arguments& args) {
     HandleScope scope;
 
@@ -669,13 +671,13 @@ Handle<Value> MysqlConnection::ErrorSync(const Arguments& args) {
     return scope.Close(V8STR(error));
 }
 
-/*!
+/**
+ * MysqlConnection#escapeSync(string) -> String
+ * - string (String): String to escape
+ *
  * Escapes special characters in a string for use in an SQL statement,
  * taking into account the current charset of the connection
- *
- * @param {String} string
- * @return {String}
- */
+ **/
 Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
     HandleScope scope;
 
@@ -700,11 +702,11 @@ Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Returns the number of columns for the most recent query
+/**
+ * MysqlConnection#fieldCountSync() -> Integer
  *
- * @return {Integer}
- */
+ * Returns the number of columns for the most recent query
+ **/
 Handle<Value> MysqlConnection::FieldCountSync(const Arguments& args) {
     HandleScope scope;
 
@@ -717,11 +719,11 @@ Handle<Value> MysqlConnection::FieldCountSync(const Arguments& args) {
                     mysql_field_count(conn->_conn)));
 }
 
-/*!
- * Returns a character set object
+/**
+ * MysqlConnection#getCharsetSync() -> Object
  *
- * @return {Object}
- */
+ * Returns a character set object
+ **/
 Handle<Value> MysqlConnection::GetCharsetSync(const Arguments& args) {
     HandleScope scope;
 
@@ -747,11 +749,11 @@ Handle<Value> MysqlConnection::GetCharsetSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Returns a character set name
+/**
+ * MysqlConnection#getCharsetNameSync() -> String
  *
- * @return {String}
- */
+ * Returns a character set name
+ **/
 Handle<Value> MysqlConnection::GetCharsetNameSync(const Arguments& args) {
     HandleScope scope;
 
@@ -762,11 +764,11 @@ Handle<Value> MysqlConnection::GetCharsetNameSync(const Arguments& args) {
     return scope.Close(V8STR(mysql_character_set_name(conn->_conn)));
 }
 
-/*!
- * Returns the MySQL client version and information
+/**
+ * MysqlConnection#getClientInfoSync() -> Object
  *
- * @return {Object}
- */
+ * Returns the MySQL client version and information
+ **/
 Handle<Value> MysqlConnection::GetClientInfoSync(const Arguments& args) {
     HandleScope scope;
 
@@ -780,11 +782,11 @@ Handle<Value> MysqlConnection::GetClientInfoSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Returns the MySQL client, server, host and protocol version and information
+/**
+ * MysqlConnection#getInfoSync() -> Object
  *
- * @return {Object}
- */
+ * Returns the MySQL client, server, host and protocol version and information
+ **/
 Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
     HandleScope scope;
 
@@ -811,11 +813,11 @@ Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Retrieves information about the most recently executed query
+/**
+ * MysqlConnection#getInfoStringSync() -> String
  *
- * @return {String}
- */
+ * Retrieves information about the most recently executed query
+ **/
 Handle<Value> MysqlConnection::GetInfoStringSync(const Arguments& args) {
     HandleScope scope;
 
@@ -828,11 +830,11 @@ Handle<Value> MysqlConnection::GetInfoStringSync(const Arguments& args) {
     return scope.Close(V8STR(info ? info : ""));
 }
 
-/*!
- * Gets result of SHOW WARNINGS
+/**
+ * MysqlConnection#getWarningsSync() -> Array
  *
- * @return {Array}
- */
+ * Gets result of SHOW WARNINGS
+ **/
 Handle<Value> MysqlConnection::GetWarningsSync(const Arguments& args) {
     HandleScope scope;
 
@@ -868,11 +870,11 @@ Handle<Value> MysqlConnection::GetWarningsSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Initializes MysqlConnection
+/**
+ * MysqlConnection#initSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Initializes MysqlConnection
+ **/
 Handle<Value> MysqlConnection::InitSync(const Arguments& args) {
     HandleScope scope;
 
@@ -891,11 +893,11 @@ Handle<Value> MysqlConnection::InitSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/*!
- * Initializes a statement and returns it
+/**
+ * MysqlConnection#initStatementSync() -> MysqlStatement|Boolean
  *
- * @return {MysqlStatement|Boolean}
- */
+ * Initializes a statement and returns it
+ **/
 Handle<Value> MysqlConnection::InitStatementSync(const Arguments& args) {
     HandleScope scope;
 
@@ -914,11 +916,11 @@ Handle<Value> MysqlConnection::InitStatementSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Returns the auto generated id used in the last query
+/**
+ * MysqlConnection#lastInsertIdSync() -> Integer
  *
- * @return {Integer}
- */
+ * Returns the auto generated id used in the last query
+ **/
 Handle<Value> MysqlConnection::LastInsertIdSync(const Arguments& args) {
     HandleScope scope;
 
@@ -938,11 +940,11 @@ Handle<Value> MysqlConnection::LastInsertIdSync(const Arguments& args) {
     return scope.Close(Integer::New(insert_id));
 }
 
-/*!
- * Checks if there are any more query results from a multi query
+/**
+ * MysqlConnection#multiMoreResultsSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Checks if there are any more query results from a multi query
+ **/
 Handle<Value> MysqlConnection::MultiMoreResultsSync(const Arguments& args) {
     HandleScope scope;
 
@@ -957,11 +959,11 @@ Handle<Value> MysqlConnection::MultiMoreResultsSync(const Arguments& args) {
     return scope.Close(False());
 }
 
-/*!
- * Prepare next result from multi_query
+/**
+ * MysqlConnection#multiNextResultSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Prepare next result from multi query
+ **/
 Handle<Value> MysqlConnection::MultiNextResultSync(const Arguments& args) {
     HandleScope scope;
 
@@ -982,12 +984,12 @@ Handle<Value> MysqlConnection::MultiNextResultSync(const Arguments& args) {
     return scope.Close(False());
 }
 
-/*!
- * Performs a multi_query on the database
+/**
+ * MysqlConnection#multiRealQuerySync(query) -> Boolean
+ * - query (String): Query
  *
- * @param {String} multi_query
- * @return {Boolean}
- */
+ * Performs a multi query on the database
+ **/
 Handle<Value> MysqlConnection::MultiRealQuerySync(const Arguments& args) {
     HandleScope scope;
 
@@ -1008,12 +1010,12 @@ Handle<Value> MysqlConnection::MultiRealQuerySync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/*!
+/**
+ * MysqlConnection#pingSync() -> Boolean
+ *
  * Pings a server connection,
  * or tries to reconnect if the connection has gone down
- *
- * @return {Boolean}
- */
+ **/
 Handle<Value> MysqlConnection::PingSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1140,14 +1142,14 @@ async_rtn MysqlConnection::EIO_Query(uv_work_t *req) {
     RETURN_ASYNC
 }
 
-/*!
- * Performs a query on the database
+/**
+ * MysqlConnection#query(query, callback)
+ * - query (String): Query
+ * - callback (Function): Callback function, gets (error, result)
  *
- * Uses mysql_real_query
- *
- * @param {String} query
- * @param {Function(error, result)} callback
- */
+ * Performs a query on the database.
+ * Uses mysql_real_query.
+ **/
 Handle<Value> MysqlConnection::Query(const Arguments& args) {
     HandleScope scope;
 
@@ -1239,13 +1241,13 @@ void MysqlConnection::EV_After_QuerySend(EV_P_ ev_io *io_watcher, int revents) {
     delete io_watcher;
 }
 
-/*!
- * Performs a query on the database
+/**
+ * MysqlConnection#querySend(query, callback)
+ * - query (String): Query
+ * - callback (Function): Callback function, gets (errro, result)
  *
- * Uses mysql_send_query
- *
- * @param {String} querySend
- * @param {Function(error, result)} callback
+ * Performs a query on the database.
+ * Uses mysql_send_query.
  */
 Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
     HandleScope scope;
@@ -1283,12 +1285,12 @@ Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
 }
 
 
-/*!
- * Performs a query on the database
+/**
+ * MysqlConnection#querySync(query) -> MysqlResult
+ * - query (String): Query
  *
- * @param {String} query
- * @param {MysqlResult} result
- */
+ * Performs a query on the database.
+ **/
 Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
     HandleScope scope;
 
@@ -1342,11 +1344,11 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Rolls back current transaction
+/**
+ * MysqlConnection#rollbackSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Rolls back current transaction
+ **/
 Handle<Value> MysqlConnection::RollbackSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1361,17 +1363,17 @@ Handle<Value> MysqlConnection::RollbackSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/*!
- * Opens a new connection to the MySQL server
+/**
+ * MysqlConnection#realConnectSync([hostname[, user[, password[, database[, port[, socket]]]]]]) -> Boolean
+ * - hostname (String): Hostname
+ * - user (String): Username
+ * - password (String): Password
+ * - database (String): Database to use
+ * - port (Integer): Connection port
+ * - socket (String): Connection socket
  *
- * @param {String|null} hostname
- * @param {String|null} user
- * @param {String|null} password
- * @param {String|null} database
- * @param {Integer|null} port
- * @param {String|null} socket
- * @return {Boolean}
- */
+ * Open a new connection to the MySQL server
+ **/
 Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1402,12 +1404,12 @@ Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/*!
- * Executes an SQL query
+/**
+ * MysqlConnection#realQuerySync() -> Boolean
+ * - query (String): Query
  *
- * @param {String} query
- * @return {Boolean}
- */
+ * Executes an SQL query
+ **/
 Handle<Value> MysqlConnection::RealQuerySync(const Arguments& args) {
     HandleScope scope;
 
@@ -1432,12 +1434,12 @@ Handle<Value> MysqlConnection::RealQuerySync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/*!
- * Selects the default database for database queries
+/**
+ * MysqlConnection#selectDbSync(database) -> Boolean
+ * - database (String): Database to use
  *
- * @param {String} database
- * @return {Boolean}
- */
+ * Selects the default database for database queries
+ **/
 Handle<Value> MysqlConnection::SelectDbSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1454,12 +1456,12 @@ Handle<Value> MysqlConnection::SelectDbSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/*!
- * Sets the default client character set
+/**
+ * MysqlConnection#setCharsetSync() -> Boolean
+ * - charset (String): Charset
  *
- * @param {String} charset
- * @return {Boolean}
- */
+ * Sets the default client character set
+ **/
 Handle<Value> MysqlConnection::SetCharsetSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1476,13 +1478,13 @@ Handle<Value> MysqlConnection::SetCharsetSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/*!
- * Sets options
+/**
+ * MysqlConnection#setOptionSync(key, value) -> Boolean
+ * - key (Integer): Option key
+ * - value (Integer|String): Option value
  *
- * @param {Integer} option key
- * @param {Integer|String} option value
- * @return {Boolean}
- */
+ * Sets connection options
+ **/
 Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1555,16 +1557,18 @@ Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/*!
+/**
+ * MysqlConnection#setSslSync()
+ *
  * Sets SSL options
  * Used for establishing secure connections
  *
- * @param {String} key file
- * @param {String} certificate file
- * @param {String} certificate authority file
- * @param {String} CA certificates in PEM directory
- * @param {String} allowable ciphers
- */
+ * - key (String): Key file
+ * - cert (String): Certificate file
+ * - ca (String): Certificate authority file
+ * - capath(String): CA certificates in PEM directory
+ * - cipher (String): Allowable ciphers
+ **/
 Handle<Value> MysqlConnection::SetSslSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1583,11 +1587,11 @@ Handle<Value> MysqlConnection::SetSslSync(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
-/*!
- * Returns the SQLSTATE error from previous MySQL operation
+/**
+ * MysqlConnection#sqlStateSync() -> String
  *
- * @return {String}
- */
+ * Returns the SQLSTATE error from previous MySQL operation
+ **/
 Handle<Value> MysqlConnection::SqlStateSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1598,11 +1602,11 @@ Handle<Value> MysqlConnection::SqlStateSync(const Arguments& args) {
     return scope.Close(V8STR(mysql_sqlstate(conn->_conn)));
 }
 
-/*!
- * Gets the current system status
+/**
+ * MysqlConnection#statSync() -> String
  *
- * @return {String}
- */
+ * Gets the current system status
+ **/
 Handle<Value> MysqlConnection::StatSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1615,11 +1619,11 @@ Handle<Value> MysqlConnection::StatSync(const Arguments& args) {
     return scope.Close(V8STR(stat ? stat : ""));
 }
 
-/*!
- * Transfers a result set from the last query
+/**
+ * MysqlConnection#storeResultSync() -> MysqlResult
  *
- * @return {MysqlResult}
- */
+ * Transfers a result set from the last query
+ **/
 Handle<Value> MysqlConnection::StoreResultSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1647,11 +1651,11 @@ Handle<Value> MysqlConnection::StoreResultSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Returns the thread ID for the current connection
+/**
+ * MysqlConnection#threadIdSync() -> Integer
  *
- * @return {Integer}
- */
+ * Returns the thread ID for the current connection
+ **/
 Handle<Value> MysqlConnection::ThreadIdSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1664,11 +1668,11 @@ Handle<Value> MysqlConnection::ThreadIdSync(const Arguments& args) {
     return scope.Close(Integer::New(thread_id));
 }
 
-/*!
- * Returns whether thread safety is given or not
+/**
+ * MysqlConnection#threadSafeSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Returns whether thread safety is given or not
+ **/
 Handle<Value> MysqlConnection::ThreadSafeSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1679,11 +1683,11 @@ Handle<Value> MysqlConnection::ThreadSafeSync(const Arguments& args) {
     }
 }
 
-/*!
- * Initiates a result set retrieval
+/**
+ * MysqlConnection#useResultSync() -> MysqlResult
  *
- * @return {MysqlResult}
- */
+ * Initiates a result set retrieval for the last query
+ **/
 Handle<Value> MysqlConnection::UseResultSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1711,11 +1715,11 @@ Handle<Value> MysqlConnection::UseResultSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Returns the number of warnings from the last query for the given link
+/**
+ * MysqlConnection#warningCountSync() -> Integer
  *
- * @return {Integer}
- */
+ * Returns the number of warnings from the last query for the given link
+ **/
 Handle<Value> MysqlConnection::WarningCountSync(const Arguments& args) {
     HandleScope scope;
 
@@ -1727,4 +1731,3 @@ Handle<Value> MysqlConnection::WarningCountSync(const Arguments& args) {
 
     return scope.Close(Integer::NewFromUnsigned(warning_count));
 }
-
