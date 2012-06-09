@@ -265,12 +265,11 @@ Handle<Value> MysqlResult::New(const Arguments& args) {
     return args.Holder();
 }
 
-/*!
- * Get the number of fields in a result
+/**
+ * MysqlResult#fieldCount -> Integer|Undefined
  *
- * @getter
- * @return {Integer|Undefined}
- */
+ * Get the number of fields in a result
+ **/
 Handle<Value> MysqlResult::FieldCountGetter(Local<String> property,
                                                    const AccessorInfo &info) {
     HandleScope scope;
@@ -286,12 +285,12 @@ Handle<Value> MysqlResult::FieldCountGetter(Local<String> property,
     }
 }
 
-/*!
- * MysqlResult#DataSeekSync(offset)
+/**
+ * MysqlResult#dataSeekSync(offset)
  * - offset (Integer): The field offset
  *
  * Adjusts the result pointer to an arbitrary row in the result
- */
+ **/
 Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
     HandleScope scope;
 
@@ -439,7 +438,7 @@ async_rtn MysqlResult::EIO_FetchAll(uv_work_t *req) {
 /**
  * MysqlResult#fetchAll(callback)
  * MysqlResult#fetchAll(options, callback)
- * - options (Boolean|Object): Fetch style options
+ * - options (Boolean|Object): Fetch style options (optional)
  * - callback (Function): Callback function, gets (error, rows)
  *
  * Fetches all result rows as an array
@@ -494,12 +493,12 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     return Undefined();
 }
 
-/*!
- * Fetches all result rows as an array
+/**
+ * MysqlResult#fetchAllSync([options]) -> Array
+ * - options (Boolean|Object): Fetch style options (optional)
  *
- * @param {Boolean|Object} options (optional)
- * @return {Array}
- */
+ * Fetches all result rows as an array
+ **/
 Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
     HandleScope scope;
 
@@ -577,11 +576,11 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Fetch a result row as an array
+/**
+ * MysqlResult#fetchArraySync() -> Array
  *
- * @return {Array}
- */
+ * Fetch a result row as an array
+ **/
 Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
     HandleScope scope;
 
@@ -615,11 +614,11 @@ Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
     return scope.Close(js_result_row);
 }
 
-/*!
- * Returns meta-data of the next field in the result set
+/**
+ * MysqlResult#fetchFieldSync() -> Object
  *
- * @return {Object}
- */
+ * Returns metadata of the next field in the result set
+ **/
 Handle<Value> MysqlResult::FetchFieldSync(const Arguments& args) {
     HandleScope scope;
 
@@ -643,12 +642,12 @@ Handle<Value> MysqlResult::FetchFieldSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Fetch meta-data for a single field
+/**
+ * MysqlResult#fetchFieldDirectSync(fieldNum) -> Object
+ * - fieldNum (Integer): Field number (starts from 0)
  *
- * @param {Integer} field number
- * @return {Array}
- */
+ * Returns metadata of the arbitrary field in the result set
+ **/
 Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLINT
     HandleScope scope;
 
@@ -674,11 +673,11 @@ Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLI
     return scope.Close(js_result);
 }
 
-/*!
- * Returns an array of objects representing the fields in a result set
+/**
+ * MysqlResult#fetchFieldsSync() -> Array
  *
- * @return {Array}
- */
+ * Returns an array of objects representing the fields in a result set
+ **/
 Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
     HandleScope scope;
 
@@ -705,11 +704,11 @@ Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Returns the lengths of the columns of the current row in the result set
+/**
+ * MysqlResult#fetchLengthsSync() -> Array
  *
- * @return {Array}
- */
+ * Returns the lengths of the columns of the current row in the result set
+ **/
 Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
     HandleScope scope;
 
@@ -735,11 +734,11 @@ Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
     return scope.Close(js_result);
 }
 
-/*!
- * Fetch a result row as an object
+/**
+ * MysqlResult#fetchObjectSync() -> Object
  *
- * @return {Object}
- */
+ * Fetch a result row as an object
+ **/
 Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
     HandleScope scope;
 
@@ -774,11 +773,12 @@ Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
     return scope.Close(js_result_row);
 }
 
-/*!
- * Set result pointer to a specified field offset
+/**
+ * MysqlResult#fieldSeekSync(fieldNumber)
+ * - fieldNumber (Integer): Field number (starts from 0)
  *
- * @param {Integer} field number
- */
+ * Set result pointer to a specified field offset
+ **/
 Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
     HandleScope scope;
 
@@ -797,11 +797,11 @@ Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
     return Undefined();
 }
 
-/*!
- * Returns the position of the field cursor
+/**
+ * MysqlResult#fieldTellSync() -> Integer
  *
- * @return {Integer}
- */
+ * Returns the position of the field cursor
+ **/
 Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
     HandleScope scope;
 
@@ -812,9 +812,11 @@ Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
     return scope.Close(Integer::NewFromUnsigned(mysql_field_tell(res->_res)));
 }
 
-/*!
+/**
+ * MysqlResult#freeSync()
+ *
  * Frees the memory associated with a result
- */
+ **/
 Handle<Value> MysqlResult::FreeSync(const Arguments& args) {
     HandleScope scope;
 
@@ -827,11 +829,11 @@ Handle<Value> MysqlResult::FreeSync(const Arguments& args) {
     return Undefined();
 }
 
-/*!
- * Gets the number of rows in a result
+/**
+ * MysqlResult#numRowsSync() -> Integer
  *
- * @return {Integer}
- */
+ * Gets the number of rows in a result
+ **/
 Handle<Value> MysqlResult::NumRowsSync(const Arguments& args) {
     HandleScope scope;
 
