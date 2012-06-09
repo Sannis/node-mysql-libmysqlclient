@@ -66,5 +66,6 @@
 , "devDependencies" :
   { "nodeunit" : ">= 0.7"
   , "nodelint" : ">= 0.6"
+  , "ndoc" : ">= 1.0.8"
   }
 }

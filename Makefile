@@ -1,8 +1,9 @@
 #!/bin/sh
 
-CURR_HEAD   := $(firstword $(shell git show-ref --hash HEAD | cut -b -6) master)
-GITHUB_PROJ := Sannis/node-mysql-libmysqlclient
-SRC_URL_FMT := https://github.com/${GITHUB_PROJ}/blob/${CURR_HEAD}/{file}\#L{line}
+CURR_HEAD_SHA := $(firstword $(shell git show-ref --hash HEAD | cut -b -6) master)
+GITHUB_PROJECT_NAME := Sannis/node-mysql-libmysqlclient
+API_SRC_URL_FMT := https://github.com/${GITHUB_PROJECT_NAME}/blob/${CURR_HEAD_SHA}/{file}\#L{line}
+API_DEST_DIR := ./doc/api
 
 MLF=./tools/run-memoryleaks-finder.js
 NI=./node_modules/.bin/node-inspector
@@ -66,8 +67,8 @@ devdependencies-stamp:
 		touch devdependencies-stamp
 		npm install --dev .
 
-doc: ./lib ./src
-		rm -rf ./doc
-		./node_modules/.bin/ndoc ./lib -o ./doc --link-format=${SRC_URL_FMT}
+doc: ./lib/* ./src/*
+		rm -rf ${API_DEST_DIR}
+		./node_modules/.bin/ndoc -e h -e cc -o ${API_DEST_DIR} --ribbon --link-format=${API_SRC_URL_FMT} ./lib ./src
 
-.PHONY: all npm-install waf clean clean-all test test-slow test-all test-profile lint mlf
+.PHONY: all npm-install waf clean clean-all test test-slow test-all test-profile lint mlf doc
