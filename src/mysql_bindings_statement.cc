@@ -306,6 +306,15 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
             stmt->binds[i].buffer = int_data;
             stmt->binds[i].is_null = 0;
             stmt->binds[i].is_unsigned = false;
+        } else if (js_param->IsBoolean()) {
+            // I assume, booleans are usually stored as TINYINT(1)
+            int_data = new int;
+            *int_data = js_param->Int32Value();
+
+            stmt->binds[i].buffer_type = MYSQL_TYPE_TINY;
+            stmt->binds[i].buffer = int_data;
+            stmt->binds[i].is_null = 0;
+            stmt->binds[i].is_unsigned = false;
         } else if (js_param->IsUint32()) {
             uint_data = new unsigned int;
             *uint_data = js_param->Uint32Value();
@@ -472,7 +481,9 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     MYSQLSTMT_MUSTBE_PREPARED;
 
     /* Get meta data for binding buffers */
+
     unsigned int field_count = mysql_stmt_field_count(stmt->_stmt);
+
     uint32_t i = 0, j = 0;
     unsigned long length[field_count];
     int row_count = 0;
@@ -490,7 +501,9 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     memset(date_data, 0, sizeof(date_data));
 
     memset(bind, 0, sizeof(bind));
+
     meta = mysql_stmt_result_metadata(stmt->_stmt);
+
     fields = meta->fields;
     while (i < field_count) {
         bind[i].buffer_type = fields[i].type;
@@ -559,33 +572,32 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
         j = 0;
         while (j < field_count) {
-            //fprintf(stdout, "Value: %s", buffers[j]);
             switch(fields[j].type) {
                 case MYSQL_TYPE_NULL:
                 case MYSQL_TYPE_SHORT:
                 case MYSQL_TYPE_LONG:
                 case MYSQL_TYPE_LONGLONG:
                 case MYSQL_TYPE_INT24:
-                    //fprintf(stdout, "Value: %d (%ld)\n", int_data[j], length[j]);
                     js_result = Integer::New(int_data[j]);
                     break;
                 case MYSQL_TYPE_TINY:
-                    fprintf(stdout, "Value: %u (%ld)\n", tiny_data[j], length[j]);
-                	js_result = Integer::NewFromUnsigned(tiny_data[j]);
-                	break;
+                    if (length[j] == 1) {
+                        js_result = BooleanObject::New(tiny_data[j] == true);
+                    } else {
+                        js_result = Integer::NewFromUnsigned(tiny_data[j]);
+                    }
+                    break;
                 case MYSQL_TYPE_FLOAT:
                 case MYSQL_TYPE_DOUBLE:
-                    //js_result = Number::New(double_data[j]);
+                    js_result = Number::New(double_data[j]);
                     break;
                 case MYSQL_TYPE_DECIMAL:
                 case MYSQL_TYPE_NEWDECIMAL:
-                    //fprintf(stdout, "Value: %f (%ld)\n", double_data[j], length[j]);
                     js_result = Number::New(double_data[j])->ToString();
                     break;
                 case MYSQL_TYPE_STRING:
                 case MYSQL_TYPE_VAR_STRING:
                 case MYSQL_TYPE_VARCHAR:
-                    //fprintf(stdout, "Value: %s (%ld)\n", str_data[j], length[j]);
                     js_result = V8STR2(str_data[j], length[j]);
                     break;
                 case MYSQL_TYPE_YEAR:
