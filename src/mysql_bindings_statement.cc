@@ -557,7 +557,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     Local<Array> js_result_rows = Array::New();
     Local<Object> js_result_row;
-    Local<Value> js_result;
+    Handle<Value> js_result;
 
     row_count = mysql_stmt_num_rows(stmt->_stmt);
 
