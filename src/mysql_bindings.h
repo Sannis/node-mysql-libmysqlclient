@@ -11,10 +11,10 @@
 #include <v8.h>
 
 /**
- * Use this header file to conditionally invoke eio_custom() or uv_queue_work(),
+ * Use this header file to conditionally invoke different libev/libeio/libuv functions
  * depending on the node version that the module is being compiled for.
  */
-#include "./node_async_shim.h"
+#include "./node_addon_shim.h"
 
 /**
  * Usefull macroses for unility operations

@@ -1,8 +1,10 @@
 /**
- * eio_custom() vs. uv_queue_work() file.
- * Original gist: https://gist.github.com/1368935
+ * Use this header file to conditionally invoke different libev/libeio/libuv functions
+ * depending on the node version that the module is being compiled for.
  *
+ * Copyright (c) 2012, Oleg Efimov <efimovov@gmail.com>
  * Copyright (c) 2011-2012, Nathan Rajlich <nathan@tootallnate.net>
+ * Original gist by Nathan: https://gist.github.com/1368935
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -43,18 +45,18 @@
 
 /* Node IO watching compatibility */
 #if NODE_VERSION_AT_LEAST(0, 7, 9)
-  #define BEGIN_IO_WATCH(handle_data, after, fd, events) \
+  #define BEGIN_IO_WATCH(_data, after, fd, events) \
     uv_poll_t* handle = new uv_poll_t; \
-    handle->data = handle_data; \
+    handle->data = _data; \
     uv_poll_init(uv_default_loop(), handle, fd); \
     uv_poll_start(handle, events, after);
   #define END_IO_WATCH(handle) \
     uv_poll_stop(handle); \
     delete handle;
 #elif NODE_VERSION_AT_LEAST(0, 5, 6)
-  #define BEGIN_IO_WATCH(handle_data, after, fd, events) \
+  #define BEGIN_IO_WATCH(_data, after, fd, events) \
     ev_io* io_watcher = new ev_io; \
-    io_watcher->data = handle_data; \
+    io_watcher->data = _data; \
     ev_init(io_watcher, after); \
     ev_io_set(io_watcher, fd, events); \
     ev_io_start(EV_DEFAULT_UC_ io_watcher);
@@ -62,9 +64,9 @@
     ev_io_stop(EV_DEFAULT_UC_ io_watcher); \
     delete io_watcher;
 #else
-  #define BEGIN_IO_WATCH(handle_data, after, fd, events) \
+  #define BEGIN_IO_WATCH(_data, after, fd, events) \
     ev_io* io_watcher = new ev_io; \
-    io_watcher->handle_data = data; \
+    io_watcher->data = _data; \
     ev_init(io_watcher, after); \
     ev_io_set(io_watcher, fd, events); \
     ev_io_start(EV_DEFAULT_UC_ io_watcher); \
