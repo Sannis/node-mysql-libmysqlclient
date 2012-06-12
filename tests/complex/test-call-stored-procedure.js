@@ -15,7 +15,7 @@ var cfg = require('../config');
  */
 
 exports.CallStoredProcedureSelectSync = function (test) {
-  test.expect(5);
+  test.expect(4);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(),
@@ -24,7 +24,6 @@ exports.CallStoredProcedureSelectSync = function (test) {
     numFromProcedure;
   
   conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
   test.strictEqual(res, true);
@@ -45,7 +44,7 @@ exports.CallStoredProcedureSelectSync = function (test) {
 };
 
 exports.CallStoredProcedureSelectTwiceSync = function (test) {
-  test.expect(7);
+  test.expect(6);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(),
@@ -54,7 +53,6 @@ exports.CallStoredProcedureSelectTwiceSync = function (test) {
     numFromProcedure;
   
   conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
   test.strictEqual(res, true);
@@ -108,7 +106,7 @@ exports.CallStoredProcedureSelectTwiceSync = function (test) {
 };
 
 exports.CallStoredProcedureSelectIntoSync = function (test) {
-  test.expect(6);
+  test.expect(5);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(),
@@ -117,7 +115,6 @@ exports.CallStoredProcedureSelectIntoSync = function (test) {
     numFromProcedure;
   
   conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
   test.strictEqual(res, true);
@@ -141,7 +138,7 @@ exports.CallStoredProcedureSelectIntoSync = function (test) {
 };
 
 exports.CallStoredProcedureSelectIntoTwiceSync = function (test) {
-  test.expect(9);
+  test.expect(8);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(),
@@ -150,7 +147,6 @@ exports.CallStoredProcedureSelectIntoTwiceSync = function (test) {
     numFromProcedure;
   
   conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
   test.strictEqual(res, true);
@@ -209,7 +205,7 @@ exports.CallStoredProcedureSelectIntoTwiceSync = function (test) {
 };
 
 exports.CallStoredFunctionSync = function (test) {
-  test.expect(5);
+  test.expect(4);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(),
@@ -217,13 +213,12 @@ exports.CallStoredFunctionSync = function (test) {
     error,
     num = 1234,
     numFromFunction;
-  
+
   conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("DROP FUNCTION IF EXISTS test_function;");
   test.strictEqual(res, true);
-  
+
   res = conn.querySync("CREATE FUNCTION test_function() RETURNS INT DETERMINISTIC RETURN " + num + ";");
   test.strictEqual(res, true);
 
@@ -248,7 +243,7 @@ exports.CallStoredFunctionSync = function (test) {
 };
 
 exports.CallStoredFunctionTwiceSync = function (test) {
-  test.expect(7);
+  test.expect(6);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(),
@@ -256,13 +251,12 @@ exports.CallStoredFunctionTwiceSync = function (test) {
     error,
     num = 1234,
     numFromFunction;
-  
+
   conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("DROP FUNCTION IF EXISTS test_function;");
   test.strictEqual(res, true);
-  
+
   res = conn.querySync("CREATE FUNCTION test_function() RETURNS INT DETERMINISTIC RETURN " + num + ";");
   test.strictEqual(res, true);
 
@@ -295,7 +289,7 @@ exports.CallStoredFunctionTwiceSync = function (test) {
 };
 
 exports.CallStoredProcedureSelectNested = function (test) {
-  test.expect(8);
+  test.expect(7);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(),
@@ -304,7 +298,6 @@ exports.CallStoredProcedureSelectNested = function (test) {
     numFromProcedure;
   
   conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
   test.strictEqual(res, true);

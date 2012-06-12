@@ -45,15 +45,14 @@ exports.createTestTableComplex2BinaryBlobs = function (test) {
 };
 
 exports.FetchAllSyncWithBinaryFields = function (test) {
-  test.expect(3);
+  test.expect(2);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     rows,
     rowsExpected;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("SELECT vc, vbi, bi, t, b FROM " + cfg.test_table2 + " ORDER BY id;");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
