@@ -477,9 +477,9 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
+    MYSQLSTMT_MUSTBE_STORED;
 
-    /* Get meta data for binding buffers */
-
+    // Get fields count for binding buffers
     unsigned int field_count = mysql_stmt_field_count(stmt->_stmt);
 
     uint32_t i = 0, j = 0;
@@ -490,9 +490,9 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     MYSQL_RES *meta;
     MYSQL_FIELD *fields;
 
-    /* Buffers */
+    // Buffers
     int int_data[field_count];
-    signed char tiny_data[field_count];
+    my_ulonglong my_ulonglong_data[field_count];
     double double_data[field_count];
     char str_data[field_count][64];
     MYSQL_TIME date_data[field_count];
@@ -500,6 +500,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     memset(bind, 0, sizeof(bind));
 
+    // Get meta data for binding buffers
     meta = mysql_stmt_result_metadata(stmt->_stmt);
 
     fields = meta->fields;
@@ -507,35 +508,66 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
         bind[i].buffer_type = fields[i].type;
 
         switch (fields[i].type) {
-            case MYSQL_TYPE_NULL:
-            case MYSQL_TYPE_SHORT:
-            case MYSQL_TYPE_LONG:
-            case MYSQL_TYPE_LONGLONG:
-            case MYSQL_TYPE_INT24:
+            case MYSQL_TYPE_NULL:   // NULL-type field
+                // TODO: Implement this
                 bind[i].buffer = &int_data[i];
                 break;
-            case MYSQL_TYPE_TINY:
-                bind[i].buffer = &tiny_data[i];
+            case MYSQL_TYPE_TINY:   // TINYINT field
+            case MYSQL_TYPE_SHORT:  // SMALLINT field
+            case MYSQL_TYPE_LONG:   // INTEGER field
+            case MYSQL_TYPE_INT24:  // MEDIUMINT field
+            case MYSQL_TYPE_YEAR:   // YEAR field
+                bind[i].buffer = &int_data[i];
                 break;
-            case MYSQL_TYPE_FLOAT:
-            case MYSQL_TYPE_DOUBLE:
-            case MYSQL_TYPE_DECIMAL:
-            case MYSQL_TYPE_NEWDECIMAL:
+            case MYSQL_TYPE_BIT:    // BIT field (MySQL 5.0.3 and up)
+            case MYSQL_TYPE_LONGLONG: // BIGINT field
+                // Return BIGINT as string, see #110
+                bind[i].buffer = &my_ulonglong_data[i];
+                break;
+            case MYSQL_TYPE_FLOAT:   // FLOAT field
+            case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
                 bind[i].buffer = &double_data[i];
                 break;
-            case MYSQL_TYPE_STRING:
-            case MYSQL_TYPE_VAR_STRING:
-            case MYSQL_TYPE_VARCHAR:
+            case MYSQL_TYPE_DECIMAL:     // DECIMAL or NUMERIC field
+            case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
+                // Return DECIMAL/NUMERIC as string, see #110
                 bind[i].buffer = (char *) str_data[i];
                 bind[i].buffer_length = fields[i].length;
                 break;
-            case MYSQL_TYPE_YEAR:
-            case MYSQL_TYPE_DATE:
-            case MYSQL_TYPE_NEWDATE:
-            case MYSQL_TYPE_TIME:
-            case MYSQL_TYPE_DATETIME:
-            case MYSQL_TYPE_TIMESTAMP:
+            case MYSQL_TYPE_TIME:       // TIME field
+            case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
+            case MYSQL_TYPE_DATETIME:   // DATETIME field
+            case MYSQL_TYPE_DATE:       // DATE field
+            case MYSQL_TYPE_NEWDATE:    // Newer const used in MySQL > 5.0
                 bind[i].buffer = (char *) &date_data[i];
+                break;
+            case MYSQL_TYPE_TINY_BLOB:
+            case MYSQL_TYPE_MEDIUM_BLOB:
+            case MYSQL_TYPE_LONG_BLOB:
+            case MYSQL_TYPE_BLOB:
+            case MYSQL_TYPE_STRING:
+            case MYSQL_TYPE_VAR_STRING:
+                bind[i].buffer = (char *) str_data[i];
+                bind[i].buffer_length = fields[i].length;
+                break;
+            case MYSQL_TYPE_SET:  // SET field
+                // TODO: Implement this
+                bind[i].buffer = (char *) str_data[i];
+                bind[i].buffer_length = fields[i].length;
+                break;
+            case MYSQL_TYPE_ENUM:  // ENUM field
+                bind[i].buffer = (char *) str_data[i];
+                bind[i].buffer_length = fields[i].length;
+                break;
+            case MYSQL_TYPE_GEOMETRY:  // Spatial fields
+                // See for information:
+                // http://dev.mysql.com/doc/refman/5.1/en/spatial-extensions.html
+                bind[i].buffer = (char *) str_data[i];
+                bind[i].buffer_length = fields[i].length;
+                break;
+            default:
+                bind[i].buffer = (char *) str_data[i];
+                bind[i].buffer_length = fields[i].length;
                 break;
         }
 
@@ -554,15 +586,14 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
         return scope.Close(Null());
     }
 
-    Local<Array> js_result_rows = Array::New();
+    Local<Array> js_result = Array::New();
     Local<Object> js_result_row;
-    Handle<Value> js_result;
 
     row_count = mysql_stmt_num_rows(stmt->_stmt);
 
     /* If no rows, return empty array */
-    if (!row_count) {
-        return scope.Close(js_result_rows);
+    if (row_count == 0) {
+        return scope.Close(js_result);
     }
 
     i = 0;
@@ -571,66 +602,89 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
         j = 0;
         while (j < field_count) {
+            Local<Value> js_field = Local<Value>::New(Null());
+
             switch(fields[j].type) {
-                case MYSQL_TYPE_NULL:
-                case MYSQL_TYPE_SHORT:
-                case MYSQL_TYPE_LONG:
-                case MYSQL_TYPE_LONGLONG:
-                case MYSQL_TYPE_INT24:
-                    js_result = Integer::New(int_data[j]);
+                case MYSQL_TYPE_NULL:   // NULL-type field
+                    // Already null
                     break;
-                case MYSQL_TYPE_TINY:
-                    if (length[j] == 1) {
-                        js_result = Boolean::New(tiny_data[j] != 0);
-                    } else {
-                        js_result = Integer::NewFromUnsigned(tiny_data[j]);
+                case MYSQL_TYPE_TINY:   // TINYINT field
+                case MYSQL_TYPE_SHORT:  // SMALLINT field
+                case MYSQL_TYPE_LONG:   // INTEGER field
+                case MYSQL_TYPE_INT24:  // MEDIUMINT field
+                case MYSQL_TYPE_YEAR:   // YEAR field
+                    if (!is_null[j]) {
+                      js_field = Integer::New(int_data[j]);
                     }
                     break;
-                case MYSQL_TYPE_FLOAT:
-                case MYSQL_TYPE_DOUBLE:
-                    js_result = Number::New(double_data[j]);
+                case MYSQL_TYPE_BIT:       // BIT field (MySQL 5.0.3 and up)
+                case MYSQL_TYPE_LONGLONG:  // BIGINT field
+                    // Return BIGINT as string, see #110
+                    if (!is_null[j]) {
+                      js_field = V8STR2(str_data[j], length[j]);
+                    }
                     break;
-                case MYSQL_TYPE_DECIMAL:
-                case MYSQL_TYPE_NEWDECIMAL:
-                    js_result = Number::New(double_data[j])->ToString();
+                case MYSQL_TYPE_FLOAT:   // FLOAT field
+                case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
+                    if (!is_null[j]) {
+                      js_field = Number::New(double_data[j]);
+                    }
                     break;
+                case MYSQL_TYPE_DECIMAL:     // DECIMAL or NUMERIC field
+                case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
+                    // Return DECIMAL/NUMERIC as string, see #110
+                    if (!is_null[j]) {
+                      js_field = V8STR2(str_data[j], length[j]);
+                    }
+                    break;
+                case MYSQL_TYPE_TIME:       // TIME field
+                case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
+                case MYSQL_TYPE_DATETIME:   // DATETIME field
+                case MYSQL_TYPE_DATE:       // DATE field
+                case MYSQL_TYPE_NEWDATE:    // Newer const used in MySQL > 5.0
+                    if (!is_null[j]) {
+                        MYSQL_TIME ts = date_data[j];
+                        time_t rawtime;
+                        struct tm * datetime;
+                        time(&rawtime);
+                        datetime = localtime(&rawtime);
+                        datetime->tm_year = ts.year - 1900;
+                        datetime->tm_mon = ts.month - 1;
+                        datetime->tm_mday = ts.day;
+                        datetime->tm_hour = ts.hour;
+                        datetime->tm_min = ts.minute;
+                        datetime->tm_sec = ts.second;
+                        time_t timestamp = mktime(datetime);
+
+                        js_field = Date::New(1000 * (double) timestamp);
+                    }
+                    break;
+                case MYSQL_TYPE_TINY_BLOB:
+                case MYSQL_TYPE_MEDIUM_BLOB:
+                case MYSQL_TYPE_LONG_BLOB:
+                case MYSQL_TYPE_BLOB:
                 case MYSQL_TYPE_STRING:
                 case MYSQL_TYPE_VAR_STRING:
-                case MYSQL_TYPE_VARCHAR:
-                    js_result = V8STR2(str_data[j], length[j]);
+                    if (!is_null[j]) {
+                      js_field = V8STR2(str_data[j], length[j]);
+                    }
                     break;
-                case MYSQL_TYPE_YEAR:
-                case MYSQL_TYPE_DATE:
-                case MYSQL_TYPE_NEWDATE:
-                case MYSQL_TYPE_TIME:
-                case MYSQL_TYPE_DATETIME:
-                case MYSQL_TYPE_TIMESTAMP:
-                    MYSQL_TIME ts = date_data[j];
-                    time_t rawtime;
-                    struct tm * datetime;
-                    time(&rawtime);
-                    datetime = localtime(&rawtime);
-                    datetime->tm_year = ts.year - 1900;
-                    datetime->tm_mon = ts.month - 1;
-                    datetime->tm_mday = ts.day;
-                    datetime->tm_hour = ts.hour;
-                    datetime->tm_min = ts.minute;
-                    datetime->tm_sec = ts.second;
-                    time_t timestamp = mktime(datetime);
-
-                    js_result = Date::New(1000 * (double) timestamp);
+                default:
+                    if (!is_null[j]) {
+                      js_field = V8STR2(str_data[j], length[j]);
+                    }
                     break;
             }
 
-            js_result_row->Set(V8STR(fields[j].name), js_result);
+            js_result_row->Set(V8STR(fields[j].name), js_field);
             j++;
         }
 
-        js_result_rows->Set(Integer::NewFromUnsigned(i), js_result_row);
+        js_result->Set(Integer::NewFromUnsigned(i), js_result_row);
         i++;
     }
 
-    return scope.Close(js_result_rows);
+    return scope.Close(js_result);
 }
 
 /**

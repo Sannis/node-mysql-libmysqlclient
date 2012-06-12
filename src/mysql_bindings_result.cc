@@ -90,32 +90,32 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
     Local<Value> js_field = Local<Value>::New(Null());
 
     switch (field.type) {
-        case MYSQL_TYPE_NULL:  // NULL-type field
+        case MYSQL_TYPE_NULL:   // NULL-type field
             // Already null
             break;
-        case MYSQL_TYPE_TINY:  // TINYINT field
-        case MYSQL_TYPE_BIT:  // BIT field (MySQL 5.0.3 and up)
+        case MYSQL_TYPE_TINY:   // TINYINT field
         case MYSQL_TYPE_SHORT:  // SMALLINT field
-        case MYSQL_TYPE_LONG:  // INTEGER field
+        case MYSQL_TYPE_LONG:   // INTEGER field
         case MYSQL_TYPE_INT24:  // MEDIUMINT field
-        case MYSQL_TYPE_YEAR:  // YEAR field
+        case MYSQL_TYPE_YEAR:   // YEAR field
             if (field_value) {
               js_field = V8STR(field_value)->ToInteger();
             }
             break;
+        case MYSQL_TYPE_BIT:       // BIT field (MySQL 5.0.3 and up)
         case MYSQL_TYPE_LONGLONG:  // BIGINT field
             // Return BIGINT as string, see #110
             if (field_value) {
               js_field = V8STR(field_value);
             }
             break;
-        case MYSQL_TYPE_FLOAT:  // FLOAT field
+        case MYSQL_TYPE_FLOAT:   // FLOAT field
         case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
             if (field_value) {
               js_field = V8STR(field_value)->ToNumber();
             }
             break;
-        case MYSQL_TYPE_DECIMAL:  // DECIMAL or NUMERIC field
+        case MYSQL_TYPE_DECIMAL:     // DECIMAL or NUMERIC field
         case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
             // Return DECIMAL/NUMERIC as string, see #110
             if (field_value) {
@@ -132,7 +132,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
             }
             break;
         case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
-        case MYSQL_TYPE_DATETIME:  // DATETIME field
+        case MYSQL_TYPE_DATETIME:   // DATETIME field
             if (field_value) {
                 // First step is to get a handle to the global object:
                 Local<v8::Object> globalObj = Context::GetCurrent()->Global();
@@ -148,8 +148,8 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
                 js_field = dateConstructor->NewInstance(argc, argv);
             }
             break;
-        case MYSQL_TYPE_DATE:  // DATE field
-        case MYSQL_TYPE_NEWDATE:  // Newer const used > 5.0
+        case MYSQL_TYPE_DATE:     // DATE field
+        case MYSQL_TYPE_NEWDATE:  // Newer const used in MySQL > 5.0
             if (field_value) {
                 // First step is to get a handle to the global object:
                 Local<v8::Object> globalObj = Context::GetCurrent()->Global();
@@ -173,9 +173,6 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
         case MYSQL_TYPE_VAR_STRING:
             if (field_value) {
                 if (field.flags & BINARY_FLAG) {
-                    // SlowBuffer
-                    // node::Buffer *bp = node::Buffer::New(field_value,
-                    //                                      field_length);
                     js_field = Local<Value>::New(
                                    node::Buffer::New(
                                        V8STR2(field_value, field_length)));
@@ -206,7 +203,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
                 js_field = V8STR(field_value);
             }
             break;
-        case MYSQL_TYPE_GEOMETRY:  // Spatial fielda
+        case MYSQL_TYPE_GEOMETRY:  // Spatial fields
             // See for information:
             // http://dev.mysql.com/doc/refman/5.1/en/spatial-extensions.html
             if (field_value) {
