@@ -9,10 +9,11 @@ See license text in LICENSE file
 var cfg = require('../config');
 
 exports.mysql_libmysqlclient_createConnectionHighlevelSync_0 = function (test) {
-  test.expect(2);
+  test.expect(3);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionHighlevelSync();
   test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+  test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
   test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionHighlevel);
   if (conn.connectedSync()) {
     conn.closeSync();
@@ -21,10 +22,11 @@ exports.mysql_libmysqlclient_createConnectionHighlevelSync_0 = function (test) {
 };
 
 exports.mysql_libmysqlclient_createConnectionHighlevelSync_4 = function (test) {
-  test.expect(3);
+  test.expect(4);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionHighlevelSync(cfg.host, cfg.user, cfg.password, cfg.database);
   test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+  test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
   test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionHighlevel);
 
   isConnected = conn.connectedSync();
@@ -51,11 +53,12 @@ exports.mysql_libmysqlclient_createConnectionHighlevel_0 = function (test) {
 };
 
 exports.mysql_libmysqlclient_createConnectionHighlevel_1 = function (test) {
-  test.expect(3);
+  test.expect(4);
 
   cfg.mysql_libmysqlclient.createConnectionHighlevel(function (err, conn) {
     test.ok(err == null, "Error object is not present");
     test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionHighlevel);
 
     if (conn.connectedSync()) {
@@ -67,11 +70,12 @@ exports.mysql_libmysqlclient_createConnectionHighlevel_1 = function (test) {
 };
 
 exports.mysql_libmysqlclient_createConnectionHighlevel_5 = function (test) {
-  test.expect(4);
+  test.expect(5);
 
   cfg.mysql_libmysqlclient.createConnectionHighlevel(cfg.host, cfg.user, cfg.password, cfg.database, function (err, conn) {
     test.ok(err === null, "Error object is not present");
     test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionHighlevel);
 
     isConnected = conn.connectedSync();
