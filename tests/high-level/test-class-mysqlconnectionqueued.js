@@ -106,6 +106,26 @@ exports.ConnectWithoutCallbackAndThenTwoQueriesWithCallbacks = function (test) {
   });
 };
 
+exports.ConnectWithoutCallbackAndThenQueryWithoutCallbackAndThenQueryWithCallback = function (test) {
+  test.expect(1);
+
+  var conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync();
+
+  conn.connect(cfg.host, cfg.user, cfg.password, cfg.database);
+
+  conn.query("INSERT INTO " + cfg.test_table + " VALUES (NULL);");
+
+  conn.query("SELECT 2;", function (err, res) {
+    if (err) {
+      throw err;
+    }
+
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
+
+    test.done();
+  });
+};
+
 exports.QueryParallel = function (test) {
   test.expect(2);
 
