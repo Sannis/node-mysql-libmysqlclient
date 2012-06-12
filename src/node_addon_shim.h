@@ -22,57 +22,70 @@
 #include <node.h>
 #include <node_version.h>
 
-/* Node thread pool running compatibility */
+/* Node async functions running compatibility */
 #if NODE_VERSION_AT_LEAST(0, 5, 6)
-  #define BEGIN_ASYNC(_data, async, after) \
+  #define NODE_ADDON_SHIM_ASYNC_RUN(_data, async_function, callback_function) \
     uv_work_t *_req = new uv_work_t; \
     _req->data = _data; \
-    uv_queue_work(uv_default_loop(), _req, async, after);
-  typedef void async_rtn;
-  #define RETURN_ASYNC
-  #define RETURN_ASYNC_AFTER delete req;
+    uv_queue_work(uv_default_loop(), _req, async_function, callback_function);
+
+  #define NODE_ADDON_SHIM_ASYNC_RETURN_TYPE void
+  #define NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE uv_work_t
+
+  #define NODE_ADDON_SHIM_ASYNC_RETURN
+  #define NODE_ADDON_SHIM_ASYNC_RETURN_AFTER delete req;
 #else
-  #define BEGIN_ASYNC(data, async, after) \
+  #define NODE_ADDON_SHIM_ASYNC_RUN(data, async_function, callback_function) \
     ev_ref(EV_DEFAULT_UC); \
-    eio_custom(async, EIO_PRI_DEFAULT, after, data);
-  typedef int async_rtn;
-  typedef eio_req uv_work_t;
-  #define RETURN_ASYNC return 0;
-  #define RETURN_ASYNC_AFTER \
+    eio_custom(async_function, EIO_PRI_DEFAULT, callback_function, data);
+
+  #define NODE_ADDON_SHIM_ASYNC_RETURN_TYPE int
+  #define NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE eio_req
+
+  #define NODE_ADDON_SHIM_ASYNC_RETURN return 0;
+  #define NODE_ADDON_SHIM_ASYNC_RETURN_AFTER \
     ev_unref(EV_DEFAULT_UC); \
-    RETURN_ASYNC
+    NODE_ADDON_SHIM_ASYNC_RETURN
 #endif
 
 /* Node IO watching compatibility */
 #if NODE_VERSION_AT_LEAST(0, 7, 9)
-  #define BEGIN_IO_WATCH(_data, after, fd, events) \
+  #define NODE_ADDON_SHIM_START_IO_WATCH(_data, after, fd, events) \
     uv_poll_t* handle = new uv_poll_t; \
     handle->data = _data; \
     uv_poll_init(uv_default_loop(), handle, fd); \
     uv_poll_start(handle, events, after);
-  #define END_IO_WATCH(handle) \
+  #define NODE_ADDON_SHIM_STOP_IO_WATCH \
     uv_poll_stop(handle); \
     delete handle;
 #elif NODE_VERSION_AT_LEAST(0, 5, 6)
-  #define BEGIN_IO_WATCH(_data, after, fd, events) \
+  #define NODE_ADDON_SHIM_START_IO_WATCH(_data, after, fd, events) \
     ev_io* io_watcher = new ev_io; \
     io_watcher->data = _data; \
     ev_init(io_watcher, after); \
     ev_io_set(io_watcher, fd, events); \
     ev_io_start(EV_DEFAULT_UC_ io_watcher);
-  #define END_IO_WATCH(io_watcher) \
+  #define NODE_ADDON_SHIM_STOP_IO_WATCH \
     ev_io_stop(EV_DEFAULT_UC_ io_watcher); \
     delete io_watcher;
 #else
-  #define BEGIN_IO_WATCH(_data, after, fd, events) \
+  #define NODE_ADDON_SHIM_START_IO_WATCH(_data, after, fd, events) \
     ev_io* io_watcher = new ev_io; \
     io_watcher->data = _data; \
     ev_init(io_watcher, after); \
     ev_io_set(io_watcher, fd, events); \
     ev_io_start(EV_DEFAULT_UC_ io_watcher); \
     ev_ref(EV_DEFAULT_UC);
-  #define END_IO_WATCH(io_watcher) \
+  #define NODE_ADDON_SHIM_STOP_IO_WATCH \
     ev_io_stop(EV_DEFAULT_UC_ io_watcher); \
     delete io_watcher; \
     ev_unref(EV_DEFAULT_UC);
+#endif
+
+#if NODE_VERSION_AT_LEAST(0, 7, 9)
+    #define NODE_ADDON_SHIM_IO_WATCH_CALLBACK_ARGUMENTS \
+      uv_poll_t* handle, int status, int events
+#else
+    #define NODE_ADDON_SHIM_IO_WATCH_CALLBACK_ARGUMENTS \
+      EV_P_ ev_io *io_watcher, int events
 #endif

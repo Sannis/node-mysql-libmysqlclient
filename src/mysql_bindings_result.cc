@@ -322,7 +322,7 @@ Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
 /**
  * EIO wrapper functions for MysqlResult::FetchAll
  */
-async_rtn MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
+NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlResult::EIO_After_FetchAll(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req) {
     HandleScope scope;
 
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
@@ -428,10 +428,10 @@ async_rtn MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
     
     delete fetchAll_req;
 
-    RETURN_ASYNC_AFTER
+    NODE_ADDON_SHIM_ASYNC_RETURN_AFTER
 }
 
-async_rtn MysqlResult::EIO_FetchAll(uv_work_t *req) {
+NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlResult::EIO_FetchAll(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req) {
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
     MysqlResult *res = fetchAll_req->res;
 
@@ -442,7 +442,7 @@ async_rtn MysqlResult::EIO_FetchAll(uv_work_t *req) {
 
     fetchAll_req->ok = true;
     
-    RETURN_ASYNC
+    NODE_ADDON_SHIM_ASYNC_RETURN
 }
 
 /**
@@ -496,7 +496,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     fetchAll_req->results_array = results_array;
     fetchAll_req->results_structured = results_structured;
 
-    BEGIN_ASYNC(fetchAll_req, EIO_FetchAll, EIO_After_FetchAll)
+    NODE_ADDON_SHIM_ASYNC_RUN(fetchAll_req, EIO_FetchAll, EIO_After_FetchAll)
 
     return Undefined();
 }
