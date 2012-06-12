@@ -84,6 +84,8 @@ class MysqlStatement : public node::ObjectWrap {
 
     static Handle<Value> ExecuteSync(const Arguments& args);
 
+    static Handle<Value> FetchAllSync(const Arguments& args);
+
     static Handle<Value> FieldCountSync(const Arguments& args);
 
     static Handle<Value> FreeResultSync(const Arguments& args);

@@ -7,7 +7,12 @@ node_modules
 npm-install-stamp
 waf-stamp
 devdependencies-stamp
+webkit-devtools-agent-stamp
 
 *.gcda
 *.gcno
 *.gcov
+
+valgrind.log
+*.dat
+*.png

@@ -9,11 +9,13 @@ See license text in LICENSE file
 // Require modules
 var
   assert = require("assert"),
-  sys = require("sys"),
+  util = require("util"),
   fs = require("fs"),
   path = require("path");
 
 var
+  regex_class_source_filename =
+    /mysql_bindings_.*\.h$/,
   regex_class_name =
     /class [a-z:\s]*?([a-z]*) :[a-z:\s]*\{/i,
   regex_class_methods =
@@ -21,11 +23,13 @@ var
   regex_class_properties_getters =
     /static Handle<Value> ([a-z]*Getter)\(Local<String> property/ig,
   regex_class_properties_setters =
-    /static Handle<Value> ([a-z]*Setter)\(Local<String> property/ig;
+    /static Handle<Value> ([a-z]*Setter)\(Local<String> property/ig,
+  regex_method_is_sync =
+    /^(.*Sync|New)$/;
 
-var tools_dir = fs.realpathSync(__dirname);
-var source_dir = fs.realpathSync(tools_dir + "/../src");
-var tests_dir = fs.realpathSync(tools_dir + "/../tests");
+var root_dir = path.normalize(__dirname + "/..");
+var source_dir = path.normalize(root_dir + "/src");
+var tests_dir = path.normalize(root_dir + "/tests");
 
 function getBindingsClasses() {
   var
@@ -42,9 +46,11 @@ function getBindingsClasses() {
     i;
 
   for (i = 0; i < source_files.length; i += 1) {
-    if (source_files[i].match(/\.h$/)) {
+    console.log("Parsing " + source_files[i] + "...");
+
+    if (source_files[i].match(regex_class_source_filename)) {
       file_content = fs.readFileSync(source_dir + "/" + source_files[i]).toString();
-      
+
       class_name = file_content.match(regex_class_name)[1];
       
       class_properties_getters = [];
@@ -71,10 +77,12 @@ function getBindingsClasses() {
         regex_class_methods.lastIndex += 1;
       }
 
-      classes.push({name: class_name,
-                    properties_getters: class_properties_getters,
-                    properties_setters: class_properties_setters,
-                    methods: class_methods});
+      classes.push({
+        name: class_name,
+        properties_getters: class_properties_getters,
+        properties_setters: class_properties_setters,
+        methods: class_methods
+      });
     }
   }
   
@@ -109,51 +117,83 @@ var
   test_file_name,
   test_require,
   notexist_tests = 0;
-sys.debug(sys.inspect(bindings_classes));
+
 for (i = 0; i < bindings_classes.length; i += 1) {
-  sys.puts(bold(bindings_classes[i].name + ": test-1-class-" + bindings_classes[i].name.toLowerCase() + ".js"));
+  test_file_name_sync = tests_dir + "/low-level-sync/test-class-" + bindings_classes[i].name.toLowerCase() + "-sync.js";
+
+  console.log(bold(bindings_classes[i].name + ": " + path.relative(root_dir, test_file_name_sync)));
+
+  try {
+    test_require_sync = require(test_file_name_sync.replace(/\.js$/, ''));
+  }
+  catch (e) {
+    test_require_sync = false;
+  }
   
-  test_file_name = tests_dir + "/test-1-class-" + bindings_classes[i].name.toLowerCase() + ".js";
+  for (j = 0; j < bindings_classes[i].properties_getters.length; j += 1) {
+    if (test_require_sync
+     && (typeof test_require_sync[bindings_classes[i].properties_getters[j]] !== 'undefined')
+    ) {
+      console.log(green('✔ ' + bindings_classes[i].properties_getters[j]));
+    } else {
+      console.log(red('✖ ' + bindings_classes[i].properties_getters[j]));
+      notexist_tests += 1;
+    }
+  }
   
+  for (j = 0; j < bindings_classes[i].properties_setters.length; j += 1) {
+    if (test_require_sync
+     && (typeof test_require_sync[bindings_classes[i].properties_setters[j]] !== 'undefined')
+    ) {
+      console.log(green('✔ ' + bindings_classes[i].properties_setters[j]));
+    } else {
+      console.log(red('✖ ' + bindings_classes[i].properties_setters[j]));
+      notexist_tests += 1;
+    }
+  }
+  
+  for (j = 0; j < bindings_classes[i].methods.length; j += 1) {
+    if (bindings_classes[i].methods[j].match(regex_method_is_sync)) {
+      if (test_require_sync
+       && (typeof test_require_sync[bindings_classes[i].methods[j]] !== 'undefined')
+      ) {
+        console.log(green('✔ ' + bindings_classes[i].methods[j]));
+      } else {
+        console.log(red('✖ ' + bindings_classes[i].methods[j]));
+        notexist_tests += 1;
+      }
+    }
+  }
+
+  test_file_name = tests_dir + "/low-level-async/test-class-" + bindings_classes[i].name.toLowerCase() + "-async.js";
+
+  console.log(bold(bindings_classes[i].name + ": " + path.relative(root_dir, test_file_name)));
+
   try {
     test_require = require(test_file_name.replace(/\.js$/, ''));
   }
   catch (e) {
     test_require = false;
   }
-  
-  for (j = 0; j < bindings_classes[i].properties_getters.length; j += 1) {
-    if (test_require && (typeof test_require[bindings_classes[i].properties_getters[j]] !== 'undefined')) {
-      sys.puts(green('✔ ' + bindings_classes[i].properties_getters[j]));
-    } else {
-      sys.puts(red('✖ ' + bindings_classes[i].properties_getters[j]));
-      notexist_tests += 1;
-    }
-  }
-  
-  for (j = 0; j < bindings_classes[i].properties_setters.length; j += 1) {
-    if (test_require && (typeof test_require[bindings_classes[i].properties_setters[j]] !== 'undefined')) {
-      sys.puts(green('✔ ' + bindings_classes[i].properties_setters[j]));
-    } else {
-      sys.puts(red('✖ ' + bindings_classes[i].properties_setters[j]));
-      notexist_tests += 1;
-    }
-  }
-  
+
   for (j = 0; j < bindings_classes[i].methods.length; j += 1) {
-    if (test_require && (typeof test_require[bindings_classes[i].methods[j]] !== 'undefined')) {
-      sys.puts(green('✔ ' + bindings_classes[i].methods[j]));
-    } else {
-      sys.puts(red('✖ ' + bindings_classes[i].methods[j]));
-      notexist_tests += 1;
+    if (!bindings_classes[i].methods[j].match(regex_method_is_sync)) {
+      if (test_require
+       && (typeof test_require[bindings_classes[i].methods[j]] !== 'undefined')
+      ) {
+        console.log(green('✔ ' + bindings_classes[i].methods[j]));
+      } else {
+        console.log(red('✖ ' + bindings_classes[i].methods[j]));
+        notexist_tests += 1;
+      }
     }
   }
 }
 
 if (notexist_tests) {
-  sys.puts('\n' + bold(red('NONEXISTENT METHODS TESTS: ')) + notexist_tests);
+  console.log('\n' + bold(red('NONEXISTENT METHODS TESTS: ')) + notexist_tests);
 } else {
-  sys.puts('\n' + bold(green('OK')));
+  console.log('\n' + bold(green('OK')));
 }
 
 

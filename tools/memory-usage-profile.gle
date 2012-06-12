@@ -1,0 +1,18 @@
+size 50 12
+begin graph
+        size 50 11.5
+
+        xaxis min 0 hei 0.5
+        yaxis min 0 hei 0.5
+
+        title "Memory usage (Mb)" hei 1 dist 0.8
+        data memory-usage-profile.dat
+
+        xtitle "Time, seconds" hei 0.5 dist 0.5
+
+        d1 line lwidth 0.05 color blue  key "RSS"
+        d2 line lwidth 0.05 color green key "Heap used"
+        d3 line lwidth 0.05 color red   key "Heap total"
+
+        key pos rc compact offset -0.1 0 nobox hei 0.5
+end graph

@@ -90,8 +90,8 @@ class MysqlResult : public node::ObjectWrap {
         bool results_array;
         bool results_structured;
     };
-    static async_rtn EIO_After_FetchAll(uv_work_t *req);
-    static async_rtn EIO_FetchAll(uv_work_t *req);
+    static NODE_ADDON_SHIM_ASYNC_RETURN_TYPE EIO_After_FetchAll(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req);
+    static NODE_ADDON_SHIM_ASYNC_RETURN_TYPE EIO_FetchAll(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req);
     static Handle<Value> FetchAll(const Arguments& args);
 
     static Handle<Value> FetchAllSync(const Arguments& args);

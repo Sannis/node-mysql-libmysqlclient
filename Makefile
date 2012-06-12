@@ -15,9 +15,9 @@ all: npm-install
 
 npm-install: npm-install-stamp
 
-npm-install-stamp: ./binding.gyp wscript ./src/*
-		touch npm-install-stamp
+npm-install-stamp: ./binding.gyp ./src/*
 		npm install
+		touch npm-install-stamp
 
 waf: waf-stamp
 		@echo "NOTICE: Please note that node-waf building is deprecated for this module"
@@ -31,41 +31,50 @@ clean:
 		rm -f ./mysql_bindings.node
 		rm -f npm-install-stamp
 		rm -f waf-stamp
+		rm -f webkit-devtools-agent-stamp
 
 clean-all: clean
-		rm -f devdependencies-stamp
+		rm -rf ./node_modules
 
-test: devdependencies
+test: npm-install
 		./node_modules/.bin/nodeunit --reporter=minimal tests/low-level-sync tests/low-level-async \
 		                                                tests/high-level tests/complex tests/issues
 
-test-slow: devdependencies
+test-slow: npm-install
 		./node_modules/.bin/nodeunit --reporter=minimal tests/slow
 
-test-all: devdependencies
+test-all: install
 		./node_modules/.bin/nodeunit --reporter=minimal tests/low-level-sync tests/low-level-async \
 		                                                tests/high-level tests/complex tests/issues \
 		                                                tests/slow
 
-test-profile: devdependencies
+test-profile: npm-install
 		rm -f v8.log
 		/usr/bin/env node --prof ./node_modules/.bin/nodeunit tests/low-level-sync tests/low-level-async \
 		                                                      tests/high-level tests/complex tests/issues
 		/usr/bin/env linux-tick-processor v8.log > v8.processed.log
 
-lint: devdependencies
+lint: npm-install
 		cpplint ./src/*.h ./src/*.cc
 		./node_modules/.bin/nodelint --config ./nodelint.conf ./package.json ./lib ./tools/*.js
 		./node_modules/.bin/nodelint --config ./nodelint.conf ./tests
 
-mlf: devdependencies build ./mysql-libmysqlclient.js
-		/usr/bin/env node --expose-gc --debug ${MLF} #--debugger_port=${NI_DEBUG_PORT} ${MLF}
+webkit-devtools-agent: webkit-devtools-agent-stamp
 
-devdependencies: devdependencies-stamp
+webkit-devtools-agent-stamp:
+		npm install webkit-devtools-agent@0.0.4
+		touch webkit-devtools-agent-stamp
 
-devdependencies-stamp:
-		touch devdependencies-stamp
-		npm install --dev .
+mlf: npm-install webkit-devtools-agent
+		./tools/memory-leaks-finder-repl.js
+
+valgrind: npm-install webkit-devtools-agent $(time)
+ 		valgrind \
+ 		  --leak-check=full --error-limit=no \
+ 		  --track-origins=yes -v \
+ 		  --log-file=valgrind.log -- \
+ 		  node --expose-gc ./tools/memory-usage-show.js
+
 
 doc: ./lib/* ./src/*
 		rm -rf ${API_DEST_DIR}

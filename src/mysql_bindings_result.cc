@@ -257,8 +257,10 @@ Handle<Value> MysqlResult::New(const Arguments& args) {
     REQ_EXT_ARG(0, js_connection);
     REQ_EXT_ARG(1, js_result);
     REQ_UINT_ARG(2, field_count);
+
     MYSQL *connection = static_cast<MYSQL*>(js_connection->Value());
     MYSQL_RES *result = static_cast<MYSQL_RES*>(js_result->Value());
+
     MysqlResult *my_res = new MysqlResult(connection, result, field_count);
     my_res->Wrap(args.Holder());
 
@@ -271,7 +273,7 @@ Handle<Value> MysqlResult::New(const Arguments& args) {
  * Get the number of fields in a result
  **/
 Handle<Value> MysqlResult::FieldCountGetter(Local<String> property,
-                                                   const AccessorInfo &info) {
+                                            const AccessorInfo &info) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
@@ -316,7 +318,7 @@ Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
 /*!
  * EIO wrapper functions for MysqlResult::FetchAll
  */
-async_rtn MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
+NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlResult::EIO_After_FetchAll(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req) {
     HandleScope scope;
 
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
@@ -380,8 +382,11 @@ async_rtn MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
             const char *error = mysql_error(fetchAll_req->res->_conn);
             unsigned long error_string_length = strlen(error) + 20;
             char* error_string = new char[error_string_length];
-            snprintf(error_string, error_string_length, "Fetch error #%d: %s",
-                     errno, error);
+            snprintf(
+                error_string, error_string_length,
+                "Fetch error #%d: %s",
+                errno, error
+            );
 
             argv[0] = V8EXC(error_string);
             delete[] error_string;
@@ -409,19 +414,20 @@ async_rtn MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
     
     fetchAll_req->res->Unref();
 
-    // free the result object after callback
-    // all of the rows have been gotten at this point
-    fetchAll_req->res->Free();
+    // Free the result object after callback
+    // All of the rows have been gotten at this point
+    // Removed, see comment below
+    //fetchAll_req->res->Free();
 
-    // TODO: Is this a memory leak?
+    // DO NOT do this. User must can manipulate result after fetchAll().
     // delete fetchAll_req->res;
     
     delete fetchAll_req;
 
-    RETURN_ASYNC_AFTER
+    NODE_ADDON_SHIM_ASYNC_RETURN_AFTER
 }
 
-async_rtn MysqlResult::EIO_FetchAll(uv_work_t *req) {
+NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlResult::EIO_FetchAll(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req) {
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
     MysqlResult *res = fetchAll_req->res;
 
@@ -432,7 +438,7 @@ async_rtn MysqlResult::EIO_FetchAll(uv_work_t *req) {
 
     fetchAll_req->ok = true;
     
-    RETURN_ASYNC
+    NODE_ADDON_SHIM_ASYNC_RETURN
 }
 
 /**
@@ -488,7 +494,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     fetchAll_req->results_array = results_array;
     fetchAll_req->results_structured = results_structured;
 
-    BEGIN_ASYNC(fetchAll_req, EIO_FetchAll, EIO_After_FetchAll)
+    NODE_ADDON_SHIM_ASYNC_RUN(fetchAll_req, EIO_FetchAll, EIO_After_FetchAll)
 
     return Undefined();
 }
