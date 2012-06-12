@@ -10,7 +10,7 @@ Overview
 --------
 
 These bindings provides all general connection/querying functions from the MySQL C API,
-and part of prepared statements support. `Connect`, `query` and `fetchAll` are asynchronous.
+and partial support for prepared statements. `Connect`, `query` and `fetchAll` are asynchronous.
 This module also includes experimental support for asynchronous `querySend` from internals of `libmysqlclient`.
 
 I started this project in 2010 when Node.js was growing. Ryan had plans to write this binding as part of [GSoC].
