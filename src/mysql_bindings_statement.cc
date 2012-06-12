@@ -309,7 +309,7 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
         } else if (js_param->IsBoolean()) {
             // I assume, booleans are usually stored as TINYINT(1)
             int_data = new int;
-            *int_data = js_param->Int32Value();
+            *int_data = js_param->BooleanValue() ? 1 : 0;
 
             stmt->binds[i].buffer_type = MYSQL_TYPE_TINY;
             stmt->binds[i].buffer = int_data;
@@ -582,7 +582,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                     break;
                 case MYSQL_TYPE_TINY:
                     if (length[j] == 1) {
-                        js_result = BooleanObject::New(tiny_data[j] == true);
+                        js_result = Boolean::New(tiny_data[j] != 0);
                     } else {
                         js_result = Integer::NewFromUnsigned(tiny_data[j]);
                     }
