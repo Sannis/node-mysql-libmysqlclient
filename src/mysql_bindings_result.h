@@ -27,7 +27,7 @@
         return THREXC("Result has been freed."); \
     }
 
-/**
+/** section: Classes
  * class MysqlResult
  *
  * MySQL results class

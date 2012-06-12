@@ -31,7 +31,7 @@
         return THREXC("Statement result not stored"); \
     }
 
-/**
+/** section: Classes
  * class MysqlStatement
  *
  * MySQL prepared statement class

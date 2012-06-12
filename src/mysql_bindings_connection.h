@@ -46,7 +46,7 @@
 
 using namespace v8; // NOLINT
 
-/**
+/** section: Classes
  * class MysqlConnection
  *
  * MySQL connection class, base version
