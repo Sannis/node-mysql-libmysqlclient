@@ -1183,19 +1183,30 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
 }
 
 /**
- * EV wrapper functions for MysqlConnection::QuerySend
+ * Callback function for MysqlConnection::QuerySend
  */
-void MysqlConnection::EV_After_QuerySend(EV_P_ ev_io *io_watcher, int revents) {
+#if NODE_VERSION_AT_LEAST(0, 7, 9)
+void MysqlConnection::EV_After_QuerySend(uv_poll_t* handle, int status, int events) {
+    HandleScope scope;
+
+    // Fake uv_work_t struct for EIO_After_Query call
+    uv_work_t *_req = new uv_work_t;
+    _req->data = handle->data;
+
+    // Stop IO watcher
+    END_IO_WATCH(handle)
+#else
+void MysqlConnection::EV_After_QuerySend(EV_P_ ev_io *io_watcher, int events) {
     HandleScope scope;
 
     // Fake uv_work_t struct for EIO_After_Query call
     uv_work_t *_req = new uv_work_t;
     _req->data = io_watcher->data;
 
-    // Stop io_watcher
-    ev_io_stop(EV_A_ io_watcher);
-
-    struct query_request *query_req = (struct query_request *)(io_watcher->data);
+    // Stop IO watcher
+    END_IO_WATCH(io_watcher)
+#endif
+    struct query_request *query_req = (struct query_request *)(_req->data);
 
     MysqlConnection *conn = query_req->conn;
 
@@ -1238,9 +1249,6 @@ void MysqlConnection::EV_After_QuerySend(EV_P_ ev_io *io_watcher, int revents) {
 
     // The callback part, just call the existing code
     EIO_After_Query(_req);
-
-    // Don't forget to delete io_watcher
-    delete io_watcher;
 }
 
 /**
@@ -1277,11 +1285,8 @@ Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
     // Send query
     mysql_send_query(conn->_conn, query_req->query, query_len + 1);
 
-    // Init ev watcher
-    ev_io* io_watcher = new ev_io;
-    io_watcher->data = query_req;
-
-    BEGIN_EV_IO_WATCH(io_watcher, EV_After_QuerySend, conn->_conn->net.fd, EV_READ)
+    // Init IO watcher
+    BEGIN_IO_WATCH(query_req, EV_After_QuerySend, conn->_conn->net.fd, EV_READ)
 
     return Undefined();
 }
