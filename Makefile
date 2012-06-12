@@ -75,9 +75,11 @@ valgrind: npm-install webkit-devtools-agent $(time)
  		  --log-file=valgrind.log -- \
  		  node --expose-gc ./tools/memory-usage-show.js
 
-
 doc: ./lib/* ./src/*
 		rm -rf ${API_DEST_DIR}
 		./node_modules/.bin/ndoc -e h -e cc -o ${API_DEST_DIR} --ribbon --link-format=${API_SRC_URL_FMT} ./lib ./src
+
+gh-pages:
+		./gh_pages.sh
 
 .PHONY: all npm-install waf clean clean-all test test-slow test-all test-profile lint mlf doc
