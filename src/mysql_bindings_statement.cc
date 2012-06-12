@@ -506,7 +506,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     while (i < field_count) {
         bind[i].buffer_type = fields[i].type;
 
-        switch(fields[i].type) {
+        switch (fields[i].type) {
             case MYSQL_TYPE_NULL:
             case MYSQL_TYPE_SHORT:
             case MYSQL_TYPE_LONG:
@@ -515,8 +515,8 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                 bind[i].buffer = &int_data[i];
                 break;
             case MYSQL_TYPE_TINY:
-            	bind[i].buffer = &tiny_data[i];
-            	break;
+                bind[i].buffer = &tiny_data[i];
+                break;
             case MYSQL_TYPE_FLOAT:
             case MYSQL_TYPE_DOUBLE:
             case MYSQL_TYPE_DECIMAL:
@@ -536,6 +536,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
             case MYSQL_TYPE_DATETIME:
             case MYSQL_TYPE_TIMESTAMP:
                 bind[i].buffer = (char *) &date_data[i];
+                break;
         }
 
         bind[i].is_null = &is_null[i];
