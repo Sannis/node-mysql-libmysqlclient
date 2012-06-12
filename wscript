@@ -23,7 +23,7 @@ def configure(conf):
   conf.check_tool("node_addon")
   
   # Enables all the warnings that are easy to avoid
-  conf.env.append_unique('CXXFLAGS', ["-Wall"])
+  conf.env.append_unique('CXXFLAGS', ["-Wall", "-Wno-switch"])
   if Options.options.warn:
     # Extra warnings
     conf.env.append_unique('CXXFLAGS', ["-Wextra"])

@@ -16,3 +16,6 @@ webkit-devtools-agent-stamp
 valgrind.log
 *.dat
 *.png
+
+*.iml
+.idea

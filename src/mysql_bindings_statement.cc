@@ -52,6 +52,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "errnoSync",          MysqlStatement::ErrnoSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "errorSync",          MysqlStatement::ErrorSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "executeSync",        MysqlStatement::ExecuteSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAllSync",       MysqlStatement::FetchAllSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldCountSync",     MysqlStatement::FieldCountSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "freeResultSync",     MysqlStatement::FreeResultSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "lastInsertIdSync",   MysqlStatement::LastInsertIdSync);
@@ -305,6 +306,15 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
             stmt->binds[i].buffer = int_data;
             stmt->binds[i].is_null = 0;
             stmt->binds[i].is_unsigned = false;
+        } else if (js_param->IsBoolean()) {
+            // I assume, booleans are usually stored as TINYINT(1)
+            int_data = new int;
+            *int_data = js_param->Int32Value();
+
+            stmt->binds[i].buffer_type = MYSQL_TYPE_TINY;
+            stmt->binds[i].buffer = int_data;
+            stmt->binds[i].is_null = 0;
+            stmt->binds[i].is_unsigned = false;
         } else if (js_param->IsUint32()) {
             uint_data = new unsigned int;
             *uint_data = js_param->Uint32Value();
@@ -455,6 +465,173 @@ Handle<Value> MysqlStatement::ExecuteSync(const Arguments& args) {
     }
 
     return scope.Close(True());
+}
+
+/**
+ * Returns row data from statement result
+ *
+ * @return {Object}
+ */
+Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    MYSQLSTMT_MUSTBE_INITIALIZED;
+    MYSQLSTMT_MUSTBE_PREPARED;
+
+    /* Get meta data for binding buffers */
+
+    unsigned int field_count = mysql_stmt_field_count(stmt->_stmt);
+
+    uint32_t i = 0, j = 0;
+    unsigned long length[field_count];
+    int row_count = 0;
+    my_bool is_null[field_count];
+    MYSQL_BIND bind[field_count];
+    MYSQL_RES *meta;
+    MYSQL_FIELD *fields;
+
+    /* Buffers */
+    int int_data[field_count];
+    signed char tiny_data[field_count];
+    double double_data[field_count];
+    char str_data[field_count][64];
+    MYSQL_TIME date_data[field_count];
+    memset(date_data, 0, sizeof(date_data));
+
+    memset(bind, 0, sizeof(bind));
+
+    meta = mysql_stmt_result_metadata(stmt->_stmt);
+
+    fields = meta->fields;
+    while (i < field_count) {
+        bind[i].buffer_type = fields[i].type;
+
+        switch(fields[i].type) {
+            case MYSQL_TYPE_NULL:
+            case MYSQL_TYPE_SHORT:
+            case MYSQL_TYPE_LONG:
+            case MYSQL_TYPE_LONGLONG:
+            case MYSQL_TYPE_INT24:
+                bind[i].buffer = &int_data[i];
+                break;
+            case MYSQL_TYPE_TINY:
+            	bind[i].buffer = &tiny_data[i];
+            	break;
+            case MYSQL_TYPE_FLOAT:
+            case MYSQL_TYPE_DOUBLE:
+            case MYSQL_TYPE_DECIMAL:
+            case MYSQL_TYPE_NEWDECIMAL:
+                bind[i].buffer = &double_data[i];
+                break;
+            case MYSQL_TYPE_STRING:
+            case MYSQL_TYPE_VAR_STRING:
+            case MYSQL_TYPE_VARCHAR:
+                bind[i].buffer = (char *) str_data[i];
+                bind[i].buffer_length = fields[i].length;
+                break;
+            case MYSQL_TYPE_YEAR:
+            case MYSQL_TYPE_DATE:
+            case MYSQL_TYPE_NEWDATE:
+            case MYSQL_TYPE_TIME:
+            case MYSQL_TYPE_DATETIME:
+            case MYSQL_TYPE_TIMESTAMP:
+                bind[i].buffer = (char *) &date_data[i];
+        }
+
+        bind[i].is_null = &is_null[i];
+        bind[i].length = &length[i];
+        i++;
+    }
+
+    /* If error on binding return null */
+    if (mysql_stmt_bind_result(stmt->_stmt, bind)) {
+        return scope.Close(Null());
+    }
+
+    /* If error on buffering results return null */
+    if (mysql_stmt_store_result(stmt->_stmt)) {
+        return scope.Close(Null());
+    }
+
+    Local<Array> js_result_rows = Array::New();
+    Local<Object> js_result_row;
+    Local<Value> js_result;
+
+    row_count = mysql_stmt_num_rows(stmt->_stmt);
+
+    /* If no rows, return empty array */
+    if (!row_count) {
+        return scope.Close(js_result_rows);
+    }
+
+    i = 0;
+    while (mysql_stmt_fetch(stmt->_stmt) != MYSQL_NO_DATA) {
+        js_result_row = Object::New();
+
+        j = 0;
+        while (j < field_count) {
+            switch(fields[j].type) {
+                case MYSQL_TYPE_NULL:
+                case MYSQL_TYPE_SHORT:
+                case MYSQL_TYPE_LONG:
+                case MYSQL_TYPE_LONGLONG:
+                case MYSQL_TYPE_INT24:
+                    js_result = Integer::New(int_data[j]);
+                    break;
+                case MYSQL_TYPE_TINY:
+                    if (length[j] == 1) {
+                        js_result = BooleanObject::New(tiny_data[j] == true);
+                    } else {
+                        js_result = Integer::NewFromUnsigned(tiny_data[j]);
+                    }
+                    break;
+                case MYSQL_TYPE_FLOAT:
+                case MYSQL_TYPE_DOUBLE:
+                    js_result = Number::New(double_data[j]);
+                    break;
+                case MYSQL_TYPE_DECIMAL:
+                case MYSQL_TYPE_NEWDECIMAL:
+                    js_result = Number::New(double_data[j])->ToString();
+                    break;
+                case MYSQL_TYPE_STRING:
+                case MYSQL_TYPE_VAR_STRING:
+                case MYSQL_TYPE_VARCHAR:
+                    js_result = V8STR2(str_data[j], length[j]);
+                    break;
+                case MYSQL_TYPE_YEAR:
+                case MYSQL_TYPE_DATE:
+                case MYSQL_TYPE_NEWDATE:
+                case MYSQL_TYPE_TIME:
+                case MYSQL_TYPE_DATETIME:
+                case MYSQL_TYPE_TIMESTAMP:
+                    MYSQL_TIME ts = date_data[j];
+                    time_t rawtime;
+                    struct tm * datetime;
+                    time(&rawtime);
+                    datetime = localtime(&rawtime);
+                    datetime->tm_year = ts.year - 1900;
+                    datetime->tm_mon = ts.month - 1;
+                    datetime->tm_mday = ts.day;
+                    datetime->tm_hour = ts.hour;
+                    datetime->tm_min = ts.minute;
+                    datetime->tm_sec = ts.second;
+                    time_t timestamp = mktime(datetime);
+
+                    js_result = Date::New(1000 * (double) timestamp);
+                    break;
+            }
+
+            js_result_row->Set(V8STR(fields[j].name), js_result);
+            j++;
+        }
+
+        js_result_rows->Set(Integer::NewFromUnsigned(i), js_result_row);
+        i++;
+    }
+
+    return scope.Close(js_result_rows);
 }
 
 /**
