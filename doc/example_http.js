@@ -10,7 +10,7 @@
  * Require modules and define variables
  */
 var
-  sys = require('sys'),
+  util = require('util'),
   http = require('http'),
   mysql = require('../mysql-libmysqlclient'),
   conn,
@@ -35,7 +35,7 @@ conn = mysql.createConnectionSync();
 conn.connectSync(host, user, password, database);
 
 if (!conn.connectedSync()) {
-  sys.puts("Connection error " + conn.connectErrno + ": " + conn.connectError);
+  util.puts("Connection error " + conn.connectErrno + ": " + conn.connectError);
   process.exit(1);
 }
 
@@ -74,6 +74,6 @@ console.log('Server running at http://127.0.0.1:8124/');
 
 setInterval(function () {
   console.log(Date.now());
-  console.log(sys.inspect(process.memoryUsage()));
+  console.log(util.inspect(process.memoryUsage()));
 }, 30 * 1000);
 
