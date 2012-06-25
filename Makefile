@@ -19,18 +19,10 @@ npm-install-stamp: ./binding.gyp ./src/*
 		npm install
 		touch npm-install-stamp
 
-waf: waf-stamp
-		@echo "NOTICE: Please note that node-waf building is deprecated for this module"
-
-waf-stamp: ./wscript ./src/*
-		touch waf-stamp
-		node-waf configure build
-
 clean:
 		rm -rf ./build
 		rm -f ./mysql_bindings.node
 		rm -f npm-install-stamp
-		rm -f waf-stamp
 		rm -f webkit-devtools-agent-stamp
 
 clean-all: clean
@@ -43,7 +35,7 @@ test: npm-install
 test-slow: npm-install
 		./node_modules/.bin/nodeunit --reporter=minimal tests/slow
 
-test-all: install
+test-all: npm-install
 		./node_modules/.bin/nodeunit --reporter=minimal tests/low-level-sync tests/low-level-async \
 		                                                tests/high-level tests/complex tests/issues \
 		                                                tests/slow
@@ -82,4 +74,4 @@ doc: ./lib/* ./src/*
 gh-pages:
 		./gh_pages.sh
 
-.PHONY: all npm-install waf clean clean-all test test-slow test-all test-profile lint mlf doc
+.PHONY: all npm-install clean clean-all test test-slow test-all test-profile lint mlf doc
