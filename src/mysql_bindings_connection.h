@@ -197,6 +197,10 @@ class MysqlConnection : public node::ObjectWrap {
     static void EIO_Query(uv_work_t *req);
     static Handle<Value> Query(const Arguments& args);
 
+    /*!
+     * Callback function for uv_close(uv_handle_t* handle), if needed
+     */
+    NODE_ADDON_SHIM_STOP_IO_WATCH_ONCLOSE(EV_After_QuerySend_OnWatchHandleClose)
     static void EV_After_QuerySend(NODE_ADDON_SHIM_IO_WATCH_CALLBACK_ARGUMENTS);
     static Handle<Value> QuerySend(const Arguments& args);
 

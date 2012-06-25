@@ -1198,7 +1198,7 @@ void MysqlConnection::EV_After_QuerySend(NODE_ADDON_SHIM_IO_WATCH_CALLBACK_ARGUM
 #endif
 
     // Stop IO watcher
-    NODE_ADDON_SHIM_STOP_IO_WATCH
+    NODE_ADDON_SHIM_STOP_IO_WATCH(EV_After_QuerySend_OnWatchHandleClose)
 
     struct query_request *query_req = (struct query_request *)(_req->data);
 

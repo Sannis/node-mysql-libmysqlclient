@@ -29,9 +29,13 @@
     handle->data = _data; \
     uv_poll_init(uv_default_loop(), handle, fd); \
     uv_poll_start(handle, events, after);
-  #define NODE_ADDON_SHIM_STOP_IO_WATCH \
+  #define NODE_ADDON_SHIM_STOP_IO_WATCH(on_close) \
     uv_poll_stop(handle); \
-    delete handle;
+    uv_close((uv_handle_t *) handle, on_close);
+  #define NODE_ADDON_SHIM_STOP_IO_WATCH_ONCLOSE(on_close) \
+  static void on_close(uv_handle_t* handle) { \
+      delete handle; \
+  }
 #else
   #define NODE_ADDON_SHIM_START_IO_WATCH(_data, after, fd, events) \
     ev_io* io_watcher = new ev_io; \
@@ -39,9 +43,10 @@
     ev_init(io_watcher, after); \
     ev_io_set(io_watcher, fd, events); \
     ev_io_start(EV_DEFAULT_UC_ io_watcher);
-  #define NODE_ADDON_SHIM_STOP_IO_WATCH \
+  #define NODE_ADDON_SHIM_STOP_IO_WATCH(on_close) \
     ev_io_stop(EV_DEFAULT_UC_ io_watcher); \
     delete io_watcher;
+  #define NODE_ADDON_SHIM_STOP_IO_WATCH_ONCLOSE(on_close)
 #endif
 
 #if NODE_VERSION_AT_LEAST(0, 7, 9)
