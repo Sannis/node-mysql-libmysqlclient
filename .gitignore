@@ -1,3 +1,6 @@
+# Needed for npm :-(
+.idea
+
 *~
 build
 .lock-wscript
