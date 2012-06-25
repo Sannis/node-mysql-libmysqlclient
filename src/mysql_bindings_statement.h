@@ -31,6 +31,11 @@
         return THREXC("Statement result not stored"); \
     }
 
+/** section: Classes
+ * class MysqlStatement
+ *
+ * MySQL prepared statement class
+ **/
 class MysqlStatement : public node::ObjectWrap {
   public:
     static Persistent<FunctionTemplate> constructor_template;

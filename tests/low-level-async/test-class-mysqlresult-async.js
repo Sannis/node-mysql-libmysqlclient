@@ -9,11 +9,9 @@ See license text in LICENSE file
 var cfg = require('../config.js');
 
 exports.setupTestTable = function (test) {
-  test.expect(2);
+  test.expect(1);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
-
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   res = conn.querySync("INSERT INTO " + cfg.test_table +
@@ -28,13 +26,11 @@ exports.setupTestTable = function (test) {
 };
 
 exports.FetchAll = function (test) {
-  test.expect(4);
+  test.expect(3);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync(
     "SELECT random_number FROM " + cfg.test_table + " WHERE random_boolean='1';"
@@ -54,13 +50,11 @@ exports.FetchAll = function (test) {
 };
 
 exports.ResultObjectManipulationsAfterFetchAll = function (test) {
-  test.expect(5);
+  test.expect(4);
 
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync(
     "SELECT random_number FROM " + cfg.test_table + " WHERE random_boolean='1';"

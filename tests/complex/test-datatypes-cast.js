@@ -9,14 +9,12 @@ See license text in LICENSE file
 var cfg = require('../config');
 
 exports.fetchDateAndTimeValues = function (test) {
-  test.expect(17);
+  test.expect(16);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     rows;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   rows = conn.querySync("SELECT CAST('2 2:50' AS TIME) as time;").fetchAllSync();
   test.ok(rows[0].time instanceof Date, "SELECT CAST('2 2:50' AS TIME) is Date");
   test.equals(rows[0].time.toUTCString(), "Sat, 03 Jan 1970 02:50:00 GMT", "SELECT CAST('2 2:50' AS TIME) is correct");
@@ -55,14 +53,12 @@ exports.fetchDateAndTimeValues = function (test) {
 };
 
 exports.fetchSetValues = function (test) {
-  test.expect(5);
+  test.expect(4);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     rows;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   rows = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';").fetchAllSync();
   test.ok(rows[0].colors instanceof Array, "SET fetched result is Array");
   test.same(rows[0].colors, ['red'], "SET fetched result is correct");

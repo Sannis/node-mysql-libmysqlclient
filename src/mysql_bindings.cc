@@ -9,10 +9,8 @@
 
 #include <node.h>
 
-/**
+/*!
  * Include headers
- *
- * @ignore
  */
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
@@ -46,7 +44,7 @@
     }  // namespace node
 #endif
 
-/**
+/*!
  * Init V8 structures
  *
  * Classes to populate in JavaScript:

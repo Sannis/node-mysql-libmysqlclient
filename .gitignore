@@ -1,11 +1,12 @@
+# Needed for npm :-(
+.idea
+
 *~
 build
-.lock-wscript
 mysql_bindings.node
 node_modules
 
 npm-install-stamp
-waf-stamp
 devdependencies-stamp
 webkit-devtools-agent-stamp
 

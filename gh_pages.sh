@@ -11,7 +11,6 @@ fi
 DESC=`git describe`
 
 # Update master branch
-node-waf doc
 git add doc/*.js doc/*.html
 git ci -m "Update docs to $DESC"
 

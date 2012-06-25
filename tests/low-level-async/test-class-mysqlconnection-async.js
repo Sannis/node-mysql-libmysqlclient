@@ -89,13 +89,11 @@ exports.ConnectAfterConnectSync2 = function (test) {
 };
 
 exports.Query = function (test) {
-  test.expect(3);
+  test.expect(2);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   conn.query("SHOW TABLES", function (err, res) {
     test.ok(res.fieldCount === 1, "show results field count === 1");
     var rows = res.fetchAllSync();
@@ -109,14 +107,12 @@ exports.Query = function (test) {
 };
 
 exports.QueryWithLastInsertIdAndAffectedRows = function (test) {
-  test.expect(9);
+  test.expect(8);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.strictEqual(res, true);
   
@@ -153,13 +149,11 @@ exports.QueryWithLastInsertIdAndAffectedRows = function (test) {
 };
 
 exports.QueryWithError = function (test) {
-  test.expect(6);
+  test.expect(5);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   conn.query("SHOW TABLESaagh", function (err, res) {
     test.ok(err, "Error object is present");
     test.ok(!res, "Result is not defined");
@@ -179,14 +173,12 @@ exports.QueryWithError = function (test) {
 };
 
 exports.QueryWithoutCallback = function (test) {
-  test.expect(6);
+  test.expect(5);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.strictEqual(res, true);
   
@@ -207,13 +199,11 @@ exports.QueryWithoutCallback = function (test) {
 };
 
 exports.QuerySend = function (test) {
-  test.expect(3);
+  test.expect(2);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   conn.querySend("SHOW TABLES", function (err, res) {
     test.ok(res.fieldCount === 1, "show results field count === 1");
     var rows = res.fetchAllSync();
@@ -227,14 +217,12 @@ exports.QuerySend = function (test) {
 };
 
 exports.QuerySendWithLastInsertIdAndAffectedRows = function (test) {
-  test.expect(9);
+  test.expect(8);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.strictEqual(res, true);
   
@@ -271,13 +259,11 @@ exports.QuerySendWithLastInsertIdAndAffectedRows = function (test) {
 };
 
 exports.QuerySendWithError = function (test) {
-  test.expect(6);
+  test.expect(5);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   conn.querySend("SHOW TABLESaagh", function (err, res) {
     test.ok(err, "Error object is present");
     test.ok(!res, "Result is not defined");

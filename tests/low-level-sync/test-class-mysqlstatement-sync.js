@@ -19,14 +19,12 @@ exports.New = function (test) {
 };
 
 var testAttrGetAndSetSync = function (test) {
-  test.expect(7);
+  test.expect(6);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     stmt;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   stmt = conn.initStatementSync();
   
   test.equals(typeof stmt.attrGetSync(stmt.STMT_ATTR_UPDATE_MAX_LENGTH), "boolean", "Value of STMT_ATTR_UPDATE_MAX_LENGTH attribute is boolean");
@@ -45,7 +43,7 @@ var testAttrGetAndSetSync = function (test) {
 };
 
 var testBindParamsAndExecuteSync = function (test) {
-  test.expect(31);
+  test.expect(30);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
@@ -62,9 +60,7 @@ var testBindParamsAndExecuteSync = function (test) {
     time_out = new Date("Sat, 01 Jan 1970 02:50:00 GMT"),
     datetime = new Date("Tue, 25 Oct 1988 06:34:00 GMT"),
     timestamp = new Date("Tue, 25 Oct 1988 00:00:00 GMT");
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   // Check inserting for INT
   
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
@@ -153,15 +149,13 @@ var testBindParamsAndExecuteSync = function (test) {
 };
 
 exports.ParamCountGetter = function (test) {
-  test.expect(5);
+  test.expect(4);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     stmt;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.strictEqual(res, true);
   
@@ -177,7 +171,7 @@ exports.ParamCountGetter = function (test) {
 };
 
 exports.AffectedRowsSync = function (test) {
-  test.expect(8);
+  test.expect(7);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
@@ -186,7 +180,6 @@ exports.AffectedRowsSync = function (test) {
     stmt,
     affected_rows,
     i;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.strictEqual(res, true);
@@ -230,14 +223,12 @@ exports.BindParamsSync = function (test) {
 };
 
 exports.CloseSync = function (test) {
-  test.expect(4);
+  test.expect(3);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     stmt;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   stmt = conn.initStatementSync();
   test.ok(stmt);
   test.ok(stmt.prepareSync("INSERT INTO " + cfg.test_table + " (random_number, random_boolean) VALUES (?, ?);"));
@@ -254,7 +245,7 @@ exports.CloseSync = function (test) {
 };
 
 exports.DataSeekSync = function (test) {
-  test.expect(5);
+  test.expect(4);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
@@ -262,7 +253,6 @@ exports.DataSeekSync = function (test) {
     random_boolean,
     stmt,
     i;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.strictEqual(res, true);
@@ -299,16 +289,14 @@ exports.DataSeekSync = function (test) {
 };
 
 exports.LastInsertIdSync = function (test) {
-  test.expect(11);
+  test.expect(10);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     stmt,
     lastInsertId;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("TRUNCATE " + cfg.test_table + ";");
   test.strictEqual(res, true);
   
@@ -336,13 +324,11 @@ exports.LastInsertIdSync = function (test) {
 };
 
 exports.ResultMetadataSync = function (test) {
-  test.expect(5);
+  test.expect(4);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     stmt,
     resultMetadata;
-
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
 
   stmt = conn.initStatementSync();
   test.ok(stmt);
@@ -362,7 +348,7 @@ exports.ResultMetadataSync = function (test) {
 };
 
 exports.SendLongDataSync = function (test) {
-  test.expect(11);
+  test.expect(10);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
@@ -371,9 +357,7 @@ exports.SendLongDataSync = function (test) {
     rows,
     test_message1 = "MySQL -- The most popular Open Source database",
     test_message2 = "\n Second chunk of message";
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.strictEqual(res, true);
   
@@ -410,14 +394,12 @@ exports.SendLongDataSync = function (test) {
 };
 
 exports.SqlStateSync = function (test) {
-  test.expect(2);
+  test.expect(1);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     stmt;
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   stmt = conn.initStatementSync();
   test.equals(stmt.sqlStateSync(), "00000", "stmt.sqlStateSync()");
 

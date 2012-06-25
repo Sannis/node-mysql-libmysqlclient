@@ -1,9 +1,13 @@
-# Node-mysql-libmysqlclient [![Build status](https://secure.travis-ci.org/Sannis/node-mysql-libmysqlclient.png?branch=master)](http://travis-ci.org/Sannis/node-mysql-libmysqlclient) #
+Node-mysql-libmysqlclient [![Build status][Build status image]][Build status URL]
+=================================================================================
 
-###### Asynchronous MySQL binding for [Node.js] using libmysqlclient. ######
-__(This module has been tested with Node.js versions 0.4.12, 0.6.19 and 0.7.9.)__
+**Asynchronous MySQL binding for [Node.js] using libmysqlclient.**
+
+**This module has been tested with Node.js versions 0.6.19, 0.7.12 and 0.8.0**
 
 [Node.js]: http://nodejs.org/
+[Build status image]: https://secure.travis-ci.org/Sannis/node-mysql-libmysqlclient.png?branch=master
+[Build status URL]: http://travis-ci.org/Sannis/node-mysql-libmysqlclient
 
 
 Overview
@@ -11,7 +15,7 @@ Overview
 
 These bindings provides all general connection/querying functions from the MySQL C API,
 and partial support for prepared statements. `Connect`, `query` and `fetchAll` are asynchronous.
-This module also includes experimental support for asynchronous `querySend` from internals of `libmysqlclient`.
+This module also includes support for asynchronous `querySend` from internals of `libmysqlclient`.
 
 I started this project in 2010 when Node.js was growing. Ryan had plans to write this binding as part of [GSoC].
 It is now used by many projects and has more than 10 contributors,
@@ -23,7 +27,7 @@ Visit the [module site] for API docs and examples. You can also read some extra 
 
 [GSoC]: http://code.google.com/soc/
 [Node.js MySQL bindings benchmark]: https://github.com/Sannis/node-mysql-bindings-benchmarks
-[Github repo]: https://github.com/Sannis/node-mysql-libmysqlclient
+[GitHub repo]: https://github.com/Sannis/node-mysql-libmysqlclient
 [module site]: http://sannis.github.com/node-mysql-libmysqlclient
 [wiki]: https://github.com/Sannis/node-mysql-libmysqlclient/wiki
 
@@ -47,9 +51,9 @@ For Debian-based systems/Ubuntu:
 
     #> apt-get install libmysqlclient-dev
 
-Alternatively, you can use aptitude for Debian-based systems.
+Alternatively, you can use `aptitude` for Debian-based systems.
 
-Please refer to your system's documentation for more information and feel free to send me a patch for this readme. 
+Please refer to your system's documentation for more information and feel free to send me a patch for this readme.
 
 
 Installation
@@ -59,32 +63,42 @@ You can install this module via NPM:
 
     $> npm install mysql-libmysqlclient
 
-You can also build latest source code from repository.Please refer to the developers documentation for more information.
+You can also build latest source code from repository.
+Please refer to the developers documentation for more information.
 
 
 Contributing
 ------------
 
+This module is written in collaboration with many peoples listed on [GitHub contributors page].
+List of [authors ordered by first contribution] also available.
+
 I'm happy to hear tips from the more experienced programmers.
+
 If you are interested in wide MySQL usage in Node.JS applications,
 leave your comments to the code.
-I'll be glad to see your forks and commits in them :)
-
 To contribute any patches, simply fork this repository using GitHub
 and send a pull request to [me](https://github.com/Sannis). Thanks!
+All information about development use and contribution is placed in the [DEVELOPMENT] file.
 
-All information about development use and contribution is placed in the [DEVELOPMENT](https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/DEVELOPMENT.markdown) file.
+[GitHub contributors page]: https://github.com/Sannis/node-mysql-libmysqlclient/graphs/contributors
+[authors ordered by first contribution]: https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/AUTHORS
+[DEVELOPMENT]: https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/DEVELOPMENT.markdown
 
 
-Contributors
-------------
+Users and related projects
+--------------------------
 
-[Authors ordered by first contribution](https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/AUTHORS).  
-[Full contributors list](https://github.com/Sannis/node-mysql-libmysqlclient/contributors).
+This module is used by [Taobao](http://taobao.com) guys
+for their distributed MySQL proxy [Myfox-query](https://github.com/vincent-zhao/Myfox-query-module) module.
+There is long time developed Node.js ORM library called [noblerecord](https://github.com/noblesamurai/noblerecord).
+It is inspired by Rails and widely used by Noblesamurai.
+If you are looking for lightweight Node.js ORM on top of this module,
+try [mapper](https://github.com/mgutz/mapper) by Mario Gutierrez.
 
 
 License
 -------
 
-Node-mysql-libmysqlcleint is published under MIT license.  
+Node-mysql-libmysqlclient itself is published under MIT license.
 See license text in [LICENSE](https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/LICENSE) file.

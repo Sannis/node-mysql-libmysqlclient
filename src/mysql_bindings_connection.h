@@ -46,6 +46,11 @@
 
 using namespace v8; // NOLINT
 
+/** section: Classes
+ * class MysqlConnection
+ *
+ * MySQL connection class, base version
+ **/
 class MysqlConnection : public node::ObjectWrap {
   public:
     static Persistent<FunctionTemplate> constructor_template;
@@ -122,8 +127,8 @@ class MysqlConnection : public node::ObjectWrap {
         String::Utf8Value *socket;
         uint64_t flags;
     };
-    static NODE_ADDON_SHIM_ASYNC_RETURN_TYPE EIO_After_Connect(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req);
-    static NODE_ADDON_SHIM_ASYNC_RETURN_TYPE EIO_Connect(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req);
+    static void EIO_After_Connect(uv_work_t *req);
+    static void EIO_Connect(uv_work_t *req);
     static Handle<Value> Connect(const Arguments& args);
 
     static Handle<Value> ConnectSync(const Arguments& args);
@@ -188,10 +193,14 @@ class MysqlConnection : public node::ObjectWrap {
         unsigned int errno;
         const char *error;
     };
-    static NODE_ADDON_SHIM_ASYNC_RETURN_TYPE EIO_After_Query(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req);
-    static NODE_ADDON_SHIM_ASYNC_RETURN_TYPE EIO_Query(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req);
+    static void EIO_After_Query(uv_work_t *req);
+    static void EIO_Query(uv_work_t *req);
     static Handle<Value> Query(const Arguments& args);
 
+    /*!
+     * Callback function for uv_close(uv_handle_t* handle), if needed
+     */
+    NODE_ADDON_SHIM_STOP_IO_WATCH_ONCLOSE(EV_After_QuerySend_OnWatchHandleClose)
     static void EV_After_QuerySend(NODE_ADDON_SHIM_IO_WATCH_CALLBACK_ARGUMENTS);
     static Handle<Value> QuerySend(const Arguments& args);
 

@@ -5,19 +5,15 @@
  * See license text in LICENSE file
  */
 
-/**
+/*!
  * Include headers
- *
- * @ignore
  */
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
 
-/**
+/*!
  * Init V8 structures for MysqlStatement class
- *
- * @ignore
  */
 Persistent<FunctionTemplate> MysqlStatement::constructor_template;
 
@@ -105,11 +101,11 @@ MysqlStatement::~MysqlStatement() {
     }
 }
 
-/**
- * Creates new MySQL statement object
+/** internal
+ * new MysqlStatement()
  *
- * @constructor
- */
+ * Creates new MySQL prepared statement object
+ **/
 Handle<Value> MysqlStatement::New(const Arguments& args) {
     HandleScope scope;
 
@@ -121,12 +117,11 @@ Handle<Value> MysqlStatement::New(const Arguments& args) {
     return args.Holder();
 }
 
-/**
- * Returns the number of parameter for the given statement
+/** read-only
+ * MysqlStatement#paramCount -> Integer
  *
- * @getter
- * @return {Integer}
- */
+ * Returns the number of parameter for the given statement
+ **/
 Handle<Value> MysqlStatement::ParamCountGetter(Local<String> property,
                                                        const AccessorInfo &info) {
     HandleScope scope;
@@ -140,10 +135,11 @@ Handle<Value> MysqlStatement::ParamCountGetter(Local<String> property,
 }
 
 /**
+ * MysqlStatement#affectedRowsSync() -> Integer
+ *
  * Returns the total number of rows changed, deleted, or inserted by the last executed statement
  *
- * @return {Integer}
- */
+ **/
 Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
     HandleScope scope;
 
@@ -162,11 +158,11 @@ Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
 }
 
 /**
- * Used to get the current value of a statement attribute
+ * MysqlStatement#attrGetSync(attr) -> Boolean|Integer
+ * - attr (Integer): Attribute id
  *
- * @param {Integer} attr
- * @return {Boolean|Integer}
- */
+ * Used to get the current value of a statement attribute
+ **/
 Handle<Value> MysqlStatement::AttrGetSync(const Arguments& args) {
     HandleScope scope;
 
@@ -201,12 +197,13 @@ Handle<Value> MysqlStatement::AttrGetSync(const Arguments& args) {
 }
 
 /**
- * Used to modify the behavior of a prepared statement
+ * MysqlStatement#attrSetSync(attr, value) -> Boolean
+ * - attr (Integer): Attribute id
+ * - value (Boolean|Integer): Attribute value
  *
- * @param {Integer} attr
- * @param {Boolean|Integer} value
- * @return {Boolean}
- */
+ * Set the value of statement attribute.
+ * Used to modify the behavior of a prepared statement
+ **/
 Handle<Value> MysqlStatement::AttrSetSync(const Arguments& args) {
     HandleScope scope;
 
@@ -245,11 +242,11 @@ Handle<Value> MysqlStatement::AttrSetSync(const Arguments& args) {
 }
 
 /**
- * Binds variables to a prepared statement as parameters
+ * MysqlStatement#bindParamsSync(params) -> Boolean
+ * - params(Array): Parameters values to bind
  *
- * @param {Array} params
- * @return {Boolean}
- */
+ * Binds variables to a prepared statement as parameters
+ **/
 Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
     HandleScope scope;
 
@@ -367,10 +364,10 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
 }
 
 /**
- * Closes a prepared statement
+ * MysqlStatement#closeSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Closes a prepared statement
+ **/
 Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
     HandleScope scope;
 
@@ -388,10 +385,11 @@ Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
 }
 
 /**
- * Seeks to an arbitrary row in statement result set
+ * MysqlStatement#dataSeekSync(offset)
+ * -offset (Integer): Offset value
  *
- * @param {Integer} offset
- */
+ * Seeks to an arbitrary row in statement result set
+ **/
 Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
     HandleScope scope;
 
@@ -414,10 +412,10 @@ Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
 }
 
 /**
- * Returns the error code for the most recent statement call
+ * MysqlStatement#errnoSync() -> Integer
  *
- * @return {Integer}
- */
+ * Returns the error code for the most recent statement call
+ **/
 Handle<Value> MysqlStatement::ErrnoSync(const Arguments& args) {
     HandleScope scope;
 
@@ -431,10 +429,10 @@ Handle<Value> MysqlStatement::ErrnoSync(const Arguments& args) {
 }
 
 /**
- * Returns a string description for last statement error
+ * MysqlStatement#errorSync() -> String
  *
- * @return {String}
- */
+ * Returns a string description for last statement error
+ **/
 Handle<Value> MysqlStatement::ErrorSync(const Arguments& args) {
     HandleScope scope;
 
@@ -448,10 +446,10 @@ Handle<Value> MysqlStatement::ErrorSync(const Arguments& args) {
 }
 
 /**
- * Executes a prepared query
+ * MysqlStatement#executeSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Executes a prepared query
+ **/
 Handle<Value> MysqlStatement::ExecuteSync(const Arguments& args) {
     HandleScope scope;
 
@@ -468,10 +466,10 @@ Handle<Value> MysqlStatement::ExecuteSync(const Arguments& args) {
 }
 
 /**
- * Returns row data from statement result
+ * MysqlStatement#fetchAllSync() -> Object
  *
- * @return {Object}
- */
+ * Returns row data from statement result
+ **/
 Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     HandleScope scope;
 
@@ -479,9 +477,9 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
+    MYSQLSTMT_MUSTBE_STORED;
 
-    /* Get meta data for binding buffers */
-
+    // Get fields count for binding buffers
     unsigned int field_count = mysql_stmt_field_count(stmt->_stmt);
 
     uint32_t i = 0, j = 0;
@@ -492,9 +490,9 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     MYSQL_RES *meta;
     MYSQL_FIELD *fields;
 
-    /* Buffers */
+    // Buffers
     int int_data[field_count];
-    signed char tiny_data[field_count];
+    my_ulonglong my_ulonglong_data[field_count];
     double double_data[field_count];
     char str_data[field_count][64];
     MYSQL_TIME date_data[field_count];
@@ -502,42 +500,75 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     memset(bind, 0, sizeof(bind));
 
+    // Get meta data for binding buffers
     meta = mysql_stmt_result_metadata(stmt->_stmt);
 
     fields = meta->fields;
     while (i < field_count) {
         bind[i].buffer_type = fields[i].type;
 
-        switch(fields[i].type) {
-            case MYSQL_TYPE_NULL:
-            case MYSQL_TYPE_SHORT:
-            case MYSQL_TYPE_LONG:
-            case MYSQL_TYPE_LONGLONG:
-            case MYSQL_TYPE_INT24:
+        switch (fields[i].type) {
+            case MYSQL_TYPE_NULL:   // NULL-type field
+                // TODO: Implement this
                 bind[i].buffer = &int_data[i];
                 break;
-            case MYSQL_TYPE_TINY:
-            	bind[i].buffer = &tiny_data[i];
-            	break;
-            case MYSQL_TYPE_FLOAT:
-            case MYSQL_TYPE_DOUBLE:
-            case MYSQL_TYPE_DECIMAL:
-            case MYSQL_TYPE_NEWDECIMAL:
+            case MYSQL_TYPE_TINY:   // TINYINT field
+            case MYSQL_TYPE_SHORT:  // SMALLINT field
+            case MYSQL_TYPE_LONG:   // INTEGER field
+            case MYSQL_TYPE_INT24:  // MEDIUMINT field
+            case MYSQL_TYPE_YEAR:   // YEAR field
+                bind[i].buffer = &int_data[i];
+                break;
+            case MYSQL_TYPE_BIT:    // BIT field (MySQL 5.0.3 and up)
+            case MYSQL_TYPE_LONGLONG: // BIGINT field
+                // Return BIGINT as string, see #110
+                bind[i].buffer = &my_ulonglong_data[i];
+                break;
+            case MYSQL_TYPE_FLOAT:   // FLOAT field
+            case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
                 bind[i].buffer = &double_data[i];
                 break;
-            case MYSQL_TYPE_STRING:
-            case MYSQL_TYPE_VAR_STRING:
-            case MYSQL_TYPE_VARCHAR:
+            case MYSQL_TYPE_DECIMAL:     // DECIMAL or NUMERIC field
+            case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
+                // Return DECIMAL/NUMERIC as string, see #110
                 bind[i].buffer = (char *) str_data[i];
                 bind[i].buffer_length = fields[i].length;
                 break;
-            case MYSQL_TYPE_YEAR:
-            case MYSQL_TYPE_DATE:
-            case MYSQL_TYPE_NEWDATE:
-            case MYSQL_TYPE_TIME:
-            case MYSQL_TYPE_DATETIME:
-            case MYSQL_TYPE_TIMESTAMP:
+            case MYSQL_TYPE_TIME:       // TIME field
+            case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
+            case MYSQL_TYPE_DATETIME:   // DATETIME field
+            case MYSQL_TYPE_DATE:       // DATE field
+            case MYSQL_TYPE_NEWDATE:    // Newer const used in MySQL > 5.0
                 bind[i].buffer = (char *) &date_data[i];
+                break;
+            case MYSQL_TYPE_TINY_BLOB:
+            case MYSQL_TYPE_MEDIUM_BLOB:
+            case MYSQL_TYPE_LONG_BLOB:
+            case MYSQL_TYPE_BLOB:
+            case MYSQL_TYPE_STRING:
+            case MYSQL_TYPE_VAR_STRING:
+                bind[i].buffer = (char *) str_data[i];
+                bind[i].buffer_length = fields[i].length;
+                break;
+            case MYSQL_TYPE_SET:  // SET field
+                // TODO: Implement this
+                bind[i].buffer = (char *) str_data[i];
+                bind[i].buffer_length = fields[i].length;
+                break;
+            case MYSQL_TYPE_ENUM:  // ENUM field
+                bind[i].buffer = (char *) str_data[i];
+                bind[i].buffer_length = fields[i].length;
+                break;
+            case MYSQL_TYPE_GEOMETRY:  // Spatial fields
+                // See for information:
+                // http://dev.mysql.com/doc/refman/5.1/en/spatial-extensions.html
+                bind[i].buffer = (char *) str_data[i];
+                bind[i].buffer_length = fields[i].length;
+                break;
+            default:
+                bind[i].buffer = (char *) str_data[i];
+                bind[i].buffer_length = fields[i].length;
+                break;
         }
 
         bind[i].is_null = &is_null[i];
@@ -555,15 +586,14 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
         return scope.Close(Null());
     }
 
-    Local<Array> js_result_rows = Array::New();
+    Local<Array> js_result = Array::New();
     Local<Object> js_result_row;
-    Handle<Value> js_result;
 
     row_count = mysql_stmt_num_rows(stmt->_stmt);
 
     /* If no rows, return empty array */
-    if (!row_count) {
-        return scope.Close(js_result_rows);
+    if (row_count == 0) {
+        return scope.Close(js_result);
     }
 
     i = 0;
@@ -572,73 +602,96 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
         j = 0;
         while (j < field_count) {
+            Local<Value> js_field = Local<Value>::New(Null());
+
             switch(fields[j].type) {
-                case MYSQL_TYPE_NULL:
-                case MYSQL_TYPE_SHORT:
-                case MYSQL_TYPE_LONG:
-                case MYSQL_TYPE_LONGLONG:
-                case MYSQL_TYPE_INT24:
-                    js_result = Integer::New(int_data[j]);
+                case MYSQL_TYPE_NULL:   // NULL-type field
+                    // Already null
                     break;
-                case MYSQL_TYPE_TINY:
-                    if (length[j] == 1) {
-                        js_result = Boolean::New(tiny_data[j] != 0);
-                    } else {
-                        js_result = Integer::NewFromUnsigned(tiny_data[j]);
+                case MYSQL_TYPE_TINY:   // TINYINT field
+                case MYSQL_TYPE_SHORT:  // SMALLINT field
+                case MYSQL_TYPE_LONG:   // INTEGER field
+                case MYSQL_TYPE_INT24:  // MEDIUMINT field
+                case MYSQL_TYPE_YEAR:   // YEAR field
+                    if (!is_null[j]) {
+                      js_field = Integer::New(int_data[j]);
                     }
                     break;
-                case MYSQL_TYPE_FLOAT:
-                case MYSQL_TYPE_DOUBLE:
-                    js_result = Number::New(double_data[j]);
+                case MYSQL_TYPE_BIT:       // BIT field (MySQL 5.0.3 and up)
+                case MYSQL_TYPE_LONGLONG:  // BIGINT field
+                    // Return BIGINT as string, see #110
+                    if (!is_null[j]) {
+                      js_field = V8STR2(str_data[j], length[j]);
+                    }
                     break;
-                case MYSQL_TYPE_DECIMAL:
-                case MYSQL_TYPE_NEWDECIMAL:
-                    js_result = Number::New(double_data[j])->ToString();
+                case MYSQL_TYPE_FLOAT:   // FLOAT field
+                case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
+                    if (!is_null[j]) {
+                      js_field = Number::New(double_data[j]);
+                    }
                     break;
+                case MYSQL_TYPE_DECIMAL:     // DECIMAL or NUMERIC field
+                case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
+                    // Return DECIMAL/NUMERIC as string, see #110
+                    if (!is_null[j]) {
+                      js_field = V8STR2(str_data[j], length[j]);
+                    }
+                    break;
+                case MYSQL_TYPE_TIME:       // TIME field
+                case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
+                case MYSQL_TYPE_DATETIME:   // DATETIME field
+                case MYSQL_TYPE_DATE:       // DATE field
+                case MYSQL_TYPE_NEWDATE:    // Newer const used in MySQL > 5.0
+                    if (!is_null[j]) {
+                        MYSQL_TIME ts = date_data[j];
+                        time_t rawtime;
+                        struct tm * datetime;
+                        time(&rawtime);
+                        datetime = localtime(&rawtime);
+                        datetime->tm_year = ts.year - 1900;
+                        datetime->tm_mon = ts.month - 1;
+                        datetime->tm_mday = ts.day;
+                        datetime->tm_hour = ts.hour;
+                        datetime->tm_min = ts.minute;
+                        datetime->tm_sec = ts.second;
+                        time_t timestamp = mktime(datetime);
+
+                        js_field = Date::New(1000 * (double) timestamp);
+                    }
+                    break;
+                case MYSQL_TYPE_TINY_BLOB:
+                case MYSQL_TYPE_MEDIUM_BLOB:
+                case MYSQL_TYPE_LONG_BLOB:
+                case MYSQL_TYPE_BLOB:
                 case MYSQL_TYPE_STRING:
                 case MYSQL_TYPE_VAR_STRING:
-                case MYSQL_TYPE_VARCHAR:
-                    js_result = V8STR2(str_data[j], length[j]);
+                    if (!is_null[j]) {
+                      js_field = V8STR2(str_data[j], length[j]);
+                    }
                     break;
-                case MYSQL_TYPE_YEAR:
-                case MYSQL_TYPE_DATE:
-                case MYSQL_TYPE_NEWDATE:
-                case MYSQL_TYPE_TIME:
-                case MYSQL_TYPE_DATETIME:
-                case MYSQL_TYPE_TIMESTAMP:
-                    MYSQL_TIME ts = date_data[j];
-                    time_t rawtime;
-                    struct tm * datetime;
-                    time(&rawtime);
-                    datetime = localtime(&rawtime);
-                    datetime->tm_year = ts.year - 1900;
-                    datetime->tm_mon = ts.month - 1;
-                    datetime->tm_mday = ts.day;
-                    datetime->tm_hour = ts.hour;
-                    datetime->tm_min = ts.minute;
-                    datetime->tm_sec = ts.second;
-                    time_t timestamp = mktime(datetime);
-
-                    js_result = Date::New(1000 * (double) timestamp);
+                default:
+                    if (!is_null[j]) {
+                      js_field = V8STR2(str_data[j], length[j]);
+                    }
                     break;
             }
 
-            js_result_row->Set(V8STR(fields[j].name), js_result);
+            js_result_row->Set(V8STR(fields[j].name), js_field);
             j++;
         }
 
-        js_result_rows->Set(Integer::NewFromUnsigned(i), js_result_row);
+        js_result->Set(Integer::NewFromUnsigned(i), js_result_row);
         i++;
     }
 
-    return scope.Close(js_result_rows);
+    return scope.Close(js_result);
 }
 
 /**
- * Returns the number of field in the given statement
+ * MysqlStatement#fieldCountSync() -> Integer
  *
- * @return {Integer}
- */
+ * Returns the number of field in the given statement
+ **/
 Handle<Value> MysqlStatement::FieldCountSync(const Arguments& args) {
     HandleScope scope;
 
@@ -651,10 +704,10 @@ Handle<Value> MysqlStatement::FieldCountSync(const Arguments& args) {
 }
 
 /**
- * Frees stored result memory for the given statement handle
+ * MysqlStatement#freeResultSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Frees stored result memory for the given statement handle
+ **/
 Handle<Value> MysqlStatement::FreeResultSync(const Arguments& args) {
     HandleScope scope;
 
@@ -666,10 +719,10 @@ Handle<Value> MysqlStatement::FreeResultSync(const Arguments& args) {
 }
 
 /**
- * Get the ID generated from the previous INSERT operation
+ * MysqlStatement#lastInsertIdSync() -> Integer
  *
- * @return {Integer}
- */
+ * Get the ID generated from the previous INSERT operation
+ **/
 Handle<Value> MysqlStatement::LastInsertIdSync(const Arguments& args) {
     HandleScope scope;
 
@@ -682,10 +735,10 @@ Handle<Value> MysqlStatement::LastInsertIdSync(const Arguments& args) {
 }
 
 /**
- * Return the number of rows in statements result set
+ * MysqlStatement#numRowsSync() -> Integer
  *
- * @return {Integer}
- */
+ * Return the number of rows in statements result set
+ **/
 Handle<Value> MysqlStatement::NumRowsSync(const Arguments& args) {
     HandleScope scope;
 
@@ -699,11 +752,11 @@ Handle<Value> MysqlStatement::NumRowsSync(const Arguments& args) {
 }
 
 /**
- * Prepare statement by given query
+ * MysqlStatement#prepareSync(query) -> Boolean
+ * - query (String): Query for prepare
  *
- * @param {String} query
- * @return {Boolean}
- */
+ * Prepare statement by given query
+ **/
 Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
     HandleScope scope;
 
@@ -741,10 +794,10 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
 }
 
 /**
- * Resets a prepared statement
+ * MysqlStatement#resetSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Resets a prepared statement
+ **/
 Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
     HandleScope scope;
 
@@ -762,10 +815,10 @@ Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
 }
 
 /**
- * Returns result set metadata from a prepared statement
+ * MysqlStatement#resultMetadataSync() -> MysqlResult
  *
- * @return {MysqlResult}
- */
+ * Returns result set metadata from a prepared statement
+ **/
 Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
     HandleScope scope;
 
@@ -792,12 +845,12 @@ Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
 }
 
 /**
- * Send parameter data to the server in blocks (or "chunks")
+ * MysqlStatement#sendLongDataSync(parameterNumber, data) -> Boolean
+ * - parameterNumber (Integer): Parameter number, beginning with 0
+ * - data (String): Data
  *
- * @param {Integer} parameter number, beginning with 0
- * @param {String} data
- * @return {Boolean}
- */
+ * Send parameter data to the server in blocks (or "chunks")
+ **/
 Handle<Value> MysqlStatement::SendLongDataSync(const Arguments& args) {
     HandleScope scope;
 
@@ -818,10 +871,10 @@ Handle<Value> MysqlStatement::SendLongDataSync(const Arguments& args) {
 }
 
 /**
- * Returns SQLSTATE error from previous statement operation
+ * MysqlStatement#sqlStateSync() -> String
  *
- * @return {String}
- */
+ * Returns SQLSTATE error from previous statement operation
+ **/
 Handle<Value> MysqlStatement::SqlStateSync(const Arguments& args) {
     HandleScope scope;
 
@@ -833,10 +886,10 @@ Handle<Value> MysqlStatement::SqlStateSync(const Arguments& args) {
 }
 
 /**
- * Transfers a result set from a prepared statement
+ * MysqlStatement#storeResultSync() -> Boolean
  *
- * @return {Boolean}
- */
+ * Transfers a result set from a prepared statement
+ **/
 Handle<Value> MysqlStatement::StoreResultSync(const Arguments& args) {
     HandleScope scope;
 

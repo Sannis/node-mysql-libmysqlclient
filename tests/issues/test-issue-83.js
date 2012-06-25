@@ -15,12 +15,10 @@ In addition, mysql_real_query() is faster than mysql_query() because it does not
 var cfg = require("../config");
 
 exports.Issue83Query = function (test) {
-  test.expect(4);
+  test.expect(3);
   
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
-  
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.query("SELECT '1\u00002345\0' AS a;", function (err, res) {
     test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
     test.ok(err === null, "Error object is not present");
@@ -35,13 +33,12 @@ exports.Issue83Query = function (test) {
 };
 
 exports.Issue83QuerySync = function (test) {
-  test.expect(3);
+  test.expect(2);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("SELECT '1\u00002345\0' AS a;");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT '1\u00002345\0' AS a;");
   
@@ -54,13 +51,12 @@ exports.Issue83QuerySync = function (test) {
 };
 
 exports.Issue83RealQuerySync = function (test) {
-  test.expect(3);
+  test.expect(2);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   conn.realQuerySync("SELECT '1\u00002345\0' AS a;");
   res = conn.storeResultSync();
   
@@ -75,13 +71,12 @@ exports.Issue83RealQuerySync = function (test) {
 };
 
 exports.Issue83MultyQuerySync = function (test) {
-  test.expect(6);
+  test.expect(5);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   conn.multiRealQuerySync("SELECT '1\u00002345\0' AS a; SELECT 'q\u0000werty\0' AS b;");
   res = conn.storeResultSync();
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "SELECT '1\u00002345\0' AS a;");

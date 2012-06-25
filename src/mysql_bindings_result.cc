@@ -5,18 +5,14 @@
  * See license text in LICENSE file
  */
 
-/**
+/*!
  * Include headers
- *
- * @ignore
  */
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 
-/**
+/*!
  * Init V8 structures for MysqlResult class
- *
- * @ignore
  */
 Persistent<FunctionTemplate> MysqlResult::constructor_template;
 
@@ -94,32 +90,32 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
     Local<Value> js_field = Local<Value>::New(Null());
 
     switch (field.type) {
-        case MYSQL_TYPE_NULL:  // NULL-type field
+        case MYSQL_TYPE_NULL:   // NULL-type field
             // Already null
             break;
-        case MYSQL_TYPE_TINY:  // TINYINT field
-        case MYSQL_TYPE_BIT:  // BIT field (MySQL 5.0.3 and up)
+        case MYSQL_TYPE_TINY:   // TINYINT field
         case MYSQL_TYPE_SHORT:  // SMALLINT field
-        case MYSQL_TYPE_LONG:  // INTEGER field
+        case MYSQL_TYPE_LONG:   // INTEGER field
         case MYSQL_TYPE_INT24:  // MEDIUMINT field
-        case MYSQL_TYPE_YEAR:  // YEAR field
+        case MYSQL_TYPE_YEAR:   // YEAR field
             if (field_value) {
               js_field = V8STR(field_value)->ToInteger();
             }
             break;
+        case MYSQL_TYPE_BIT:       // BIT field (MySQL 5.0.3 and up)
         case MYSQL_TYPE_LONGLONG:  // BIGINT field
             // Return BIGINT as string, see #110
             if (field_value) {
               js_field = V8STR(field_value);
             }
             break;
-        case MYSQL_TYPE_FLOAT:  // FLOAT field
+        case MYSQL_TYPE_FLOAT:   // FLOAT field
         case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
             if (field_value) {
               js_field = V8STR(field_value)->ToNumber();
             }
             break;
-        case MYSQL_TYPE_DECIMAL:  // DECIMAL or NUMERIC field
+        case MYSQL_TYPE_DECIMAL:     // DECIMAL or NUMERIC field
         case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
             // Return DECIMAL/NUMERIC as string, see #110
             if (field_value) {
@@ -136,7 +132,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
             }
             break;
         case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
-        case MYSQL_TYPE_DATETIME:  // DATETIME field
+        case MYSQL_TYPE_DATETIME:   // DATETIME field
             if (field_value) {
                 // First step is to get a handle to the global object:
                 Local<v8::Object> globalObj = Context::GetCurrent()->Global();
@@ -152,8 +148,8 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
                 js_field = dateConstructor->NewInstance(argc, argv);
             }
             break;
-        case MYSQL_TYPE_DATE:  // DATE field
-        case MYSQL_TYPE_NEWDATE:  // Newer const used > 5.0
+        case MYSQL_TYPE_DATE:     // DATE field
+        case MYSQL_TYPE_NEWDATE:  // Newer const used in MySQL > 5.0
             if (field_value) {
                 // First step is to get a handle to the global object:
                 Local<v8::Object> globalObj = Context::GetCurrent()->Global();
@@ -177,9 +173,6 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
         case MYSQL_TYPE_VAR_STRING:
             if (field_value) {
                 if (field.flags & BINARY_FLAG) {
-                    // SlowBuffer
-                    // node::Buffer *bp = node::Buffer::New(field_value,
-                    //                                      field_length);
                     js_field = Local<Value>::New(
                                    node::Buffer::New(
                                        V8STR2(field_value, field_length)));
@@ -210,7 +203,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
                 js_field = V8STR(field_value);
             }
             break;
-        case MYSQL_TYPE_GEOMETRY:  // Spatial fielda
+        case MYSQL_TYPE_GEOMETRY:  // Spatial fields
             // See for information:
             // http://dev.mysql.com/doc/refman/5.1/en/spatial-extensions.html
             if (field_value) {
@@ -250,11 +243,11 @@ void MysqlResult::Free() {
     }
 }
 
-/**
- * Creates new MysqlResult object
+/** internal
+ * new MysqlResult()
  *
- * @constructor
- */
+ * Creates new MysqlResult object
+ **/
 Handle<Value> MysqlResult::New(const Arguments& args) {
     HandleScope scope;
 
@@ -271,12 +264,11 @@ Handle<Value> MysqlResult::New(const Arguments& args) {
     return args.Holder();
 }
 
-/**
- * Get the number of fields in a result
+/** read-only
+ * MysqlResult#fieldCount -> Integer|Undefined
  *
- * @getter
- * @return {Integer|Undefined}
- */
+ * Get the number of fields in a result
+ **/
 Handle<Value> MysqlResult::FieldCountGetter(Local<String> property,
                                             const AccessorInfo &info) {
     HandleScope scope;
@@ -293,10 +285,11 @@ Handle<Value> MysqlResult::FieldCountGetter(Local<String> property,
 }
 
 /**
- * Adjusts the result pointer to an arbitary row in the result
+ * MysqlResult#dataSeekSync(offset)
+ * - offset (Integer): The field offset
  *
- * @param {Integer} The field offset
- */
+ * Adjusts the result pointer to an arbitrary row in the result
+ **/
 Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
     HandleScope scope;
 
@@ -319,10 +312,10 @@ Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
     return Undefined();
 }
 
-/**
+/*!
  * EIO wrapper functions for MysqlResult::FetchAll
  */
-NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlResult::EIO_After_FetchAll(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req) {
+void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
     HandleScope scope;
 
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
@@ -428,10 +421,10 @@ NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlResult::EIO_After_FetchAll(NODE_ADDON_SHI
     
     delete fetchAll_req;
 
-    NODE_ADDON_SHIM_ASYNC_RETURN_AFTER
+    delete req;
 }
 
-NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlResult::EIO_FetchAll(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req) {
+void MysqlResult::EIO_FetchAll(uv_work_t *req) {
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
     MysqlResult *res = fetchAll_req->res;
 
@@ -441,16 +434,16 @@ NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlResult::EIO_FetchAll(NODE_ADDON_SHIM_ASYN
     fetchAll_req->num_fields = mysql_num_fields(res->_res);
 
     fetchAll_req->ok = true;
-    
-    NODE_ADDON_SHIM_ASYNC_RETURN
 }
 
 /**
- * Fetches all result rows as an array
+ * MysqlResult#fetchAll(callback)
+ * MysqlResult#fetchAll(options, callback)
+ * - options (Boolean|Object): Fetch style options (optional)
+ * - callback (Function): Callback function, gets (error, rows)
  *
- * @param {Boolean|Object} options (optional)
- * @param {Function(error, rows)} callback
- */
+ * Fetches all result rows as an array
+ **/
 Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     HandleScope scope;
 
@@ -496,17 +489,19 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     fetchAll_req->results_array = results_array;
     fetchAll_req->results_structured = results_structured;
 
-    NODE_ADDON_SHIM_ASYNC_RUN(fetchAll_req, EIO_FetchAll, EIO_After_FetchAll)
+    uv_work_t *_req = new uv_work_t;
+    _req->data = fetchAll_req;
+    uv_queue_work(uv_default_loop(), _req, EIO_FetchAll, EIO_After_FetchAll);
 
     return Undefined();
 }
 
 /**
- * Fetches all result rows as an array
+ * MysqlResult#fetchAllSync([options]) -> Array
+ * - options (Boolean|Object): Fetch style options (optional)
  *
- * @param {Boolean|Object} options (optional)
- * @return {Array}
- */
+ * Fetches all result rows as an array
+ **/
 Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
     HandleScope scope;
 
@@ -585,10 +580,10 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 }
 
 /**
- * Fetch a result row as an array
+ * MysqlResult#fetchArraySync() -> Array
  *
- * @return {Array}
- */
+ * Fetch a result row as an array
+ **/
 Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
     HandleScope scope;
 
@@ -623,10 +618,10 @@ Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
 }
 
 /**
- * Returns meta-data of the next field in the result set
+ * MysqlResult#fetchFieldSync() -> Object
  *
- * @return {Object}
- */
+ * Returns metadata of the next field in the result set
+ **/
 Handle<Value> MysqlResult::FetchFieldSync(const Arguments& args) {
     HandleScope scope;
 
@@ -651,11 +646,11 @@ Handle<Value> MysqlResult::FetchFieldSync(const Arguments& args) {
 }
 
 /**
- * Fetch meta-data for a single field
+ * MysqlResult#fetchFieldDirectSync(fieldNum) -> Object
+ * - fieldNum (Integer): Field number (starts from 0)
  *
- * @param {Integer} field number
- * @return {Array}
- */
+ * Returns metadata of the arbitrary field in the result set
+ **/
 Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLINT
     HandleScope scope;
 
@@ -682,10 +677,10 @@ Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLI
 }
 
 /**
- * Returns an array of objects representing the fields in a result set
+ * MysqlResult#fetchFieldsSync() -> Array
  *
- * @return {Array}
- */
+ * Returns an array of objects representing the fields in a result set
+ **/
 Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
     HandleScope scope;
 
@@ -713,10 +708,10 @@ Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
 }
 
 /**
- * Returns the lengths of the columns of the current row in the result set
+ * MysqlResult#fetchLengthsSync() -> Array
  *
- * @return {Array}
- */
+ * Returns the lengths of the columns of the current row in the result set
+ **/
 Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
     HandleScope scope;
 
@@ -743,10 +738,10 @@ Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
 }
 
 /**
- * Fetch a result row as an object
+ * MysqlResult#fetchObjectSync() -> Object
  *
- * @return {Object}
- */
+ * Fetch a result row as an object
+ **/
 Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
     HandleScope scope;
 
@@ -782,10 +777,11 @@ Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
 }
 
 /**
- * Set result pointer to a specified field offset
+ * MysqlResult#fieldSeekSync(fieldNumber)
+ * - fieldNumber (Integer): Field number (starts from 0)
  *
- * @param {Integer} field number
- */
+ * Set result pointer to a specified field offset
+ **/
 Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
     HandleScope scope;
 
@@ -805,10 +801,10 @@ Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
 }
 
 /**
- * Returns the position of the field cursor
+ * MysqlResult#fieldTellSync() -> Integer
  *
- * @return {Integer}
- */
+ * Returns the position of the field cursor
+ **/
 Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
     HandleScope scope;
 
@@ -820,8 +816,10 @@ Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
 }
 
 /**
+ * MysqlResult#freeSync()
+ *
  * Frees the memory associated with a result
- */
+ **/
 Handle<Value> MysqlResult::FreeSync(const Arguments& args) {
     HandleScope scope;
 
@@ -835,10 +833,10 @@ Handle<Value> MysqlResult::FreeSync(const Arguments& args) {
 }
 
 /**
- * Gets the number of rows in a result
+ * MysqlResult#numRowsSync() -> Integer
  *
- * @return {Integer}
- */
+ * Gets the number of rows in a result
+ **/
 Handle<Value> MysqlResult::NumRowsSync(const Arguments& args) {
     HandleScope scope;
 

@@ -43,13 +43,12 @@ exports.createTestTableComplex2 = function (test) {
 };
 
 exports.FetchAllWithBooleanOption = function (test) {
-  test.expect(9);
+  test.expect(8);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
@@ -75,14 +74,13 @@ exports.FetchAllWithBooleanOption = function (test) {
 };
 
 exports.FetchAllSyncWithBooleanOption = function (test) {
-  test.expect(7);
+  test.expect(6);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     rows;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
@@ -104,13 +102,12 @@ exports.FetchAllSyncWithBooleanOption = function (test) {
 };
 
 exports.FetchAllWithObjectArrayOption = function (test) {
-  test.expect(9);
+  test.expect(8);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
@@ -136,14 +133,13 @@ exports.FetchAllWithObjectArrayOption = function (test) {
 };
 
 exports.FetchAllSyncWithObjectArrayOption = function (test) {
-  test.expect(7);
+  test.expect(6);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     rows;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
@@ -165,13 +161,12 @@ exports.FetchAllSyncWithObjectArrayOption = function (test) {
 };
 
 exports.FetchAllWithObjectStructuredOption = function (test) {
-  test.expect(9);
+  test.expect(8);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
                        "FROM " + cfg.test_table + " t1, " + cfg.test_table2 + " t2 " +
                        "WHERE t1.size = t2.size AND t1.size != 'medium';");
@@ -216,14 +211,13 @@ exports.FetchAllWithObjectStructuredOption = function (test) {
 };
 
 exports.FetchAllSyncWithObjectStructuredOption = function (test) {
-  test.expect(7);
+  test.expect(6);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     rows;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
                        "FROM " + cfg.test_table + " t1, " + cfg.test_table2 + " t2 " +
                        "WHERE t1.size = t2.size AND t1.size != 'medium';");
@@ -264,14 +258,12 @@ exports.FetchAllSyncWithObjectStructuredOption = function (test) {
 };
 
 exports.FetchAllWithObjectOptionsConflicted = function (test) {
-  test.expect(3);
+  test.expect(2);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res,
-    rows;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+    res;
+
   res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
                        "FROM " + cfg.test_table + " t1, " + cfg.test_table2 + " t2 " +
                        "WHERE t1.size = t2.size AND t1.size != 'medium';");
@@ -288,14 +280,13 @@ exports.FetchAllWithObjectOptionsConflicted = function (test) {
 };
 
 exports.FetchAllSyncWithObjectOptionsConflicted = function (test) {
-  test.expect(3);
+  test.expect(2);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res,
     rows;
-  test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
                        "FROM " + cfg.test_table + " t1, " + cfg.test_table2 + " t2 " +
                        "WHERE t1.size = t2.size AND t1.size != 'medium';");
@@ -312,7 +303,7 @@ exports.FetchAllSyncWithObjectOptionsConflicted = function (test) {
 };
 
 exports.setOptionSyncQueryFetchAll = function (test) {
-  test.expect(5);
+  test.expect(4);
   
   var conn = cfg.mysql_libmysqlclient.createConnectionSync();
   
@@ -320,8 +311,7 @@ exports.setOptionSyncQueryFetchAll = function (test) {
   conn.setOptionSync(conn.MYSQL_OPT_RECONNECT, 1);
   conn.setOptionSync(conn.MYSQL_SET_CHARSET_NAME, "utf8");
   conn.realConnectSync(cfg.host, cfg.user, cfg.password, cfg.database);
-  test.ok(conn.connectedSync(), "conn.realConnectSync(host, user, password, database)");
-  
+
   conn.query("SELECT size, colors FROM " + cfg.test_table + " WHERE size;", function (err, res) {
     test.ok(err === null, "conn.query() err===null");
     res.fetchAll(function (err, rows, fields) {
