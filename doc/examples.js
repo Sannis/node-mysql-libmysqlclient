@@ -10,7 +10,7 @@
  * Require modules and define variables
  */
 var
-  sys = require('sys'),
+  util = require('util'),
   mysql = require('../mysql-libmysqlclient'),
   conn,
   result,
@@ -37,7 +37,7 @@ conn.connectSync(host, user, password, database);
  * Check connection status
  */
 if (!conn.connectedSync()) {
-  sys.puts("Connection error " + conn.connectErrno + ": " + conn.connectError);
+  util.puts("Connection error " + conn.connectErrno + ": " + conn.connectError);
   process.exit(1);
 }
 
@@ -48,11 +48,11 @@ if (!conn.connectedSync()) {
 conn.realQuerySync("SHOW TABLES;");
 result = conn.storeResultSync();
 
-sys.puts("Tables in database '" + database + "':");
+util.puts("Tables in database '" + database + "':");
 while ((row = result.fetchArraySync())) {
-  sys.puts(row[0]);
+  util.puts(row[0]);
 }
-sys.puts("");
+util.puts("");
 
 result.freeSync();
 
@@ -63,14 +63,14 @@ result.freeSync();
 result = conn.querySync("SHOW TABLES;");
 rows = result.fetchAllSync();
 
-sys.puts("Tables in database '" + database + "':");
-sys.puts(sys.inspect(rows) + "\n");
+util.puts("Tables in database '" + database + "':");
+util.puts(util.inspect(rows) + "\n");
 
 /**
  * Show information about connection
  */
-sys.puts("Information:");
-sys.puts(sys.inspect(conn.getInfoSync()) + "\n");
+util.puts("Information:");
+util.puts(util.inspect(conn.getInfoSync()) + "\n");
 
 /**
  * Run asynchronous queries and get results
@@ -85,8 +85,8 @@ conn.query("SELECT * FROM " + test_table + ";", function (err, res) {
       throw err;
     }
     
-    sys.puts("Rows in table '" + database + "." + test_table + "':");
-    sys.puts(sys.inspect(rows));
+    util.puts("Rows in table '" + database + "." + test_table + "':");
+    util.puts(util.inspect(rows));
     
     // This isn't necessary since v1.2.0
     // See https://github.com/Sannis/node-mysql-libmysqlclient/issues#issue/60
