@@ -409,7 +409,7 @@ Handle<Value> MysqlConnection::CommitSync(const Arguments& args) {
 /*!
  * EIO wrapper functions for MysqlConnection::Connect
  */
-NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlConnection::EIO_After_Connect(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req) {
+void MysqlConnection::EIO_After_Connect(uv_work_t *req) {
     HandleScope scope;
     
     struct connect_request *conn_req = (struct connect_request *)(req->data);
@@ -441,10 +441,10 @@ NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlConnection::EIO_After_Connect(NODE_ADDON_
     
     delete conn_req;
 
-    NODE_ADDON_SHIM_ASYNC_RETURN_AFTER
+    delete req;
 }
 
-NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlConnection::EIO_Connect(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req) {
+void MysqlConnection::EIO_Connect(uv_work_t *req) {
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
     conn_req->ok = conn_req->conn->Connect(
@@ -461,8 +461,6 @@ NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlConnection::EIO_Connect(NODE_ADDON_SHIM_A
     delete conn_req->user;
     delete conn_req->password;
     delete conn_req->socket;
-
-    NODE_ADDON_SHIM_ASYNC_RETURN
 }
 
 /**
@@ -524,7 +522,9 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     conn_req->socket   = args[5]->IsString() ? socket   : NULL;
     conn_req->flags    = args[6]->IsUint32() ? flags    : 0;
 
-    NODE_ADDON_SHIM_ASYNC_RUN(conn_req, EIO_Connect, EIO_After_Connect)
+    uv_work_t *_req = new uv_work_t; \
+    _req->data = conn_req; \
+    uv_queue_work(uv_default_loop(), _req, EIO_Connect, EIO_After_Connect);
 
     return Undefined();
 }
@@ -1033,7 +1033,7 @@ Handle<Value> MysqlConnection::PingSync(const Arguments& args) {
 /*!
  * EIO wrapper functions for MysqlConnection::Query
  */
-NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlConnection::EIO_After_Query(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req) {
+void MysqlConnection::EIO_After_Query(uv_work_t *req) {
     HandleScope scope;
 
     struct query_request *query_req = (struct query_request *)(req->data);
@@ -1087,17 +1087,17 @@ NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlConnection::EIO_After_Query(NODE_ADDON_SH
     delete[] query_req->query;
     delete query_req;
 
-    NODE_ADDON_SHIM_ASYNC_RETURN_AFTER
+    delete req;
 }
 
-NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlConnection::EIO_Query(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req) {
+void MysqlConnection::EIO_Query(uv_work_t *req) {
     struct query_request *query_req = (struct query_request *)(req->data);
 
     MysqlConnection *conn = query_req->conn;
 
     if (!conn->_conn) {
         query_req->ok = false;
-        NODE_ADDON_SHIM_ASYNC_RETURN
+        // TODO: Handle this
     }
 
     MYSQLCONN_DISABLE_MQ;
@@ -1138,8 +1138,6 @@ NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlConnection::EIO_Query(NODE_ADDON_SHIM_ASY
         }
     }
     pthread_mutex_unlock(&conn->query_lock);
-    
-    NODE_ADDON_SHIM_ASYNC_RETURN
 }
 
 /**
@@ -1175,10 +1173,14 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
     query_req->conn = conn;
     conn->Ref();
 
-    NODE_ADDON_SHIM_ASYNC_RUN(query_req, EIO_Query, EIO_After_Query)
+    uv_work_t *_req = new uv_work_t;
+    _req->data = query_req;
+    uv_queue_work(uv_default_loop(), _req, EIO_Query, EIO_After_Query);
 
     return Undefined();
 }
+
+
 
 /*!
  * Callback function for MysqlConnection::QuerySend
@@ -1186,7 +1188,7 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
 void MysqlConnection::EV_After_QuerySend(NODE_ADDON_SHIM_IO_WATCH_CALLBACK_ARGUMENTS) {
     HandleScope scope;
 
-    NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *_req = new NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE;
+    uv_work_t *_req = new uv_work_t;
 
     // Fake uv_work_t struct for EIO_After_Query call
 #if NODE_VERSION_AT_LEAST(0, 7, 9)

@@ -127,8 +127,8 @@ class MysqlConnection : public node::ObjectWrap {
         String::Utf8Value *socket;
         uint64_t flags;
     };
-    static NODE_ADDON_SHIM_ASYNC_RETURN_TYPE EIO_After_Connect(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req);
-    static NODE_ADDON_SHIM_ASYNC_RETURN_TYPE EIO_Connect(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req);
+    static void EIO_After_Connect(uv_work_t *req);
+    static void EIO_Connect(uv_work_t *req);
     static Handle<Value> Connect(const Arguments& args);
 
     static Handle<Value> ConnectSync(const Arguments& args);
@@ -193,8 +193,8 @@ class MysqlConnection : public node::ObjectWrap {
         unsigned int errno;
         const char *error;
     };
-    static NODE_ADDON_SHIM_ASYNC_RETURN_TYPE EIO_After_Query(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req);
-    static NODE_ADDON_SHIM_ASYNC_RETURN_TYPE EIO_Query(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req);
+    static void EIO_After_Query(uv_work_t *req);
+    static void EIO_Query(uv_work_t *req);
     static Handle<Value> Query(const Arguments& args);
 
     static void EV_After_QuerySend(NODE_ADDON_SHIM_IO_WATCH_CALLBACK_ARGUMENTS);

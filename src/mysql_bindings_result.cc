@@ -315,7 +315,7 @@ Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
 /*!
  * EIO wrapper functions for MysqlResult::FetchAll
  */
-NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlResult::EIO_After_FetchAll(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req) {
+void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
     HandleScope scope;
 
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
@@ -421,10 +421,10 @@ NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlResult::EIO_After_FetchAll(NODE_ADDON_SHI
     
     delete fetchAll_req;
 
-    NODE_ADDON_SHIM_ASYNC_RETURN_AFTER
+    delete req;
 }
 
-NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlResult::EIO_FetchAll(NODE_ADDON_SHIM_ASYNC_REQUEST_TYPE *req) {
+void MysqlResult::EIO_FetchAll(uv_work_t *req) {
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
     MysqlResult *res = fetchAll_req->res;
 
@@ -434,8 +434,6 @@ NODE_ADDON_SHIM_ASYNC_RETURN_TYPE MysqlResult::EIO_FetchAll(NODE_ADDON_SHIM_ASYN
     fetchAll_req->num_fields = mysql_num_fields(res->_res);
 
     fetchAll_req->ok = true;
-    
-    NODE_ADDON_SHIM_ASYNC_RETURN
 }
 
 /**
@@ -491,7 +489,9 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     fetchAll_req->results_array = results_array;
     fetchAll_req->results_structured = results_structured;
 
-    NODE_ADDON_SHIM_ASYNC_RUN(fetchAll_req, EIO_FetchAll, EIO_After_FetchAll)
+    uv_work_t *_req = new uv_work_t;
+    _req->data = fetchAll_req;
+    uv_queue_work(uv_default_loop(), _req, EIO_FetchAll, EIO_After_FetchAll);
 
     return Undefined();
 }
