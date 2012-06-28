@@ -61,11 +61,11 @@ mlf: npm-install webkit-devtools-agent
 		./tools/memory-leaks-finder-repl.js
 
 valgrind: npm-install webkit-devtools-agent $(time)
- 		valgrind \
- 		  --leak-check=full --error-limit=no \
- 		  --track-origins=yes -v \
- 		  --log-file=valgrind.log -- \
- 		  node --expose-gc ./tools/memory-usage-show.js
+		valgrind \
+		  --leak-check=full --error-limit=no \
+		  --track-origins=yes -v \
+		  --log-file=valgrind.log -- \
+		  node --expose-gc ./tools/memory-usage-show.js
 
 doc: ./lib/* ./src/*
 		rm -rf ${API_DEST_DIR}
