@@ -477,36 +477,57 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
-    MYSQLSTMT_MUSTBE_STORED;
 
     // Get fields count for binding buffers
     unsigned int field_count = mysql_stmt_field_count(stmt->_stmt);
+    
+	// Get meta data for binding buffers
+    MYSQL_RES *meta = mysql_stmt_result_metadata(stmt->_stmt);
+    MYSQL_FIELD *fields = meta->fields;
 
-    uint32_t i = 0, j = 0;
+    uint32_t i = -1, j = 0;
     unsigned long length[field_count];
     int row_count = 0;
     my_bool is_null[field_count];
     MYSQL_BIND bind[field_count];
-    MYSQL_RES *meta;
-    MYSQL_FIELD *fields;
 
     // Buffers
     int int_data[field_count];
     my_ulonglong my_ulonglong_data[field_count];
     double double_data[field_count];
-    char str_data[field_count][64];
     MYSQL_TIME date_data[field_count];
     memset(date_data, 0, sizeof(date_data));
-
     memset(bind, 0, sizeof(bind));
 
-    // Get meta data for binding buffers
-    meta = mysql_stmt_result_metadata(stmt->_stmt);
+	unsigned long string_size = 1024
+				, size = 0;
 
-    fields = meta->fields;
+	// temp: count min needed size for 
+	while (++i < field_count) {
+		enum_field_types type = fields[i].type;
+		if (
+		type == MYSQL_TYPE_TINY_BLOB ||
+		type == MYSQL_TYPE_MEDIUM_BLOB ||
+        type == MYSQL_TYPE_LONG_BLOB ||
+        type == MYSQL_TYPE_BLOB ||
+        type == MYSQL_TYPE_STRING ||
+        type == MYSQL_TYPE_VAR_STRING) {
+			size = fields[i].length;
+			if (size > string_size) {
+				string_size = size;
+			}
+		}
+	}
+
+	DEBUG_PRINT("Final string size: %lu\n", string_size);
+
+    char str_data[field_count][string_size];
+	i = 0;
+
     while (i < field_count) {
         bind[i].buffer_type = fields[i].type;
 
+        DEBUG_PRINT("Column binding %s: %d\n", fields[i].name, fields[i].type);
         switch (fields[i].type) {
             case MYSQL_TYPE_NULL:   // NULL-type field
                 // TODO: Implement this
@@ -590,6 +611,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     Local<Object> js_result_row;
 
     row_count = mysql_stmt_num_rows(stmt->_stmt);
+    DEBUG_PRINT("Row count: %d\n", row_count);
 
     /* If no rows, return empty array */
     if (row_count == 0) {
@@ -600,9 +622,19 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     while (mysql_stmt_fetch(stmt->_stmt) != MYSQL_NO_DATA) {
         js_result_row = Object::New();
 
-        j = 0;
-        while (j < field_count) {
+        DEBUG_PRINT("Fetching row #%d\n", i);
+
+        j = -1;
+        while (++j < field_count) {
             Local<Value> js_field = Local<Value>::New(Null());
+
+            DEBUG_PRINT("\tGetting column data - %s:\n", fields[j].name);
+
+            if (is_null[j]) {
+                DEBUG_PRINT("\t\t%s\n", "NULL");
+                js_result_row->Set(V8STR(fields[j].name), js_field);
+                continue;
+            }
 
             switch(fields[j].type) {
                 case MYSQL_TYPE_NULL:   // NULL-type field
@@ -613,51 +645,53 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                 case MYSQL_TYPE_LONG:   // INTEGER field
                 case MYSQL_TYPE_INT24:  // MEDIUMINT field
                 case MYSQL_TYPE_YEAR:   // YEAR field
-                    if (!is_null[j]) {
-                      js_field = Integer::New(int_data[j]);
-                    }
+                    DEBUG_PRINT("\t\tInteger: %d\n", int_data[j]);
+                    js_field = Integer::New(int_data[j]);
                     break;
                 case MYSQL_TYPE_BIT:       // BIT field (MySQL 5.0.3 and up)
                 case MYSQL_TYPE_LONGLONG:  // BIGINT field
                     // Return BIGINT as string, see #110
-                    if (!is_null[j]) {
-                      js_field = V8STR2(str_data[j], length[j]);
-                    }
+                    /*DEBUG_PRINT("\t\tBig int/bit (as string): %s\n", str_data[j]);
+                    js_field = V8STR2(str_data[j], length[j]);*/
+                    // TODO: Having IDs stored as bigints made me to do temporarily my_ulonglong -> Integer conversion
+                    DEBUG_PRINT("\t\tLong data: %lu\n", (unsigned long) my_ulonglong_data[j]);
+                    js_field = Integer::New(my_ulonglong_data[j]);
                     break;
                 case MYSQL_TYPE_FLOAT:   // FLOAT field
                 case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
-                    if (!is_null[j]) {
-                      js_field = Number::New(double_data[j]);
-                    }
+                    DEBUG_PRINT("\t\tFloat: %f\n", double_data[j]);
+                    js_field = Number::New(double_data[j]);
                     break;
                 case MYSQL_TYPE_DECIMAL:     // DECIMAL or NUMERIC field
                 case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
                     // Return DECIMAL/NUMERIC as string, see #110
-                    if (!is_null[j]) {
-                      js_field = V8STR2(str_data[j], length[j]);
-                    }
+                    DEBUG_PRINT("\t\tDecimal (as string): %s\n", str_data[j]);
+                    js_field = V8STR2(str_data[j], length[j]);
                     break;
                 case MYSQL_TYPE_TIME:       // TIME field
                 case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
                 case MYSQL_TYPE_DATETIME:   // DATETIME field
                 case MYSQL_TYPE_DATE:       // DATE field
                 case MYSQL_TYPE_NEWDATE:    // Newer const used in MySQL > 5.0
-                    if (!is_null[j]) {
-                        MYSQL_TIME ts = date_data[j];
-                        time_t rawtime;
-                        struct tm * datetime;
-                        time(&rawtime);
-                        datetime = localtime(&rawtime);
-                        datetime->tm_year = ts.year - 1900;
-                        datetime->tm_mon = ts.month - 1;
-                        datetime->tm_mday = ts.day;
-                        datetime->tm_hour = ts.hour;
-                        datetime->tm_min = ts.minute;
-                        datetime->tm_sec = ts.second;
-                        time_t timestamp = mktime(datetime);
+                {
+                    MYSQL_TIME ts = date_data[j];
+                    DEBUG_PRINT("\t\tTime: %04d-%02d-%02d %02d:%02d:%02d\n",
+                                ts.year, ts.month, ts.day,
+                                ts.hour, ts.minute, ts.second);
+                    time_t rawtime;
+                    struct tm * datetime;
+                    time(&rawtime);
+                    datetime = localtime(&rawtime);
+                    datetime->tm_year = ts.year - 1900;
+                    datetime->tm_mon = ts.month - 1;
+                    datetime->tm_mday = ts.day;
+                    datetime->tm_hour = ts.hour;
+                    datetime->tm_min = ts.minute;
+                    datetime->tm_sec = ts.second;
+                    time_t timestamp = mktime(datetime);
 
-                        js_field = Date::New(1000 * (double) timestamp);
-                    }
+                    js_field = Date::New(1000 * (double) timestamp);
+                }
                     break;
                 case MYSQL_TYPE_TINY_BLOB:
                 case MYSQL_TYPE_MEDIUM_BLOB:
@@ -665,19 +699,29 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                 case MYSQL_TYPE_BLOB:
                 case MYSQL_TYPE_STRING:
                 case MYSQL_TYPE_VAR_STRING:
-                    if (!is_null[j]) {
-                      js_field = V8STR2(str_data[j], length[j]);
-                    }
-                    break;
-                default:
-                    if (!is_null[j]) {
-                      js_field = V8STR2(str_data[j], length[j]);
-                    }
+					if (fields[j].flags & BINARY_FLAG) {
+                        DEBUG_PRINT("\t\tBlob, length: (%lu)\n", length[j]);
+
+						// taken from: http://sambro.is-super-awesome.com/2011/03/03/creating-a-proper-buffer-in-a-node-c-addon/
+						node::Buffer *slowBuffer = node::Buffer::New(length[j]);
+						memcpy(node::Buffer::Data(slowBuffer), str_data[j], length[j]);
+						v8::Local<v8::Object> globalObj = v8::Context::GetCurrent()->Global();
+						v8::Local<v8::Function> bufferConstructor = v8::Local<v8::Function>::Cast(globalObj->Get(v8::String::New("Buffer")));
+						v8::Handle<v8::Value> constructorArgs[3] = { slowBuffer->handle_, v8::Integer::New(length[j]), v8::Integer::New(0) };
+						js_field = bufferConstructor->NewInstance(3, constructorArgs);
+					} else {
+                        DEBUG_PRINT("\t\tString: %s (%lu)\n", str_data[j], length[j]);
+						js_field = V8STR2(str_data[j], length[j]);
+					}
+
+					break;
+				default:
+                    DEBUG_PRINT("\t\tDefault (as string): %s\n", str_data[j]);
+                    js_field = V8STR2(str_data[j], length[j]);
                     break;
             }
 
             js_result_row->Set(V8STR(fields[j].name), js_field);
-            j++;
         }
 
         js_result->Set(Integer::NewFromUnsigned(i), js_result_row);
