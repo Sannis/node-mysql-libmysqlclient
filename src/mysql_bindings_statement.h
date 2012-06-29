@@ -31,6 +31,15 @@
         return THREXC("Statement result not stored"); \
     }
 
+#define DEBUG // kill me please, haven't found fast way to define debug in wscript
+#ifdef DEBUG
+	#define DEBUG_PRINT(fmt, ...) fprintf(stdout, fmt, __VA_ARGS__)
+#else
+	#define DEBUG_PRINT(x) 1
+#endif
+
+
+
 class MysqlStatement : public node::ObjectWrap {
   public:
     static Persistent<FunctionTemplate> constructor_template;

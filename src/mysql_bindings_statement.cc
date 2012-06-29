@@ -499,7 +499,6 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     char str_data[field_count][64];
     MYSQL_TIME date_data[field_count];
     memset(date_data, 0, sizeof(date_data));
-
     memset(bind, 0, sizeof(bind));
 
     meta = mysql_stmt_result_metadata(stmt->_stmt);
@@ -508,6 +507,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     while (i < field_count) {
         bind[i].buffer_type = fields[i].type;
 
+		DEBUG_PRINT("Column binding %s: %d\n", fields[i].name, fields[i].type);
         switch(fields[i].type) {
             case MYSQL_TYPE_NULL:
             case MYSQL_TYPE_SHORT:
@@ -555,50 +555,60 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
         return scope.Close(Null());
     }
 
-    Local<Array> js_result_rows = Array::New();
-    Local<Object> js_result_row;
-    Local<Value> js_result;
+    Local<Array> js_result = Array::New();
+    Local<Object> js_row;
+    Local<Value> js_field;
 
     row_count = mysql_stmt_num_rows(stmt->_stmt);
 
     /* If no rows, return empty array */
     if (!row_count) {
-        return scope.Close(js_result_rows);
+        return scope.Close(js_result);
     }
 
     i = 0;
     while (mysql_stmt_fetch(stmt->_stmt) != MYSQL_NO_DATA) {
-        js_result_row = Object::New();
+        js_row = Object::New();
 
-        j = 0;
-        while (j < field_count) {
+		DEBUG_PRINT("Getting row #%d\n", i);
+
+        j = -1;
+        while (++j < field_count) {
+        	DEBUG_PRINT("\tGetting data for field %s\n", fields[j].name);
+
+        	if (is_null[j]) {
+				js_field = Local<Value>::New(Null());
+				break;
+			}
+
             switch(fields[j].type) {
                 case MYSQL_TYPE_NULL:
                 case MYSQL_TYPE_SHORT:
                 case MYSQL_TYPE_LONG:
                 case MYSQL_TYPE_LONGLONG:
                 case MYSQL_TYPE_INT24:
-                    js_result = Integer::New(int_data[j]);
+                    js_field = Integer::New(int_data[j]);
                     break;
                 case MYSQL_TYPE_TINY:
                     if (length[j] == 1) {
-                        js_result = BooleanObject::New(tiny_data[j] == true);
+                        js_field = BooleanObject::New(tiny_data[j] == true);
                     } else {
-                        js_result = Integer::NewFromUnsigned(tiny_data[j]);
+                        js_field = Integer::NewFromUnsigned(tiny_data[j]);
                     }
                     break;
                 case MYSQL_TYPE_FLOAT:
                 case MYSQL_TYPE_DOUBLE:
-                    js_result = Number::New(double_data[j]);
+                    js_field = Number::New(double_data[j]);
                     break;
                 case MYSQL_TYPE_DECIMAL:
                 case MYSQL_TYPE_NEWDECIMAL:
-                    js_result = Number::New(double_data[j])->ToString();
+                    js_field = Number::New(double_data[j])->ToString();
                     break;
                 case MYSQL_TYPE_STRING:
                 case MYSQL_TYPE_VAR_STRING:
                 case MYSQL_TYPE_VARCHAR:
-                    js_result = V8STR2(str_data[j], length[j]);
+                	DEBUG_PRINT("\t\tString data and length: %s (%ld)\n", str_data[j], length[j]);
+                    js_field = V8STR2(str_data[j], length[j]);
                     break;
                 case MYSQL_TYPE_YEAR:
                 case MYSQL_TYPE_DATE:
@@ -619,19 +629,18 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                     datetime->tm_sec = ts.second;
                     time_t timestamp = mktime(datetime);
 
-                    js_result = Date::New(1000 * (double) timestamp);
+                    js_field = Date::New(1000 * (double) timestamp);
                     break;
             }
 
-            js_result_row->Set(V8STR(fields[j].name), js_result);
-            j++;
+            js_row->Set(V8STR(fields[j].name), js_field);
         }
 
-        js_result_rows->Set(Integer::NewFromUnsigned(i), js_result_row);
+        js_result->Set(Integer::NewFromUnsigned(i), js_row);
         i++;
     }
 
-    return scope.Close(js_result_rows);
+    return scope.Close(js_result);
 }
 
 /**
