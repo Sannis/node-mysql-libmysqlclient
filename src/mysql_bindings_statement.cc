@@ -495,10 +495,9 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     int int_data[field_count];
     my_ulonglong my_ulonglong_data[field_count];
     double double_data[field_count];
-    char str_data[field_count][64];
+    char str_data[field_count][8096];
     MYSQL_TIME date_data[field_count];
     memset(date_data, 0, sizeof(date_data));
-
     memset(bind, 0, sizeof(bind));
 
     // Get meta data for binding buffers
@@ -635,8 +634,8 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                     /*DEBUG_PRINT("\t\tBig int/bit (as string): %s\n", str_data[j]);
                     js_field = V8STR2(str_data[j], length[j]);*/
                     // TODO: Having IDs stored as bigints made me to do temporarily my_ulonglong -> Integer conversion
-					DEBUG_PRINT("\t\tLong data: %lu\n", my_ulonglong_data[j]);
-					js_field = Integer::New(my_ulonglong_data[j]);
+                    DEBUG_PRINT("\t\tLong data: %lu\n", my_ulonglong_data[j]);
+                    js_field = Integer::New(my_ulonglong_data[j]);
                     break;
                 case MYSQL_TYPE_FLOAT:   // FLOAT field
                 case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
@@ -680,10 +679,19 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                 case MYSQL_TYPE_BLOB:
                 case MYSQL_TYPE_STRING:
                 case MYSQL_TYPE_VAR_STRING:
-                    DEBUG_PRINT("\t\tStrings/blobs: %s\n", str_data[j]);
-                    js_field = V8STR2(str_data[j], length[j]);
-                    break;
-                default:
+					if (fields[j].flags & BINARY_FLAG) {
+                        DEBUG_PRINT("\t\tBlob, length: (%lu)\n", length[j]);
+                        DEBUG_PRINT("%s\n", str_data[j]);
+						js_field = Local<Value>::New(
+							node::Buffer::New(
+								V8STR2(str_data[j], length[j])));
+					} else {
+                        DEBUG_PRINT("\t\tStrings: %s (%lu)\n", str_data[j], length[j]);
+						js_field = V8STR2(str_data[j], length[j]);
+					}
+
+					break;
+				default:
                     DEBUG_PRINT("\t\tDefault (as string): %s\n", str_data[j]);
                     js_field = V8STR2(str_data[j], length[j]);
                     break;
