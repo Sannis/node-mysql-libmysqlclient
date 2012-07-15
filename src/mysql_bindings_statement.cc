@@ -704,9 +704,15 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                 case MYSQL_TYPE_VAR_STRING:
 					if (fields[j].flags & BINARY_FLAG) {
                         DEBUG_PRINT("\t\tBlob, length: (%lu)\n", length[j]);
-						js_field = Local<Value>::New(
-							node::Buffer::New(
-								V8STR2(str_data[j], length[j])));
+						DEBUG_PRINT("\t\tasdasdasd: %s", str_data[j]);
+
+						// taken from: http://sambro.is-super-awesome.com/2011/03/03/creating-a-proper-buffer-in-a-node-c-addon/
+						node::Buffer *slowBuffer = node::Buffer::New(length[j]);
+						memcpy(node::Buffer::Data(slowBuffer), str_data[j], length[j]);
+						v8::Local<v8::Object> globalObj = v8::Context::GetCurrent()->Global();
+						v8::Local<v8::Function> bufferConstructor = v8::Local<v8::Function>::Cast(globalObj->Get(v8::String::New("Buffer")));
+						v8::Handle<v8::Value> constructorArgs[3] = { slowBuffer->handle_, v8::Integer::New(length[j]), v8::Integer::New(0) };
+						js_field = bufferConstructor->NewInstance(3, constructorArgs);
 					} else {
                         DEBUG_PRINT("\t\tStrings: %s (%lu)\n", str_data[j], length[j]);
 						js_field = V8STR2(str_data[j], length[j]);
