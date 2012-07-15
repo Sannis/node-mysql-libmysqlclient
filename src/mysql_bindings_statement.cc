@@ -63,6 +63,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "sendLongDataSync",   MysqlStatement::SendLongDataSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "storeResultSync",    MysqlStatement::StoreResultSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "sqlStateSync",       MysqlStatement::SqlStateSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setStringSize",       MysqlStatement::SqlStateSync);
 
     // Make it visible in JavaScript
     target->Set(String::NewSymbol("MysqlStatement"), constructor_template->GetFunction());
@@ -482,28 +483,50 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     // Get fields count for binding buffers
     unsigned int field_count = mysql_stmt_field_count(stmt->_stmt);
+    
+	// Get meta data for binding buffers
+    MYSQL_RES *meta = mysql_stmt_result_metadata(stmt->_stmt);
+    MYSQL_FIELD *fields = meta->fields;
 
-    uint32_t i = 0, j = 0;
+    uint32_t i = -1, j = 0;
     unsigned long length[field_count];
     int row_count = 0;
     my_bool is_null[field_count];
     MYSQL_BIND bind[field_count];
-    MYSQL_RES *meta;
-    MYSQL_FIELD *fields;
 
     // Buffers
     int int_data[field_count];
     my_ulonglong my_ulonglong_data[field_count];
     double double_data[field_count];
-    char str_data[field_count][8096];
     MYSQL_TIME date_data[field_count];
     memset(date_data, 0, sizeof(date_data));
     memset(bind, 0, sizeof(bind));
 
-    // Get meta data for binding buffers
-    meta = mysql_stmt_result_metadata(stmt->_stmt);
+	unsigned long string_size = 1024
+				, size = 0;
 
-    fields = meta->fields;
+	// temp: count min needed size for 
+	while (++i < field_count) {
+		enum_field_types type = fields[i].type;
+		if (
+		type == MYSQL_TYPE_TINY_BLOB ||
+		type == MYSQL_TYPE_MEDIUM_BLOB ||
+        type == MYSQL_TYPE_LONG_BLOB ||
+        type == MYSQL_TYPE_BLOB ||
+        type == MYSQL_TYPE_STRING ||
+        type == MYSQL_TYPE_VAR_STRING) {
+			size = fields[i].length;
+			if (size > string_size) {
+				string_size = size;
+			}
+		}
+	}
+
+	DEBUG_PRINT("Final string size: %lu\n", string_size);
+
+    char str_data[field_count][string_size];
+	i = 0;
+
     while (i < field_count) {
         bind[i].buffer_type = fields[i].type;
 
@@ -634,7 +657,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                     /*DEBUG_PRINT("\t\tBig int/bit (as string): %s\n", str_data[j]);
                     js_field = V8STR2(str_data[j], length[j]);*/
                     // TODO: Having IDs stored as bigints made me to do temporarily my_ulonglong -> Integer conversion
-                    DEBUG_PRINT("\t\tLong data: %lu\n", my_ulonglong_data[j]);
+                    DEBUG_PRINT("\t\tLong data: %lu\n", (unsigned long) my_ulonglong_data[j]);
                     js_field = Integer::New(my_ulonglong_data[j]);
                     break;
                 case MYSQL_TYPE_FLOAT:   // FLOAT field
@@ -681,7 +704,6 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                 case MYSQL_TYPE_VAR_STRING:
 					if (fields[j].flags & BINARY_FLAG) {
                         DEBUG_PRINT("\t\tBlob, length: (%lu)\n", length[j]);
-                        DEBUG_PRINT("%s\n", str_data[j]);
 						js_field = Local<Value>::New(
 							node::Buffer::New(
 								V8STR2(str_data[j], length[j])));
