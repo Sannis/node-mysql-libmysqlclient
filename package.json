@@ -71,6 +71,6 @@
   { "nodeunit" : ">= 0.7"
   , "nodelint" : ">= 0.6"
   , "async" : ">= 0.1.22"
-  , "ndoc" : "git://github.com/Sannis/ndoc.git#4a10d82b2f7a5a9a667a917669bf73d7d546aae2"
+  , "ndoc" : ">= 2.0.2"
   }
 }

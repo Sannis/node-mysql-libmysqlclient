@@ -2,6 +2,7 @@
 
 CURR_HEAD_SHA := $(firstword $(shell git show-ref --hash HEAD | cut -b -6) master)
 GITHUB_PROJECT_NAME := Sannis/node-mysql-libmysqlclient
+GITHUB_PROJECT_URL := https://github.com/${GITHUB_PROJECT_NAME}
 API_SRC_URL_FMT := https://github.com/${GITHUB_PROJECT_NAME}/blob/${CURR_HEAD_SHA}/{file}\#L{line}
 API_DEST_DIR := ./doc/api
 
@@ -60,7 +61,7 @@ webkit-devtools-agent-stamp:
 mlf: npm-install webkit-devtools-agent
 		./tools/memory-leaks-finder-repl.js
 
-valgrind: npm-install webkit-devtools-agent $(time)
+valgrind: npm-install webkit-devtools-agent $(shell time)
 		valgrind \
 		  --leak-check=full --error-limit=no \
 		  --track-origins=yes -v \
@@ -69,7 +70,13 @@ valgrind: npm-install webkit-devtools-agent $(time)
 
 doc: ./lib/* ./src/*
 		rm -rf ${API_DEST_DIR}
-		./node_modules/.bin/ndoc -e h -e cc -o ${API_DEST_DIR} --ribbon --link-format=${API_SRC_URL_FMT} ./lib ./src
+		./node_modules/.bin/ndoc \
+		  --gh-ribbon ${GITHUB_PROJECT_URL} \
+		  --link-format ${API_SRC_URL_FMT} \
+		  --output ${API_DEST_DIR} \
+		  --alias cc:js \
+		  --alias h:js \
+		  ./lib/*.js ./src/*.cc ./src/*.h
 
 gh-pages:
 		./gh_pages.sh
