@@ -691,7 +691,6 @@ exports.SetSslSync = function (test) {
 
   conn.realConnectSync(cfg.host, cfg.user, cfg.password, cfg.database);
 
-  console.log(conn.connectError);
   test.ok(conn.connectedSync());
 
   conn.closeSync();
