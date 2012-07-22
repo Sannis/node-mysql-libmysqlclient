@@ -1180,8 +1180,6 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
     return Undefined();
 }
 
-
-
 /*!
  * Callback function for MysqlConnection::QuerySend
  */
