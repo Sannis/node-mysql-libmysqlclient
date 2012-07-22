@@ -1180,8 +1180,6 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
     return Undefined();
 }
 
-
-
 /*!
  * Callback function for MysqlConnection::QuerySend
  */
@@ -1575,7 +1573,7 @@ Handle<Value> MysqlConnection::SetSslSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
-    MYSQLCONN_MUSTBE_CONNECTED;
+    MYSQLCONN_MUSTBE_INITIALIZED;
 
     REQ_STR_ARG(0, key)
     REQ_STR_ARG(1, cert)

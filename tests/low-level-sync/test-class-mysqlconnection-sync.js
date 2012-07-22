@@ -8,6 +8,9 @@ See license text in LICENSE file
 // Load configuration
 var cfg = require('../config.js');
 
+// Require module
+var path = require('path');
+
 var initAndRealConnectSync = function (test) {
   test.expect(7);
   
@@ -673,12 +676,33 @@ exports.SetOptionSync = function (test) {
   test.done();
 };
 
+exports.SetSslSync = function (test) {
+  test.expect(1);
+
+  var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(),
+    key = path.resolve(__dirname, '../ssl-fixtures/client-key.pem'),
+    cert = path.resolve(__dirname, '../ssl-fixtures/client-cert.pem'),
+    ca = path.resolve(__dirname, '../ssl-fixtures/ca-cert.pem');
+
+  conn.initSync();
+
+  conn.setSslSync(key, cert, ca, "", "ALL");
+
+  conn.realConnectSync(cfg.host, cfg.user, cfg.password, cfg.database);
+
+  console.log(conn.connectError);
+  test.ok(conn.connectedSync());
+
+  conn.closeSync();
+
+  test.done();
+};
+
 exports.SqlStateSync = function (test) {
   test.expect(2);
   
-  var
-    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res;
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   test.equals(conn.sqlStateSync(), "00000", "conn.sqlStateSync() after connection to allowed database");
@@ -690,9 +714,7 @@ exports.SqlStateSync = function (test) {
 exports.StatSync = function (test) {
   test.expect(2);
   
-  var
-    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
-    res;
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   test.equals(typeof conn.statSync(), "string", "typeof conn.statSync() is a string");
