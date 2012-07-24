@@ -37,7 +37,6 @@
 	#define DEBUG_PRINT(fmt, ...) 1
 #endif
 
-
 /** section: Classes
  * class MysqlStatement
  *
