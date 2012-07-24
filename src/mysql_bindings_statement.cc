@@ -484,7 +484,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     // Get fields count for binding buffers
     unsigned int field_count = mysql_stmt_field_count(stmt->_stmt);
     
-	// Get meta data for binding buffers
+    // Get meta data for binding buffers
     MYSQL_RES *meta = mysql_stmt_result_metadata(stmt->_stmt);
     MYSQL_FIELD *fields = meta->fields;
 
@@ -502,30 +502,30 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     memset(date_data, 0, sizeof(date_data));
     memset(bind, 0, sizeof(bind));
 
-	unsigned long string_size = 1024
-				, size = 0;
+    unsigned long string_size = 1024
+                , size = 0;
 
-	// temp: count min needed size for 
-	while (++i < field_count) {
-		enum_field_types type = fields[i].type;
-		if (
-		type == MYSQL_TYPE_TINY_BLOB ||
-		type == MYSQL_TYPE_MEDIUM_BLOB ||
+    // temp: count min needed size for 
+    while (++i < field_count) {
+        enum_field_types type = fields[i].type;
+        if (
+        type == MYSQL_TYPE_TINY_BLOB ||
+        type == MYSQL_TYPE_MEDIUM_BLOB ||
         type == MYSQL_TYPE_LONG_BLOB ||
         type == MYSQL_TYPE_BLOB ||
         type == MYSQL_TYPE_STRING ||
         type == MYSQL_TYPE_VAR_STRING) {
-			size = fields[i].length;
-			if (size > string_size) {
-				string_size = size;
-			}
-		}
-	}
+            size = fields[i].length;
+            if (size > string_size) {
+                string_size = size;
+            }
+        }
+    }
 
-	DEBUG_PRINT("Final string size: %lu\n", string_size);
+    DEBUG_PRINT("Final string size: %lu\n", string_size);
 
     char str_data[field_count][string_size];
-	i = 0;
+    i = 0;
 
     while (i < field_count) {
         bind[i].buffer_type = fields[i].type;
@@ -702,23 +702,23 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                 case MYSQL_TYPE_BLOB:
                 case MYSQL_TYPE_STRING:
                 case MYSQL_TYPE_VAR_STRING:
-					if (fields[j].flags & BINARY_FLAG) {
+                    if (fields[j].flags & BINARY_FLAG) {
                         DEBUG_PRINT("\t\tBlob, length: (%lu)\n", length[j]);
 
-						// taken from: http://sambro.is-super-awesome.com/2011/03/03/creating-a-proper-buffer-in-a-node-c-addon/
-						node::Buffer *slowBuffer = node::Buffer::New(length[j]);
-						memcpy(node::Buffer::Data(slowBuffer), str_data[j], length[j]);
-						v8::Local<v8::Object> globalObj = v8::Context::GetCurrent()->Global();
-						v8::Local<v8::Function> bufferConstructor = v8::Local<v8::Function>::Cast(globalObj->Get(v8::String::New("Buffer")));
-						v8::Handle<v8::Value> constructorArgs[3] = { slowBuffer->handle_, v8::Integer::New(length[j]), v8::Integer::New(0) };
-						js_field = bufferConstructor->NewInstance(3, constructorArgs);
-					} else {
+                        // taken from: http://sambro.is-super-awesome.com/2011/03/03/creating-a-proper-buffer-in-a-node-c-addon/
+                        node::Buffer *slowBuffer = node::Buffer::New(length[j]);
+                        memcpy(node::Buffer::Data(slowBuffer), str_data[j], length[j]);
+                        v8::Local<v8::Object> globalObj = v8::Context::GetCurrent()->Global();
+                        v8::Local<v8::Function> bufferConstructor = v8::Local<v8::Function>::Cast(globalObj->Get(v8::String::New("Buffer")));
+                        v8::Handle<v8::Value> constructorArgs[3] = { slowBuffer->handle_, v8::Integer::New(length[j]), v8::Integer::New(0) };
+                        js_field = bufferConstructor->NewInstance(3, constructorArgs);
+                    } else {
                         DEBUG_PRINT("\t\tString: %s (%lu)\n", str_data[j], length[j]);
-						js_field = V8STR2(str_data[j], length[j]);
-					}
+                        js_field = V8STR2(str_data[j], length[j]);
+                    }
 
-					break;
-				default:
+                    break;
+                default:
                     DEBUG_PRINT("\t\tDefault (as string): %s\n", str_data[j]);
                     js_field = V8STR2(str_data[j], length[j]);
                     break;
