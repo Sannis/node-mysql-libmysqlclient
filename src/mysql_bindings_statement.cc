@@ -538,7 +538,10 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
         type == MYSQL_TYPE_BLOB ||                     // BLOB, TEXT
         type == MYSQL_TYPE_MEDIUM_BLOB ||              // MEDIUMBLOB, MEDIUMTEXT
         type == MYSQL_TYPE_LONG_BLOB ||                // LONGBLOB, LONGTEXT
-        type == MYSQL_TYPE_BIT) {                      // BIT
+        type == MYSQL_TYPE_BIT ||                      // BIT
+        type == MYSQL_TYPE_SET ||                      // SET
+        type == MYSQL_TYPE_ENUM ||                     // ENUM
+        type == MYSQL_TYPE_GEOMETRY) {                 // Spatial fields
             buf_length = sizeof(char) * fields[i].length;
             ptr = (char *) malloc(buf_length);
         } else if (
@@ -549,6 +552,9 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
         type == MYSQL_TYPE_TIMESTAMP) {                // TIMESTAMP
             buf_length = sizeof(MYSQL_TIME);
             ptr = (MYSQL_TIME *) malloc(buf_length);
+        } else {                                       // For others we bind char buffer
+            buf_length = sizeof(char) * fields[i].length;
+            ptr = (char *) malloc(buf_length);
         }
 
         DEBUG_PRINT("Binding buffer: ptr: %p, size: %d\n", ptr, buf_length);
@@ -637,7 +643,9 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
             type == MYSQL_TYPE_BLOB ||                 // BLOB, TEXT
             type == MYSQL_TYPE_MEDIUM_BLOB ||          // MEDIUMBLOB, MEDIUMTEXT
             type == MYSQL_TYPE_LONG_BLOB ||            // LONGBLOB, LONGTEXT
-            type == MYSQL_TYPE_BIT) {                  // BIT
+            type == MYSQL_TYPE_BIT ||                  // BIT
+            type == MYSQL_TYPE_ENUM ||                 // ENUM
+            type == MYSQL_TYPE_GEOMETRY) {             // Spatial fields
                 char *data = (char *) ptr;
                 // create buffer
                 if (fields[j].flags & BINARY_FLAG) {
@@ -678,6 +686,20 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
                 time_t timestamp = mktime(datetime);
 
                 js_field = Date::New(1000 * (double) timestamp);
+            } else if (type == MYSQL_TYPE_SET) {       // SET
+                // TODO(Sannis): Maybe memory leaks here
+                char *pch, *last, *field_value = (char *) ptr;
+                int k = 0;
+                Local<Array> js_field_array = Array::New();
+
+                pch = strtok_r(field_value, ",", &last);
+                while (pch != NULL) {
+                    js_field_array->Set(Integer::New(k), V8STR(pch));
+                    pch = strtok_r(NULL, ",", &last);
+                    k++;
+                }
+
+                js_field = js_field_array;
             } else {
                 js_field = V8STR2((char *) ptr, length[j]);
             }
