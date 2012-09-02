@@ -67,10 +67,11 @@ Coding style
 Code style based on [Node.js code styles](http://github.com/ry/node/wiki/contributing).
 
 1. Discuss large changes before coding (this is good idea in collaborative development)
-2. Javascript code should follow [Douglas Crockford code conventions for the javascript programming language](http://javascript.crockford.com/code.html) and be run through [Nodelint](http://github.com/tav/nodelint). Also:
+2. Javascript code should follow [Douglas Crockford code conventions for the javascript programming language](http://javascript.crockford.com/code.html) and be run through [Nodelint](http://github.com/tav/nodelint). And:
     * Code should has two space indention
     * Multi-line <code>if</code> statements must have braces
-3. C++ code should follow [Google's C++ style guide](http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml) and be run through [cpplint.py](http://google-styleguide.googlecode.com/svn/trunk/cpplint/cpplint.py).
+3. C++ code should follow [Google's C++ style guide](http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml) and be run through [cpplint.py](http://google-styleguide.googlecode.com/svn/trunk/cpplint/cpplint.py). And:
+    * Max line length is 120 symbols
 4. All code must be MIT licensed
 
 If you have `cpplint.py` in `$PATH`, you can lint `node-mysql-libmysqlclient` code by executing:
