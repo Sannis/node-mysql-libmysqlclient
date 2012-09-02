@@ -307,6 +307,13 @@ exports.CallStoredProcedureSelectNested = function (test) {
   
   conn.query("CALL test_procedure();", function (err, res) {
     test.ok(err === null, "conn.query() err===null");
+
+    // @todo: remove debug
+    if (!res) {
+      console.log("Debug:");
+      console.log(arguments);
+      console.log(conn.errorSync());
+    }
     
     numFromProcedure = res.fetchAllSync()[0].num;
     res.freeSync();
