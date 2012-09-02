@@ -79,7 +79,7 @@ void InitMysqlLibmysqlclient(Handle<Object> target) {
     // it is set internally in the client library. Instead,
     // use setSslSync() before calling connect() or connectSync().
     // NODE_DEFINE_CONSTANT(target, CLIENT_SSL);
-    // Known issue: conn.CLIENT_REMEMBER_OPTIONS === -2147483648
+    // Known issue: mysql.CLIENT_REMEMBER_OPTIONS === -2147483648
     NODE_DEFINE_CONSTANT(target, CLIENT_REMEMBER_OPTIONS);
 
     // Constants for setOption

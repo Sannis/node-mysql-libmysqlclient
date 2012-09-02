@@ -23,7 +23,7 @@ exports.CallStoredProcedureSelectSync = function (test) {
     num = 1234,
     numFromProcedure;
   
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, cfg.mysql_libmysqlclient.CLIENT_MULTI_RESULTS);
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
   test.strictEqual(res, true);
@@ -52,7 +52,7 @@ exports.CallStoredProcedureSelectTwiceSync = function (test) {
     num = 1234,
     numFromProcedure;
   
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, cfg.mysql_libmysqlclient.CLIENT_MULTI_RESULTS);
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
   test.strictEqual(res, true);
@@ -114,7 +114,7 @@ exports.CallStoredProcedureSelectIntoSync = function (test) {
     num = 1234,
     numFromProcedure;
   
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, cfg.mysql_libmysqlclient.CLIENT_MULTI_RESULTS);
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
   test.strictEqual(res, true);
@@ -146,7 +146,7 @@ exports.CallStoredProcedureSelectIntoTwiceSync = function (test) {
     num = 1234,
     numFromProcedure;
   
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, cfg.mysql_libmysqlclient.CLIENT_MULTI_RESULTS);
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
   test.strictEqual(res, true);
@@ -214,7 +214,7 @@ exports.CallStoredFunctionSync = function (test) {
     num = 1234,
     numFromFunction;
 
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, cfg.mysql_libmysqlclient.CLIENT_MULTI_RESULTS);
 
   res = conn.querySync("DROP FUNCTION IF EXISTS test_function;");
   test.strictEqual(res, true);
@@ -252,7 +252,7 @@ exports.CallStoredFunctionTwiceSync = function (test) {
     num = 1234,
     numFromFunction;
 
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, cfg.mysql_libmysqlclient.CLIENT_MULTI_RESULTS);
 
   res = conn.querySync("DROP FUNCTION IF EXISTS test_function;");
   test.strictEqual(res, true);
@@ -297,7 +297,7 @@ exports.CallStoredProcedureSelectNested = function (test) {
     num = 1234,
     numFromProcedure;
   
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, conn.CLIENT_MULTI_RESULTS);
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, cfg.mysql_libmysqlclient.CLIENT_MULTI_RESULTS);
 
   res = conn.querySync("DROP PROCEDURE IF EXISTS test_procedure;");
   test.strictEqual(res, true);
