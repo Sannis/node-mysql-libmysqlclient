@@ -3,7 +3,7 @@ Node-mysql-libmysqlclient [![Build status][Build status image]][Build status URL
 
 **Asynchronous MySQL binding for [Node.js] using libmysqlclient.**
 
-**This module has been tested with Node.js versions 0.6.19, 0.7.12 and 0.8.8**
+**This module has been tested with Node.js versions 0.6.19, 0.8.8 and 0.9.0**
 
 [Node.js]: http://nodejs.org/
 [Build status image]: https://secure.travis-ci.org/Sannis/node-mysql-libmysqlclient.png?branch=master
