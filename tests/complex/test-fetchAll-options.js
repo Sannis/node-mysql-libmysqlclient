@@ -308,8 +308,8 @@ exports.setOptionSyncQueryFetchAll = function (test) {
   var conn = cfg.mysql_libmysqlclient.createConnectionSync();
   
   conn.initSync();
-  conn.setOptionSync(conn.MYSQL_OPT_RECONNECT, 1);
-  conn.setOptionSync(conn.MYSQL_SET_CHARSET_NAME, "utf8");
+  conn.setOptionSync(cfg.mysql_libmysqlclient.MYSQL_OPT_RECONNECT, 1);
+  conn.setOptionSync(cfg.mysql_libmysqlclient.MYSQL_SET_CHARSET_NAME, "utf8");
   conn.realConnectSync(cfg.host, cfg.user, cfg.password, cfg.database);
 
   conn.query("SELECT size, colors FROM " + cfg.test_table + " WHERE size;", function (err, res) {

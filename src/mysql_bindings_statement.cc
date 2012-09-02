@@ -34,11 +34,6 @@ void MysqlStatement::Init(Handle<Object> target) {
     Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
-    // Constants
-    NODE_DEFINE_CONSTANT(instance_template, STMT_ATTR_UPDATE_MAX_LENGTH);
-    NODE_DEFINE_CONSTANT(instance_template, STMT_ATTR_CURSOR_TYPE);
-    NODE_DEFINE_CONSTANT(instance_template, STMT_ATTR_PREFETCH_ROWS);
-
     // Properties
     instance_template->SetAccessor(V8STR("paramCount"), ParamCountGetter);
 

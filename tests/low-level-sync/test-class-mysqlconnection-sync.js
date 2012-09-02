@@ -121,37 +121,24 @@ exports.New = function (test) {
 };
 
 exports.ConnectFlagsConstants = function (test) {
-  test.expect(18);
+  test.expect(9);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionSync();
 
-  test.equals(conn.CLIENT_COMPRESS, 32);
-  test.equals(conn.CLIENT_FOUND_ROWS, 2);
-  test.equals(conn.CLIENT_IGNORE_SIGPIPE, 4096);
-  test.equals(conn.CLIENT_IGNORE_SPACE, 256);
-  test.equals(conn.CLIENT_INTERACTIVE, 1024);
+  test.equals(cfg.mysql_libmysqlclient.CLIENT_COMPRESS, 32);
+  test.equals(cfg.mysql_libmysqlclient.CLIENT_FOUND_ROWS, 2);
+  test.equals(cfg.mysql_libmysqlclient.CLIENT_IGNORE_SIGPIPE, 4096);
+  test.equals(cfg.mysql_libmysqlclient.CLIENT_IGNORE_SPACE, 256);
+  test.equals(cfg.mysql_libmysqlclient.CLIENT_INTERACTIVE, 1024);
   // Not yet implemented
-  // test.equals(conn.CLIENT_LOCAL_FILES, 128);
-  test.equals(conn.CLIENT_MULTI_RESULTS, 131072);
-  test.equals(conn.CLIENT_MULTI_STATEMENTS, 65536);
-  test.equals(conn.CLIENT_NO_SCHEMA, 16);
-  // Known issue: conn.CLIENT_REMEMBER_OPTIONS === -2147483648
-  test.equals(conn.CLIENT_REMEMBER_OPTIONS, -2147483648);
+  // test.equals(cfg.mysql_libmysqlclient.CLIENT_LOCAL_FILES, 128);
+  test.equals(cfg.mysql_libmysqlclient.CLIENT_MULTI_RESULTS, 131072);
+  test.equals(cfg.mysql_libmysqlclient.CLIENT_MULTI_STATEMENTS, 65536);
+  test.equals(cfg.mysql_libmysqlclient.CLIENT_NO_SCHEMA, 16);
+  // Known issue: cfg.mysql_libmysqlclient.CLIENT_REMEMBER_OPTIONS === -2147483648
+  test.equals(cfg.mysql_libmysqlclient.CLIENT_REMEMBER_OPTIONS, -2147483648);
 
-  test.equals(cfg.mysql_bindings.CLIENT_COMPRESS, 32);
-  test.equals(cfg.mysql_bindings.CLIENT_FOUND_ROWS, 2);
-  test.equals(cfg.mysql_bindings.CLIENT_IGNORE_SIGPIPE, 4096);
-  test.equals(cfg.mysql_bindings.CLIENT_IGNORE_SPACE, 256);
-  test.equals(cfg.mysql_bindings.CLIENT_INTERACTIVE, 1024);
-  // Not yet implemented
-  // test.equals(cfg.mysql_bindings.CLIENT_LOCAL_FILES, 128);
-  test.equals(cfg.mysql_bindings.CLIENT_MULTI_RESULTS, 131072);
-  test.equals(cfg.mysql_bindings.CLIENT_MULTI_STATEMENTS, 65536);
-  test.equals(cfg.mysql_bindings.CLIENT_NO_SCHEMA, 16);
-  // Known issue: cfg.mysql_bindings.CLIENT_REMEMBER_OPTIONS === -2147483648
-  test.equals(cfg.mysql_bindings.CLIENT_REMEMBER_OPTIONS, -2147483648);
-
-  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, cfg.mysql_bindings.CLIENT_REMEMBER_OPTIONS);
+  conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, cfg.mysql_libmysqlclient.CLIENT_REMEMBER_OPTIONS);
   conn.closeSync();
 
   test.done();
@@ -160,21 +147,19 @@ exports.ConnectFlagsConstants = function (test) {
 exports.SetOptionsConstants = function (test) {
   test.expect(11);
 
-  var conn = cfg.mysql_libmysqlclient.createConnectionSync();
-
-  test.equals(conn.MYSQL_INIT_COMMAND, 3);
-  test.equals(conn.MYSQL_OPT_COMPRESS, 1);
-  test.equals(conn.MYSQL_OPT_CONNECT_TIMEOUT, 0);
+  test.equals(cfg.mysql_libmysqlclient.MYSQL_INIT_COMMAND, 3);
+  test.equals(cfg.mysql_libmysqlclient.MYSQL_OPT_COMPRESS, 1);
+  test.equals(cfg.mysql_libmysqlclient.MYSQL_OPT_CONNECT_TIMEOUT, 0);
   // Not yet implemented
-  // test.equals(conn.MYSQL_OPT_LOCAL_INFILE, 8);
-  test.equals(conn.MYSQL_OPT_PROTOCOL, 9);
-  test.equals(conn.MYSQL_OPT_READ_TIMEOUT, 11);
-  test.equals(conn.MYSQL_OPT_RECONNECT, 20);
-  test.equals(conn.MYSQL_OPT_WRITE_TIMEOUT, 12);
-  test.equals(conn.MYSQL_READ_DEFAULT_FILE, 4);
-  test.equals(conn.MYSQL_READ_DEFAULT_GROUP, 5);
-  test.equals(conn.MYSQL_SET_CHARSET_DIR, 6);
-  test.equals(conn.MYSQL_SET_CHARSET_NAME, 7);
+  // test.equals(cfg.mysql_libmysqlclient.MYSQL_OPT_LOCAL_INFILE, 8);
+  test.equals(cfg.mysql_libmysqlclient.MYSQL_OPT_PROTOCOL, 9);
+  test.equals(cfg.mysql_libmysqlclient.MYSQL_OPT_READ_TIMEOUT, 11);
+  test.equals(cfg.mysql_libmysqlclient.MYSQL_OPT_RECONNECT, 20);
+  test.equals(cfg.mysql_libmysqlclient.MYSQL_OPT_WRITE_TIMEOUT, 12);
+  test.equals(cfg.mysql_libmysqlclient.MYSQL_READ_DEFAULT_FILE, 4);
+  test.equals(cfg.mysql_libmysqlclient.MYSQL_READ_DEFAULT_GROUP, 5);
+  test.equals(cfg.mysql_libmysqlclient.MYSQL_SET_CHARSET_DIR, 6);
+  test.equals(cfg.mysql_libmysqlclient.MYSQL_SET_CHARSET_NAME, 7);
   
   test.done();
 };
@@ -656,20 +641,20 @@ exports.SetOptionSync = function (test) {
   
   // Test MYSQL_INIT_COMMAND
   conn.initSync();
-  conn.setOptionSync(conn.MYSQL_INIT_COMMAND, "SET NAMES " + other_cs + ";");
+  conn.setOptionSync(cfg.mysql_libmysqlclient.MYSQL_INIT_COMMAND, "SET NAMES " + other_cs + ";");
   conn.realConnectSync(cfg.host, cfg.user, cfg.password);
   test.equals(conn.querySync("SHOW VARIABLES LIKE 'character_set_connection';").fetchAllSync()[0].Value, other_cs, "setOptionSync(MYSQL_INIT_COMMAND. 'SET NAMES')");
   conn.closeSync();
   
   // Test MYSQL_OPT_RECONNECT
   conn.initSync();
-  conn.setOptionSync(conn.MYSQL_OPT_RECONNECT, 1);
+  conn.setOptionSync(cfg.mysql_libmysqlclient.MYSQL_OPT_RECONNECT, 1);
   conn.realConnectSync(cfg.host, cfg.user, cfg.password);
   conn.closeSync();
   
   // Test MYSQL_OPT_RECONNECT (issue #90)
   conn.initSync();
-  conn.setOptionSync(conn.MYSQL_OPT_CONNECT_TIMEOUT, 3);
+  conn.setOptionSync(cfg.mysql_libmysqlclient.MYSQL_OPT_CONNECT_TIMEOUT, 3);
   conn.realConnectSync(cfg.host, cfg.user, cfg.password);
   conn.closeSync();
   

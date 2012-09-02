@@ -30,58 +30,6 @@ void MysqlConnection::Init(Handle<Object> target) {
     Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
-    // Constants for connect flags
-    NODE_DEFINE_CONSTANT(instance_template, CLIENT_COMPRESS);
-    NODE_DEFINE_CONSTANT(instance_template, CLIENT_FOUND_ROWS);
-    NODE_DEFINE_CONSTANT(instance_template, CLIENT_IGNORE_SIGPIPE);
-    NODE_DEFINE_CONSTANT(instance_template, CLIENT_IGNORE_SPACE);
-    NODE_DEFINE_CONSTANT(instance_template, CLIENT_INTERACTIVE);
-    // Not yet implemented
-    // NODE_DEFINE_CONSTANT(instance_template, CLIENT_LOCAL_FILES);
-    NODE_DEFINE_CONSTANT(instance_template, CLIENT_MULTI_RESULTS);
-    NODE_DEFINE_CONSTANT(instance_template, CLIENT_MULTI_STATEMENTS);
-    NODE_DEFINE_CONSTANT(instance_template, CLIENT_NO_SCHEMA);
-    // Unused by MySQL
-    // NODE_DEFINE_CONSTANT(instance_template, CLIENT_ODBC);
-    // This option should not be set by application programs;
-    // it is set internally in the client library. Instead,
-    // use setSslSync() before calling connect() or connectSync().
-    // NODE_DEFINE_CONSTANT(instance_template, CLIENT_SSL);
-    // Known issue: conn.CLIENT_REMEMBER_OPTIONS === -2147483648
-    NODE_DEFINE_CONSTANT(instance_template, CLIENT_REMEMBER_OPTIONS);
-
-    // Constants for setOption
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_INIT_COMMAND);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_COMPRESS);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_CONNECT_TIMEOUT);
-    // Unused, embedded
-    // NODE_DEFINE_CONSTANT(MYSQL_OPT_GUESS_CONNECTION);
-    // Not yet implemented
-    // NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_LOCAL_INFILE);
-    // Unused, windows
-    // NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_NAMED_PIPE);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_PROTOCOL);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_READ_TIMEOUT);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_RECONNECT);
-    // Unused, embedded
-    // NODE_DEFINE_CONSTANT(MYSQL_SET_CLIENT_IP);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_SSL_VERIFY_SERVER_CERT);
-    // Unused, embedded
-    // NODE_DEFINE_CONSTANT(MYSQL_OPT_USE_EMBEDDED_CONNECTION);
-    // Unused, embedded
-    // NODE_DEFINE_CONSTANT(MYSQL_OPT_USE_REMOTE_CONNECTION);
-    // Unused by MySQL
-    // NODE_DEFINE_CONSTANT(MYSQL_OPT_USE_RESULT);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_OPT_WRITE_TIMEOUT);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_READ_DEFAULT_FILE);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_READ_DEFAULT_GROUP);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_REPORT_DATA_TRUNCATION);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_SECURE_AUTH);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_SET_CHARSET_DIR);
-    NODE_DEFINE_CONSTANT(instance_template, MYSQL_SET_CHARSET_NAME);
-    // Unused, windows
-    // NODE_DEFINE_CONSTANT(instance_template, MYSQL_SHARED_MEMORY_BASE_NAME);
-
     // Properties
     instance_template->SetAccessor(V8STR("connectErrno"), MysqlConnection::ConnectErrnoGetter);
     instance_template->SetAccessor(V8STR("connectError"), MysqlConnection::ConnectErrorGetter);
