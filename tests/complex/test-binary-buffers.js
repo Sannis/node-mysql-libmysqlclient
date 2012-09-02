@@ -56,7 +56,7 @@ exports.FetchAllSyncWithBinaryFields = function (test) {
   res = conn.querySync("SELECT vc, vbi, bi, t, b FROM " + cfg.test_table2 + " ORDER BY id;");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
-  rows = res.fetchAllSync(true);
+  rows = res.fetchAllSync({"asArray": true});
 
   rowsExpected = [ [ 'qwerty',          new Buffer('qwerty'),  new Buffer('qwerty\0\0'),     'qwerty',          new Buffer('qwerty') ],
                    [ 'qwe\u0000\u0000', new Buffer('qwe\0\0'), new Buffer('qwe\0\0\0\0\0'),  'qwe\u0000\u0000', new Buffer('qwe\0\0') ],

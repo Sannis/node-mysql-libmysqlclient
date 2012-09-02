@@ -42,39 +42,26 @@ exports.createTestTableComplex2 = function (test) {
   test.done();
 };
 
-exports.FetchAllWithBooleanOption = function (test) {
-  test.expect(8);
+exports.FetchAllFailsWithBooleanOption = function (test) {
+  test.expect(2);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
     res;
 
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
-  
+
   res.fetchAll(false, function (err, rows) {
-    test.ok(err === null, "res.fetchAll() err===null");
-    test.same(rows, [{size: 'small', colors: ['red']}], "conn.querySync('SELECT ...').fetchAllSync(false)");
-    res.freeSync();
-    
-    res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
-    
-    res.fetchAll(true, function (err, rows) {
-      test.ok(err === null, "res.fetchAll() err===null");
-      test.ok(Array.isArray(rows), "Result returns an array");
-      test.ok(Array.isArray(rows[0]), "Result returns an array of arrays");
-      test.same(rows,  [['small', ['red']]], "conn.querySync('SELECT ...').fetchAll(true)");
-      res.freeSync();
-      
-      conn.closeSync();
-      test.done();
-    });
+    test.ok(err instanceof Error, "Error object is presented");
+    test.ok(typeof rows === 'undefined');
+
+    conn.closeSync();
+    test.done();
   });
 };
 
-exports.FetchAllSyncWithBooleanOption = function (test) {
-  test.expect(6);
+exports.FetchAllSyncFailsWithBooleanOption = function (test) {
+  test.expect(1);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database),
@@ -82,26 +69,17 @@ exports.FetchAllSyncWithBooleanOption = function (test) {
     rows;
 
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
-  
-  rows = res.fetchAllSync(false);
-  test.same(rows, [{size: 'small', colors: ['red']}], "conn.querySync('SELECT ...').fetchAllSync(false)");
+
+  test.throws(function () {
+    rows = res.fetchAllSync(false);
+  });
   res.freeSync();
-  
-  res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
-  
-  rows = res.fetchAllSync(true);
-  test.ok(Array.isArray(rows), "Result returns an array");
-  test.ok(Array.isArray(rows[0]), "Result returns an array of arrays");
-  test.same(rows, [['small', ['red']]], "conn.querySync('SELECT ...').fetchAllSync(true)");
-  res.freeSync();
-  
+
   conn.closeSync();
   test.done();
 };
 
-exports.FetchAllWithObjectArrayOption = function (test) {
+exports.FetchAll_asArray = function (test) {
   test.expect(8);
   
   var
@@ -111,19 +89,19 @@ exports.FetchAllWithObjectArrayOption = function (test) {
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
-  res.fetchAll({'array': false}, function (err, rows) {
+  res.fetchAll({'asArray': false}, function (err, rows) {
     test.ok(err === null, "res.fetchAll() err===null");
-    test.same(rows, [{size: 'small', colors: ['red']}], "conn.querySync('SELECT ...').fetchAllSync({'array': false})");
+    test.same(rows, [{size: 'small', colors: ['red']}], "conn.querySync('SELECT ...').fetchAllSync({'asArray': false})");
     res.freeSync();
     
     res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
     test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
     
-    res.fetchAll({'array': true}, function (err, rows) {
+    res.fetchAll({'asArray': true}, function (err, rows) {
       test.ok(err === null, "res.fetchAll() err===null");
       test.ok(Array.isArray(rows), "Result returns an array");
       test.ok(Array.isArray(rows[0]), "Result returns an array of arrays");
-      test.same(rows, [['small', ['red']]], "conn.querySync('SELECT ...').fetchAll({'array': true})");
+      test.same(rows, [['small', ['red']]], "conn.querySync('SELECT ...').fetchAll({'asArray': true})");
       res.freeSync();
       
       conn.closeSync();
@@ -132,7 +110,7 @@ exports.FetchAllWithObjectArrayOption = function (test) {
   });
 };
 
-exports.FetchAllSyncWithObjectArrayOption = function (test) {
+exports.FetchAllSync_asArray = function (test) {
   test.expect(6);
   
   var
@@ -143,24 +121,24 @@ exports.FetchAllSyncWithObjectArrayOption = function (test) {
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
-  rows = res.fetchAllSync({'array': false});
-  test.same(rows, [{size: 'small', colors: ['red']}], "conn.querySync('SELECT ...').fetchAllSync({'array': false})");
+  rows = res.fetchAllSync({'asArray': false});
+  test.same(rows, [{size: 'small', colors: ['red']}], "conn.querySync('SELECT ...').fetchAllSync({'asArray': false})");
   res.freeSync();
   
   res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
-  rows = res.fetchAllSync({'array': true});
+  rows = res.fetchAllSync({'asArray': true});
   test.ok(Array.isArray(rows), "Result returns an array");
   test.ok(Array.isArray(rows[0]), "Result returns an array of arrays");
-  test.same(rows, [['small', ['red']]], "conn.querySync('SELECT ...').fetchAllSync({'array': true})");
+  test.same(rows, [['small', ['red']]], "conn.querySync('SELECT ...').fetchAllSync({'asArray': true})");
   res.freeSync();
   
   conn.closeSync();
   test.done();
 };
 
-exports.FetchAllWithObjectStructuredOption = function (test) {
+exports.FetchAll_nestTables = function (test) {
   test.expect(8);
   
   var
@@ -172,14 +150,14 @@ exports.FetchAllWithObjectStructuredOption = function (test) {
                        "WHERE t1.size = t2.size AND t1.size != 'medium';");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
-  res.fetchAll({'structured': false}, function (err, rows) {
+  res.fetchAll({'nestTables': false}, function (err, rows) {
     test.ok(err === null, "res.fetchAll() err===null");
     test.same(rows,
       [{size: 'small', colors: 'red'},
        {size: 'small', colors: 'orange'},
        {size: 'large', colors: 'deep purple'},
        {size: 'large', colors: 'deep purple'}
-      ], "conn.querySync('SELECT ...').fetchAllSync({'structured': false})");
+      ], "conn.querySync('SELECT ...').fetchAllSync({'nestTables': false})");
     res.freeSync();
     
     res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
@@ -187,7 +165,7 @@ exports.FetchAllWithObjectStructuredOption = function (test) {
                          "WHERE t1.size = t2.size AND t1.size != 'medium' AND t1.colors != 'green';");
     test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
     
-    res.fetchAll({'structured': true}, function (err, rows) {
+    res.fetchAll({'nestTables': true}, function (err, rows) {
       test.ok(err === null, "res.fetchAll() err===null");
       test.ok(Array.isArray(rows), "Result returns an array");
       test.ok(rows[0] instanceof Object, "Result returns an array of objects");
@@ -201,7 +179,7 @@ exports.FetchAllWithObjectStructuredOption = function (test) {
          {t1: { size: 'large', colors: ['red', 'blue'] },
           t2: { size: 'large', colors: 'deep purple' }
          }
-        ], "conn.querySync('SELECT ...').fetchAll({'structured': true})");
+        ], "conn.querySync('SELECT ...').fetchAll({'nestTables': true})");
       res.freeSync();
       
       conn.closeSync();
@@ -210,7 +188,7 @@ exports.FetchAllWithObjectStructuredOption = function (test) {
   });
 };
 
-exports.FetchAllSyncWithObjectStructuredOption = function (test) {
+exports.FetchAllSync_nestTables = function (test) {
   test.expect(6);
   
   var
@@ -223,13 +201,13 @@ exports.FetchAllSyncWithObjectStructuredOption = function (test) {
                        "WHERE t1.size = t2.size AND t1.size != 'medium';");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
-  rows = res.fetchAllSync({'structured': false});
+  rows = res.fetchAllSync({'nestTables': false});
   test.same(rows,
     [{size: 'small', colors: 'red'},
      {size: 'small', colors: 'orange'},
      {size: 'large', colors: 'deep purple'},
      {size: 'large', colors: 'deep purple'}
-    ], "conn.querySync('SELECT ...').fetchAllSync({'structured': false})");
+    ], "conn.querySync('SELECT ...').fetchAllSync({'nestTables': false})");
   res.freeSync();
   
   res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
@@ -237,7 +215,7 @@ exports.FetchAllSyncWithObjectStructuredOption = function (test) {
                        "WHERE t1.size = t2.size AND t1.size != 'medium' AND t1.colors != 'green';");
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
-  rows = res.fetchAllSync({'structured': true});
+  rows = res.fetchAllSync({'nestTables': true});
   test.ok(Array.isArray(rows), "Result returns an array");
   test.ok(rows[0] instanceof Object, "Result returns an array of objects");
   test.same(rows,
@@ -250,7 +228,7 @@ exports.FetchAllSyncWithObjectStructuredOption = function (test) {
      {t1: { size: 'large', colors: ['red', 'blue']},
       t2: { size: 'large', colors: 'deep purple'}
      }
-    ], "conn.querySync('SELECT ...').fetchAllSync({'structured': true})");
+    ], "conn.querySync('SELECT ...').fetchAllSync({'nestTables': true})");
   res.freeSync();
   
   conn.closeSync();
@@ -270,8 +248,8 @@ exports.FetchAllWithObjectOptionsConflicted = function (test) {
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   test.throws(function () {
-    res.fetchAll({'array': true, 'structured': true}, function (err, rows) {});
-  }, Error, "You can't mix 'array' and 'structured' parameters");
+    res.fetchAll({'asArray': true, 'nestTables': true}, function (err, rows) {});
+  }, Error, "You can't mix 'asArray' and 'nestTables' parameters");
   
   res.freeSync();
   
@@ -293,8 +271,8 @@ exports.FetchAllSyncWithObjectOptionsConflicted = function (test) {
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   test.throws(function () {
-    rows = res.fetchAllSync({'array': true, 'structured': true});
-  }, Error, "You can't mix 'array' and 'structured' parameters");
+    rows = res.fetchAllSync({'asArray': true, 'nestTables': true});
+  }, Error, "You can't mix 'asArray' and 'nestTables' parameters");
   
   res.freeSync();
   

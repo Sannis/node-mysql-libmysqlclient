@@ -29,7 +29,7 @@ exports.ConnectWithError = function (test) {
   var conn = new cfg.mysql_bindings.MysqlConnection();
   
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (err) {
-    test.ok(err instanceof Error, "Error object is present");
+    test.ok(err instanceof Error, "Error object is presented");
 
     var
       connectErrno = conn.connectErrno,

@@ -87,8 +87,8 @@ class MysqlResult : public node::ObjectWrap {
 
         MYSQL_FIELD *fields;
         uint32_t num_fields;
-        bool results_array;
-        bool results_structured;
+        bool results_as_array;
+        bool results_nest_tables;
     };
     static void EIO_After_FetchAll(uv_work_t *req);
     static void EIO_FetchAll(uv_work_t *req);

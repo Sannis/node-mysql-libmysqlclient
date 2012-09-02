@@ -343,7 +343,7 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
         while ((result_row = mysql_fetch_row(fetchAll_req->res->_res))) {
             field_lengths = mysql_fetch_lengths(fetchAll_req->res->_res);
 
-            if (fetchAll_req->results_array) {
+            if (fetchAll_req->results_as_array) {
               js_result_row = Array::New();
             } else {
               js_result_row = Object::New();
@@ -353,19 +353,16 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
                 js_field = GetFieldValue(fields[j],
                                          result_row[j],
                                          field_lengths[j]);
-                if (fetchAll_req->results_array) {
+                if (fetchAll_req->results_as_array) {
                     js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
-                } else {
-                    if (fetchAll_req->results_structured) {
-                        if (!js_result_row->Has(V8STR(fields[j].table))) {
-                            js_result_row->Set(V8STR(fields[j].table),
-                                               Object::New());
-                        }
-                        js_result_row->Get(V8STR(fields[j].table))->ToObject()
-                                     ->Set(V8STR(fields[j].name), js_field);
-                    } else {
-                        js_result_row->Set(V8STR(fields[j].name), js_field);
+                } else if (fetchAll_req->results_nest_tables) {
+                    if (!js_result_row->Has(V8STR(fields[j].table))) {
+                        js_result_row->Set(V8STR(fields[j].table), Object::New());
                     }
+                    js_result_row->Get(V8STR(fields[j].table))->ToObject()
+                                 ->Set(V8STR(fields[j].name), js_field);
+                } else {
+                    js_result_row->Set(V8STR(fields[j].name), js_field);
                 }
             }
 
@@ -448,33 +445,47 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     HandleScope scope;
 
     int arg_pos = 0;
-    bool results_array = false;
-    bool results_structured = false;
+    bool results_as_array = false;
+    bool results_nest_tables = false;
+    bool throw_wrong_arguments_exception = false;
 
     if (args.Length() > 0) {
-        if (args[0]->IsBoolean()) {
-            results_array = args[0]->BooleanValue();
-            arg_pos++;
-        } else if (args[0]->IsObject() && !args[0]->IsFunction()) {
-            if (args[0]->ToObject()->Has(V8STR("array"))) {
-                results_array = args[0]->ToObject()
-                                ->Get(V8STR("array"))->BooleanValue();
+        if (args[0]->IsObject()) { // Simple Object or Function
+            if (!args[0]->IsFunction()) { // Simple Object - options hash
+                if (args[0]->ToObject()->Has(V8STR("asArray"))) {
+                    results_as_array = args[0]->ToObject()->Get(V8STR("asArray"))->BooleanValue();
+                }
+                if (args[0]->ToObject()->Has(V8STR("nestTables"))) {
+                    results_nest_tables = args[0]->ToObject()->Get(V8STR("nestTables"))->BooleanValue();
+                }
+                arg_pos++;
             }
-            if (args[0]->ToObject()->Has(V8STR("structured"))) {
-                results_structured = args[0]->ToObject()
-                                     ->Get(V8STR("structured"))->BooleanValue();
-            }
+        } else { // Not an options Object or a Function
+            throw_wrong_arguments_exception = true;
             arg_pos++;
         }
         // NOT here: any function is object
         // arg_pos++;
     }
 
-    if (results_array && results_structured) {
-        return THREXC("You can't mix 'array' and 'structured' parameters");
+    REQ_FUN_ARG(arg_pos, callback)
+
+    if (throw_wrong_arguments_exception) {
+        int argc = 1;
+        Local<Value> argv[1];
+        argv[0] = V8EXC("fetchAllSync can handle only (options) or none arguments");
+        node::MakeCallback(Context::GetCurrent()->Global(), callback, argc, argv);
+        return Undefined();
     }
 
-    REQ_FUN_ARG(arg_pos, callback)
+    if (results_as_array && results_nest_tables) {
+        return THREXC("You can't mix 'asArray' and 'nestTables' options");
+        int argc = 1;
+        Local<Value> argv[1];
+        argv[0] = V8EXC("You can't mix 'asArray' and 'nestTables' options");
+        node::MakeCallback(Context::GetCurrent()->Global(), callback, argc, argv);
+        return Undefined();
+    }
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder()); // NOLINT
 
@@ -486,8 +497,8 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     fetchAll_req->res = res;
     res->Ref();
     
-    fetchAll_req->results_array = results_array;
-    fetchAll_req->results_structured = results_structured;
+    fetchAll_req->results_as_array = results_as_array;
+    fetchAll_req->results_nest_tables = results_nest_tables;
 
     uv_work_t *_req = new uv_work_t;
     _req->data = fetchAll_req;
@@ -498,7 +509,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 
 /**
  * MysqlResult#fetchAllSync([options]) -> Array
- * - options (Boolean|Object): Fetch style options (optional)
+ * - options (Object): Fetch style options (optional)
  *
  * Fetches all result rows as an array
  **/
@@ -509,26 +520,23 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 
     MYSQLRES_MUSTBE_VALID;
 
-    bool results_array = false;
-    bool results_structured = false;
+    bool results_as_array = false;
+    bool results_nest_tables = false;
 
     if (args.Length() > 0) {
-        if (args[0]->IsBoolean()) {
-            results_array = args[0]->BooleanValue();
-        } else if (args[0]->IsObject()) {
-            if (args[0]->ToObject()->Has(V8STR("array"))) {
-                results_array = args[0]->ToObject()
-                                ->Get(V8STR("array"))->BooleanValue();
-            }
-            if (args[0]->ToObject()->Has(V8STR("structured"))) {
-                results_structured = args[0]->ToObject()
-                                     ->Get(V8STR("structured"))->BooleanValue();
-            }
+        if (!args[0]->IsObject()) {
+            return THREXC("fetchAllSync can handle only (options) or none arguments");
+        }
+        if (args[0]->ToObject()->Has(V8STR("asArray"))) {
+            results_as_array = args[0]->ToObject()->Get(V8STR("asArray"))->BooleanValue();
+        }
+        if (args[0]->ToObject()->Has(V8STR("nestTables"))) {
+            results_nest_tables = args[0]->ToObject()->Get(V8STR("nestTables"))->BooleanValue();
         }
     }
 
-    if (results_array && results_structured) {
-        return THREXC("You can't mix 'array' and 'structured' parameters");
+    if (results_as_array && results_nest_tables) {
+        return THREXC("You can't mix 'asArray' and 'nestTables' options");
     }
 
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
@@ -545,7 +553,7 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
     while ( (result_row = mysql_fetch_row(res->_res)) ) {
         field_lengths = mysql_fetch_lengths(res->_res);
 
-        if (results_array) {
+        if (results_as_array) {
             js_result_row = Array::New();
         } else {
             js_result_row = Object::New();
@@ -555,19 +563,16 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
             js_field = GetFieldValue(fields[j],
                                      result_row[j],
                                      field_lengths[j]);
-            if (results_array) {
+            if (results_as_array) {
                 js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
-            } else {
-                if (results_structured) {
-                    if (!js_result_row->Has(V8STR(fields[j].table))) {
-                        js_result_row->Set(V8STR(fields[j].table),
-                                           Object::New());
-                    }
-                    js_result_row->Get(V8STR(fields[j].table))->ToObject()
-                                 ->Set(V8STR(fields[j].name), js_field);
-                } else {
-                    js_result_row->Set(V8STR(fields[j].name), js_field);
+            } else if (results_nest_tables) {
+                if (!js_result_row->Has(V8STR(fields[j].table))) {
+                    js_result_row->Set(V8STR(fields[j].table), Object::New());
                 }
+                js_result_row->Get(V8STR(fields[j].table))->ToObject()
+                             ->Set(V8STR(fields[j].name), js_field);
+            } else {
+                js_result_row->Set(V8STR(fields[j].name), js_field);
             }
         }
 
