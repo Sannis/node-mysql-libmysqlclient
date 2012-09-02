@@ -42,6 +42,30 @@ exports.mysql_libmysqlclient_createConnectionHighlevelSync_4 = function (test) {
   test.done();
 };
 
+exports.mysql_libmysqlclient_createConnectionHighlevelSync_DSN = function (test) {
+  test.expect(4);
+
+  var
+    dsn = require('util').format("mysql://%s:%s@%s:%s/%s/zxcvbn?qwerty=1234", cfg.user, cfg.password, cfg.host, cfg.port, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionHighlevelSync(dsn),
+    isConnected;
+  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+  test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
+  test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionHighlevel);
+
+  isConnected = conn.connectedSync();
+  test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnectionHighlevelSync(dsn(user, password, host, port, database)) connects");
+
+  if (!isConnected) {
+    // Extra debug output
+    console.log("Error:" + conn.connectError);
+  } else {
+    conn.closeSync();
+  }
+
+  test.done();
+};
+
 exports.mysql_libmysqlclient_createConnectionHighlevel_0 = function (test) {
   test.expect(1);
 
@@ -80,6 +104,31 @@ exports.mysql_libmysqlclient_createConnectionHighlevel_5 = function (test) {
 
     isConnected = conn.connectedSync();
     test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnectionHighlevel(host, user, password, database, callback) connects");
+
+    if (!isConnected) {
+      // Extra debug output
+      console.log("Error:" + conn.connectError);
+    } else {
+      conn.closeSync();
+    }
+
+    test.done();
+  });
+};
+
+exports.mysql_libmysqlclient_createConnectionHighlevel_DSN = function (test) {
+  test.expect(5);
+
+  var dsn = require('util').format("mysql://%s:%s@%s:%s/%s/zxcvbn?qwerty=1234", cfg.user, cfg.password, cfg.host, cfg.port, cfg.database);
+
+  cfg.mysql_libmysqlclient.createConnectionHighlevel(dsn, function (err, conn) {
+    test.ok(err === null, "Error object is not present");
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
+    test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionHighlevel);
+
+    isConnected = conn.connectedSync();
+    test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnectionHighlevel(dsn(user, password, host, port, database), callback) connects");
 
     if (!isConnected) {
       // Extra debug output

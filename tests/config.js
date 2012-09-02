@@ -22,6 +22,7 @@ module.exports = {
 
   // Database connection settings
   host:     process.env["TRAVIS"] ? "localhost" : "localhost",
+  port:     process.env["TRAVIS"] ? 3306        : 3306,
   user:     process.env["TRAVIS"] ? "test_user" : "test",
   password: process.env["TRAVIS"] ? "1234"      : "",
   database: "test",

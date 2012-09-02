@@ -143,14 +143,104 @@ exports.mysql_libmysqlclient_createConnection_5_AccessDenied = function (test) {
 exports.mysql_libmysqlclient_createConnection_6 = function (test) {
   test.expect(3);
 
-  var compress_flag = cfg.mysql_bindings.CLIENT_COMPRESS;
-
-  cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database, compress_flag, function (err, conn) {
+  cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database, cfg.port, function (err, conn) {
     test.ok(err === null, "Error object is not present");
     test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
 
     var isConnected = conn.connectedSync();
     test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(host, user, password, database, flags, callback)");
+
+    if (!isConnected) {
+      // Extra debug output
+      console.log("Error:" + conn.connectError);
+    } else {
+      conn.closeSync();
+    }
+
+    test.done();
+  });
+};
+
+exports.mysql_libmysqlclient_createConnection_8 = function (test) {
+  test.expect(3);
+
+  var compress_flag = cfg.mysql_bindings.CLIENT_COMPRESS;
+
+  cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database, null, null, compress_flag, function (err, conn) {
+    test.ok(err === null, "Error object is not present");
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+
+    var isConnected = conn.connectedSync();
+    test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(host, user, password, database, flags, callback)");
+
+    if (!isConnected) {
+      // Extra debug output
+      console.log("Error:" + conn.connectError);
+    } else {
+      conn.closeSync();
+    }
+
+    test.done();
+  });
+};
+
+exports.mysql_libmysqlclient_createConnectionSync_DSN_1 = function (test) {
+  test.expect(3);
+
+  var dsn = require('util').format("mysql://%s:%s@%s:%s", cfg.user, cfg.password, cfg.host, cfg.port);
+
+  cfg.mysql_libmysqlclient.createConnection(dsn, function (err, conn) {
+    test.ok(err === null, "Error object is not present");
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+
+    var isConnected = conn.connectedSync();
+    test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(dsn(user, password, host, port), callback)");
+
+    if (!isConnected) {
+      // Extra debug output
+      console.log("Error:" + conn.connectError);
+    } else {
+      conn.closeSync();
+    }
+
+    test.done();
+  });
+};
+
+exports.mysql_libmysqlclient_createConnectionSync_DSN_2 = function (test) {
+  test.expect(3);
+
+  var dsn = require('util').format("mysql://%s:%s@%s:%s?qwerty=1234", cfg.user, cfg.password, cfg.host, cfg.port);
+
+  cfg.mysql_libmysqlclient.createConnection(dsn, function (err, conn) {
+    test.ok(err === null, "Error object is not present");
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+
+    var isConnected = conn.connectedSync();
+    test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(dsn(user, password, host, port), callback)");
+
+    if (!isConnected) {
+      // Extra debug output
+      console.log("Error:" + conn.connectError);
+    } else {
+      conn.closeSync();
+    }
+
+    test.done();
+  });
+};
+
+exports.mysql_libmysqlclient_createConnectionSync_DSN_3 = function (test) {
+  test.expect(3);
+
+  var dsn = require('util').format("mysql://%s:%s@%s:%s/%s/zxcvbn?qwerty=1234", cfg.user, cfg.password, cfg.host, cfg.port, cfg.database);
+
+  cfg.mysql_libmysqlclient.createConnection(dsn, function (err, conn) {
+    test.ok(err === null, "Error object is not present");
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+
+    var isConnected = conn.connectedSync();
+    test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(dsn(user, password, host, port, database), callback)");
 
     if (!isConnected) {
       // Extra debug output

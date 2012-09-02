@@ -127,13 +127,100 @@ exports.mysql_libmysqlclient_createConnectionSync_5 = function (test) {
   test.expect(2);
 
   var
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database, cfg.port),
+    isConnected;
+  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "cfg.mysql_libmysqlclient.createConnectionSync(host, user, password, database, null, port)");
+
+  isConnected = conn.connectedSync();
+  test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnectionSync(host, user, password, database, null, port) connects");
+
+  if (!isConnected) {
+    // Extra debug output
+    console.log("Error:" + conn.connectError);
+  } else {
+    conn.closeSync();
+  }
+
+  test.done();
+};
+
+exports.mysql_libmysqlclient_createConnectionSync_7 = function (test) {
+  test.expect(2);
+
+  var
     compress_flag = cfg.mysql_bindings.CLIENT_COMPRESS,
-    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database, compress_flag),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, compress_flag),
     isConnected;
   test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "cfg.mysql_libmysqlclient.createConnectionSync(host, user, password, database, flags)");
 
   isConnected = conn.connectedSync();
   test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnectionSync(host, user, password, database, flags) connects");
+
+  if (!isConnected) {
+    // Extra debug output
+    console.log("Error:" + conn.connectError);
+  } else {
+    conn.closeSync();
+  }
+
+  test.done();
+};
+
+exports.mysql_libmysqlclient_createConnectionSync_DSN_1 = function (test) {
+  test.expect(2);
+
+  var
+    dsn = require('util').format("mysql://%s:%s@%s:%s", cfg.user, cfg.password, cfg.host, cfg.port),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(dsn),
+    isConnected;
+  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "cfg.mysql_libmysqlclient.createConnectionSync(dsn(user, password, host, port))");
+
+  isConnected = conn.connectedSync();
+  test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnectionSync(dsn(user, password, host, port)) connects");
+
+  if (!isConnected) {
+    // Extra debug output
+    console.log("Error:" + conn.connectError);
+  } else {
+    conn.closeSync();
+  }
+
+  test.done();
+};
+
+exports.mysql_libmysqlclient_createConnectionSync_DSN_2 = function (test) {
+  test.expect(2);
+
+  var
+    dsn = require('util').format("mysql://%s:%s@%s:%s?qwerty=1234", cfg.user, cfg.password, cfg.host, cfg.port),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(dsn),
+    isConnected;
+  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "cfg.mysql_libmysqlclient.createConnectionSync(dsn(user, password, host, port))");
+
+  isConnected = conn.connectedSync();
+  test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnectionSync(dsn(user, password, host, port)) connects");
+
+  if (!isConnected) {
+    // Extra debug output
+    console.log("Error:" + conn.connectError);
+  } else {
+    conn.closeSync();
+  }
+
+  test.done();
+};
+
+exports.mysql_libmysqlclient_createConnectionSync_DSN_3 = function (test) {
+  test.expect(2);
+
+  var
+    dsn = require('util').format("mysql://%s:%s@%s:%s/%s/zxcvbn?qwerty=1234", cfg.user, cfg.password, cfg.host, cfg.port, cfg.database),
+    conn = cfg.mysql_libmysqlclient.createConnectionSync(dsn),
+    isConnected;
+  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "cfg.mysql_libmysqlclient.createConnectionSync(dsn(user, password, host, port, database))");
+
+  isConnected = conn.connectedSync();
+  test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnectionSync(dsn(user, password, host, port, database)) connects");
 
   if (!isConnected) {
     // Extra debug output
