@@ -73,12 +73,11 @@ Contributing
 This module is written in collaboration with many peoples listed on [GitHub contributors page].
 List of [authors ordered by first contribution] also available.
 
-I'm happy to hear tips from the more experienced programmers.
-
 If you are interested in wide MySQL usage in Node.JS applications,
 leave your comments to the code.
 To contribute any patches, simply fork this repository using GitHub
 and send a pull request to [me](https://github.com/Sannis). Thanks!
+
 All information about development use and contribution is placed in the [DEVELOPMENT] file.
 
 [GitHub contributors page]: https://github.com/Sannis/node-mysql-libmysqlclient/graphs/contributors
