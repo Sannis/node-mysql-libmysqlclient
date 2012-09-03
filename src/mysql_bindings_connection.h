@@ -172,6 +172,11 @@ class MysqlConnection : public node::ObjectWrap {
     static Handle<Value> MultiRealQuerySync(const Arguments& args);
 
     static Handle<Value> PingSync(const Arguments& args);
+    struct local_infile_data {
+      char * buffer;
+      size_t length;
+      size_t position;
+    };
 
     struct query_request {
         bool ok;
@@ -192,23 +197,15 @@ class MysqlConnection : public node::ObjectWrap {
         unsigned int errno;
         const char *error;
 
-        char * local_infile_buffer;
-        size_t local_infile_buffer_length;
-        size_t local_infile_buffer_position;
-    };
-    struct local_infile_data {
-      int (*default_local_infile_init)(void **, const char *, void *);
-      int (*default_local_infile_read)(void *, char *, unsigned int);
-      void (*default_local_infile_end)(void *);
-      int (*default_local_infile_error)(void *, char*, unsigned int);
-      query_request * query_req;
+        local_infile_data * infile_data;
     };
     static int CustomLocalInfileInit(void ** ptr, const char * filename, void * userdata);
     static int CustomLocalInfileRead(void * ptr, char * buf, unsigned int buf_len);
     static void CustomLocalInfileEnd(void * ptr);
     static int CustomLocalInfileError(void *ptr, char *error_msg, unsigned int error_msg_len);
-    local_infile_data infile_data;
-    void InitLocalInfileCallbacks();
+    static void SetCorrectLocalInfileHandlers(local_infile_data * infile_data, MYSQL * conn);
+    static void RestoreLocalInfileHandlers(local_infile_data * infile_data, MYSQL * conn);
+    static local_infile_data * PrepareLocalInfileData(Handle<Value> buffer);
     static void EIO_After_Query(uv_work_t *req);
     static void EIO_Query(uv_work_t *req);
     static Handle<Value> Query(const Arguments& args);
