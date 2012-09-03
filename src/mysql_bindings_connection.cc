@@ -853,6 +853,8 @@ Handle<Value> MysqlConnection::InitStatementSync(const Arguments& args) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
+    MYSQLCONN_MUSTBE_CONNECTED;
+
     MYSQL_STMT *my_statement = mysql_stmt_init(conn->_conn);
 
     if (!my_statement) {
