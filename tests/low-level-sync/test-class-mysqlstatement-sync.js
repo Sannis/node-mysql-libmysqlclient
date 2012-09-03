@@ -85,8 +85,8 @@ var testBindParamsAndExecuteSync = function (test) {
   test.same(rows, [{random_number: 1, random_boolean: 1}, {random_number: 2, random_boolean: 1}], "conn.querySync('SELECT ... WHERE random_boolean=1').fetchAllSync()");
   
   res = conn.querySync("SELECT random_number, random_boolean from " + cfg.test_table + " WHERE random_boolean=0;");
-  row = res.fetchArraySync();
-  test.same(row, [3, 0], "conn.querySync('SELECT ... WHERE random_boolean=0').fetchArraySync()");
+  row = res.fetchRowSync({"asArray": true});
+  test.same(row, [3, 0], "conn.querySync('SELECT ... WHERE random_boolean=0').fetchRowSync()");
   
   stmt.closeSync();
   

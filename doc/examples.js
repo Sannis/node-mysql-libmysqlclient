@@ -49,7 +49,7 @@ conn.realQuerySync("SHOW TABLES;");
 result = conn.storeResultSync();
 
 util.puts("Tables in database '" + database + "':");
-while ((row = result.fetchArraySync())) {
+while ((row = result.fetchRowSync({"asArray": true}))) {
   util.puts(row[0]);
 }
 util.puts("");

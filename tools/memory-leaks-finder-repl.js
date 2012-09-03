@@ -103,7 +103,7 @@ commands = {
     conn.realQuerySync("SHOW TABLES;");
     res = conn.storeResultSync();
 
-    while ((row = res.fetchArraySync())) {
+    while ((row = res.fetchRowSync())) {
       // Empty block
     }
 
@@ -118,7 +118,7 @@ commands = {
     conn.realQuerySync("SHOW TABLES;");
     res = conn.storeResultSync();
 
-    while ((row = res.fetchArraySync())) {
+    while ((row = res.fetchRowSync())) {
       // Empty block
     }
 

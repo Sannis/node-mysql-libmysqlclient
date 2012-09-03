@@ -36,12 +36,11 @@ void MysqlResult::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "dataSeekSync",         MysqlResult::DataSeekSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAll",             MysqlResult::FetchAll);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAllSync",         MysqlResult::FetchAllSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchArraySync",       MysqlResult::FetchArraySync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchFieldSync",       MysqlResult::FetchFieldSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchFieldDirectSync", MysqlResult::FetchFieldDirectSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchFieldsSync",      MysqlResult::FetchFieldsSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchLengthsSync",     MysqlResult::FetchLengthsSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchObjectSync",      MysqlResult::FetchObjectSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchRowSync",         MysqlResult::FetchRowSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldSeekSync",        MysqlResult::FieldSeekSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldTellSync",        MysqlResult::FieldTellSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "freeSync",             MysqlResult::FreeSync);
@@ -350,9 +349,8 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
             }
 
             for (j = 0; j < num_fields; j++) {
-                js_field = GetFieldValue(fields[j],
-                                         result_row[j],
-                                         field_lengths[j]);
+                js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
+
                 if (fetchAll_req->results_as_array) {
                     js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
                 } else if (fetchAll_req->results_nest_tables) {
@@ -560,9 +558,8 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
         }
 
         for (j = 0; j < num_fields; j++) {
-            js_field = GetFieldValue(fields[j],
-                                     result_row[j],
-                                     field_lengths[j]);
+            js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
+
             if (results_as_array) {
                 js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
             } else if (results_nest_tables) {
@@ -582,44 +579,6 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
     }
 
     return scope.Close(js_result);
-}
-
-/**
- * MysqlResult#fetchArraySync() -> Array
- *
- * Fetch a result row as an array
- **/
-Handle<Value> MysqlResult::FetchArraySync(const Arguments& args) {
-    HandleScope scope;
-
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
-
-    MYSQLRES_MUSTBE_VALID;
-
-    MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
-    uint32_t num_fields = mysql_num_fields(res->_res);
-    uint32_t j = 0;
-
-    Local<Array> js_result_row;
-    Local<Value> js_field;
-
-    MYSQL_ROW result_row = mysql_fetch_row(res->_res);
-
-    if (!result_row) {
-        return scope.Close(False());
-    }
-
-    unsigned long *field_lengths = mysql_fetch_lengths(res->_res);
-
-    js_result_row = Array::New();
-
-    for ( j = 0; j < num_fields; j++ ) {
-        js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
-
-        js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
-    }
-
-    return scope.Close(js_result_row);
 }
 
 /**
@@ -743,26 +702,45 @@ Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
 }
 
 /**
- * MysqlResult#fetchObjectSync() -> Object
+ * MysqlResult#fetchRowSync([options]) -> Array|Object
+ * - options (Object): Fetch style options (optional)
  *
- * Fetch a result row as an object
+ * Fetch one row from result
  **/
-Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
+Handle<Value> MysqlResult::FetchRowSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
+    bool results_as_array = false;
+    bool results_nest_tables = false;
+
+    if (args.Length() > 0) {
+        if (!args[0]->IsObject()) {
+            return THREXC("fetchRowSync can handle only (options) or none arguments");
+        }
+        if (args[0]->ToObject()->Has(V8STR("asArray"))) {
+            results_as_array = args[0]->ToObject()->Get(V8STR("asArray"))->BooleanValue();
+        }
+        if (args[0]->ToObject()->Has(V8STR("nestTables"))) {
+            results_nest_tables = args[0]->ToObject()->Get(V8STR("nestTables"))->BooleanValue();
+        }
+    }
+
+    if (results_as_array && results_nest_tables) {
+        return THREXC("You can't mix 'asArray' and 'nestTables' options");
+    }
+
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
     uint32_t num_fields = mysql_num_fields(res->_res);
-    MYSQL_ROW result_row;
     uint32_t j = 0;
 
     Local<Object> js_result_row;
     Local<Value> js_field;
 
-    result_row = mysql_fetch_row(res->_res);
+    MYSQL_ROW result_row = mysql_fetch_row(res->_res);
 
     if (!result_row) {
         return scope.Close(False());
@@ -770,12 +748,26 @@ Handle<Value> MysqlResult::FetchObjectSync(const Arguments& args) {
 
     unsigned long *field_lengths = mysql_fetch_lengths(res->_res);
 
-    js_result_row = Object::New();
+    if (results_as_array) {
+        js_result_row = Array::New();
+    } else {
+        js_result_row = Object::New();
+    }
 
     for ( j = 0; j < num_fields; j++ ) {
         js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
 
-        js_result_row->Set(V8STR(fields[j].name), js_field);
+        if (results_as_array) {
+            js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
+        } else if (results_nest_tables) {
+            if (!js_result_row->Has(V8STR(fields[j].table))) {
+                js_result_row->Set(V8STR(fields[j].table), Object::New());
+            }
+            js_result_row->Get(V8STR(fields[j].table))->ToObject()
+                         ->Set(V8STR(fields[j].name), js_field);
+        } else {
+            js_result_row->Set(V8STR(fields[j].name), js_field);
+        }
     }
 
     return scope.Close(js_result_row);

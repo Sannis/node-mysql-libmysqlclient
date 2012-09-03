@@ -96,8 +96,6 @@ class MysqlResult : public node::ObjectWrap {
 
     static Handle<Value> FetchAllSync(const Arguments& args);
 
-    static Handle<Value> FetchArraySync(const Arguments& args);
-
     static Handle<Value> FetchFieldSync(const Arguments& args);
 
     static Handle<Value> FetchFieldDirectSync(const Arguments& args);
@@ -106,7 +104,7 @@ class MysqlResult : public node::ObjectWrap {
 
     static Handle<Value> FetchLengthsSync(const Arguments& args);
 
-    static Handle<Value> FetchObjectSync(const Arguments& args);
+    static Handle<Value> FetchRowSync(const Arguments& args);
 
     static Handle<Value> FieldSeekSync(const Arguments& args);
 
