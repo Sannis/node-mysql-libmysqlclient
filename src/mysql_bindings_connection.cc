@@ -11,7 +11,8 @@
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
-
+#include<stdio.h>
+#define DEBUG(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
 /*!
  * Init V8 structures for MysqlConnection class
  */
@@ -91,7 +92,6 @@ bool MysqlConnection::Connect(const char* hostname,
                               uint32_t port,
                               const char* socket,
                               uint64_t flags) {
-
     if (this->_conn) {
         return false;
     }
@@ -103,6 +103,7 @@ bool MysqlConnection::Connect(const char* hostname,
         return false;
     }
 
+    this->InitLocalInfileCallbacks();
     bool unsuccessful = !mysql_real_connect(this->_conn,
                             hostname,
                             user,
@@ -150,6 +151,7 @@ bool MysqlConnection::RealConnect(const char* hostname,
                                             socket,
                                             flags);
 
+    this->InitLocalInfileCallbacks();
     if (unsuccessful) {
         this->connect_errno = mysql_errno(this->_conn);
         this->connect_error = mysql_error(this->_conn);
@@ -363,21 +365,19 @@ Handle<Value> MysqlConnection::CommitSync(const Arguments& args) {
  */
 void MysqlConnection::EIO_After_Connect(uv_work_t *req) {
     HandleScope scope;
-    
+
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
     const int argc = 1;
     Local<Value> argv[argc];
 
     if (!conn_req->ok) {
-
         unsigned int error_string_length = strlen(conn_req->conn->connect_error) + 25;
         char* error_string = new char[error_string_length];
         snprintf(
             error_string, error_string_length,
             "Connection error #%d: %s",
-            conn_req->conn->connect_errno, conn_req->conn->connect_error
-        );
+            conn_req->conn->connect_errno, conn_req->conn->connect_error);
 
         argv[0] = V8EXC(error_string);
         delete[] error_string;
@@ -388,9 +388,9 @@ void MysqlConnection::EIO_After_Connect(uv_work_t *req) {
     node::MakeCallback(Context::GetCurrent()->Global(), conn_req->callback, argc, argv);
 
     conn_req->callback.Dispose();
-    
+
     conn_req->conn->Unref();
-    
+
     delete conn_req;
 
     delete req;
@@ -518,7 +518,7 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
         args[4]->IsUint32() ? port      : 0,
         args[5]->IsString() ? *socket   : NULL,
         args[6]->IsUint32() ? flags     : 0
-   );
+    );
 
     if (!r) {
         return scope.Close(False());
@@ -1082,7 +1082,16 @@ void MysqlConnection::EIO_Query(uv_work_t *req) {
 
     MYSQLCONN_DISABLE_MQ;
 
+    pthread_mutex_lock(&conn->query_lock);
+    // we are protected with mutex, so set CURRENT request data
+    // in connection (common object for ALL queries)
+    conn->infile_data.query_req = query_req;
+
     int r = mysql_real_query(conn->_conn, query_req->query, query_req->query_len);
+
+    // clean after ourselves
+    conn->infile_data.query_req = NULL;
+
     int errno = mysql_errno(conn->_conn);
     if (r != 0 || errno != 0) {
         // Query error
@@ -1132,16 +1141,34 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
     HandleScope scope;
 
     REQ_STR_ARG(0, query);
-    OPTIONAL_FUN_ARG(1, callback);
+    OPTIONAL_BUFFER_ARG(1, local_infile_buffer);
+
+    Handle<Value> callback;
+    if (local_infile_buffer->IsNull()) {
+      OPTIONAL_FUN_ARG(1, possibly_callback);
+      callback = possibly_callback;
+    } else {
+      OPTIONAL_FUN_ARG(2, possibly_callback);
+      callback = possibly_callback;
+    }
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
     query_request *query_req = new query_request;
-
+    query_req->local_infile_buffer = NULL;
+    query_req->local_infile_buffer_length = 0;
+    if (!local_infile_buffer->IsNull()) {
+      query_req->local_infile_buffer_length = node::Buffer::Length(local_infile_buffer->ToObject());
+      DEBUG("buffer length %d", query_req->local_infile_buffer_length);
+      query_req->local_infile_buffer = static_cast<char*>(malloc(query_req->local_infile_buffer_length));
+      memcpy(query_req->local_infile_buffer,
+             node::Buffer::Data(local_infile_buffer->ToObject()),
+             query_req->local_infile_buffer_length);
+    }
     unsigned int query_len = static_cast<unsigned int>(query.length());
-    
+
     query_req->query = new char[query_len + 1];
     query_req->query_len = query_len;
 
@@ -1293,6 +1320,7 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     REQ_STR_ARG(0, query)
+    OPTIONAL_BUFFER_ARG(1, local_infile_buffer);
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
@@ -1300,21 +1328,34 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
 
     MYSQL_RES *my_result = NULL;
     unsigned int field_count;
-    
+
     unsigned int query_len = static_cast<unsigned int>(query.length());
+    query_request *query_req = new query_request;
+    query_req->local_infile_buffer = NULL;
+    query_req->local_infile_buffer_length = 0;
+    if (!local_infile_buffer->IsNull()) {
+      query_req->local_infile_buffer_length = node::Buffer::Length(local_infile_buffer->ToObject());
+      DEBUG("buffer length %d", query_req->local_infile_buffer_length);
+      query_req->local_infile_buffer = static_cast<char*>(malloc(query_req->local_infile_buffer_length));
+      memcpy(query_req->local_infile_buffer,
+             node::Buffer::Data(local_infile_buffer->ToObject()),
+             query_req->local_infile_buffer_length);
+    }
 
     // Only one query can be executed on a connection at a time
     pthread_mutex_lock(&conn->query_lock);
-
+    DEBUG("running query sync \n");
     int r = mysql_real_query(conn->_conn, *query, query_len);
     if (r == 0) {
+        DEBUG("running query sync ok\n");
         my_result = mysql_store_result(conn->_conn);
         field_count = mysql_field_count(conn->_conn);
     }
 
     pthread_mutex_unlock(&conn->query_lock);
-
+    delete query_req;
     if (r != 0) {
+        DEBUG("query error %s\n", mysql_error(conn->_conn));
         // Query error
         return scope.Close(False());
     }
@@ -1384,7 +1425,6 @@ Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
     uint32_t port = args[4]->Uint32Value();
     String::Utf8Value socket(args[5]->ToString());
     uint64_t flags = args[6]->Uint32Value();
-
     bool r = conn->RealConnect(args[0]->IsString() ? *hostname : NULL,
                                args[1]->IsString() ? *user     : NULL,
                                args[2]->IsString() ? *password : NULL,
@@ -1529,7 +1569,7 @@ Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
             }
             break;
         case MYSQL_OPT_LOCAL_INFILE:
-            return THREXC("This option isn't implemented yet");
+            r  = mysql_options(conn->_conn, option_key, NULL);
             break;
         case MYSQL_OPT_NAMED_PIPE:
         case MYSQL_SHARED_MEMORY_BASE_NAME:
@@ -1726,4 +1766,75 @@ Handle<Value> MysqlConnection::WarningCountSync(const Arguments& args) {
     uint32_t warning_count = mysql_warning_count(conn->_conn);
 
     return scope.Close(Integer::NewFromUnsigned(warning_count));
+}
+int MysqlConnection::CustomLocalInfileInit(void ** ptr, const char * filename, void * userdata) {
+  DEBUG("init start\n");
+  local_infile_data * data = static_cast<local_infile_data *>(userdata);
+  if (!data->query_req) {
+    DEBUG("init default\n");
+    return data->default_local_infile_init(ptr, filename, NULL);
+  }
+  data->query_req->local_infile_buffer_position = 0;
+  *ptr = data;
+  DEBUG("init custom\n");
+  return 0;
+}
+int MysqlConnection::CustomLocalInfileRead(void * ptr, char * buf, unsigned int buf_len) {
+  DEBUG("read start\n");
+  local_infile_data * data = static_cast<local_infile_data *>(ptr);
+  if (!data->query_req) {
+    DEBUG("read default\n");
+    return data->default_local_infile_read(ptr, buf, buf_len);
+  }
+  if (!data->query_req->local_infile_buffer || !data->query_req->local_infile_buffer_length) {
+    DEBUG("read empty\n");
+    return 0;
+  }
+  if (data->query_req->local_infile_buffer_position >= data->query_req->local_infile_buffer_length) {
+    DEBUG("read done\n");
+    return 0;
+  }
+  size_t copy_len = data->query_req->local_infile_buffer_length - data->query_req->local_infile_buffer_position;
+  copy_len = copy_len < buf_len ? copy_len : buf_len;
+  memcpy(buf, data->query_req->local_infile_buffer + data->query_req->local_infile_buffer_position, copy_len);
+  data->query_req->local_infile_buffer_position += copy_len;
+  DEBUG("read copied\n");
+  return copy_len;
+}
+void MysqlConnection::CustomLocalInfileEnd(void * ptr) {
+  DEBUG("end\n");
+  local_infile_data * data = static_cast<local_infile_data *>(ptr);
+  if (!data->query_req) {
+    DEBUG("default end\n");
+    return data->default_local_infile_end(ptr);
+  }
+  if (data->query_req->local_infile_buffer) {
+    DEBUG("end free\n");
+    free(data->query_req->local_infile_buffer);
+  }
+  data->query_req->local_infile_buffer = NULL;
+  data->query_req->local_infile_buffer_length = 0;
+  data->query_req->local_infile_buffer_position = 0;
+  data->query_req = NULL;
+  DEBUG("end done\n");
+}
+int MysqlConnection::CustomLocalInfileError(void *ptr, char *error_msg, unsigned int error_msg_len) {
+  DEBUG("errror\n");
+  local_infile_data * data = static_cast<local_infile_data *>(ptr);
+  DEBUG("default error\n");
+  return data->default_local_infile_error(ptr, error_msg, error_msg_len);
+}
+void MysqlConnection::InitLocalInfileCallbacks() {
+  this->infile_data.query_req = NULL;
+  this->infile_data.default_local_infile_init  = this->_conn->options.local_infile_init;
+  this->infile_data.default_local_infile_read  = this->_conn->options.local_infile_read;
+  this->infile_data.default_local_infile_end   = this->_conn->options.local_infile_end;
+  this->infile_data.default_local_infile_error = this->_conn->options.local_infile_error;
+  mysql_options(this->_conn, MYSQL_OPT_LOCAL_INFILE, NULL);
+  mysql_set_local_infile_handler(this->_conn,
+                                 MysqlConnection::CustomLocalInfileInit,
+                                 MysqlConnection::CustomLocalInfileRead,
+                                 MysqlConnection::CustomLocalInfileEnd,
+                                 MysqlConnection::CustomLocalInfileError,
+                                 &(this->infile_data));
 }

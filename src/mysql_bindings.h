@@ -9,7 +9,7 @@
 #define SRC_MYSQL_BINDINGS_H_
 
 #include <v8.h>
-
+#include<node_buffer.h>
 /*!
  * Use this header file to conditionally invoke different libev/libeio/libuv functions
  * depending on the node version that the module is being compiled for.
@@ -87,6 +87,13 @@ if (args.Length() > (I) && args[I]->IsFunction()) {\
     VAR = args[I]; \
 } else { \
     VAR = Null(); \
+}
+#define OPTIONAL_BUFFER_ARG(I, VAR) \
+Handle<Value> VAR;\
+if (args.Length() > (I) && args[I]->IsObject() && node::Buffer::HasInstance(args[I])) {\
+  VAR = args[I]->ToObject();\
+} else {\
+  VAR = Null();\
 }
 
 #ifdef DEBUG

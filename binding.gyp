@@ -26,7 +26,8 @@
           }
         }, {
           'cflags': [
-            '<!@(mysql_config --cflags)'
+            '<!@(mysql_config --cflags)',
+            '-g'
           ],
         }]
       ]
