@@ -494,7 +494,6 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
     HandleScope scope;
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
-
     if (conn->_conn) {
         return THREXC("Already initialized. "
                       "Use conn.realConnectSync() after conn.initSync()");
@@ -1798,6 +1797,13 @@ void MysqlConnection::SetCorrectLocalInfileHandlers(local_infile_data * infile_d
                                    MysqlConnection::CustomLocalInfileEnd,
                                    MysqlConnection::CustomLocalInfileError,
                                    infile_data);
+  } else {
+    //default infile handlers uses thread local storage
+    //so to be shure everything is ok, init thread specific data
+    //it's cheap enough, it initializes  everything needed only
+    //first time, all subsequent calls do nothing
+    mysql_thread_init();
+    mysql_set_local_infile_default(conn);
   }
 }
 void MysqlConnection::RestoreLocalInfileHandlers(local_infile_data * infile_data, MYSQL * conn) {
@@ -1807,5 +1813,7 @@ void MysqlConnection::RestoreLocalInfileHandlers(local_infile_data * infile_data
       free(infile_data->buffer);
     }
     free(infile_data);
+  } else {
+    mysql_thread_end();
   }
 }
