@@ -183,7 +183,7 @@ exports.ConnectErrorGetter = function (test) {
   );
 
   if (!isRightError) {
-    console.log("Wrong connect error message: " + conn.connectError);
+    console.log("Wrong connect error message: '" + conn.connectError + "' for " + cfg.user + "@" + cfg.host);
   }
 
   test.ok(isRightError, "conn.connectError");

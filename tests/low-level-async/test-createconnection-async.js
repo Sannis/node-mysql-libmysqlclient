@@ -62,21 +62,20 @@ exports.mysql_libmysqlclient_createConnection_3_Function = function (test) {
   test.expect(2);
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, function (err, conn) {
-    test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(err instanceof Error, "Error object is present");
 
-    if (conn.connectedSync()) {
+    var error = "Access denied for user '" + cfg.user + "'@'" + cfg.host + "' (using password: NO)";
+    var errno = 1045;
+
+    test.equals(err.message, "Connection error #" + errno + ": " + error, "Callback exception");
+
+    if (conn && conn.connectedSync()) {
       conn.closeSync();
     }
 
     test.done();
   });
 };
-
-if (cfg.is_travis) {
-  // Disable this test
-  delete exports.mysql_libmysqlclient_createConnection_3_Function;
-}
 
 exports.mysql_libmysqlclient_createConnection_3_NoFunction = function (test) {
   test.expect(1);

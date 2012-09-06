@@ -116,9 +116,10 @@ exports.FetchAllSync = function (test) {
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "conn.querySync('SHOW TABLES;')");
   tables = res.fetchAllSync();
   test.ok(tables, "res.fetchAllSync()");
+
   res = false;
   tables.forEach(function (table) {
-    if (table.Tables_in_test === cfg.test_table) {
+    if (table['Tables_in_' + cfg.database] === cfg.test_table) {
       res = true;
     }
   });
