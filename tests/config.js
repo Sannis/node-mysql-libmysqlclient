@@ -6,9 +6,13 @@ See license text in LICENSE file
 */
 
 /*
+#See before_script commands in .travis.yml for actual version of this commends
 > mysql -u root
-CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-GRANT ALL ON test.* TO test@localhost IDENTIFIED BY "";
+DELETE from mysql.db WHERE Db = 'test\\_%';
+FLUSH PRIVILEGES;
+CREATE DATABASE test_allowed DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+GRANT ALL ON test_allowed.* TO test_user@localhost IDENTIFIED BY '1234';
+CREATE DATABASE IF NOT EXISTS test_denied DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 */
 
 module.exports = {
@@ -17,24 +21,21 @@ module.exports = {
   mysql_bindings: require("../lib/mysql-libmysqlclient.js").bindings,
   util: require("util"),
 
-  // Check environment
-  is_travis: process.env["TRAVIS"] ? true : false,
-
   // Database connection settings
-  host:     process.env["TRAVIS"] ? "localhost" : "localhost",
-  port:     process.env["TRAVIS"] ? 3306        : 3306,
-  user:     process.env["TRAVIS"] ? "test_user" : "test",
-  password: process.env["TRAVIS"] ? "1234"      : "",
-  database: "test",
-  database_denied: process.env["TRAVIS"] ? "test_denied" : "mysql",
-  test_table: "test_table",
-  test_table2: "test_table2",
+  host:                 "localhost",
+  port:                 3306,
+  user:                 "test_user",
+  password:             "1234",
+  database:             "test_allowed",
+  database_denied:      "test_denied",
+  test_table:           "test_table",
+  test_table2:          "test_table2",
   test_table_notexists: "test_table_notexists",
-  charset: "utf8",
-  store_engine: "ENGINE=MyISAM",
+  charset:              "utf8",
+  store_engine:         "ENGINE=MyISAM",
 
   // Operations count for continuous tests
-  reconnect_count: 10000,
+  reconnect_count:   10000,
   insert_rows_count: 10000,
 
   // Operations count for slow tests

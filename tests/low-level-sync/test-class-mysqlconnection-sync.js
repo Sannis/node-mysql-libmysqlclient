@@ -169,7 +169,7 @@ exports.ConnectErrnoGetter = function (test) {
   
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
   test.equals(conn.connectErrno, 1044, "conn.connectErrno");
-  
+
   test.done();
 };
 
@@ -177,7 +177,16 @@ exports.ConnectErrorGetter = function (test) {
   test.expect(1);
   
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database_denied);
-  test.ok(conn.connectError.match(new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")), "conn.connectError");
+
+  var isRightError = conn.connectError.match(
+    new RegExp("Access denied for user '(" + cfg.user + "|)'@'.*' to database '" + cfg.database_denied + "'")
+  );
+
+  if (!isRightError) {
+    console.log("Wrong connect error message: " + conn.connectError);
+  }
+
+  test.ok(isRightError, "conn.connectError");
   
   test.done();
 };
