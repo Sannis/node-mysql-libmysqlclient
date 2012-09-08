@@ -635,15 +635,15 @@ Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
 
     REQ_STR_ARG(0, str)
 
-    unsigned int len = static_cast<unsigned int>(str.length());
+    unsigned long len = static_cast<unsigned long>(str.length());
     char *result = new char[2*len + 1];
     if (!result) {
         V8::LowMemoryNotification();
         return THREXC("Not enough memory");
     }
 
-    mysql_real_escape_string(conn->_conn, result, *str, len);
-    Local<Value> js_result = V8STR(result);
+    len = mysql_real_escape_string(conn->_conn, result, *str, len);
+    Local<Value> js_result = V8STR2(result, len);
 
     delete[] result;
 
