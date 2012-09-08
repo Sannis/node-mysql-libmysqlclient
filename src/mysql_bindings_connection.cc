@@ -183,7 +183,11 @@ bool MysqlConnection::RealConnect(const char* hostname,
 }
 
 void MysqlConnection::Close() {
+    DEBUG_PRINTF("Close: pthread_mutex_lock\n");
+    pthread_mutex_lock(&this->query_lock);
+    DEBUG_PRINTF("Close: pthread_mutex_lock'ed\n");
     if (this->_conn) {
+
         mysql_close(this->_conn);
         this->_conn = NULL;
         this->connected = false;
@@ -192,6 +196,8 @@ void MysqlConnection::Close() {
         this->connect_errno = 0;
         this->connect_error = NULL;
     }
+    DEBUG_PRINTF("Close: pthread_mutex_unlock\n");
+    pthread_mutex_unlock(&this->query_lock);
 }
 
 MysqlConnection::MysqlConnection(): ObjectWrap() {
@@ -990,8 +996,15 @@ void MysqlConnection::EIO_After_Query(uv_work_t *req) {
     // for both MysqlResult creation and callback call
     int argc = 1; // node.js convention, there is always at least one argument for callback
     Local<Value> argv[3];
-
-    if (!query_req->ok) {
+    DEBUG_PRINTF("EIO_After_Query: in\n");
+    if (!query_req->conn->_conn || !query_req->conn->connected || query_req->connection_closed) {
+        DEBUG_PRINTF("EIO_After_Query: !query_req->conn->_conn || !query_req->conn->connected || query_req->connection_closed\n");
+        // Check connection
+        // If closeSync() is called after query(),
+        // than connection is destroyed here
+        // https://github.com/Sannis/node-mysql-libmysqlclient/issues/157
+        argv[0] = V8EXC("Connection is closed by closeSync() during query");
+    } else if (!query_req->ok) {
         unsigned int error_string_length = strlen(query_req->error) + 20;
         char* error_string = new char[error_string_length];
         snprintf(error_string, error_string_length, "Query error #%d: %s",
@@ -1021,6 +1034,7 @@ void MysqlConnection::EIO_After_Query(uv_work_t *req) {
     }
 
     if (query_req->callback->IsFunction()) {
+        DEBUG_PRINTF("EIO_After_Query: node::MakeCallback\n");
         node::MakeCallback(
             Context::GetCurrent()->Global(),
             Persistent<Function>::Cast(query_req->callback),
@@ -1030,7 +1044,13 @@ void MysqlConnection::EIO_After_Query(uv_work_t *req) {
         query_req->callback.Dispose();
     }
 
-    query_req->conn->Unref();
+    // See comment above
+    DEBUG_PRINTF("EIO_After_Query: Unref?\n");
+    if (!query_req->conn->_conn || !query_req->conn->connected) {
+        DEBUG_PRINTF("EIO_After_Query: Unref\n");
+        query_req->conn->Unref();
+        DEBUG_PRINTF("EIO_After_Query: Unref'ed\n");
+    }
 
     delete[] query_req->query;
     delete query_req;
@@ -1043,14 +1063,27 @@ void MysqlConnection::EIO_Query(uv_work_t *req) {
 
     MysqlConnection *conn = query_req->conn;
 
-    if (!conn->_conn) {
+    DEBUG_PRINTF("EIO_Query: pthread_mutex_lock\n");
+    pthread_mutex_lock(&conn->query_lock);
+    DEBUG_PRINTF("EIO_Query: pthread_mutex_lock'ed\n");
+
+    // Check connection
+    // If closeSync() is called after query(),
+    // than connection is destroyed here
+    // https://github.com/Sannis/node-mysql-libmysqlclient/issues/157
+    if (!conn->_conn || !conn->connected) {
         query_req->ok = false;
-        // TODO: Handle this
+        query_req->connection_closed = true;
+
+        DEBUG_PRINTF("EIO_Query: !conn->_conn || !conn->connected\n");
+        DEBUG_PRINTF("EIO_Query: pthread_mutex_unlock\n");
+        pthread_mutex_unlock(&conn->query_lock);
+        return;
     }
+    query_req->connection_closed = false;
 
     MYSQLCONN_DISABLE_MQ;
 
-    pthread_mutex_lock(&conn->query_lock);
     int r = mysql_real_query(conn->_conn, query_req->query, query_req->query_len);
     int errno = mysql_errno(conn->_conn);
     if (r != 0 || errno != 0) {
@@ -1085,6 +1118,7 @@ void MysqlConnection::EIO_Query(uv_work_t *req) {
             }
         }
     }
+    DEBUG_PRINTF("EIO_Query: pthread_mutex_unlock\n");
     pthread_mutex_unlock(&conn->query_lock);
 }
 

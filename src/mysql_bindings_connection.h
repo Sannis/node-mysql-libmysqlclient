@@ -177,6 +177,7 @@ class MysqlConnection : public node::ObjectWrap {
 
     struct query_request {
         bool ok;
+        bool connection_closed;
         bool have_result_set;
         
         Persistent<Value> callback;
