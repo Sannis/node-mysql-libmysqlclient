@@ -56,16 +56,17 @@ MysqlResult::~MysqlResult() {
     this->Free();
 }
 
-void MysqlResult::AddFieldProperties(
-                                        Local<Object> &js_field_obj,
-                                        MYSQL_FIELD *field) {
-    js_field_obj->Set(V8STR("name"), V8STR(field->name ? field->name : ""));
+void MysqlResult::AddFieldProperties(Local<Object> &js_field_obj, MYSQL_FIELD *field) {
+    js_field_obj->Set(V8STR("name"),
+                      V8STR(field->name ? field->name : ""));
     js_field_obj->Set(V8STR("orgname"),
                       V8STR(field->org_name ? field->org_name : ""));
-    js_field_obj->Set(V8STR("table"), V8STR(field->table ? field->table : ""));
+    js_field_obj->Set(V8STR("table"),
+                      V8STR(field->table ? field->table : ""));
     js_field_obj->Set(V8STR("orgtable"),
                       V8STR(field->org_table ? field->org_table : ""));
-    js_field_obj->Set(V8STR("def"), V8STR(field->def ? field->def : ""));
+    js_field_obj->Set(V8STR("def"),
+                      V8STR(field->def ? field->def : ""));
 
     js_field_obj->Set(V8STR("max_length"),
                       Integer::NewFromUnsigned(field->max_length));
@@ -81,9 +82,7 @@ void MysqlResult::AddFieldProperties(
                       Integer::NewFromUnsigned(field->decimals));
 }
 
-Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
-                                        char* field_value,
-                                        unsigned long field_length) {
+Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length) {
     HandleScope scope;
 
     Local<Value> js_field = Local<Value>::New(Null());
@@ -124,8 +123,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
         case MYSQL_TYPE_TIME:  // TIME field
             if (field_value) {
               int hours = 0, minutes = 0, seconds = 0;
-              sscanf(field_value, "%d:%d:%d",
-                                  &hours, &minutes, &seconds);
+              sscanf(field_value, "%d:%d:%d", &hours, &minutes, &seconds);
               time_t result = hours*60*60 + minutes*60 + seconds;
               js_field = Date::New(static_cast<double>(result)*1000);
             }
@@ -172,9 +170,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field,
         case MYSQL_TYPE_VAR_STRING:
             if (field_value) {
                 if (field.flags & BINARY_FLAG) {
-                    js_field = Local<Value>::New(
-                                   node::Buffer::New(
-                                       V8STR2(field_value, field_length)));
+                    js_field = Local<Value>::New(node::Buffer::New(V8STR2(field_value, field_length)));
                 } else {
                     js_field = V8STR2(field_value, field_length);
                 }
@@ -268,8 +264,7 @@ Handle<Value> MysqlResult::New(const Arguments& args) {
  *
  * Get the number of fields in a result
  **/
-Handle<Value> MysqlResult::FieldCountGetter(Local<String> property,
-                                            const AccessorInfo &info) {
+Handle<Value> MysqlResult::FieldCountGetter(Local<String> property, const AccessorInfo &info) {
     HandleScope scope;
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());

@@ -234,8 +234,7 @@ Handle<Value> MysqlConnection::New(const Arguments& args) {
  *
  * Gets last connect error number
  **/
-Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property,
-                                            const AccessorInfo &info) {
+Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property, const AccessorInfo &info) {
     HandleScope scope;
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
@@ -248,8 +247,7 @@ Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property,
  *
  * Gets last connect error string
  **/
-Handle<Value> MysqlConnection::ConnectErrorGetter(Local<String> property,
-                                            const AccessorInfo &info) {
+Handle<Value> MysqlConnection::ConnectErrorGetter(Local<String> property, const AccessorInfo &info) {
     HandleScope scope;
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());

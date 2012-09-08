@@ -97,11 +97,9 @@ class MysqlConnection : public node::ObjectWrap {
 
     // Properties
 
-    static Handle<Value> ConnectErrnoGetter(Local<String> property,
-                                             const AccessorInfo &info);
+    static Handle<Value> ConnectErrnoGetter(Local<String> property, const AccessorInfo &info);
 
-    static Handle<Value> ConnectErrorGetter(Local<String> property,
-                                             const AccessorInfo &info);
+    static Handle<Value> ConnectErrorGetter(Local<String> property, const AccessorInfo &info);
 
     // Methods
 

@@ -38,13 +38,9 @@ class MysqlResult : public node::ObjectWrap {
 
     static void Init(Handle<Object> target);
 
-    static void AddFieldProperties(
-                                    Local<Object> &js_field_obj,
-                                    MYSQL_FIELD *field);
+    static void AddFieldProperties(Local<Object> &js_field_obj, MYSQL_FIELD *field);
 
-    static Local<Value> GetFieldValue(MYSQL_FIELD field,
-                                       char* field_value,
-                                       unsigned long field_length);
+    static Local<Value> GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length);
 
     void Free();
 
@@ -56,13 +52,11 @@ class MysqlResult : public node::ObjectWrap {
 
     MysqlResult();
 
-    explicit MysqlResult(MYSQL *my_connection,
-                          MYSQL_RES *my_result,
-                          uint32_t my_field_count):
-                                                ObjectWrap(),
-                                                _conn(my_connection),
-                                                _res(my_result),
-                                                field_count(my_field_count) {}
+    explicit MysqlResult(MYSQL *my_connection, MYSQL_RES *my_result, uint32_t my_field_count):
+        ObjectWrap(),
+        _conn(my_connection),
+        _res(my_result),
+        field_count(my_field_count) {}
 
     ~MysqlResult();
 
@@ -72,8 +66,7 @@ class MysqlResult : public node::ObjectWrap {
 
     // Properties
 
-    static Handle<Value> FieldCountGetter(Local<String> property,
-                                           const AccessorInfo &info);
+    static Handle<Value> FieldCountGetter(Local<String> property, const AccessorInfo &info);
 
     // Methods
 
