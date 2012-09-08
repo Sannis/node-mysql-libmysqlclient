@@ -34,6 +34,7 @@ exports.createTestTableForIssue106 = function (test) {
   test.ok(res === true, "conn.querySync('INSERT INTO test_table ...')");
 
   conn.closeSync();
+
   test.done();
 };
 
@@ -67,6 +68,8 @@ exports.issue106 = function (test) {
           test.ok(err === null, "Error object is not present");
     
           test.deepEqual(rows, [ { id: 1, value: 'one' }, { id: 3, value: 'three' } ]);
+
+          conn.closeSync();
 
           test.done();
         });

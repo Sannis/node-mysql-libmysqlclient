@@ -35,6 +35,7 @@ exports.createTestTableForIssue110 = function (test) {
   test.ok(res === true, "conn.querySync('INSERT INTO test_table ...')");
 
   conn.closeSync();
+
   test.done();
 };
 
@@ -53,14 +54,10 @@ exports.issue110 = function (test) {
   rows = res.fetchAllSync();
 
   test.ok(typeof rows[0]['bigint'] === 'string', "BIGINT returns as string");
-  
+
   test.ok(rows[1]['bigint'] === '1234567890123456789', "BIGINT returns as correct string");
-  
-  /*test.same(rows,
-           [ { 'int': 1, 'bigint': '1234', 'decimal': '1234567890' },
-             { 'int': 2, 'bigint': '1234567890123456789', 'decimal': '12345678901234567890' } ],
-           "SELECT result is correct"
-  );*/
+
+  conn.closeSync();
 
   test.done();
 };

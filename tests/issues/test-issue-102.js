@@ -36,11 +36,12 @@ exports.createTestTableForIssue102 = function (test) {
   }), "Find the test_table in results");
 
   res = conn.querySync("INSERT INTO " + cfg.test_table +
-                   " (`user_`, `karma`, `energy`, `zachet`, `hvost`, `digits`, `level`)" +
-                   " VALUES (1057691, 0, 400, 5, 5, 0, 1);");
+                       " (`user_`, `karma`, `energy`, `zachet`, `hvost`, `digits`, `level`)" +
+                       " VALUES (1057691, 0, 400, 5, 5, 0, 1);");
   test.ok(res === true, "conn.querySync('INSERT INTO test_table ...')");
 
   conn.closeSync();
+
   test.done();
 };
 
@@ -59,6 +60,8 @@ exports.issue102 = function (test) {
   rows = res.fetchAllSync();
 
   test.equals(rows.length, 1, "1 row selected");
+
+  conn.closeSync();
 
   test.done();
 };
