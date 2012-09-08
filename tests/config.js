@@ -46,5 +46,5 @@ module.exports = {
   slow_fetches_inloop:  10000,
 
   // Pause before checks, to ensure MySQL inserts/update completed
-  delay: 100
+  delay: 200
 };
