@@ -89,6 +89,12 @@ if (args.Length() > (I) && args[I]->IsFunction()) {\
     VAR = Null(); \
 }
 
+#ifdef DEBUG
+    #define DEBUG_PRINTF(fmt, ...) fprintf(stdout, fmt, __VA_ARGS__)
+#else
+    #define DEBUG_PRINTF(fmt, ...) (void)0
+#endif
+
 /* Backport MakeCallback from Node v0.7.8 */
 #if NODE_VERSION_AT_LEAST(0, 7, 8)
   // Nothing
