@@ -90,9 +90,9 @@ if (args.Length() > (I) && args[I]->IsFunction()) {\
 }
 
 #ifdef DEBUG
-    #define DEBUG_PRINTF(fmt, ...) fprintf(stdout, fmt, __VA_ARGS__)
+    #define DEBUG_PRINTF(...) fprintf(stdout, __VA_ARGS__)
 #else
-    #define DEBUG_PRINTF(fmt, ...) (void)0
+    #define DEBUG_PRINTF(...) (void)0
 #endif
 
 /* Backport MakeCallback from Node v0.7.8 */
