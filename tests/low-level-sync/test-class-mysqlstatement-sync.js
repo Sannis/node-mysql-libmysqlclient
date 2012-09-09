@@ -95,18 +95,18 @@ var testBindParamsAndExecuteSync = function (test) {
   res = conn.querySync("DELETE FROM " + cfg.test_table + ";");
   test.strictEqual(res, true);
   
-  res = conn.querySync("ALTER TABLE " + cfg.test_table + " ADD title VARCHAR(255), ADD number DOUBLE, ADD for_null INT;");
+  res = conn.querySync("ALTER TABLE " + cfg.test_table + " ADD title VARCHAR(255), ADD number DOUBLE, ADD for_null INT NULL;");
   test.strictEqual(res, true);
 
   stmt2 = conn.initStatementSync();
   test.ok(stmt2);
   
   test.ok(stmt2.prepareSync("INSERT INTO " + cfg.test_table + " (title, number, for_null) VALUES (?, ?, ?);"));
-  test.equals(stmt2.paramCount, 3, "Param count in INSERT INTO test_table (title, number, for_null) VALUES (?, ?, ?) query");
+  test.equals(stmt2.paramCount, 3);
   
   test.ok(stmt2.bindParamsSync([test_string, test_double, null]), "stmt.bindParamSync([test_string, test_double, null])");
   test.ok(stmt2.executeSync(), "stmt.bindParamSync([test_string, test_double, null]).executeSync()");
-  
+
   res = conn.querySync("SELECT title, number, for_null from " + cfg.test_table + ";");
   rows = res.fetchAllSync();
   test.same(rows, [{title: test_string, number: test_double, for_null: null}], "conn.querySync('SELECT title, number, for_null ... ').fetchAllSync()");
@@ -132,7 +132,7 @@ var testBindParamsAndExecuteSync = function (test) {
   
   test.ok(stmt3.bindParamsSync([date, time_in, datetime, timestamp]), "stmt.bindParamSync([date, time_in, datetime, timestamp])");
   test.ok(stmt3.executeSync(), "stmt.bindParamSync([date, time_in, datetime, timestamp]).executeSync()");
-  
+
   res = conn.querySync("SELECT date, time, datetime, timestamp from " + cfg.test_table + ";");
   rows = res.fetchAllSync();
   
