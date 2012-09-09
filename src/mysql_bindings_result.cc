@@ -231,6 +231,26 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
     return scope.Close(js_field);
 }
 
+MysqlResult::fetch_options MysqlResult::GetFetchOptions(Local<Object> options) {
+    fetch_options fo = {};
+
+    // Inherit from options object
+    if (options->Has(V8STR("asArray"))) {
+        DEBUG_PRINTF("+asArray");
+        fo.results_as_array = options->Get(V8STR("asArray"))->BooleanValue();
+    }
+    if (options->Has(V8STR("nestTables"))) {
+        DEBUG_PRINTF("+nestTables");
+        fo.results_nest_tables = options->ToObject()->Get(V8STR("nestTables"))->BooleanValue();
+    }
+
+    if (fo.results_as_array || fo.results_nest_tables) {
+        DEBUG_PRINTF("\n");
+    }
+
+    return fo;
+}
+
 void MysqlResult::Free() {
     if (_res) {
         mysql_free_result(_res);
@@ -337,7 +357,7 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
         while ((result_row = mysql_fetch_row(fetchAll_req->res->_res))) {
             field_lengths = mysql_fetch_lengths(fetchAll_req->res->_res);
 
-            if (fetchAll_req->results_as_array) {
+            if (fetchAll_req->fo.results_as_array) {
               js_result_row = Array::New();
             } else {
               js_result_row = Object::New();
@@ -346,9 +366,9 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
             for (j = 0; j < num_fields; j++) {
                 js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
 
-                if (fetchAll_req->results_as_array) {
+                if (fetchAll_req->fo.results_as_array) {
                     js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
-                } else if (fetchAll_req->results_nest_tables) {
+                } else if (fetchAll_req->fo.results_nest_tables) {
                     if (!js_result_row->Has(V8STR(fields[j].table))) {
                         js_result_row->Set(V8STR(fields[j].table), Object::New());
                     }
@@ -438,19 +458,13 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     HandleScope scope;
 
     int arg_pos = 0;
-    bool results_as_array = false;
-    bool results_nest_tables = false;
+    fetch_options fo = {};
     bool throw_wrong_arguments_exception = false;
 
     if (args.Length() > 0) {
         if (args[0]->IsObject()) { // Simple Object or Function
             if (!args[0]->IsFunction()) { // Simple Object - options hash
-                if (args[0]->ToObject()->Has(V8STR("asArray"))) {
-                    results_as_array = args[0]->ToObject()->Get(V8STR("asArray"))->BooleanValue();
-                }
-                if (args[0]->ToObject()->Has(V8STR("nestTables"))) {
-                    results_nest_tables = args[0]->ToObject()->Get(V8STR("nestTables"))->BooleanValue();
-                }
+                fo = MysqlResult::GetFetchOptions(args[0]->ToObject());
                 arg_pos++;
             }
         } else { // Not an options Object or a Function
@@ -471,13 +485,14 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
         return Undefined();
     }
 
-    if (results_as_array && results_nest_tables) {
+    if (fo.results_as_array && fo.results_nest_tables) {
+        // Cuz' this is not run-time error, just programmers mistake
         return THREXC("You can't mix 'asArray' and 'nestTables' options");
-        int argc = 1;
-        Local<Value> argv[1];
-        argv[0] = V8EXC("You can't mix 'asArray' and 'nestTables' options");
-        node::MakeCallback(Context::GetCurrent()->Global(), callback, argc, argv);
-        return Undefined();
+        //int argc = 1;
+        //Local<Value> argv[1];
+        //argv[0] = V8EXC("You can't mix 'asArray' and 'nestTables' options");
+        //node::MakeCallback(Context::GetCurrent()->Global(), callback, argc, argv);
+        //return Undefined();
     }
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder()); // NOLINT
@@ -490,8 +505,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     fetchAll_req->res = res;
     res->Ref();
     
-    fetchAll_req->results_as_array = results_as_array;
-    fetchAll_req->results_nest_tables = results_nest_tables;
+    fetchAll_req->fo = fo;
 
     uv_work_t *_req = new uv_work_t;
     _req->data = fetchAll_req;
@@ -513,22 +527,16 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 
     MYSQLRES_MUSTBE_VALID;
 
-    bool results_as_array = false;
-    bool results_nest_tables = false;
+    fetch_options fo = {false, false};
 
     if (args.Length() > 0) {
         if (!args[0]->IsObject()) {
             return THREXC("fetchAllSync can handle only (options) or none arguments");
         }
-        if (args[0]->ToObject()->Has(V8STR("asArray"))) {
-            results_as_array = args[0]->ToObject()->Get(V8STR("asArray"))->BooleanValue();
-        }
-        if (args[0]->ToObject()->Has(V8STR("nestTables"))) {
-            results_nest_tables = args[0]->ToObject()->Get(V8STR("nestTables"))->BooleanValue();
-        }
+        fo = MysqlResult::GetFetchOptions(args[0]->ToObject());
     }
 
-    if (results_as_array && results_nest_tables) {
+    if (fo.results_as_array && fo.results_nest_tables) {
         return THREXC("You can't mix 'asArray' and 'nestTables' options");
     }
 
@@ -546,7 +554,7 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
     while ( (result_row = mysql_fetch_row(res->_res)) ) {
         field_lengths = mysql_fetch_lengths(res->_res);
 
-        if (results_as_array) {
+        if (fo.results_as_array) {
             js_result_row = Array::New();
         } else {
             js_result_row = Object::New();
@@ -555,9 +563,9 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
         for (j = 0; j < num_fields; j++) {
             js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
 
-            if (results_as_array) {
+            if (fo.results_as_array) {
                 js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
-            } else if (results_nest_tables) {
+            } else if (fo.results_nest_tables) {
                 if (!js_result_row->Has(V8STR(fields[j].table))) {
                     js_result_row->Set(V8STR(fields[j].table), Object::New());
                 }
@@ -709,22 +717,16 @@ Handle<Value> MysqlResult::FetchRowSync(const Arguments& args) {
 
     MYSQLRES_MUSTBE_VALID;
 
-    bool results_as_array = false;
-    bool results_nest_tables = false;
+    fetch_options fo = {};
 
     if (args.Length() > 0) {
         if (!args[0]->IsObject()) {
             return THREXC("fetchRowSync can handle only (options) or none arguments");
         }
-        if (args[0]->ToObject()->Has(V8STR("asArray"))) {
-            results_as_array = args[0]->ToObject()->Get(V8STR("asArray"))->BooleanValue();
-        }
-        if (args[0]->ToObject()->Has(V8STR("nestTables"))) {
-            results_nest_tables = args[0]->ToObject()->Get(V8STR("nestTables"))->BooleanValue();
-        }
+        fo = MysqlResult::GetFetchOptions(args[0]->ToObject());
     }
 
-    if (results_as_array && results_nest_tables) {
+    if (fo.results_as_array && fo.results_nest_tables) {
         return THREXC("You can't mix 'asArray' and 'nestTables' options");
     }
 
@@ -743,18 +745,18 @@ Handle<Value> MysqlResult::FetchRowSync(const Arguments& args) {
 
     unsigned long *field_lengths = mysql_fetch_lengths(res->_res);
 
-    if (results_as_array) {
+    if (fo.results_as_array) {
         js_result_row = Array::New();
     } else {
         js_result_row = Object::New();
     }
 
-    for ( j = 0; j < num_fields; j++ ) {
+    for (j = 0; j < num_fields; j++) {
         js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
 
-        if (results_as_array) {
+        if (fo.results_as_array) {
             js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
-        } else if (results_nest_tables) {
+        } else if (fo.results_nest_tables) {
             if (!js_result_row->Has(V8STR(fields[j].table))) {
                 js_result_row->Set(V8STR(fields[j].table), Object::New());
             }

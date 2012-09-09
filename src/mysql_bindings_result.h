@@ -42,6 +42,12 @@ class MysqlResult : public node::ObjectWrap {
 
     static Local<Value> GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length);
 
+    struct fetch_options {
+        bool results_as_array;
+        bool results_nest_tables;
+    };
+    static fetch_options GetFetchOptions(Local<Object> options);
+
     void Free();
 
   protected:
@@ -80,8 +86,8 @@ class MysqlResult : public node::ObjectWrap {
 
         MYSQL_FIELD *fields;
         uint32_t num_fields;
-        bool results_as_array;
-        bool results_nest_tables;
+
+        fetch_options fo;
     };
     static void EIO_After_FetchAll(uv_work_t *req);
     static void EIO_FetchAll(uv_work_t *req);
