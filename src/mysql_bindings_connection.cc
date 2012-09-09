@@ -1182,6 +1182,23 @@ void MysqlConnection::EV_After_QuerySend(NODE_ADDON_SHIM_IO_WATCH_CALLBACK_ARGUM
 
     MysqlConnection *conn = query_req->conn;
 
+    // Check connection
+    // If closeSync() is called after query(),
+    // than connection is destroyed here
+    // https://github.com/Sannis/node-mysql-libmysqlclient/issues/157
+    if (!conn->_conn || !conn->connected) {
+        query_req->ok = false;
+        query_req->connection_closed = true;
+
+        DEBUG_PRINTF("EV_After_QuerySend: !conn->_conn || !conn->connected\n");
+
+        // The callback part, just call the existing code
+        EIO_After_Query(_req);
+
+        return;
+    }
+    query_req->connection_closed = false;
+
     // The query part, mostly same with EIO_Query
     // TODO merge the same parts with EIO_Query
     int r = mysql_read_query_result(conn->_conn);
