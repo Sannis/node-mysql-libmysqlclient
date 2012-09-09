@@ -6,7 +6,8 @@ node_js:
 services:
   - mysql # start MySQL on startup
 before_script:
-  - "mysql -uroot -e \"DELETE from mysql.db WHERE Db = 'test\\_%';\""
+  - "mysql -uroot -e \"DELETE FROM mysql.db WHERE Db = 'test\\_%';\""
+  - "mysql -uroot -e \"DELETE FROM mysql.user WHERE Host = 'localhost' AND User = '';\""
   - "mysql -uroot -e \"FLUSH PRIVILEGES;\""
   - "mysql -uroot -e \"CREATE DATABASE IF NOT EXISTS test_allowed DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;\""
   - "mysql -uroot -e \"GRANT ALL PRIVILEGES ON test_allowed.* TO 'test_user'@'localhost' IDENTIFIED BY '1234';\""

@@ -44,15 +44,13 @@ exports.mysql_libmysqlclient_createConnection_1_Function = function (test) {
 };
 
 exports.mysql_libmysqlclient_createConnection_2 = function (test) {
-  test.expect(2);
+  test.expect(3);
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, function (err, conn) {
-    test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(err instanceof Error, "Error object is present");
+    test.ok(!conn, "Not connected");
 
-    if (conn.connectedSync()) {
-      conn.closeSync();
-    }
+    test.ok(err.message.match(/Connection error.*Access denied for user/));
 
     test.done();
   });

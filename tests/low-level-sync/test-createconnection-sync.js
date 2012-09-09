@@ -24,18 +24,10 @@ exports.mysql_libmysqlclient_createConnectionSync_0 = function (test) {
 exports.mysql_libmysqlclient_createConnectionSync_1 = function (test) {
   test.expect(2);
   
-  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host), isConnected;
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host);
   test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "mysql_libmysqlclient.createConnectionSync(host)");
 
-  isConnected = conn.connectedSync();
-  test.ok(isConnected, "mysql_libmysqlclient.createConnectionSync(host).connectedSync()");
-
-  if (!isConnected) {
-    // Extra debug output
-    console.log("Error: " + conn.connectError);
-  } else {
-    conn.closeSync();
-  }
+  test.ok(conn.connectError.match(/Access denied for user/));
 
   test.done();
 };

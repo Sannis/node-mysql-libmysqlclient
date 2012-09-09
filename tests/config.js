@@ -8,7 +8,8 @@ See license text in LICENSE file
 /*
 #See before_script commands in .travis.yml for actual version of this commends
 > mysql -u root
-DELETE from mysql.db WHERE Db = 'test\\_%';
+DELETE FROM mysql.db WHERE Db = 'test\\_%';
+DELETE FROM mysql.user WHERE Host = 'localhost' AND User = '';
 FLUSH PRIVILEGES;
 CREATE DATABASE test_allowed DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 GRANT ALL ON test_allowed.* TO test_user@localhost IDENTIFIED BY '1234';
