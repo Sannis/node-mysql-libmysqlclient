@@ -13,7 +13,7 @@ exports.issue157_query = function (test) {
 
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
 
-  conn.query('SELECT SLEEP(100);', function (err) {
+  conn.query('SELECT SLEEP(5);', function (err) {
     test.ok(err instanceof Error);
     test.ok(err.message.indexOf("Connection is closed by closeSync()") === 0);
 
@@ -30,7 +30,7 @@ exports.issue157_querySend = function (test) {
 
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
 
-  conn.querySend('SELECT SLEEP(100);', function (err) {
+  conn.querySend('SELECT SLEEP(5);', function (err) {
     test.ok(err instanceof Error);
     test.ok(err.message.indexOf("Connection is closed by closeSync()") === 0);
 
