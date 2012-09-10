@@ -31,7 +31,8 @@ clean-all: clean
 
 test: npm-install
 		./node_modules/.bin/nodeunit --reporter=minimal tests/low-level-sync tests/low-level-async \
-		                                                tests/high-level tests/complex tests/issues
+		                                                tests/high-level tests/complex tests/issues \
+																										tests/load-data-infile
 
 test-slow: npm-install
 		./node_modules/.bin/nodeunit --reporter=minimal tests/slow
@@ -39,7 +40,7 @@ test-slow: npm-install
 test-all: npm-install
 		./node_modules/.bin/nodeunit --reporter=minimal tests/low-level-sync tests/low-level-async \
 		                                                tests/high-level tests/complex tests/issues \
-		                                                tests/slow
+		                                                tests/slow tests/load-data-infile
 
 test-profile: npm-install
 		rm -f v8.log
