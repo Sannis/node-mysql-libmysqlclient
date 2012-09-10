@@ -88,8 +88,7 @@ void InitMysqlLibmysqlclient(Handle<Object> target) {
     NODE_DEFINE_CONSTANT(target, MYSQL_OPT_CONNECT_TIMEOUT);
     // Unused, embedded
     // NODE_DEFINE_CONSTANT(MYSQL_OPT_GUESS_CONNECTION);
-    // Not yet implemented
-    // NODE_DEFINE_CONSTANT(target, MYSQL_OPT_LOCAL_INFILE);
+    NODE_DEFINE_CONSTANT(target, MYSQL_OPT_LOCAL_INFILE);
     // Unused, windows
     // NODE_DEFINE_CONSTANT(target, MYSQL_OPT_NAMED_PIPE);
     NODE_DEFINE_CONSTANT(target, MYSQL_OPT_PROTOCOL);
