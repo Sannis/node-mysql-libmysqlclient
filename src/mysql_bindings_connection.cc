@@ -12,7 +12,6 @@
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
 #include<stdio.h>
-#define DEBUG(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
 /*!
  * Init V8 structures for MysqlConnection class
  */
@@ -1742,54 +1741,45 @@ Handle<Value> MysqlConnection::WarningCountSync(const Arguments& args) {
     return scope.Close(Integer::NewFromUnsigned(warning_count));
 }
 int MysqlConnection::CustomLocalInfileInit(void ** ptr, const char * filename, void * userdata) {
-  DEBUG("init start\n");
   *ptr = userdata;
-  DEBUG("init custom\n");
   return 0;
 }
 int MysqlConnection::CustomLocalInfileRead(void * ptr, char * buf, unsigned int buf_len) {
-  DEBUG("read start\n");
   local_infile_data * infile_data = static_cast<local_infile_data *>(ptr);
   if (!infile_data->buffer || !infile_data->length) {
-    DEBUG("read empty\n");
     return 0;
   }
   if (infile_data->position >= infile_data->length) {
-    DEBUG("read done\n");
     return 0;
   }
   size_t copy_len = infile_data->length - infile_data->position;
   copy_len = copy_len < buf_len ? copy_len : buf_len;
   memcpy(buf, infile_data->buffer + infile_data->position, copy_len);
   infile_data->position += copy_len;
-  DEBUG("read copied\n");
   return copy_len;
 }
 void MysqlConnection::CustomLocalInfileEnd(void * ptr) {
-  DEBUG("end\n");
-  DEBUG("end done\n");
 }
-int MysqlConnection::CustomLocalInfileError(void *ptr, char *error_msg, unsigned int error_msg_len) {
-  DEBUG("errror\n");
-  DEBUG("default error\n");
+int MysqlConnection::CustomLocalInfileError(void * ptr,
+                                            char *error_msg,
+                                            unsigned int error_msg_len) {
   return 0;
 }
-//mysql_options(this->_conn, MYSQL_OPT_LOCAL_INFILE, NULL);
 
 MysqlConnection::local_infile_data * MysqlConnection::PrepareLocalInfileData(Handle<Value> buffer) {
   local_infile_data * infile_data;
   if (buffer->IsNull()) {
     return NULL;
-  } 
+  }
   infile_data = static_cast<local_infile_data*>(malloc(sizeof(*infile_data)));
   infile_data->length = node::Buffer::Length(buffer->ToObject());
   infile_data->position = 0;
   infile_data->buffer = static_cast<char *>(malloc(infile_data->length));
   memcpy(infile_data->buffer, node::Buffer::Data(buffer->ToObject()), infile_data->length);
-  DEBUG("buffer length %d", infile_data->length);
   return infile_data;
 }
-void MysqlConnection::SetCorrectLocalInfileHandlers(local_infile_data * infile_data, MYSQL * conn) {
+void MysqlConnection::SetCorrectLocalInfileHandlers(local_infile_data * infile_data,
+                                                    MYSQL * conn) {
   if (infile_data) {
     mysql_set_local_infile_handler(conn,
                                    MysqlConnection::CustomLocalInfileInit,
@@ -1798,18 +1788,19 @@ void MysqlConnection::SetCorrectLocalInfileHandlers(local_infile_data * infile_d
                                    MysqlConnection::CustomLocalInfileError,
                                    infile_data);
   } else {
-    //default infile handlers uses thread local storage
-    //so to be shure everything is ok, init thread specific data
-    //it's cheap enough, it initializes  everything needed only
-    //first time, all subsequent calls do nothing
+    // default infile handlers uses thread local storage,
+    // so to be shure everything is ok, init thread specific data.
+    // it's cheap enough, it initializes  everything needed only
+    // first time, all subsequent calls do nothing
     mysql_thread_init();
     mysql_set_local_infile_default(conn);
   }
 }
-void MysqlConnection::RestoreLocalInfileHandlers(local_infile_data * infile_data, MYSQL * conn) {
-  if(infile_data) {
+void MysqlConnection::RestoreLocalInfileHandlers(local_infile_data * infile_data,
+                                                 MYSQL * conn) {
+  if (infile_data) {
     mysql_set_local_infile_default(conn);
-    if(infile_data->buffer) {
+    if (infile_data->buffer) {
       free(infile_data->buffer);
     }
     free(infile_data);

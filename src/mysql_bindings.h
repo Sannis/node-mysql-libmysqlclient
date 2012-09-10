@@ -90,7 +90,9 @@ if (args.Length() > (I) && args[I]->IsFunction()) {\
 }
 #define OPTIONAL_BUFFER_ARG(I, VAR) \
 Handle<Value> VAR;\
-if (args.Length() > (I) && args[I]->IsObject() && node::Buffer::HasInstance(args[I])) {\
+if (args.Length() > (I) &&\
+    args[I]->IsObject() &&\
+    node::Buffer::HasInstance(args[I])) {\
   VAR = args[I]->ToObject();\
 } else {\
   VAR = Null();\
