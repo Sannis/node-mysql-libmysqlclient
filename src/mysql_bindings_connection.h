@@ -113,7 +113,7 @@ class MysqlConnection : public node::ObjectWrap {
 
     struct connect_request {
         bool ok;
-        
+
         Persistent<Function> callback;
         MysqlConnection *conn;
 
@@ -172,18 +172,23 @@ class MysqlConnection : public node::ObjectWrap {
     static Handle<Value> MultiRealQuerySync(const Arguments& args);
 
     static Handle<Value> PingSync(const Arguments& args);
+    struct local_infile_data {
+      char * buffer;
+      size_t length;
+      size_t position;
+    };
 
     struct query_request {
         bool ok;
         bool connection_closed;
         bool have_result_set;
-        
+
         Persistent<Value> callback;
         MysqlConnection *conn;
 
         char *query;
         unsigned int query_len;
-        
+
         MYSQL_RES *my_result;
         uint32_t field_count;
         my_ulonglong affected_rows;
@@ -191,7 +196,24 @@ class MysqlConnection : public node::ObjectWrap {
 
         unsigned int errno;
         const char *error;
+
+        local_infile_data * infile_data;
     };
+    static int CustomLocalInfileInit(void ** ptr,
+                                     const char * filename,
+                                     void * userdata);
+    static int CustomLocalInfileRead(void * ptr,
+                                     char * buf,
+                                     unsigned int buf_len);
+    static void CustomLocalInfileEnd(void * ptr);
+    static int CustomLocalInfileError(void * ptr,
+                                      char * error_msg,
+                                      unsigned int error_msg_len);
+    static void SetCorrectLocalInfileHandlers(local_infile_data * infile_data,
+                                              MYSQL * conn);
+    static void RestoreLocalInfileHandlers(local_infile_data * infile_data,
+                                           MYSQL * conn);
+    static local_infile_data * PrepareLocalInfileData(Handle<Value> buffer);
     static void EIO_After_Query(uv_work_t *req);
     static void EIO_Query(uv_work_t *req);
     static Handle<Value> Query(const Arguments& args);

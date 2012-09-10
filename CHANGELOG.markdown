@@ -3,6 +3,23 @@
 Revision history for node-mysql-libmysqlclient,
 the asynchronous MySQL binding for Node.js using libmysqlclient.
 
+## Version 1.5.0
+
+  * Improvements:
+    * LOAD DATA INFILE implementation
+    * 10% escapes speedup
+    * DSN support for connecting, see #115
+    * Added handling of SET, ENUM, spatials to fetchAll() for prepare statements
+  * Fixes
+    * Fix tests if sql_mode includes STRICT_(TRANS|ALL)_TABLES
+    * Handle closeSync() during query() and Send()
+  * Uncompatible changes:
+    * Merge fetchArraySync and fetchObjectSync to fetchRowSync([options])
+    * Use 'nestTables' fetchAll[Sync]() option name, see #140
+    * Remove per-class constants, see #139
+
+Special thanks to Anton Kotenko and Alexander Makarenko
+
 ## Version 1.4.0
 
   * Improvements:
