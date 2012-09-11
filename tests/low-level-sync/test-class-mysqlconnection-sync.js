@@ -671,7 +671,7 @@ exports.SetOptionSync = function (test) {
 };
 
 exports.SetSslSync = function (test) {
-  test.expect(1);
+  test.expect(3);
 
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(),
@@ -680,13 +680,18 @@ exports.SetSslSync = function (test) {
     ca = path.resolve(__dirname, '../ssl-fixtures/ca-cert.pem');
 
   conn.initSync();
-
+  test.throws(function () {
+    conn.setSslSync(key, cert, ca);
+  });
   conn.setSslSync(key, cert, ca, "", "ALL");
-
   conn.realConnectSync(cfg.host, cfg.user, cfg.password, cfg.database);
-
   test.ok(conn.connectedSync());
+  conn.closeSync();
 
+  conn.initSync();
+  conn.setSslSync(null, null, ca, "", "ALL");
+  conn.realConnectSync(cfg.host, cfg.user, cfg.password, cfg.database);
+  test.ok(conn.connectedSync());
   conn.closeSync();
 
   test.done();

@@ -57,6 +57,15 @@ return ThrowException(Exception::TypeError( \
 String::New("Argument " #I " must be a string"))); \
 String::Utf8Value VAR(args[I]->ToString());
 
+#define OPTIONAL_STR_ARG(I, VAR) \
+String::Utf8Value Utf8Value_##VAR(args[I]->ToString()); \
+char *VAR; \
+if (args[I]->IsString()) { \
+    VAR = *(Utf8Value_##VAR); \
+} else { \
+    VAR = NULL; \
+}
+
 #define REQ_BOOL_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsBoolean()) \
 return ThrowException(Exception::TypeError( \
@@ -88,14 +97,16 @@ if (args.Length() > (I) && args[I]->IsFunction()) {\
 } else { \
     VAR = Null(); \
 }
+
 #define OPTIONAL_BUFFER_ARG(I, VAR) \
-Handle<Value> VAR;\
-if (args.Length() > (I) &&\
-    args[I]->IsObject() &&\
-    node::Buffer::HasInstance(args[I])) {\
-  VAR = args[I]->ToObject();\
-} else {\
-  VAR = Null();\
+Handle<Value> VAR; \
+if (args.Length() > (I) \
+ && args[I]->IsObject() \
+ && node::Buffer::HasInstance(args[I]) \
+) { \
+  VAR = args[I]->ToObject(); \
+} else { \
+  VAR = Null(); \
 }
 
 #ifdef DEBUG
