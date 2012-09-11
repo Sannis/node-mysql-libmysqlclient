@@ -3,6 +3,10 @@
 Revision history for node-mysql-libmysqlclient,
 the asynchronous MySQL binding for Node.js using libmysqlclient.
 
+## Version 1.5.1
+
+  * Allow null setSslSync() arguments, see #160
+
 ## Version 1.5.0
 
   * Improvements:
