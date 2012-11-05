@@ -614,12 +614,20 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
             type == MYSQL_TYPE_SHORT ||                // SMALLINT
             type == MYSQL_TYPE_SHORT) {                // YEAR
                 DEBUG_PRINTF("SMALLINT %d\n", *((short int*) ptr));
-                js_field = Integer::New((int32_t) *((short int *) ptr));
+                if (fields[j].flags & UNSIGNED_FLAG) {
+                    js_field = Integer::NewFromUnsigned((uint32_t) *((unsigned short int *) ptr));
+                } else {
+                    js_field = Integer::New((int32_t) *((short int *) ptr));
+                }
             } else if (
             type == MYSQL_TYPE_INT24 ||                // MEDIUMINT
             type == MYSQL_TYPE_LONG) {                 // INT
                 DEBUG_PRINTF("INT %d\n", *((int *) ptr));
-                js_field = Integer::New((int32_t) *((int *) ptr));
+                if (fields[j].flags & UNSIGNED_FLAG) {
+                    js_field = Integer::NewFromUnsigned((uint32_t) *((unsigned int *) ptr));
+                } else {
+                    js_field = Integer::New((int32_t) *((int *) ptr));
+                }
             } else if (type == MYSQL_TYPE_LONGLONG) {  // BIGINT
                 DEBUG_PRINTF("BIGINT %lld\n", *((long long int*) ptr));
                 js_field = Number::New((double) *((long long int *) ptr));
