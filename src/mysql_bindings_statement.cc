@@ -673,22 +673,30 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
             type == MYSQL_TYPE_DATETIME ||             // DATETIME
             type == MYSQL_TYPE_TIMESTAMP) {            // TIMESTAMP
                 MYSQL_TIME ts = *((MYSQL_TIME *) ptr);
-                DEBUG_PRINTF("Time: %04d-%02d-%02d %02d:%02d:%02d\n",
-                            ts.year, ts.month, ts.day,
-                            ts.hour, ts.minute, ts.second);
-                time_t rawtime;
-                struct tm * datetime;
-                time(&rawtime);
-                datetime = localtime(&rawtime);
-                datetime->tm_year = ts.year - 1900;
-                datetime->tm_mon = ts.month - 1;
-                datetime->tm_mday = ts.day;
-                datetime->tm_hour = ts.hour;
-                datetime->tm_min = ts.minute;
-                datetime->tm_sec = ts.second;
-                time_t timestamp = mktime(datetime);
 
-                js_field = Date::New(1000 * (double) timestamp);
+                DEBUG_PRINTF(
+                    "Time: %04d-%02d-%02d %02d:%02d:%02d\n",
+                    ts.year, ts.month, ts.day,
+                    ts.hour, ts.minute, ts.second);
+
+                char time_string[24];
+                sprintf(
+                    time_string,
+                    "%04d-%02d-%02d %02d:%02d:%02d GMT",
+                    ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second);
+
+                // First step is to get a handle to the global object:
+                Local<v8::Object> globalObj = Context::GetCurrent()->Global();
+
+                // Now we need to grab the Date constructor function:
+                Local<v8::Function> dateConstructor = Local<Function>::Cast(globalObj->Get(V8STR("Date")));
+
+                // Great. We can use this constructor function to allocate new Dates:
+                const int argc = 1;
+                Local<Value> argv[argc] = { V8STR(time_string) };
+
+                // Now we have our constructor, and our constructor args. Let's create the Date:
+                js_field = dateConstructor->NewInstance(argc, argv);
             } else if (type == MYSQL_TYPE_SET) {       // SET
                 // TODO(Sannis): Maybe memory leaks here
                 char *pch, *last, *field_value = (char *) ptr;
