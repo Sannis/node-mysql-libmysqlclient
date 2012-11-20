@@ -693,7 +693,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
                 // Great. We can use this constructor function to allocate new Dates:
                 const int argc = 1;
-                Local<Value> argv[argc] = { V8STR(field_value) };
+                Local<Value> argv[argc] = { V8STR(time_string) };
 
                 // Now we have our constructor, and our constructor args. Let's create the Date:
                 js_field = dateConstructor->NewInstance(argc, argv);
