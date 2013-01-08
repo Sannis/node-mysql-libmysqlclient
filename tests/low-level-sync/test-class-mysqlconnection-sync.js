@@ -215,7 +215,12 @@ exports.AffectedRowsSync = function (test) {
     res = conn.querySync("INSERT INTO " + cfg.test_table +
       " (random_number, random_boolean) VALUES ('" + random_number +
       "', '" + random_boolean + "');") && res;
+
+    if (!res) {
+      console.log(conn.errnoSync(), conn.errorSync());
+    }
   }
+
   test.ok(res);
 
   setTimeout(function () {
