@@ -130,13 +130,17 @@ exports.ConnectFlagsConstants = function (test) {
   test.equals(cfg.mysql_libmysqlclient.CLIENT_IGNORE_SIGPIPE, 4096);
   test.equals(cfg.mysql_libmysqlclient.CLIENT_IGNORE_SPACE, 256);
   test.equals(cfg.mysql_libmysqlclient.CLIENT_INTERACTIVE, 1024);
+
   // Not yet implemented
   // test.equals(cfg.mysql_libmysqlclient.CLIENT_LOCAL_FILES, 128);
+
   test.equals(cfg.mysql_libmysqlclient.CLIENT_MULTI_RESULTS, 131072);
   test.equals(cfg.mysql_libmysqlclient.CLIENT_MULTI_STATEMENTS, 65536);
   test.equals(cfg.mysql_libmysqlclient.CLIENT_NO_SCHEMA, 16);
-  // Known issue: cfg.mysql_libmysqlclient.CLIENT_REMEMBER_OPTIONS === -2147483648
-  test.equals(cfg.mysql_libmysqlclient.CLIENT_REMEMBER_OPTIONS, -2147483648);
+
+  // Known issue prior to node@8d2753c14120e7aef2d4ad1ca0c9dc612c0c9b8b
+  // cfg.mysql_libmysqlclient.CLIENT_REMEMBER_OPTIONS === -2147483648
+  test.equals(Math.abs(cfg.mysql_libmysqlclient.CLIENT_REMEMBER_OPTIONS), 2147483648);
 
   conn.connectSync(cfg.host, cfg.user, cfg.password, cfg.database, null, null, cfg.mysql_libmysqlclient.CLIENT_REMEMBER_OPTIONS);
   conn.closeSync();
