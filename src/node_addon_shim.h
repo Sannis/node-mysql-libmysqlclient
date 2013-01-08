@@ -24,11 +24,11 @@
 
 /* Node IO watching compatibility */
 #if NODE_VERSION_AT_LEAST(0, 7, 9)
-  #define NODE_ADDON_SHIM_START_IO_WATCH(_data, after, fd, events) \
+  #define NODE_ADDON_SHIM_START_IO_READABLE_WATCH(_data, after, fd) \
     uv_poll_t* handle = new uv_poll_t; \
     handle->data = _data; \
     uv_poll_init(uv_default_loop(), handle, fd); \
-    uv_poll_start(handle, events, after);
+    uv_poll_start(handle, UV_READABLE, after);
   #define NODE_ADDON_SHIM_STOP_IO_WATCH(on_close) \
     uv_poll_stop(handle); \
     uv_close((uv_handle_t *) handle, on_close);
@@ -37,11 +37,11 @@
       delete handle; \
   }
 #else
-  #define NODE_ADDON_SHIM_START_IO_WATCH(_data, after, fd, events) \
+  #define NODE_ADDON_SHIM_START_IO_READABLE_WATCH(_data, after, fd) \
     ev_io* io_watcher = new ev_io; \
     io_watcher->data = _data; \
     ev_init(io_watcher, after); \
-    ev_io_set(io_watcher, fd, events); \
+    ev_io_set(io_watcher, fd, EV_READ); \
     ev_io_start(EV_DEFAULT_UC_ io_watcher);
   #define NODE_ADDON_SHIM_STOP_IO_WATCH(on_close) \
     ev_io_stop(EV_DEFAULT_UC_ io_watcher); \

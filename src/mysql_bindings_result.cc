@@ -509,7 +509,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 
     uv_work_t *_req = new uv_work_t;
     _req->data = fetchAll_req;
-    uv_queue_work(uv_default_loop(), _req, EIO_FetchAll, EIO_After_FetchAll);
+    uv_queue_work(uv_default_loop(), _req, EIO_FetchAll, (uv_after_work_cb)EIO_After_FetchAll);
 
     return Undefined();
 }

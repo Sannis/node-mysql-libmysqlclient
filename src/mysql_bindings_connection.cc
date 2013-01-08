@@ -473,7 +473,7 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
 
     uv_work_t *_req = new uv_work_t; \
     _req->data = conn_req; \
-    uv_queue_work(uv_default_loop(), _req, EIO_Connect, EIO_After_Connect);
+    uv_queue_work(uv_default_loop(), _req, EIO_Connect, (uv_after_work_cb)EIO_After_Connect);
 
     return Undefined();
 }
@@ -1168,7 +1168,7 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
 
     uv_work_t *_req = new uv_work_t;
     _req->data = query_req;
-    uv_queue_work(uv_default_loop(), _req, EIO_Query, EIO_After_Query);
+    uv_queue_work(uv_default_loop(), _req, EIO_Query, (uv_after_work_cb)EIO_After_Query);
 
     return Undefined();
 }
@@ -1288,7 +1288,7 @@ Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
     mysql_send_query(conn->_conn, query_req->query, query_len + 1);
 
     // Init IO watcher
-    NODE_ADDON_SHIM_START_IO_WATCH(query_req, EV_After_QuerySend, conn->_conn->net.fd, EV_READ)
+    NODE_ADDON_SHIM_START_IO_READABLE_WATCH(query_req, EV_After_QuerySend, conn->_conn->net.fd)
 
     return Undefined();
 }
