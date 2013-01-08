@@ -6,7 +6,7 @@
  */
 
 #ifndef BUILDING_NODE_EXTENSION
-#define BUILDING_NODE_EXTENSION
+#define BUILDING_NODE_EXTENSION 1
 #endif  // BUILDING_NODE_EXTENSION
 
 #include <node.h>
