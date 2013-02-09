@@ -1,6 +1,6 @@
 {
   "name"        : "mysql-libmysqlclient",
-  "version"     : "1.5.1",
+  "version"     : "1.5.2",
   "description" : "Binary MySQL bindings for Node.JS",
   "keywords"    : ["mysql", "libmysqlclient", "sql", "database", "addon"],
   "homepage"    : "http://sannis.github.com/node-mysql-libmysqlclient",
@@ -35,8 +35,8 @@
   "devDependencies" :
   { "nodeunit" : ">= 0.7"
   , "nodelint" : ">= 0.6"
-  , "async"    : ">= 0.1.22"
-  , "ndoc"     : ">= 2.0.2"
+  , "async"    : ">= 0.2.4"
+  , "ndoc"     : ">= 2.0.4"
   },
   "engines" : { "node" : ">=0.6.x" }
 }

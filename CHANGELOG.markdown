@@ -3,6 +3,12 @@
 Revision history for node-mysql-libmysqlclient,
 the asynchronous MySQL binding for Node.js using libmysqlclient.
 
+## Version 1.5.2
+
+  * Handle unsigned fields correctly in MysqlStatement
+  * Fixed MYSQL_TIME to JavaScript Date conversion in MysqlStatement
+  * Compatibility with latest (v0.8.19 & v0.9.9) Node.js API
+
 ## Version 1.5.1
 
   * Allow null setSslSync() arguments, see #160
