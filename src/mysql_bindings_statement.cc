@@ -563,11 +563,13 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     /* If error on binding return null */
     if (mysql_stmt_bind_result(stmt->_stmt, bind)) {
+        mysql_free_result(meta);
         return scope.Close(Null());
     }
 
     /* If error on buffering results return null */
     if (mysql_stmt_store_result(stmt->_stmt)) {
+        mysql_free_result(meta);
         return scope.Close(Null());
     }
 
@@ -577,6 +579,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     /* If no rows, return empty array */
     if (row_count == 0) {
+        mysql_free_result(meta);
         return scope.Close(js_result);
     }
 
@@ -722,6 +725,11 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
         i++;
     }
 
+    mysql_free_result(meta);
+    while (!mysql_next_result(stmt->_stmt->mysql)) {
+        MYSQL_RES *res = mysql_store_result(stmt->_stmt->mysql);
+        mysql_free_result(res);
+    }
     return scope.Close(js_result);
 }
 
