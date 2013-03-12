@@ -482,6 +482,9 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     // Get meta data for binding buffers
     MYSQL_RES *meta = mysql_stmt_result_metadata(stmt->_stmt);
+    if (meta == NULL) {
+        return scope.Close(Null());
+    }
     MYSQL_FIELD *fields = meta->fields;
 
     uint32_t i = -1, j = 0, type = 0, buf_length = 0;
