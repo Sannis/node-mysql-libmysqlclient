@@ -92,6 +92,8 @@ class MysqlStatement : public node::ObjectWrap {
 
     static Handle<Value> LastInsertIdSync(const Arguments& args);
 
+    static Handle<Value> NextResultSync(const Arguments& args);
+
     static Handle<Value> NumRowsSync(const Arguments& args);
 
     static Handle<Value> PrepareSync(const Arguments& args);

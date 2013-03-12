@@ -51,6 +51,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldCountSync",     MysqlStatement::FieldCountSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "freeResultSync",     MysqlStatement::FreeResultSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "lastInsertIdSync",   MysqlStatement::LastInsertIdSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "nextResultSync",     MysqlStatement::NextResultSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "numRowsSync",        MysqlStatement::NumRowsSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "prepareSync",        MysqlStatement::PrepareSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "resetSync",          MysqlStatement::ResetSync);
@@ -486,15 +487,17 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     uint32_t i = -1, j = 0, type = 0, buf_length = 0;
     void *ptr = 0;
     int row_count = 0;
-    unsigned long length[field_count];
-    my_bool is_null[field_count];
+
+    unsigned long *length = (unsigned long *) malloc(sizeof(unsigned long) * field_count);
+    my_bool *is_null = (my_bool *) malloc(sizeof(my_bool) * field_count);
 
     // actual binded buffers
     void** buffers;
-    buffers = (void **) malloc(field_count * sizeof(void *));
+    buffers = (void **) malloc(sizeof(void *) * field_count);
 
-    MYSQL_BIND bind[field_count];
-    memset(bind, 0, sizeof(bind));
+    MYSQL_BIND *bind;
+    bind = (MYSQL_BIND *) malloc(sizeof(MYSQL_BIND) * field_count);
+    memset(bind, 0, sizeof(MYSQL_BIND) * field_count);
 
     // binding
     while (++i < field_count) {
@@ -564,12 +567,20 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     /* If error on binding return null */
     if (mysql_stmt_bind_result(stmt->_stmt, bind)) {
         mysql_free_result(meta);
+        free(bind);
+        free(length);
+        free(is_null);
+        free(buffers);
         return scope.Close(Null());
     }
 
     /* If error on buffering results return null */
     if (mysql_stmt_store_result(stmt->_stmt)) {
         mysql_free_result(meta);
+        free(bind);
+        free(length);
+        free(is_null);
+        free(buffers);
         return scope.Close(Null());
     }
 
@@ -580,6 +591,10 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     /* If no rows, return empty array */
     if (row_count == 0) {
         mysql_free_result(meta);
+        free(bind);
+        free(length);
+        free(is_null);
+        free(buffers);
         return scope.Close(js_result);
     }
 
@@ -726,10 +741,10 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     }
 
     mysql_free_result(meta);
-    while (!mysql_next_result(stmt->_stmt->mysql)) {
-        MYSQL_RES *res = mysql_store_result(stmt->_stmt->mysql);
-        mysql_free_result(res);
-    }
+    free(bind);
+    free(length);
+    free(is_null);
+    free(buffers);
     return scope.Close(js_result);
 }
 
@@ -778,6 +793,22 @@ Handle<Value> MysqlStatement::LastInsertIdSync(const Arguments& args) {
     MYSQLSTMT_MUSTBE_PREPARED;
 
     return scope.Close(Integer::New(mysql_stmt_insert_id(stmt->_stmt)));
+}
+
+/**
+ * Return the number of rows in statements result set
+ *
+ * @return {Integer}
+ */
+Handle<Value> MysqlStatement::NextResultSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
+
+    MYSQLSTMT_MUSTBE_INITIALIZED;
+    MYSQLSTMT_MUSTBE_PREPARED;
+
+    return scope.Close(Integer::New(mysql_stmt_next_result(stmt->_stmt)));
 }
 
 /**
