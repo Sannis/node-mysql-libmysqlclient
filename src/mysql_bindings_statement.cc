@@ -671,7 +671,7 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
     Local<Value> argv[2];
 
     if (!fetchAll_req->ok) {
-        argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
+        argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt->mysql));
     } else if (fetchAll_req->meta == NULL) {
         argc = 2;
         argv[0] = argv[1] = Local<Value>::New(Null());
@@ -698,9 +698,13 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
         void* ptr;
         while (!error) {
             error = mysql_stmt_fetch(stmt->_stmt);
-            if (error) {
+            // TODO: handle following case properly
+            if (error == MYSQL_DATA_TRUNCATED) {
+                error = 0;
+            } else if (error) {
                 break;
             }
+
             js_result_row = Object::New();
 
             DEBUG_PRINTF("Fetching row #%d\n", i);
@@ -827,7 +831,10 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     while (!error) {
         error = mysql_stmt_fetch(stmt->_stmt);
-        if (error) {
+        // TODO: handle following case properly
+        if (error == MYSQL_DATA_TRUNCATED) {
+            error = 0;
+        } else if (error) {
             break;
         }
 
