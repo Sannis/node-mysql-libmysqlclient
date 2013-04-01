@@ -671,7 +671,7 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
     Local<Value> argv[2];
 
     if (!fetchAll_req->ok) {
-        argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt->mysql));
+        argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
     } else if (fetchAll_req->meta == NULL) {
         argc = 2;
         argv[0] = argv[1] = Local<Value>::New(Null());
