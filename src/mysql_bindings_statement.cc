@@ -664,7 +664,7 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
     HandleScope scope;
     struct fetchAll_request* fetchAll_req = (struct fetchAll_request *) (req->data);
     MysqlStatement* stmt = fetchAll_req->stmt;
-    MYSQL_FIELD* fields = fetchAll_req->meta->fields;
+    MYSQL_FIELD* fields = NULL;
     unsigned int field_count = fetchAll_req->field_count;
 
     int argc = 1, error = 0;
@@ -672,7 +672,11 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
 
     if (!fetchAll_req->ok) {
         argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
+    } else if (fetchAll_req->meta == NULL) {
+        argc = 2;
+        argv[0] = argv[1] = Local<Value>::New(Null());
     } else {
+        fields = fetchAll_req->meta->fields;
         MALLOC_ARRAY(length, unsigned long, field_count);
         MALLOC_ARRAY(is_null, my_bool, field_count);
         MALLOC_ARRAY(buffers, void*, field_count);
@@ -736,6 +740,9 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
     node::MakeCallback(Context::GetCurrent()->Global(), fetchAll_req->callback, argc, argv);
     fetchAll_req->callback.Dispose();
     fetchAll_req->stmt->Unref();
+
+    delete fetchAll_req;
+    delete req;
 }
 
 void MysqlStatement::EIO_FetchAll(uv_work_t *req) {
@@ -744,14 +751,9 @@ void MysqlStatement::EIO_FetchAll(uv_work_t *req) {
 
     fetchAll_req->field_count = mysql_stmt_field_count(stmt->_stmt);
 
-    MYSQL_RES* meta = mysql_stmt_result_metadata(stmt->_stmt);
-    if (meta == NULL) {
-        fetchAll_req->meta = NULL;
-        fetchAll_req->ok = false;
-    } else {
-        fetchAll_req->meta = meta;
-        fetchAll_req->ok = true;
-    }
+    fetchAll_req->meta = mysql_stmt_result_metadata(stmt->_stmt);
+
+    fetchAll_req->ok = true;
 }
 
 Handle<Value> MysqlStatement::FetchAll(const Arguments& args) {
