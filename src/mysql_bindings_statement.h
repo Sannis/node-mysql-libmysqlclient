@@ -82,23 +82,45 @@ class MysqlStatement : public node::ObjectWrap {
 
     static Handle<Value> ErrorSync(const Arguments& args);
 
-    static Handle<Value> ExecuteSync(const Arguments& args);
-
-    struct fetchAll_request {
+    struct execute_request {
       bool ok;
 
       Persistent<Function> callback;
       MysqlStatement* stmt;
+    };
 
-      unsigned int field_count;
+    static void EIO_After_Execute(uv_work_t* req);
+
+    static void EIO_Execute(uv_work_t* req);
+
+    static Handle<Value> Execute(const Arguments& args);
+
+    static Handle<Value> ExecuteSync(const Arguments& args);
+
+    struct fetchAll_request {
+      bool ok;
+      bool empty_resultset;
+
+      Persistent<Function> callback;
+      MysqlStatement* stmt;
+
       MYSQL_RES* meta;
+      unsigned long field_count;
+      my_bool* is_null;
+      unsigned long* length;
+      void** buffers;
     };
 
     static int BindResult(MYSQL_STMT* stmt, MYSQL_FIELD* fields, unsigned int field_count, unsigned long* length, my_bool* is_null, void** buffers);
+
     static Local<Value> GetFieldValue(void* ptr, unsigned long& length, MYSQL_FIELD& field);
+
     static void EIO_After_FetchAll(uv_work_t* req);
+
     static void EIO_FetchAll(uv_work_t* req);
+
     static Handle<Value> FetchAll(const Arguments& args);
+
     static Handle<Value> FetchAllSync(const Arguments& args);
 
     static Handle<Value> FieldCountSync(const Arguments& args);
