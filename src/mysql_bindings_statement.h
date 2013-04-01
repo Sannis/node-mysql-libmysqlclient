@@ -84,6 +84,21 @@ class MysqlStatement : public node::ObjectWrap {
 
     static Handle<Value> ExecuteSync(const Arguments& args);
 
+    struct fetchAll_request {
+      bool ok;
+
+      Persistent<Function> callback;
+      MysqlStatement* stmt;
+
+      unsigned int field_count;
+      MYSQL_RES* meta;
+    };
+
+    static int BindResult(MYSQL_STMT* stmt, MYSQL_FIELD* fields, unsigned int field_count, unsigned long* length, my_bool* is_null, void** buffers);
+    static Local<Value> GetFieldValue(void* ptr, unsigned long& length, MYSQL_FIELD& field);
+    static void EIO_After_FetchAll(uv_work_t* req);
+    static void EIO_FetchAll(uv_work_t* req);
+    static Handle<Value> FetchAll(const Arguments& args);
     static Handle<Value> FetchAllSync(const Arguments& args);
 
     static Handle<Value> FieldCountSync(const Arguments& args);

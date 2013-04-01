@@ -47,6 +47,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "errnoSync",          MysqlStatement::ErrnoSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "errorSync",          MysqlStatement::ErrorSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "executeSync",        MysqlStatement::ExecuteSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAll",           MysqlStatement::FetchAll);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAllSync",       MysqlStatement::FetchAllSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldCountSync",     MysqlStatement::FieldCountSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "freeResultSync",     MysqlStatement::FreeResultSync);
@@ -464,46 +465,16 @@ Handle<Value> MysqlStatement::ExecuteSync(const Arguments& args) {
     return scope.Close(True());
 }
 
-/**
- * MysqlStatement#fetchAllSync() -> Object
- *
- * Returns row data from statement result
- **/
-Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
-    HandleScope scope;
+int MysqlStatement::BindResult(MYSQL_STMT* stmt, MYSQL_FIELD* fields, unsigned int field_count,
+                               unsigned long* length, my_bool* is_null, void** buffers) {
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+    uint32_t i = 0, type = 0, buf_length = 0;
+    void* ptr = NULL;
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
-    MYSQLSTMT_MUSTBE_PREPARED;
-
-    // Get fields count for binding buffers
-    unsigned int field_count = mysql_stmt_field_count(stmt->_stmt);
-
-    // Get meta data for binding buffers
-    MYSQL_RES *meta = mysql_stmt_result_metadata(stmt->_stmt);
-    if (meta == NULL) {
-        return scope.Close(Null());
-    }
-    MYSQL_FIELD *fields = meta->fields;
-
-    uint32_t i = -1, j = 0, type = 0, buf_length = 0;
-    void *ptr = 0;
-    int row_count = 0;
-
-    unsigned long *length = (unsigned long *) malloc(sizeof(unsigned long) * field_count);
-    my_bool *is_null = (my_bool *) malloc(sizeof(my_bool) * field_count);
-
-    // actual binded buffers
-    void** buffers;
-    buffers = (void **) malloc(sizeof(void *) * field_count);
-
-    MYSQL_BIND *bind;
-    bind = (MYSQL_BIND *) malloc(sizeof(MYSQL_BIND) * field_count);
+    MALLOC_ARRAY(bind, MYSQL_BIND, field_count);
     memset(bind, 0, sizeof(MYSQL_BIND) * field_count);
 
-    // binding
-    while (++i < field_count) {
+    while (i < field_count) {
         type = fields[i].type;
 
         if (
@@ -558,197 +529,338 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
             ptr = (char *) malloc(buf_length);
         }
 
-        DEBUG_PRINTF("Binding buffer: ptr: %p, size: %d\n", ptr, buf_length);
-
         bind[i].is_null = &is_null[i];
         bind[i].length = &length[i];
         bind[i].buffer = buffers[i] = ptr;
         bind[i].buffer_type = fields[i].type;
         bind[i].buffer_length = buf_length;
+
+        i++;
     }
 
-    /* If error on binding return null */
-    if (mysql_stmt_bind_result(stmt->_stmt, bind)) {
-        mysql_free_result(meta);
-        free(bind);
-        free(length);
-        free(is_null);
-        free(buffers);
+    return mysql_stmt_bind_result(stmt, bind);
+}
+
+Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYSQL_FIELD& field) {
+    unsigned int type = field.type;
+    if (type == MYSQL_TYPE_TINY) {             // TINYINT
+        int32_t val = *((signed char *) ptr);
+        // handle as boolean
+        if (length == 1) {
+            DEBUG_PRINTF("TINYINT(1) %d\n", val);
+            return Local<Value>::New(Boolean::New(val));
+        // handle as integer
+        } else {
+            DEBUG_PRINTF("TINYINT(>1) %d\n", val);
+            return Integer::New(val);
+        }
+    } else if (
+    type == MYSQL_TYPE_SHORT ||                // SMALLINT
+    type == MYSQL_TYPE_SHORT) {                // YEAR
+        DEBUG_PRINTF("SMALLINT %d\n", *((short int*) ptr));
+        if (field.flags & UNSIGNED_FLAG) {
+            return Integer::NewFromUnsigned((uint32_t) *((unsigned short int *) ptr));
+        } else {
+            return Integer::New((int32_t) *((short int *) ptr));
+        }
+    } else if (
+    type == MYSQL_TYPE_INT24 ||                // MEDIUMINT
+    type == MYSQL_TYPE_LONG) {                 // INT
+        DEBUG_PRINTF("INT %d\n", *((int *) ptr));
+        if (field.flags & UNSIGNED_FLAG) {
+            return Integer::NewFromUnsigned((uint32_t) *((unsigned int *) ptr));
+        } else {
+            return Integer::New((int32_t) *((int *) ptr));
+        }
+    } else if (type == MYSQL_TYPE_LONGLONG) {  // BIGINT
+        DEBUG_PRINTF("BIGINT %lld\n", *((long long int*) ptr));
+        return Number::New((double) *((long long int *) ptr));
+    } else if (type == MYSQL_TYPE_FLOAT) {     // FLOAT
+        DEBUG_PRINTF("FLOAT %f\n", *((float *) ptr));
+        return Number::New(*((float *) ptr));
+    } else if (type == MYSQL_TYPE_DOUBLE) {    // DOUBLE, REAL
+        DEBUG_PRINTF("DOUBLE %f\n", *((double *) ptr));
+        return Number::New(*((double *) ptr));
+    } else if (
+    type == MYSQL_TYPE_DECIMAL ||              // DECIMAL, NUMERIC
+    type == MYSQL_TYPE_NEWDECIMAL ||           // NEWDECIMAL
+    type == MYSQL_TYPE_STRING ||               // CHAR, BINARY
+    type == MYSQL_TYPE_VAR_STRING ||           // VARCHAR, VARBINARY
+    type == MYSQL_TYPE_TINY_BLOB ||            // TINYBLOB, TINYTEXT
+    type == MYSQL_TYPE_BLOB ||                 // BLOB, TEXT
+    type == MYSQL_TYPE_MEDIUM_BLOB ||          // MEDIUMBLOB, MEDIUMTEXT
+    type == MYSQL_TYPE_LONG_BLOB ||            // LONGBLOB, LONGTEXT
+    type == MYSQL_TYPE_BIT ||                  // BIT
+    type == MYSQL_TYPE_ENUM ||                 // ENUM
+    type == MYSQL_TYPE_GEOMETRY) {             // Spatial fields
+        char *data = (char *) ptr;
+        // create buffer
+        if (field.flags & BINARY_FLAG) {
+            DEBUG_PRINTF("Blob, length: (%lu)\n", length);
+
+            // taken from: http://sambro.is-super-awesome.com/2011/03/03/creating-a-proper-buffer-in-a-node-c-addon/
+            node::Buffer *slowBuffer = node::Buffer::New(length);
+            memcpy(node::Buffer::Data(slowBuffer), data, length);
+            v8::Local<v8::Object> globalObj = v8::Context::GetCurrent()->Global();
+            v8::Local<v8::Function> bufferConstructor = v8::Local<v8::Function>::Cast(globalObj->Get(v8::String::New("Buffer")));
+            v8::Handle<v8::Value> constructorArgs[3] = { slowBuffer->handle_, v8::Integer::New(length), v8::Integer::New(0) };
+            return bufferConstructor->NewInstance(3, constructorArgs);
+        // create string
+        } else {
+            DEBUG_PRINTF("String, length: %lu/%lu\n", length, field.length);
+            return V8STR2(data, length);
+        }
+    } else if (
+    type == MYSQL_TYPE_TIME ||                 // TIME
+    type == MYSQL_TYPE_DATE ||                 // DATE
+    type == MYSQL_TYPE_NEWDATE ||              // Newer const used in MySQL > 5.0
+    type == MYSQL_TYPE_DATETIME ||             // DATETIME
+    type == MYSQL_TYPE_TIMESTAMP) {            // TIMESTAMP
+        MYSQL_TIME ts = *((MYSQL_TIME *) ptr);
+
+        DEBUG_PRINTF(
+            "Time: %04d-%02d-%02d %02d:%02d:%02d\n",
+            ts.year, ts.month, ts.day,
+            ts.hour, ts.minute, ts.second);
+
+        char time_string[24];
+        sprintf(
+            time_string,
+            "%04d-%02d-%02d %02d:%02d:%02d GMT",
+            ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second);
+
+        // First step is to get a handle to the global object:
+        Local<v8::Object> globalObj = Context::GetCurrent()->Global();
+
+        // Now we need to grab the Date constructor function:
+        Local<v8::Function> dateConstructor = Local<Function>::Cast(globalObj->Get(V8STR("Date")));
+
+        // Great. We can use this constructor function to allocate new Dates:
+        const int argc = 1;
+        Local<Value> argv[argc] = { V8STR(time_string) };
+
+        // Now we have our constructor, and our constructor args. Let's create the Date:
+        return dateConstructor->NewInstance(argc, argv);
+    } else if (type == MYSQL_TYPE_SET) {       // SET
+        // TODO(Sannis): Maybe memory leaks here
+        char *pch, *last, *field_value = (char *) ptr;
+        int k = 0;
+        Local<Array> js_field_array = Array::New();
+
+        pch = strtok_r(field_value, ",", &last);
+        while (pch != NULL) {
+            js_field_array->Set(Integer::New(k), V8STR(pch));
+            pch = strtok_r(NULL, ",", &last);
+            k++;
+        }
+
+        return js_field_array;
+    } else {
+        return V8STR2((char *) ptr, length);
+    }
+}
+
+void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
+    HandleScope scope;
+    struct fetchAll_request* fetchAll_req = (struct fetchAll_request *) (req->data);
+    MysqlStatement* stmt = fetchAll_req->stmt;
+    MYSQL_FIELD* fields = fetchAll_req->meta->fields;
+    unsigned int field_count = fetchAll_req->field_count;
+
+    int argc = 1, error = 0;
+    Local<Value> argv[2];
+
+    if (!fetchAll_req->ok) {
+        argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
+    } else {
+        MALLOC_ARRAY(length, unsigned long, field_count);
+        MALLOC_ARRAY(is_null, my_bool, field_count);
+        MALLOC_ARRAY(buffers, void*, field_count);
+
+        error = BindResult(stmt->_stmt, fields, field_count, length, is_null, buffers);
+        if (!error) {
+            error = mysql_stmt_store_result(stmt->_stmt);
+        }
+
+        int row_count = 0;
+        if (!error) {
+            row_count = mysql_stmt_num_rows(stmt->_stmt);
+        }
+
+        Local<Array> js_result = Array::New(row_count);
+        Local<Object> js_result_row;
+
+        unsigned int i = 0, j = 0;
+        void* ptr;
+        while (!error) {
+            error = mysql_stmt_fetch(stmt->_stmt);
+            if (error) {
+                break;
+            }
+            js_result_row = Object::New();
+
+            DEBUG_PRINTF("Fetching row #%d\n", i);
+
+            while (j < field_count) {
+                ptr = buffers[j];
+
+                DEBUG_PRINTF("Is null %d\n", is_null[j]);
+
+                Local<Value> js_field;
+                if (is_null[j]) {
+                    js_field = Local<Value>::New(Null());
+                } else {
+                    js_field = GetFieldValue(ptr, length[j], fields[j]);
+                }
+
+                js_result_row->Set(V8STR(fields[j].name), js_field);
+                j++;
+            }
+            j = 0;
+
+            js_result->Set(Integer::NewFromUnsigned(i), js_result_row);
+            i++;
+        }
+
+        mysql_free_result(fetchAll_req->meta);
+
+        if (error && error != MYSQL_NO_DATA) {
+            argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
+        } else {
+            argc = 2;
+            argv[0] = Local<Value>::New(Null());
+            argv[1] = js_result;
+        }
+    }
+
+    node::MakeCallback(Context::GetCurrent()->Global(), fetchAll_req->callback, argc, argv);
+    fetchAll_req->callback.Dispose();
+    fetchAll_req->stmt->Unref();
+}
+
+void MysqlStatement::EIO_FetchAll(uv_work_t *req) {
+    struct fetchAll_request* fetchAll_req = (struct fetchAll_request *) (req->data);
+    MysqlStatement* stmt = fetchAll_req->stmt;
+
+    fetchAll_req->field_count = mysql_stmt_field_count(stmt->_stmt);
+
+    MYSQL_RES* meta = mysql_stmt_result_metadata(stmt->_stmt);
+    if (meta == NULL) {
+        fetchAll_req->meta = NULL;
+        fetchAll_req->ok = false;
+    } else {
+        fetchAll_req->meta = meta;
+        fetchAll_req->ok = true;
+    }
+}
+
+Handle<Value> MysqlStatement::FetchAll(const Arguments& args) {
+    HandleScope scope;
+
+    REQ_FUN_ARG(0, callback);
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    MYSQLSTMT_MUSTBE_INITIALIZED;
+    MYSQLSTMT_MUSTBE_PREPARED;
+
+    fetchAll_request *fetchAll_req = new fetchAll_request;
+
+    fetchAll_req->callback = Persistent<Function>::New(callback);
+    fetchAll_req->stmt = stmt;
+    stmt->Ref();
+
+    uv_work_t *_req = new uv_work_t;
+    _req->data = fetchAll_req;
+    uv_queue_work(uv_default_loop(), _req, EIO_FetchAll, EIO_After_FetchAll);
+
+    return Undefined();
+}
+
+/**
+ * MysqlStatement#fetchAllSync() -> Object
+ *
+ * Returns row data from statement result
+ **/
+Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    MYSQLSTMT_MUSTBE_INITIALIZED;
+    MYSQLSTMT_MUSTBE_PREPARED;
+
+    // Get fields count for binding buffers
+    unsigned int field_count = mysql_stmt_field_count(stmt->_stmt);
+
+    // Get meta data for binding buffers
+    MYSQL_RES* meta = mysql_stmt_result_metadata(stmt->_stmt);
+    if (meta == NULL) {
         return scope.Close(Null());
     }
+    MYSQL_FIELD* fields = meta->fields;
 
-    /* If error on buffering results return null */
-    if (mysql_stmt_store_result(stmt->_stmt)) {
-        mysql_free_result(meta);
-        free(bind);
-        free(length);
-        free(is_null);
-        free(buffers);
-        return scope.Close(Null());
+    uint32_t i = 0, j = 0;
+    void *ptr = 0;
+    int row_count = 0, error;
+
+    MALLOC_ARRAY(length, unsigned long, field_count);
+    MALLOC_ARRAY(is_null, my_bool, field_count);
+    MALLOC_ARRAY(buffers, void*, field_count);
+    MALLOC_ARRAY(bind, MYSQL_BIND, field_count);
+
+    memset(bind, 0, sizeof(MYSQL_BIND) * field_count);
+
+    error = BindResult(stmt->_stmt, fields, field_count, length, is_null, buffers);
+    if (!error) {
+        error = mysql_stmt_store_result(stmt->_stmt);
     }
 
-    row_count = mysql_stmt_num_rows(stmt->_stmt);
+    if (!error) {
+        row_count = mysql_stmt_num_rows(stmt->_stmt);
+    }
+
     Local<Array> js_result = Array::New(row_count);
     Local<Object> js_result_row;
 
-    /* If no rows, return empty array */
-    if (row_count == 0) {
-        mysql_free_result(meta);
-        free(bind);
-        free(length);
-        free(is_null);
-        free(buffers);
-        return scope.Close(js_result);
-    }
+    while (!error) {
+        error = mysql_stmt_fetch(stmt->_stmt);
+        if (error) {
+            break;
+        }
 
-    i = 0;
-    while (mysql_stmt_fetch(stmt->_stmt) != MYSQL_NO_DATA) {
         js_result_row = Object::New();
 
         DEBUG_PRINTF("Fetching row #%d\n", i);
 
-        j = -1;
-        while (++j < field_count) {
-            type = fields[j].type;
-            Local<Value> js_field = Local<Value>::New(Null());
+        while (j < field_count) {
             ptr = buffers[j];
 
             DEBUG_PRINTF("Is null %d\n", is_null[j]);
-            DEBUG_PRINTF("Buffer %p, length: %lu\n", ptr, length[j]);
+
+            Local<Value> js_field;
             if (is_null[j]) {
-                js_result_row->Set(V8STR(fields[j].name), js_field);
-                continue;
-            }
-
-            if (type == MYSQL_TYPE_TINY) {             // TINYINT
-                int32_t val = *((signed char *) ptr);
-                // handle as boolean
-                if (length[j] == 1) {
-                    DEBUG_PRINTF("TINYINT(1) %d\n", val);
-                    js_field = Local<Value>::New(Boolean::New(val));
-                // handle as integer
-                } else {
-                    DEBUG_PRINTF("TINYINT(>1) %d\n", val);
-                    js_field = Integer::New(val);
-                }
-            } else if (
-            type == MYSQL_TYPE_SHORT ||                // SMALLINT
-            type == MYSQL_TYPE_SHORT) {                // YEAR
-                DEBUG_PRINTF("SMALLINT %d\n", *((short int*) ptr));
-                if (fields[j].flags & UNSIGNED_FLAG) {
-                    js_field = Integer::NewFromUnsigned((uint32_t) *((unsigned short int *) ptr));
-                } else {
-                    js_field = Integer::New((int32_t) *((short int *) ptr));
-                }
-            } else if (
-            type == MYSQL_TYPE_INT24 ||                // MEDIUMINT
-            type == MYSQL_TYPE_LONG) {                 // INT
-                DEBUG_PRINTF("INT %d\n", *((int *) ptr));
-                if (fields[j].flags & UNSIGNED_FLAG) {
-                    js_field = Integer::NewFromUnsigned((uint32_t) *((unsigned int *) ptr));
-                } else {
-                    js_field = Integer::New((int32_t) *((int *) ptr));
-                }
-            } else if (type == MYSQL_TYPE_LONGLONG) {  // BIGINT
-                DEBUG_PRINTF("BIGINT %lld\n", *((long long int*) ptr));
-                js_field = Number::New((double) *((long long int *) ptr));
-            } else if (type == MYSQL_TYPE_FLOAT) {     // FLOAT
-                DEBUG_PRINTF("FLOAT %f\n", *((float *) ptr));
-                js_field = Number::New(*((float *) ptr));
-            } else if (type == MYSQL_TYPE_DOUBLE) {    // DOUBLE, REAL
-                DEBUG_PRINTF("DOUBLE %f\n", *((double *) ptr));
-                js_field = Number::New(*((double *) ptr));
-            } else if (
-            type == MYSQL_TYPE_DECIMAL ||              // DECIMAL, NUMERIC
-            type == MYSQL_TYPE_NEWDECIMAL ||           // NEWDECIMAL
-            type == MYSQL_TYPE_STRING ||               // CHAR, BINARY
-            type == MYSQL_TYPE_VAR_STRING ||           // VARCHAR, VARBINARY
-            type == MYSQL_TYPE_TINY_BLOB ||            // TINYBLOB, TINYTEXT
-            type == MYSQL_TYPE_BLOB ||                 // BLOB, TEXT
-            type == MYSQL_TYPE_MEDIUM_BLOB ||          // MEDIUMBLOB, MEDIUMTEXT
-            type == MYSQL_TYPE_LONG_BLOB ||            // LONGBLOB, LONGTEXT
-            type == MYSQL_TYPE_BIT ||                  // BIT
-            type == MYSQL_TYPE_ENUM ||                 // ENUM
-            type == MYSQL_TYPE_GEOMETRY) {             // Spatial fields
-                char *data = (char *) ptr;
-                // create buffer
-                if (fields[j].flags & BINARY_FLAG) {
-                    DEBUG_PRINTF("Blob, length: (%lu)\n", length[j]);
-
-                    // taken from: http://sambro.is-super-awesome.com/2011/03/03/creating-a-proper-buffer-in-a-node-c-addon/
-                    node::Buffer *slowBuffer = node::Buffer::New(length[j]);
-                    memcpy(node::Buffer::Data(slowBuffer), data, length[j]);
-                    v8::Local<v8::Object> globalObj = v8::Context::GetCurrent()->Global();
-                    v8::Local<v8::Function> bufferConstructor = v8::Local<v8::Function>::Cast(globalObj->Get(v8::String::New("Buffer")));
-                    v8::Handle<v8::Value> constructorArgs[3] = { slowBuffer->handle_, v8::Integer::New(length[j]), v8::Integer::New(0) };
-                    js_field = bufferConstructor->NewInstance(3, constructorArgs);
-                // create string
-                } else {
-                    DEBUG_PRINTF("String, length: %lu/%lu\n", length[j], fields[j].length);
-                    js_field = V8STR2(data, length[j]);
-                }
-            } else if (
-            type == MYSQL_TYPE_TIME ||                 // TIME
-            type == MYSQL_TYPE_DATE ||                 // DATE
-            type == MYSQL_TYPE_NEWDATE ||              // Newer const used in MySQL > 5.0
-            type == MYSQL_TYPE_DATETIME ||             // DATETIME
-            type == MYSQL_TYPE_TIMESTAMP) {            // TIMESTAMP
-                MYSQL_TIME ts = *((MYSQL_TIME *) ptr);
-
-                DEBUG_PRINTF(
-                    "Time: %04d-%02d-%02d %02d:%02d:%02d\n",
-                    ts.year, ts.month, ts.day,
-                    ts.hour, ts.minute, ts.second);
-
-                char time_string[24];
-                sprintf(
-                    time_string,
-                    "%04d-%02d-%02d %02d:%02d:%02d GMT",
-                    ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second);
-
-                // First step is to get a handle to the global object:
-                Local<v8::Object> globalObj = Context::GetCurrent()->Global();
-
-                // Now we need to grab the Date constructor function:
-                Local<v8::Function> dateConstructor = Local<Function>::Cast(globalObj->Get(V8STR("Date")));
-
-                // Great. We can use this constructor function to allocate new Dates:
-                const int argc = 1;
-                Local<Value> argv[argc] = { V8STR(time_string) };
-
-                // Now we have our constructor, and our constructor args. Let's create the Date:
-                js_field = dateConstructor->NewInstance(argc, argv);
-            } else if (type == MYSQL_TYPE_SET) {       // SET
-                // TODO(Sannis): Maybe memory leaks here
-                char *pch, *last, *field_value = (char *) ptr;
-                int k = 0;
-                Local<Array> js_field_array = Array::New();
-
-                pch = strtok_r(field_value, ",", &last);
-                while (pch != NULL) {
-                    js_field_array->Set(Integer::New(k), V8STR(pch));
-                    pch = strtok_r(NULL, ",", &last);
-                    k++;
-                }
-
-                js_field = js_field_array;
+                js_field = Local<Value>::New(Null());
             } else {
-                js_field = V8STR2((char *) ptr, length[j]);
+                js_field = GetFieldValue(ptr, length[j], fields[j]);
             }
 
             js_result_row->Set(V8STR(fields[j].name), js_field);
+            j++;
         }
+        j = 0;
 
         js_result->Set(Integer::NewFromUnsigned(i), js_result_row);
         i++;
     }
 
     mysql_free_result(meta);
-    free(bind);
-    free(length);
-    free(is_null);
-    free(buffers);
-    return scope.Close(js_result);
+
+    if (error && error != MYSQL_NO_DATA) {
+        return THREXC(mysql_stmt_error(stmt->_stmt));
+    } else {
+        return scope.Close(js_result);
+    }
 }
 
 /**
