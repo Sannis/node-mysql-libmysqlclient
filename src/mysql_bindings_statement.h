@@ -17,17 +17,22 @@
 #include "./mysql_bindings.h"
 
 #define MYSQLSTMT_MUSTBE_INITIALIZED \
-    if (!stmt->_stmt) { \
+    if (stmt->state < STMT_INITIALIZED) { \
         return THREXC("Statement not initialized"); \
     }
 
 #define MYSQLSTMT_MUSTBE_PREPARED \
-    if (!stmt->prepared) { \
+    if (stmt->state < STMT_PREPARED) { \
         return THREXC("Statement not prepared"); \
     }
 
+#define MYSQLSTMT_MUSTBE_EXECUTED \
+    if (stmt->state < STMT_EXECUTED) { \
+        return THREXC("Statement not executed"); \
+    }
+
 #define MYSQLSTMT_MUSTBE_STORED \
-    if (!stmt->stored) { \
+    if (stmt->state < STMT_STORED_RESULT) { \
         return THREXC("Statement result not stored"); \
     }
 
@@ -48,8 +53,16 @@ class MysqlStatement : public node::ObjectWrap {
     MYSQL_BIND *binds;
     unsigned long param_count;
 
-    bool prepared;
-    bool stored;
+    enum MysqlStatementState {
+        STMT_CLOSED,
+        STMT_INITIALIZED,
+        STMT_PREPARED,
+        STMT_BINDED_PARAMS,
+        STMT_EXECUTED,
+        STMT_BINDED_BUFFERS,
+        STMT_STORED_RESULT,
+    };
+    MysqlStatementState state;
 
     MysqlStatement(MYSQL_STMT *my_stmt);
 

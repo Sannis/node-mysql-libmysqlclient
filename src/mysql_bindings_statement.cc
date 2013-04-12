@@ -71,13 +71,12 @@ MysqlStatement::MysqlStatement(MYSQL_STMT *my_stmt): ObjectWrap() {
     this->_stmt = my_stmt;
     this->binds = NULL;
     this->param_count = 0;
-    this->prepared = false;
-    this->stored = false;
+    this->state = STMT_INITIALIZED;
 }
 
 MysqlStatement::~MysqlStatement() {
     if (this->_stmt) {
-        if (this->prepared) {
+        if (this->state >= STMT_PREPARED) {
             for (uint64_t i = 0; i < this->param_count; i++) {
                 if (this->binds[i].buffer_type == MYSQL_TYPE_LONG) {
                     if (this->binds[i].is_unsigned) {
@@ -362,6 +361,8 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
       return scope.Close(False());
     }
 
+    stmt->state = STMT_BINDED_PARAMS;
+
     return scope.Close(True());
 }
 
@@ -460,6 +461,7 @@ Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
         return scope.Close(False());
     }
 
+    stmt->state = STMT_CLOSED;
     stmt->_stmt = NULL;
 
     return scope.Close(True());
@@ -475,8 +477,6 @@ Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
-    MYSQLSTMT_MUSTBE_PREPARED;
     MYSQLSTMT_MUSTBE_STORED;
 
     REQ_NUMBER_ARG(0, offset_double)
@@ -537,6 +537,7 @@ void MysqlStatement::EIO_After_Execute(uv_work_t *req) {
     if (!execute_req->ok) {
         argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
     } else {
+        stmt->state = STMT_EXECUTED;
         argv[0] = Local<Value>::New(Null());
     }
 
@@ -569,7 +570,6 @@ Handle<Value> MysqlStatement::Execute(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
 
     execute_request* execute_req = new execute_request;
@@ -595,13 +595,13 @@ Handle<Value> MysqlStatement::ExecuteSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
 
     if (mysql_stmt_execute(stmt->_stmt)) {
         return scope.Close(False());
     }
 
+    stmt->state = STMT_EXECUTED;
     return scope.Close(True());
 }
 
@@ -730,8 +730,7 @@ Handle<Value> MysqlStatement::FetchAll(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
-    MYSQLSTMT_MUSTBE_PREPARED;
+    MYSQLSTMT_MUSTBE_EXECUTED;
 
     fetchAll_request *fetchAll_req = new fetchAll_request;
 
@@ -756,8 +755,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
-    MYSQLSTMT_MUSTBE_PREPARED;
+    MYSQLSTMT_MUSTBE_EXECUTED;
 
     // Get fields count for binding buffers
     unsigned int field_count = mysql_stmt_field_count(stmt->_stmt);
@@ -845,7 +843,6 @@ Handle<Value> MysqlStatement::FieldCountSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
 
     return scope.Close(Integer::New(mysql_stmt_field_count(stmt->_stmt)));
@@ -861,7 +858,7 @@ Handle<Value> MysqlStatement::FreeResultSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
+    MYSQLSTMT_MUSTBE_EXECUTED;
 
     return scope.Close(!mysql_stmt_free_result(stmt->_stmt) ? True() : False());
 }
@@ -998,8 +995,7 @@ Handle<Value> MysqlStatement::LastInsertIdSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
-    MYSQLSTMT_MUSTBE_PREPARED;
+    MYSQLSTMT_MUSTBE_EXECUTED;
 
     return scope.Close(Integer::New(mysql_stmt_insert_id(stmt->_stmt)));
 }
@@ -1014,8 +1010,7 @@ Handle<Value> MysqlStatement::NextResultSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
-    MYSQLSTMT_MUSTBE_PREPARED;
+    MYSQLSTMT_MUSTBE_EXECUTED;
 
     return scope.Close(Integer::New(mysql_stmt_next_result(stmt->_stmt)));
 }
@@ -1030,8 +1025,6 @@ Handle<Value> MysqlStatement::NumRowsSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
-    MYSQLSTMT_MUSTBE_PREPARED;
     MYSQLSTMT_MUSTBE_STORED;  // TODO(Sannis): Or all result already fetched!
 
     return scope.Close(Integer::New(mysql_stmt_num_rows(stmt->_stmt)));
@@ -1053,7 +1046,6 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
     REQ_STR_ARG(0, query)
 
     // TODO(Sannis): Smth else? close/reset
-    stmt->prepared = false;
 
     unsigned long int query_len = args[0]->ToString()->Utf8Length();
 
@@ -1074,7 +1066,7 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
         // TODO(Sannis): Smth else?
     }
 
-    stmt->prepared = true;
+    stmt->state = STMT_PREPARED;
 
     return scope.Close(True());
 }
@@ -1089,14 +1081,13 @@ Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
-
 
     if (mysql_stmt_reset(stmt->_stmt)) {
         return scope.Close(False());
     }
 
+    stmt->state = STMT_INITIALIZED;
     return scope.Close(True());
 }
 
@@ -1110,7 +1101,6 @@ Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
 
     MYSQL_RES *my_result = mysql_stmt_result_metadata(stmt->_stmt);
@@ -1142,7 +1132,6 @@ Handle<Value> MysqlStatement::SendLongDataSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
 
     REQ_INT_ARG(0, parameter_number);
@@ -1181,14 +1170,13 @@ Handle<Value> MysqlStatement::StoreResultSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
-    MYSQLSTMT_MUSTBE_INITIALIZED;
-    MYSQLSTMT_MUSTBE_PREPARED;
+    MYSQLSTMT_MUSTBE_EXECUTED;
 
     if (mysql_stmt_store_result(stmt->_stmt) != 0) {
         return scope.Close(False());
     }
 
-    stmt->stored = true;
+    stmt->state = STMT_STORED_RESULT;
 
     return scope.Close(True());
 }
