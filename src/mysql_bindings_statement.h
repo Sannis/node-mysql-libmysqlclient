@@ -99,10 +99,10 @@ class MysqlStatement : public node::ObjectWrap {
     static Handle<Value> ErrorSync(const Arguments& args);
 
     struct execute_request {
-      bool ok;
+        bool ok;
 
-      Persistent<Function> callback;
-      MysqlStatement* stmt;
+        Persistent<Function> callback;
+        MysqlStatement* stmt;
     };
 
     static void EIO_After_Execute(uv_work_t* req);
@@ -114,17 +114,15 @@ class MysqlStatement : public node::ObjectWrap {
     static Handle<Value> ExecuteSync(const Arguments& args);
 
     struct fetch_request {
-      bool ok;
-      bool empty_resultset;
+        bool ok;
+        bool empty_resultset;
 
-      Persistent<Function> callback;
-      MysqlStatement* stmt;
+        Persistent<Function> callback;
+        MysqlStatement* stmt;
 
-      MYSQL_RES* meta;
-      unsigned long field_count;
+        MYSQL_RES* meta;
+        unsigned long field_count;
     };
-
-    static Local<Value> GetFieldValue(void* ptr, unsigned long& length, MYSQL_FIELD& field);
 
     static void EIO_After_FetchAll(uv_work_t* req);
 
@@ -148,6 +146,8 @@ class MysqlStatement : public node::ObjectWrap {
 
     static void FreeMysqlBinds(MYSQL_BIND *binds, unsigned long size, bool params);
 
+    static Local<Value> GetFieldValue(void* ptr, unsigned long& length, MYSQL_FIELD& field);
+
     static Handle<Value> LastInsertIdSync(const Arguments& args);
 
     static Handle<Value> NextResultSync(const Arguments& args);
@@ -163,6 +163,19 @@ class MysqlStatement : public node::ObjectWrap {
     static Handle<Value> SendLongDataSync(const Arguments& args);
 
     static Handle<Value> StoreResultSync(const Arguments& args);
+
+    struct store_result_request {
+        bool ok;
+
+        Persistent<Function> callback;
+        MysqlStatement* stmt;
+    };
+
+    static void EIO_After_StoreResult(uv_work_t* req);
+
+    static void EIO_StoreResult(uv_work_t* req);
+
+    static Handle<Value> StoreResult(const Arguments& args);
 
     static Handle<Value> SqlStateSync(const Arguments& args);
 };

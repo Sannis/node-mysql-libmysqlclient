@@ -63,8 +63,9 @@ void MysqlStatement::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "resultMetadataSync", MysqlStatement::ResultMetadataSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "sendLongDataSync",   MysqlStatement::SendLongDataSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "storeResultSync",    MysqlStatement::StoreResultSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "storeResult",        MysqlStatement::StoreResult);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "sqlStateSync",       MysqlStatement::SqlStateSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setStringSize",       MysqlStatement::SqlStateSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setStringSize",      MysqlStatement::SqlStateSync);
 
     // Make it visible in JavaScript
     target->Set(String::NewSymbol("MysqlStatement"), constructor_template->GetFunction());
@@ -1431,6 +1432,62 @@ Handle<Value> MysqlStatement::SqlStateSync(const Arguments& args) {
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
     return scope.Close(V8STR(mysql_stmt_sqlstate(stmt->_stmt)));
+}
+
+/**
+ * After function for StoreResult() method
+ */
+void MysqlStatement::EIO_After_StoreResult(uv_work_t *req) {
+    struct store_result_request* store_req = (struct store_result_request *) (req->data);
+    MysqlStatement* stmt = store_req->stmt;
+
+    Local<Value> argv[1];
+
+    if (!store_req->ok) {
+        argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
+    } else {
+        stmt->state = STMT_STORED_RESULT;
+        argv[0] = Local<Value>::New(Null());
+    }
+
+    node::MakeCallback(Context::GetCurrent()->Global(), store_req->callback, 1, argv);
+    store_req->callback.Dispose();
+    store_req->stmt->Unref();
+
+    delete store_req;
+    delete req;
+}
+
+/**
+ * Thread function for StoreResult() method
+ */
+void MysqlStatement::EIO_StoreResult(uv_work_t *req) {
+    struct store_result_request* store_req = (struct store_result_request *) (req->data);
+    MysqlStatement* stmt = store_req->stmt;
+
+    store_req->ok = !mysql_stmt_store_result(stmt->_stmt);
+}
+
+Handle<Value> MysqlStatement::StoreResult(const Arguments& args) {
+    HandleScope scope;
+
+    REQ_FUN_ARG(0, callback);
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    MYSQLSTMT_MUSTBE_EXECUTED;
+
+    store_result_request* store_req = new store_result_request;
+
+    store_req->callback = Persistent<Function>::New(callback);
+    store_req->stmt = stmt;
+    stmt->Ref();
+
+    uv_work_t *_req = new uv_work_t;
+    _req->data = store_req;
+    uv_queue_work(uv_default_loop(), _req, EIO_StoreResult, EIO_After_StoreResult);
+
+    return Undefined();
 }
 
 /**
