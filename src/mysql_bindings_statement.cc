@@ -42,6 +42,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "attrGetSync",        MysqlStatement::AttrGetSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "attrSetSync",        MysqlStatement::AttrSetSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "bindParamsSync",     MysqlStatement::BindParamsSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "bindResultSync",     MysqlStatement::BindResultSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "closeSync",          MysqlStatement::CloseSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "dataSeekSync",       MysqlStatement::DataSeekSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "errnoSync",          MysqlStatement::ErrnoSync);
@@ -50,6 +51,8 @@ void MysqlStatement::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "executeSync",        MysqlStatement::ExecuteSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAll",           MysqlStatement::FetchAll);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAllSync",       MysqlStatement::FetchAllSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchSync",          MysqlStatement::FetchSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetch",              MysqlStatement::Fetch);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldCountSync",     MysqlStatement::FieldCountSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "freeResultSync",     MysqlStatement::FreeResultSync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "lastInsertIdSync",   MysqlStatement::LastInsertIdSync);
@@ -77,26 +80,7 @@ MysqlStatement::MysqlStatement(MYSQL_STMT *my_stmt): ObjectWrap() {
 MysqlStatement::~MysqlStatement() {
     if (this->_stmt) {
         if (this->state >= STMT_PREPARED) {
-            for (uint64_t i = 0; i < this->param_count; i++) {
-                if (this->binds[i].buffer_type == MYSQL_TYPE_LONG) {
-                    if (this->binds[i].is_unsigned) {
-                        delete static_cast<unsigned int *>(this->binds[i].buffer); // NOLINT
-                    } else {
-                        delete static_cast<int *>(this->binds[i].buffer);
-                    }
-                } else if (this->binds[i].buffer_type == MYSQL_TYPE_DOUBLE) {
-                    delete static_cast<double *>(this->binds[i].buffer);
-                } else if (this->binds[i].buffer_type == MYSQL_TYPE_STRING) {
-                    // TODO(Sannis): Or delete?
-                    delete[] static_cast<char *>(this->binds[i].buffer);
-                    delete static_cast<unsigned long *>(this->binds[i].length); // NOLINT
-                } else if (this->binds[i].buffer_type == MYSQL_TYPE_DATETIME) {
-                    delete static_cast<MYSQL_TIME *>(this->binds[i].buffer);
-                } else {
-                    printf("MysqlStatement::~MysqlStatement: o_0\n");
-                }
-            }
-            delete[] this->binds;
+            FreeMysqlBinds(this->binds, this->param_count, true);
         }
         mysql_stmt_free_result(this->_stmt);
         mysql_stmt_close(this->_stmt);
@@ -367,16 +351,41 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
 }
 
 /**
- * Helper for FetchAll(), FetchAllSync() methods. Binds output buffers.
+ * Bind resultset buffers
  */
-int MysqlStatement::BindResult(MYSQL_STMT* stmt, MYSQL_FIELD* fields, unsigned int field_count,
-                               unsigned long* length, my_bool* is_null, void** buffers) {
+Handle<Value> MysqlStatement::BindResultSync(const Arguments& args) {
+    HandleScope scope;
 
-    uint32_t i = 0, type = 0, buf_length = 0;
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
+
+    MYSQLSTMT_MUSTBE_PREPARED;
+
+    MYSQL_RES *meta_result;
+    MYSQL_FIELD *fields;
+    MYSQL_BIND *bind;
+    unsigned int i = 0, field_count = 0;
+    uint32_t buf_length = 0;
+    enum_field_types type;
     void* ptr = NULL;
+    unsigned long *length;
+    my_bool *is_null;
+    my_bool *error;
 
-    MALLOC_ARRAY(bind, MYSQL_BIND, field_count);
+    meta_result = mysql_stmt_result_metadata(stmt->_stmt);
+    if (meta_result == NULL) {
+        return scope.Close(False());
+    }
+
+    field_count = mysql_stmt_field_count(stmt->_stmt);
+    fields = meta_result->fields;
+
+    bind = (MYSQL_BIND *) malloc(sizeof(MYSQL_BIND) * field_count);
     memset(bind, 0, sizeof(MYSQL_BIND) * field_count);
+
+    length = (unsigned long *) malloc(sizeof(unsigned long) * field_count);
+    is_null = (my_bool *) malloc(sizeof(my_bool) * field_count);
+    // TODO(estliberitas): this should be handled later
+    error = (my_bool *)  malloc(sizeof(my_bool) * field_count);
 
     while (i < field_count) {
         type = fields[i].type;
@@ -435,15 +444,24 @@ int MysqlStatement::BindResult(MYSQL_STMT* stmt, MYSQL_FIELD* fields, unsigned i
 
         bind[i].is_null = &is_null[i];
         bind[i].length = &length[i];
-        bind[i].buffer = buffers[i] = ptr;
-        bind[i].buffer_type = fields[i].type;
+        bind[i].error = &error[i];
+        bind[i].buffer = ptr;
+        bind[i].buffer_type = type;
         bind[i].buffer_length = buf_length;
 
         i++;
     }
 
-    return mysql_stmt_bind_result(stmt, bind);
+    if (mysql_stmt_bind_result(stmt->_stmt, bind)) {
+        return scope.Close(False());
+    }
+
+    stmt->result_binds = bind;
+    stmt->state = STMT_BINDED_RESULT;
+
+    return scope.Close(True());
 }
+
 
 /**
  * Closes a prepared statement
@@ -608,13 +626,17 @@ Handle<Value> MysqlStatement::ExecuteSync(const Arguments& args) {
 void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
     HandleScope scope;
 
-    struct fetchAll_request* fetchAll_req = (struct fetchAll_request *) (req->data);
+    struct fetch_request* fetchAll_req = (struct fetch_request *) (req->data);
     MysqlStatement* stmt = fetchAll_req->stmt;
 
+    MYSQL_FIELD* fields;
     int argc = 1, error = 0;
     uint32_t i = 0, j = 0;
     void *ptr = 0;
+    my_ulonglong row_count = 0;
+    Local<Array> js_result;
     Local<Value> argv[2];
+    Local<Object> js_result_row;
 
     if (!fetchAll_req->ok) {
         argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
@@ -622,17 +644,19 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
         argc = 2;
         argv[0] = argv[1] = Local<Value>::New(Null());
     } else {
-        MYSQL_FIELD* fields = fetchAll_req->meta->fields;
+        fields = fetchAll_req->meta->fields;
 
-        my_ulonglong row_count = 0;row_count = mysql_stmt_num_rows(stmt->_stmt);
-        Local<Array> js_result = Array::New(row_count);
-        Local<Object> js_result_row;
+        row_count = mysql_stmt_num_rows(stmt->_stmt);
+        js_result = Array::New(row_count);
 
         while (row_count && !error) {
             error = mysql_stmt_fetch(stmt->_stmt);
-            // TODO: handle following case properly
+            // TODO(estliberitas): handle following case properly
             if (error == MYSQL_DATA_TRUNCATED) {
                 error = 0;
+            } else if (error == MYSQL_NO_DATA) {
+                FreeMysqlBinds(stmt->result_binds, fetchAll_req->field_count, false);
+                break;
             } else if (error) {
                 break;
             }
@@ -642,15 +666,15 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
             DEBUG_PRINTF("Fetching row #%d\n", i);
 
             while (j < fetchAll_req->field_count) {
-                ptr = fetchAll_req->buffers[j];
+                ptr = stmt->result_binds[j].buffer;
 
-                DEBUG_PRINTF("Is null %d\n", fetchAll_req->is_null[j]);
+                DEBUG_PRINTF("Is null %d\n", *(stmt->result_binds[j].is_null));
 
                 Local<Value> js_field;
-                if (fetchAll_req->is_null[j]) {
+                if (*(stmt->result_binds[j].is_null)) {
                     js_field = Local<Value>::New(Null());
                 } else {
-                    js_field = GetFieldValue(ptr, fetchAll_req->length[j], fields[j]);
+                    js_field = GetFieldValue(ptr, *(stmt->result_binds[j].length), fields[j]);
                 }
 
                 js_result_row->Set(V8STR(fields[j].name), js_field);
@@ -684,42 +708,22 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
 }
 
 void MysqlStatement::EIO_FetchAll(uv_work_t *req) {
-    struct fetchAll_request* fetchAll_req = (struct fetchAll_request *) (req->data);
+    struct fetch_request* fetchAll_req = (struct fetch_request *) (req->data);
     MysqlStatement* stmt = fetchAll_req->stmt;
 
     unsigned int field_count = 0;
 
-    MYSQL_RES* meta = fetchAll_req->meta = mysql_stmt_result_metadata(stmt->_stmt);
+    fetchAll_req->ok = true;
+
+    MYSQL_RES* meta = mysql_stmt_result_metadata(stmt->_stmt);
     if (meta == NULL) {
-        fetchAll_req->ok = true;
         fetchAll_req->empty_resultset = true;
-        return;
     } else {
+        field_count = mysql_stmt_field_count(stmt->_stmt);
+
         fetchAll_req->empty_resultset = false;
+        fetchAll_req->field_count = field_count;
         fetchAll_req->meta = meta;
-    }
-
-    field_count = mysql_stmt_field_count(stmt->_stmt);
-    fetchAll_req->field_count = field_count;
-
-    MYSQL_FIELD* fields = meta->fields;
-
-    MALLOC_ARRAY(length, unsigned long, field_count);
-    fetchAll_req->length = length;
-    MALLOC_ARRAY(is_null, my_bool, field_count);
-    fetchAll_req->is_null = is_null;
-    MALLOC_ARRAY(buffers, void*, field_count);
-    fetchAll_req->buffers = buffers;
-
-    if (BindResult(stmt->_stmt, fields, field_count, length, is_null, buffers)) {
-        fetchAll_req->ok = false;
-        return;
-    }
-
-    if (mysql_stmt_store_result(stmt->_stmt)) {
-        fetchAll_req->ok = false;
-    } else {
-        fetchAll_req->ok = true;
     }
 }
 
@@ -730,9 +734,11 @@ Handle<Value> MysqlStatement::FetchAll(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
 
-    MYSQLSTMT_MUSTBE_EXECUTED;
+    if (stmt->state < STMT_BINDED_RESULT) {
+        return THREXC("Resultset buffers not binded");
+    }
 
-    fetchAll_request *fetchAll_req = new fetchAll_request;
+    fetch_request *fetchAll_req = new fetch_request;
 
     fetchAll_req->callback = Persistent<Function>::New(callback);
     fetchAll_req->stmt = stmt;
@@ -755,35 +761,29 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
 
-    MYSQLSTMT_MUSTBE_EXECUTED;
-
-    // Get fields count for binding buffers
-    unsigned int field_count = mysql_stmt_field_count(stmt->_stmt);
-
-    // Get meta data for binding buffers
-    MYSQL_RES* meta = mysql_stmt_result_metadata(stmt->_stmt);
-    if (meta == NULL) {
-        return scope.Close(Null());
+    if (stmt->state < STMT_BINDED_RESULT) {
+        return THREXC("Resultset buffers not binded");
     }
-    MYSQL_FIELD* fields = meta->fields;
 
+    MYSQL_RES* meta;
+    MYSQL_FIELD* fields;
     int error = 0;
     uint32_t i = 0, j = 0;
     void *ptr = 0;
+    unsigned int field_count;
+    my_ulonglong row_count;
 
-    MALLOC_ARRAY(length, unsigned long, field_count);
-    MALLOC_ARRAY(is_null, my_bool, field_count);
-    MALLOC_ARRAY(buffers, void*, field_count);
+    // Get fields count for binding buffers
+    field_count = mysql_stmt_field_count(stmt->_stmt);
 
-    error = BindResult(stmt->_stmt, fields, field_count, length, is_null, buffers);
-    if (!error) {
-        error = mysql_stmt_store_result(stmt->_stmt);
+    // Get meta data for binding buffers
+    meta = mysql_stmt_result_metadata(stmt->_stmt);
+    if (meta == NULL) {
+        return scope.Close(Null());
     }
 
-    my_ulonglong row_count = 0;
-    if (!error) {
-        row_count = mysql_stmt_num_rows(stmt->_stmt);
-    }
+    fields = meta->fields;
+    row_count = mysql_stmt_num_rows(stmt->_stmt);
 
     Local<Array> js_result = Array::New(row_count);
     Local<Object> js_result_row;
@@ -793,6 +793,9 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
         // TODO: handle following case properly
         if (error == MYSQL_DATA_TRUNCATED) {
             error = 0;
+        } else if (error == MYSQL_NO_DATA) {
+            FreeMysqlBinds(stmt->result_binds, field_count, false);
+            break;
         } else if (error) {
             break;
         }
@@ -802,15 +805,15 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
         DEBUG_PRINTF("Fetching row #%d\n", i);
 
         while (j < field_count) {
-            ptr = buffers[j];
+            ptr = stmt->result_binds[j].buffer;
 
-            DEBUG_PRINTF("Is null %d\n", is_null[j]);
+            DEBUG_PRINTF("Is null %d\n", *(stmt->result_binds[j].is_null));
 
             Local<Value> js_field;
-            if (is_null[j]) {
+            if (*(stmt->result_binds[j].is_null)) {
                 js_field = Local<Value>::New(Null());
             } else {
-                js_field = GetFieldValue(ptr, length[j], fields[j]);
+                js_field = GetFieldValue(ptr, *(stmt->result_binds[j].length), fields[j]);
             }
 
             js_result_row->Set(V8STR(fields[j].name), js_field);
@@ -830,6 +833,199 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
         return THREXC(mysql_stmt_error(stmt->_stmt));
     } else {
         return scope.Close(js_result);
+    }
+}
+
+void MysqlStatement::EIO_After_Fetch(uv_work_t* req) {
+    HandleScope scope;
+
+    struct fetch_request* fetch_req = (struct fetch_request *) (req->data);
+    MysqlStatement* stmt = fetch_req->stmt;
+
+    MYSQL_FIELD* fields;
+    int argc = 1;
+    uint32_t i = 0;
+    void *ptr = 0;
+    Local<Value> argv[2];
+    Local<Object> js_result_row;
+
+    if (!fetch_req->ok) {
+        argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
+    } else if (fetch_req->empty_resultset) {
+        argc = 2;
+        argv[0] = argv[1] = Local<Value>::New(Null());
+    } else {
+        fields = fetch_req->meta->fields;
+        js_result_row = Object::New();
+
+        while (i < fetch_req->field_count) {
+            ptr = stmt->result_binds[i].buffer;
+
+            DEBUG_PRINTF("Is null %d\n", *(stmt->result_binds[i].is_null));
+
+            Local<Value> js_field;
+            if (*(stmt->result_binds[i].is_null)) {
+                js_field = Local<Value>::New(Null());
+            } else {
+                js_field = GetFieldValue(ptr, *(stmt->result_binds[i].length), fields[i]);
+            }
+
+            js_result_row->Set(V8STR(fields[i].name), js_field);
+            i++;
+        }
+        argc = 2;
+        argv[0] = Local<Value>::New(Null());
+        argv[1] = js_result_row;
+    }
+
+    if (fetch_req->meta != NULL) {
+        mysql_free_result(fetch_req->meta);
+    }
+
+    node::MakeCallback(Context::GetCurrent()->Global(), fetch_req->callback, argc, argv);
+    fetch_req->callback.Dispose();
+    fetch_req->stmt->Unref();
+
+    delete fetch_req;
+    delete req;
+}
+
+void MysqlStatement::EIO_Fetch(uv_work_t *req) {
+    struct fetch_request* fetch_req = (struct fetch_request *) (req->data);
+    MysqlStatement* stmt = fetch_req->stmt;
+
+    MYSQL_RES* meta;
+    int error = 0;
+
+    fetch_req->ok = true;
+    fetch_req->empty_resultset = false;
+
+    // Get meta data for binding buffers
+    meta = mysql_stmt_result_metadata(stmt->_stmt);
+    if (meta == NULL) {
+        fetch_req->empty_resultset = true;
+        return;
+    } else {
+        fetch_req->meta = meta;
+    }
+
+    if (!mysql_stmt_num_rows(stmt->_stmt)) {
+        fetch_req->empty_resultset = true;
+        return;
+    } else {
+        fetch_req->field_count = mysql_stmt_field_count(stmt->_stmt);
+    }
+
+    error = mysql_stmt_fetch(stmt->_stmt);
+    if (error == MYSQL_DATA_TRUNCATED) {
+        // TODO: handle MYSQL_DATA_TRUNCATED case properly
+    } else if (error == MYSQL_NO_DATA) {
+        FreeMysqlBinds(stmt->result_binds, fetch_req->field_count, false);
+
+        fetch_req->empty_resultset = true;
+    } else if (error) {
+        fetch_req->ok = false;
+    }
+}
+
+Handle<Value> MysqlStatement::Fetch(const Arguments& args) {
+    HandleScope scope;
+
+    REQ_FUN_ARG(0, callback);
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
+
+    if (stmt->state < STMT_BINDED_RESULT) {
+        return THREXC("Resultset buffers not binded");
+    }
+
+    fetch_request *fetch_req = new fetch_request;
+
+    fetch_req->callback = Persistent<Function>::New(callback);
+    fetch_req->stmt = stmt;
+    stmt->Ref();
+
+    uv_work_t *_req = new uv_work_t;
+    _req->data = fetch_req;
+    uv_queue_work(uv_default_loop(), _req, EIO_Fetch, EIO_After_Fetch);
+
+    return Undefined();
+}
+
+/**
+ * Fetch row
+ */
+Handle<Value> MysqlStatement::FetchSync(const Arguments& args) {
+    HandleScope scope;
+
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
+
+    if (stmt->state < STMT_BINDED_RESULT) {
+        return THREXC("Resultset buffers not binded");
+    }
+
+    MYSQL_RES* meta;
+    MYSQL_FIELD* fields;
+    int error = 0;
+    uint32_t i = 0;
+    void *ptr = 0;
+    unsigned int field_count;
+    Local<Value> js_result_row;
+
+    // Get fields count for binding buffers
+    field_count = mysql_stmt_field_count(stmt->_stmt);
+
+    // Get meta data for binding buffers
+    meta = mysql_stmt_result_metadata(stmt->_stmt);
+    if (meta == NULL) {
+        return scope.Close(Null());
+    }
+
+    fields = meta->fields;
+
+    if (!mysql_stmt_num_rows(stmt->_stmt)) {
+        return scope.Close(Null());
+    }
+
+    error = mysql_stmt_fetch(stmt->_stmt);
+    if (error == MYSQL_DATA_TRUNCATED) {
+        // TODO: handle MYSQL_DATA_TRUNCATED case properly
+        error = 0;
+    }
+
+    if (error == MYSQL_NO_DATA) {
+        FreeMysqlBinds(stmt->result_binds, field_count, false);
+
+        error = 0;
+        js_result_row = Local<Value>::New(Null());
+    } else if (!error) {
+        js_result_row = Object::New();
+
+        while (i < field_count) {
+            ptr = stmt->result_binds[i].buffer;
+
+            DEBUG_PRINTF("Is null %d\n", *(stmt->result_binds[i].is_null));
+
+            Local<Value> js_field;
+            if (*(stmt->result_binds[i].is_null)) {
+                js_field = Local<Value>::New(Null());
+            } else {
+                js_field = GetFieldValue(ptr, *(stmt->result_binds[i].length), fields[i]);
+            }
+
+            js_result_row->ToObject()->Set(V8STR(fields[i].name), js_field);
+            i++;
+        }
+    }
+
+    if (meta != NULL) {
+        mysql_free_result(meta);
+    }
+
+    if (error) {
+        return THREXC(mysql_stmt_error(stmt->_stmt));
+    } else {
+        return scope.Close(js_result_row);
     }
 }
 
@@ -861,6 +1057,83 @@ Handle<Value> MysqlStatement::FreeResultSync(const Arguments& args) {
     MYSQLSTMT_MUSTBE_EXECUTED;
 
     return scope.Close(!mysql_stmt_free_result(stmt->_stmt) ? True() : False());
+}
+
+/**
+ * Helper for freeing memory of
+ */
+void MysqlStatement::FreeMysqlBinds(MYSQL_BIND *binds, unsigned long size, bool params) {
+    uint64_t i = 0;
+    enum_field_types type;
+    if (!params && size) {
+        delete[] static_cast<my_bool *>(binds[0].error);
+        delete[] static_cast<my_bool *>(binds[0].is_null);
+        delete[] static_cast<unsigned long *>(binds[0].length);
+    }
+
+    while (i < size) {
+        type = binds[i].buffer_type;
+
+        if (
+        type == MYSQL_TYPE_TINY ||                     // TINYINT
+        type == MYSQL_TYPE_NULL) {                     // NULL
+            delete static_cast<signed char *>(binds[i].buffer);
+        } else if (
+        type == MYSQL_TYPE_SHORT ||                    // SMALLINT
+        type == MYSQL_TYPE_SHORT) {                    // YEAR
+            if (binds[i].is_unsigned) {
+                delete static_cast<unsigned short *>(binds[i].buffer);
+            } else {
+                delete static_cast<short *>(binds[i].buffer);
+            }
+        } else if (
+        type == MYSQL_TYPE_INT24 ||                    // MEDIUMINT
+        type == MYSQL_TYPE_LONG) {                     // INT
+            if (binds[i].is_unsigned) {
+                delete static_cast<unsigned int *>(binds[i].buffer);
+            } else {
+                delete static_cast<int *>(binds[i].buffer);
+            }
+        } else if (type == MYSQL_TYPE_LONGLONG) {      // BIGINT
+            if (binds[i].is_unsigned) {
+                delete static_cast<unsigned long long *>(binds[i].buffer);
+            } else {
+                delete static_cast<long long *>(binds[i].buffer);
+            }
+        } else if (type == MYSQL_TYPE_FLOAT) {         // FLOAT
+            delete static_cast<float *>(binds[i].buffer);
+        } else if (type == MYSQL_TYPE_DOUBLE) {        // DOUBLE, REAL
+            delete static_cast<double *>(binds[i].buffer);
+        } else if (
+        type == MYSQL_TYPE_DECIMAL ||                  // DECIMAL, NUMERIC
+        type == MYSQL_TYPE_NEWDECIMAL ||               // NEWDECIMAL
+        type == MYSQL_TYPE_STRING ||                   // CHAR, BINARY
+        type == MYSQL_TYPE_VAR_STRING ||               // VARCHAR, VARBINARY
+        type == MYSQL_TYPE_TINY_BLOB ||                // TINYBLOB, TINYTEXT
+        type == MYSQL_TYPE_BLOB ||                     // BLOB, TEXT
+        type == MYSQL_TYPE_MEDIUM_BLOB ||              // MEDIUMBLOB, MEDIUMTEXT
+        type == MYSQL_TYPE_LONG_BLOB ||                // LONGBLOB, LONGTEXT
+        type == MYSQL_TYPE_BIT ||                      // BIT
+        type == MYSQL_TYPE_SET ||                      // SET
+        type == MYSQL_TYPE_ENUM ||                     // ENUM
+        type == MYSQL_TYPE_GEOMETRY) {                 // Spatial fields
+            delete[] static_cast<char *>(binds[i].buffer);
+            if (params) {
+                delete static_cast<unsigned long *>(binds[i].length); // NOLINT
+            }
+        } else if (
+        type == MYSQL_TYPE_TIME ||                     // TIME
+        type == MYSQL_TYPE_DATE ||                     // DATE
+        type == MYSQL_TYPE_NEWDATE ||                  // Newer const used in MySQL > 5.0
+        type == MYSQL_TYPE_DATETIME ||                 // DATETIME
+        type == MYSQL_TYPE_TIMESTAMP) {                // TIMESTAMP
+            delete static_cast<MYSQL_TIME *>(binds[i].buffer);
+        } else {                                       // For others we bind char buffer
+            delete[] static_cast<char *>(binds[i].buffer);
+        }
+        i++;
+    }
+    delete[] binds;
 }
 
 /**

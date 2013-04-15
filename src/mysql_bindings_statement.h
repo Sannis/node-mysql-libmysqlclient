@@ -51,6 +51,7 @@ class MysqlStatement : public node::ObjectWrap {
     MYSQL_STMT *_stmt;
 
     MYSQL_BIND *binds;
+    MYSQL_BIND *result_binds;
     unsigned long param_count;
 
     enum MysqlStatementState {
@@ -59,7 +60,7 @@ class MysqlStatement : public node::ObjectWrap {
         STMT_PREPARED,
         STMT_BINDED_PARAMS,
         STMT_EXECUTED,
-        STMT_BINDED_BUFFERS,
+        STMT_BINDED_RESULT,
         STMT_STORED_RESULT,
     };
     MysqlStatementState state;
@@ -87,6 +88,8 @@ class MysqlStatement : public node::ObjectWrap {
 
     static Handle<Value> BindParamsSync(const Arguments& args);
 
+    static Handle<Value> BindResultSync(const Arguments& args);
+
     static Handle<Value> CloseSync(const Arguments& args);
 
     static Handle<Value> DataSeekSync(const Arguments& args);
@@ -110,7 +113,7 @@ class MysqlStatement : public node::ObjectWrap {
 
     static Handle<Value> ExecuteSync(const Arguments& args);
 
-    struct fetchAll_request {
+    struct fetch_request {
       bool ok;
       bool empty_resultset;
 
@@ -119,12 +122,7 @@ class MysqlStatement : public node::ObjectWrap {
 
       MYSQL_RES* meta;
       unsigned long field_count;
-      my_bool* is_null;
-      unsigned long* length;
-      void** buffers;
     };
-
-    static int BindResult(MYSQL_STMT* stmt, MYSQL_FIELD* fields, unsigned int field_count, unsigned long* length, my_bool* is_null, void** buffers);
 
     static Local<Value> GetFieldValue(void* ptr, unsigned long& length, MYSQL_FIELD& field);
 
@@ -136,9 +134,19 @@ class MysqlStatement : public node::ObjectWrap {
 
     static Handle<Value> FetchAllSync(const Arguments& args);
 
+    static void EIO_After_Fetch(uv_work_t* req);
+
+    static void EIO_Fetch(uv_work_t* req);
+
+    static Handle<Value> Fetch(const Arguments& args);
+
+    static Handle<Value> FetchSync(const Arguments& args);
+
     static Handle<Value> FieldCountSync(const Arguments& args);
 
     static Handle<Value> FreeResultSync(const Arguments& args);
+
+    static void FreeMysqlBinds(MYSQL_BIND *binds, unsigned long size, bool params);
 
     static Handle<Value> LastInsertIdSync(const Arguments& args);
 
