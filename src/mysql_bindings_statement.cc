@@ -380,13 +380,13 @@ Handle<Value> MysqlStatement::BindResultSync(const Arguments& args) {
     field_count = mysql_stmt_field_count(stmt->_stmt);
     fields = meta_result->fields;
 
-    bind = (MYSQL_BIND *) malloc(sizeof(MYSQL_BIND) * field_count);
+    bind = new MYSQL_BIND[field_count];
     memset(bind, 0, sizeof(MYSQL_BIND) * field_count);
 
-    length = (unsigned long *) malloc(sizeof(unsigned long) * field_count);
-    is_null = (my_bool *) malloc(sizeof(my_bool) * field_count);
+    length = new unsigned long[field_count];
+    is_null = new my_bool[field_count];
     // TODO(estliberitas): this should be handled later
-    error = (my_bool *)  malloc(sizeof(my_bool) * field_count);
+    error = new my_bool[field_count];
 
     while (i < field_count) {
         type = fields[i].type;
@@ -395,26 +395,26 @@ Handle<Value> MysqlStatement::BindResultSync(const Arguments& args) {
         type == MYSQL_TYPE_TINY ||                     // TINYINT
         type == MYSQL_TYPE_NULL) {                     // NULL
             buf_length = sizeof(signed char);
-            ptr = (signed char *) malloc(buf_length);
+            ptr = new signed char;
         } else if (
         type == MYSQL_TYPE_SHORT ||                    // SMALLINT
         type == MYSQL_TYPE_SHORT) {                    // YEAR
             buf_length = sizeof(short int);
-            ptr = (short int *) malloc(buf_length);
+            ptr = new short int;
         } else if (
         type == MYSQL_TYPE_INT24 ||                    // MEDIUMINT
         type == MYSQL_TYPE_LONG) {                     // INT
             buf_length = sizeof(int);
-            ptr = (int *) malloc(buf_length);
+            ptr = new int;
         } else if (type == MYSQL_TYPE_LONGLONG) {      // BIGINT
-            buf_length = sizeof(long long int);
-            ptr = (long long int *) malloc(buf_length);
+            buf_length = sizeof(long long);
+            ptr = new long long;
         } else if (type == MYSQL_TYPE_FLOAT) {         // FLOAT
             buf_length = sizeof(float);
-            ptr = (float *) malloc(buf_length);
+            ptr = new float;
         } else if (type == MYSQL_TYPE_DOUBLE) {        // DOUBLE, REAL
             buf_length = sizeof(double);
-            ptr = (double *) malloc(buf_length);
+            ptr = new double;
         } else if (
         type == MYSQL_TYPE_DECIMAL ||                  // DECIMAL, NUMERIC
         type == MYSQL_TYPE_NEWDECIMAL ||               // NEWDECIMAL
@@ -429,7 +429,7 @@ Handle<Value> MysqlStatement::BindResultSync(const Arguments& args) {
         type == MYSQL_TYPE_ENUM ||                     // ENUM
         type == MYSQL_TYPE_GEOMETRY) {                 // Spatial fields
             buf_length = sizeof(char) * fields[i].length;
-            ptr = (char *) malloc(buf_length);
+            ptr = new char[fields[i].length];
         } else if (
         type == MYSQL_TYPE_TIME ||                     // TIME
         type == MYSQL_TYPE_DATE ||                     // DATE
@@ -437,10 +437,10 @@ Handle<Value> MysqlStatement::BindResultSync(const Arguments& args) {
         type == MYSQL_TYPE_DATETIME ||                 // DATETIME
         type == MYSQL_TYPE_TIMESTAMP) {                // TIMESTAMP
             buf_length = sizeof(MYSQL_TIME);
-            ptr = (MYSQL_TIME *) malloc(buf_length);
+            ptr = new MYSQL_TIME;
         } else {                                       // For others we bind char buffer
             buf_length = sizeof(char) * fields[i].length;
-            ptr = (char *) malloc(buf_length);
+            ptr = new char[fields[i].length];
         }
 
         bind[i].is_null = &is_null[i];
@@ -454,6 +454,7 @@ Handle<Value> MysqlStatement::BindResultSync(const Arguments& args) {
     }
 
     if (mysql_stmt_bind_result(stmt->_stmt, bind)) {
+        FreeMysqlBinds(bind, field_count, false);
         return scope.Close(False());
     }
 
@@ -696,7 +697,7 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
         }
     }
 
-    if (fetchAll_req->meta != NULL) {
+    if (fetchAll_req->meta != NULL && mysql_stmt_num_rows(stmt->_stmt)) {
         mysql_free_result(fetchAll_req->meta);
     }
 
