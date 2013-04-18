@@ -744,6 +744,7 @@ Handle<Value> MysqlStatement::FetchAll(const Arguments& args) {
 
     fetchAll_req->callback = Persistent<Function>::New(callback);
     fetchAll_req->stmt = stmt;
+    fetchAll_req->meta = NULL;
     stmt->Ref();
 
     uv_work_t *_req = new uv_work_t;
@@ -945,6 +946,7 @@ Handle<Value> MysqlStatement::Fetch(const Arguments& args) {
 
     fetch_req->callback = Persistent<Function>::New(callback);
     fetch_req->stmt = stmt;
+    fetch_req->meta = NULL;
     stmt->Ref();
 
     uv_work_t *_req = new uv_work_t;
