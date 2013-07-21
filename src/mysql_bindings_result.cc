@@ -232,7 +232,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
 }
 
 MysqlResult::fetch_options MysqlResult::GetFetchOptions(Local<Object> options) {
-    fetch_options fo = {};
+    fetch_options fo = {false, false};
 
     // Inherit from options object
     if (options->Has(V8STR("asArray"))) {
@@ -458,7 +458,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     HandleScope scope;
 
     int arg_pos = 0;
-    fetch_options fo = {};
+    fetch_options fo = {false, false};
     bool throw_wrong_arguments_exception = false;
 
     if (args.Length() > 0) {
@@ -717,7 +717,7 @@ Handle<Value> MysqlResult::FetchRowSync(const Arguments& args) {
 
     MYSQLRES_MUSTBE_VALID;
 
-    fetch_options fo = {};
+    fetch_options fo = {false, false};
 
     if (args.Length() > 0) {
         if (!args[0]->IsObject()) {
