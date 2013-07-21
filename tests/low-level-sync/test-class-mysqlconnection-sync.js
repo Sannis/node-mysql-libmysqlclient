@@ -694,6 +694,15 @@ exports.SetSslSync = function (test) {
   });
   conn.setSslSync(key, cert, ca, "", "ALL");
   conn.realConnectSync(cfg.host, cfg.user, cfg.password, cfg.database);
+  if (!conn.connectedSync() && (conn.connectErrno == 2026)) {
+    console.log("ERROR 2026 (HY000): SSL connection error");
+    console.log("SetSslSync test is skipped");
+
+    test.expect(1);
+    test.done();
+    return;
+  }
+
   test.ok(conn.connectedSync());
   conn.closeSync();
 
@@ -753,10 +762,10 @@ exports.UseResultSync = function (test) {
 exports.WarningCountSync = function (test) {
   test.expect(2);
   
-  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database), res;
+  var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
-  res = conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table_notexists + ";");
+  conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table_notexists + ";");
   test.equals(conn.warningCountSync(), 1, "conn.getWarningsSync() after DROP TABLE IF EXISTS test_table_notexists");
   conn.closeSync();
   
