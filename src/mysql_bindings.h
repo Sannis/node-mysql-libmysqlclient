@@ -32,6 +32,7 @@
 #define OBJUNWRAP ObjectWrap::Unwrap
 #define V8STR(str) String::New(str)
 #define V8STR2(str, len) String::New(str, len)
+#define MALLOC_ARRAY(name, type, size) type* name = (type*) malloc(sizeof(type) * size);
 
 #define REQ_INT_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsInt32()) \
