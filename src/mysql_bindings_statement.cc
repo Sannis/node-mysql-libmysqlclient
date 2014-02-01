@@ -66,7 +66,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     target->Set(NanSymbol("MysqlStatement"), tpl->GetFunction());
 }
 
-v8::Handle<v8::Object> MysqlStatement::NewInstance(MYSQL_STMT *my_statement) {
+v8::Local<v8::Object> MysqlStatement::NewInstance(MYSQL_STMT *my_statement) {
     NanScope();
 
     v8::Local<v8::Object> instance;

@@ -49,7 +49,7 @@ void MysqlResult::Init(Handle<Object> target) {
     target->Set(NanSymbol("MysqlResult"), tpl->GetFunction());
 }
 
-v8::Handle<v8::Object> MysqlResult::NewInstance(MYSQL *my_conn, MYSQL_RES *my_result, uint32_t field_count) {
+v8::Local<v8::Object> MysqlResult::NewInstance(MYSQL *my_conn, MYSQL_RES *my_result, uint32_t field_count) {
     NanScope();
 
     v8::Local<v8::Object> instance;

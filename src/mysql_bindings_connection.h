@@ -182,7 +182,7 @@ class MysqlConnection : public node::ObjectWrap {
         bool connection_closed;
         bool have_result_set;
 
-        Persistent<Value> callback;
+        Persistent<Function> callback;
         MysqlConnection *conn;
 
         char *query;

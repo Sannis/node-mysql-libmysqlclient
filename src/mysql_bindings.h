@@ -79,11 +79,9 @@ return NanThrowTypeError("Argument " #I " must be a function"); \
 Local<Function> VAR = Local<Function>::Cast(args[I]);
 
 #define OPTIONAL_FUN_ARG(I, VAR) \
-Handle<Value> VAR; \
+Local<Value> VAR; \
 if (args.Length() > (I) && args[I]->IsFunction()) {\
     VAR = args[I]; \
-} else { \
-    VAR = Null(); \
 }
 
 #define OPTIONAL_BUFFER_ARG(I, VAR) \

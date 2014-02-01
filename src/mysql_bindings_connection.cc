@@ -1132,7 +1132,7 @@ NAN_METHOD(MysqlConnection::Query) {
     REQ_STR_ARG(0, query);
     OPTIONAL_BUFFER_ARG(1, local_infile_buffer);
 
-    Handle<Value> callback;
+    Local<Value> callback;
     if (local_infile_buffer->IsNull()) {
       OPTIONAL_FUN_ARG(1, possibly_callback);
       callback = possibly_callback;
@@ -1155,7 +1155,9 @@ NAN_METHOD(MysqlConnection::Query) {
     memcpy(query_req->query, *query, query_len);
     query_req->query[query_len] = '\0';
 
-    NanAssignPersistent(Function, query_req->callback, callback);
+    if (callback->IsFunction()) {
+        NanAssignPersistent(Function, query_req->callback, callback.As<Function>());
+    }
 
     query_req->conn = conn;
     conn->Ref();
@@ -1274,7 +1276,9 @@ NAN_METHOD(MysqlConnection::QuerySend) {
     memcpy(query_req->query, *query, query_len);
     query_req->query[query_len] = '\0';
 
-    NanAssignPersistent(Function, query_req->callback, callback);
+    if (callback->IsFunction()) {
+        NanAssignPersistent(Function, query_req->callback, callback.As<Function>());
+    }
 
     query_req->conn = conn;
     conn->Ref();
