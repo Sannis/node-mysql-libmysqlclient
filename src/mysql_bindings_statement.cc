@@ -523,9 +523,7 @@ Handle<Value> MysqlStatement::ErrnoSync(const Arguments& args) {
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
-    uint32_t errno = mysql_stmt_errno(stmt->_stmt);
-
-    return scope.Close(Integer::New(errno));
+    return scope.Close(Integer::New(mysql_stmt_errno(stmt->_stmt)));
 }
 
 /**

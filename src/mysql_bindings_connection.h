@@ -194,8 +194,8 @@ class MysqlConnection : public node::ObjectWrap {
         my_ulonglong affected_rows;
         my_ulonglong insert_id;
 
-        unsigned int errno;
-        const char *error;
+        unsigned int my_errno;
+        const char *my_error;
 
         local_infile_data * infile_data;
     };

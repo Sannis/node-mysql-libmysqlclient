@@ -1001,10 +1001,9 @@ void MysqlConnection::EIO_After_Query(uv_work_t *req) {
         // https://github.com/Sannis/node-mysql-libmysqlclient/issues/157
         argv[0] = V8EXC("Connection is closed by closeSync() during query");
     } else if (!query_req->ok) {
-        unsigned int error_string_length = strlen(query_req->error) + 20;
+        unsigned int error_string_length = strlen(query_req->my_error) + 20;
         char* error_string = new char[error_string_length];
-        snprintf(error_string, error_string_length, "Query error #%d: %s",
-                 query_req->errno, query_req->error);
+        snprintf(error_string, error_string_length, "Query error #%d: %s", query_req->my_errno, query_req->my_error);
 
         argv[0] = V8EXC(error_string);
         delete[] error_string;
@@ -1088,12 +1087,12 @@ void MysqlConnection::EIO_Query(uv_work_t *req) {
     // clean after ourselves
     RestoreLocalInfileHandlers(query_req->infile_data, conn->_conn);
 
-    int errno = mysql_errno(conn->_conn);
-    if (r != 0 || errno != 0) {
+    int my_errno = mysql_errno(conn->_conn);
+    if (r != 0 || my_errno != 0) {
         // Query error
         query_req->ok = false;
-        query_req->errno = errno;
-        query_req->error = mysql_error(conn->_conn);
+        query_req->my_errno = my_errno;
+        query_req->my_error = mysql_error(conn->_conn);
     } else {
         query_req->ok = true;
 
@@ -1116,8 +1115,8 @@ void MysqlConnection::EIO_Query(uv_work_t *req) {
             } else {
                 // Result store error
                 query_req->ok = false;
-                query_req->errno = errno;
-                query_req->error = mysql_error(conn->_conn);
+                query_req->my_errno = my_errno;
+                query_req->my_error = mysql_error(conn->_conn);
             }
         }
     }
@@ -1211,12 +1210,12 @@ void MysqlConnection::EV_After_QuerySend(uv_poll_t* handle, int status, int even
     // The query part, mostly same with EIO_Query
     // TODO merge the same parts with EIO_Query
     int r = mysql_read_query_result(conn->_conn);
-    int errno = mysql_errno(conn->_conn);
-    if (r != 0 || errno != 0) {
+    int my_errno = mysql_errno(conn->_conn);
+    if (r != 0 || my_errno != 0) {
         // Query error
         query_req->ok = false;
-        query_req->errno = errno;
-        query_req->error = mysql_error(conn->_conn);
+        query_req->my_errno = my_errno;
+        query_req->my_error = mysql_error(conn->_conn);
     } else {
         query_req->ok = true;
 
@@ -1239,8 +1238,8 @@ void MysqlConnection::EV_After_QuerySend(uv_poll_t* handle, int status, int even
             } else {
                 // Result store error
                 query_req->ok = false;
-                query_req->errno = errno;
-                query_req->error = mysql_error(query_req->conn->_conn);
+                query_req->my_errno = my_errno;
+                query_req->my_error = mysql_error(query_req->conn->_conn);
             }
         }
     }

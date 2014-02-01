@@ -385,14 +385,14 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
         }
 
         if (i != mysql_num_rows(fetchAll_req->res->_res)) {
-            unsigned int errno = mysql_errno(fetchAll_req->res->_conn);
-            const char *error = mysql_error(fetchAll_req->res->_conn);
-            unsigned long error_string_length = strlen(error) + 20;
+            unsigned int my_errno = mysql_errno(fetchAll_req->res->_conn);
+            const char *my_error = mysql_error(fetchAll_req->res->_conn);
+            unsigned long error_string_length = strlen(my_error) + 20;
             char* error_string = new char[error_string_length];
             snprintf(
                 error_string, error_string_length,
                 "Fetch error #%d: %s",
-                errno, error
+                my_errno, my_error
             );
 
             argv[0] = V8EXC(error_string);
