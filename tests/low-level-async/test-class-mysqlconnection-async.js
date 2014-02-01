@@ -95,6 +95,12 @@ exports.Query = function (test) {
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
 
   conn.query("SHOW TABLES", function (err, res) {
+    test.ok(res, "have result");
+    if (!res) {
+      test.done();
+      return;
+    }
+
     test.ok(res.fieldCount === 1, "show results field count === 1");
     var rows = res.fetchAllSync();
     res.freeSync();
