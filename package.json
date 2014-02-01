@@ -32,6 +32,8 @@
 
   "scripts" : { "test" : "make test", "doc" : "make doc" },
 
+  "dependencies" : { "nan" : "~0.8.0" },
+
   "devDependencies" :
   { "nodeunit" : "~0.8.4"
   , "nodelint" : "~0.6.2"

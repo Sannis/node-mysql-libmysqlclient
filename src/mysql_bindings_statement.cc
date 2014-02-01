@@ -5,70 +5,81 @@
  * See license text in LICENSE file
  */
 
-/**
+/*!
  * Include headers
- *
- * @ignore
  */
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
 
-/**
- * Init V8 structures for MysqlStatement class
- *
- * @ignore
+/*!
+ * Init V8 structures for MysqlResult class
  */
 Persistent<FunctionTemplate> MysqlStatement::constructor_template;
 
 void MysqlStatement::Init(Handle<Object> target) {
-    HandleScope scope;
-
-    Local<FunctionTemplate> t = FunctionTemplate::New(MysqlStatement::New);
+    NanScope();
 
     // Constructor template
-    constructor_template = Persistent<FunctionTemplate>::New(t);
-    constructor_template->SetClassName(String::NewSymbol("MysqlStatement"));
+    Local<FunctionTemplate> tpl = FunctionTemplate::New(MysqlStatement::New);
+    NanAssignPersistent(FunctionTemplate, constructor_template, tpl);
+    tpl->SetClassName(NanSymbol("MysqlStatement"));
 
     // Instance template
-    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate();
+    Local<ObjectTemplate> instance_template = tpl->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
     // Properties
     instance_template->SetAccessor(V8STR("paramCount"), ParamCountGetter);
 
     // Methods
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "affectedRowsSync",   MysqlStatement::AffectedRowsSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "attrGetSync",        MysqlStatement::AttrGetSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "attrSetSync",        MysqlStatement::AttrSetSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "bindParamsSync",     MysqlStatement::BindParamsSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "bindResultSync",     MysqlStatement::BindResultSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "closeSync",          MysqlStatement::CloseSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "dataSeekSync",       MysqlStatement::DataSeekSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "errnoSync",          MysqlStatement::ErrnoSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "errorSync",          MysqlStatement::ErrorSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "execute",            MysqlStatement::Execute);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "executeSync",        MysqlStatement::ExecuteSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAll",           MysqlStatement::FetchAll);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAllSync",       MysqlStatement::FetchAllSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchSync",          MysqlStatement::FetchSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetch",              MysqlStatement::Fetch);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldCountSync",     MysqlStatement::FieldCountSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "freeResultSync",     MysqlStatement::FreeResultSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "lastInsertIdSync",   MysqlStatement::LastInsertIdSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "nextResultSync",     MysqlStatement::NextResultSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "numRowsSync",        MysqlStatement::NumRowsSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "prepareSync",        MysqlStatement::PrepareSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "resetSync",          MysqlStatement::ResetSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "resultMetadataSync", MysqlStatement::ResultMetadataSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "sendLongDataSync",   MysqlStatement::SendLongDataSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "storeResultSync",    MysqlStatement::StoreResultSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "storeResult",        MysqlStatement::StoreResult);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "sqlStateSync",       MysqlStatement::SqlStateSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setStringSize",      MysqlStatement::SqlStateSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "affectedRowsSync",   MysqlStatement::AffectedRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "attrGetSync",        MysqlStatement::AttrGetSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "attrSetSync",        MysqlStatement::AttrSetSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "bindParamsSync",     MysqlStatement::BindParamsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "bindResultSync",     MysqlStatement::BindResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "closeSync",          MysqlStatement::CloseSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "dataSeekSync",       MysqlStatement::DataSeekSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "errnoSync",          MysqlStatement::ErrnoSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "errorSync",          MysqlStatement::ErrorSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "execute",            MysqlStatement::Execute);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "executeSync",        MysqlStatement::ExecuteSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAll",           MysqlStatement::FetchAll);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAllSync",       MysqlStatement::FetchAllSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchSync",          MysqlStatement::FetchSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetch",              MysqlStatement::Fetch);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldCountSync",     MysqlStatement::FieldCountSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "freeResultSync",     MysqlStatement::FreeResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "lastInsertIdSync",   MysqlStatement::LastInsertIdSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "nextResultSync",     MysqlStatement::NextResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "numRowsSync",        MysqlStatement::NumRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "prepareSync",        MysqlStatement::PrepareSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "resetSync",          MysqlStatement::ResetSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "resultMetadataSync", MysqlStatement::ResultMetadataSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "sendLongDataSync",   MysqlStatement::SendLongDataSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "storeResultSync",    MysqlStatement::StoreResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "storeResult",        MysqlStatement::StoreResult);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "sqlStateSync",       MysqlStatement::SqlStateSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "setStringSize",      MysqlStatement::SqlStateSync);
 
     // Make it visible in JavaScript
-    target->Set(String::NewSymbol("MysqlStatement"), constructor_template->GetFunction());
+    target->Set(NanSymbol("MysqlStatement"), tpl->GetFunction());
+}
+
+v8::Handle<v8::Object> MysqlStatement::NewInstance(MYSQL_STMT *my_statement) {
+    NanScope();
+
+    v8::Local<v8::Object> instance;
+
+    v8::Local<v8::FunctionTemplate> tpl = NanPersistentToLocal(constructor_template);
+
+    const int argc = 1;
+    Local<Value> argv[argc];
+    argv[0] = External::New(my_statement);
+
+    instance = tpl->GetFunction()->NewInstance(argc, argv);
+
+    return instance;
 }
 
 MysqlStatement::MysqlStatement(MYSQL_STMT *my_stmt): ObjectWrap() {
@@ -93,15 +104,15 @@ MysqlStatement::~MysqlStatement() {
  *
  * @constructor
  */
-Handle<Value> MysqlStatement::New(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::New) {
+    NanScope();
 
     REQ_EXT_ARG(0, js_stmt);
     MYSQL_STMT *my_stmt = static_cast<MYSQL_STMT*>(js_stmt->Value());
     MysqlStatement *binding_stmt = new MysqlStatement(my_stmt);
     binding_stmt->Wrap(args.Holder());
 
-    return args.Holder();
+    NanReturnValue(args.Holder());
 }
 
 /**
@@ -110,16 +121,15 @@ Handle<Value> MysqlStatement::New(const Arguments& args) {
  * @getter
  * @return {Integer}
  */
-Handle<Value> MysqlStatement::ParamCountGetter(Local<String> property,
-                                                       const AccessorInfo &info) {
-    HandleScope scope;
+NAN_GETTER(MysqlStatement::ParamCountGetter) {
+    NanScope();
 
-    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
+    MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
 
-    return scope.Close(Integer::New(stmt->param_count));
+    NanReturnValue(Integer::New(stmt->param_count));
 }
 
 /**
@@ -127,8 +137,8 @@ Handle<Value> MysqlStatement::ParamCountGetter(Local<String> property,
  *
  * @return {Integer}
  */
-Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::AffectedRowsSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
@@ -138,10 +148,10 @@ Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
     my_ulonglong affected_rows = mysql_stmt_affected_rows(stmt->_stmt);
 
     if (affected_rows == ((my_ulonglong)-1)) {
-        return scope.Close(Integer::New(-1));
+        NanReturnValue(Integer::New(-1));
     }
 
-    return scope.Close(Integer::New(affected_rows));
+    NanReturnValue(Integer::New(affected_rows));
 }
 
 /**
@@ -150,8 +160,8 @@ Handle<Value> MysqlStatement::AffectedRowsSync(const Arguments& args) {
  * @param {Integer} attr
  * @return {Boolean|Integer}
  */
-Handle<Value> MysqlStatement::AttrGetSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::AttrGetSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
@@ -165,22 +175,22 @@ Handle<Value> MysqlStatement::AttrGetSync(const Arguments& args) {
     unsigned long attr_value; // NOLINT
 
     if (mysql_stmt_attr_get(stmt->_stmt, attr_key, &attr_value)) {
-        return THREXC("This attribute isn't supported by libmysqlclient");
+        return NanThrowError("This attribute isn't supported by libmysqlclient");
     }
 
     switch (attr_key) {
         case STMT_ATTR_UPDATE_MAX_LENGTH:
-            return scope.Close(Boolean::New(attr_value));
+            NanReturnValue(Boolean::New(attr_value));
             break;
         case STMT_ATTR_CURSOR_TYPE:
         case STMT_ATTR_PREFETCH_ROWS:
-            return scope.Close(Integer::NewFromUnsigned(attr_value));
+            NanReturnValue(Integer::NewFromUnsigned(attr_value));
             break;
         default:
-            return THREXC("This attribute isn't supported yet");
+            return NanThrowError("This attribute isn't supported yet");
     }
 
-    return THREXC("Control reaches end of non-void function :-D");
+    return NanThrowError("Control reaches end of non-void function :-D");
 }
 
 /**
@@ -190,8 +200,8 @@ Handle<Value> MysqlStatement::AttrGetSync(const Arguments& args) {
  * @param {Boolean|Integer} value
  * @return {Boolean}
  */
-Handle<Value> MysqlStatement::AttrSetSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::AttrSetSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
@@ -217,14 +227,14 @@ Handle<Value> MysqlStatement::AttrSetSync(const Arguments& args) {
             }
             break;
         default:
-            return THREXC("This attribute isn't supported yet");
+            return NanThrowError("This attribute isn't supported yet");
     }
 
     if (r) {
-        return THREXC("This attribute isn't supported by libmysqlclient");
+        return NanThrowError("This attribute isn't supported by libmysqlclient");
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -233,8 +243,8 @@ Handle<Value> MysqlStatement::AttrSetSync(const Arguments& args) {
  * @param {Array} params
  * @return {Boolean}
  */
-Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::BindParamsSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
@@ -254,7 +264,7 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
     }*/
 
     if (js_params->Length() != stmt->param_count) {
-        return THREXC("Array length doesn't match number of parameters in prepared statement"); // NOLINT
+        return NanThrowError("Array length doesn't match number of parameters in prepared statement"); // NOLINT
     }
 
     int *int_data;
@@ -270,7 +280,7 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
         js_param = js_params->Get(i);
 
         if (js_param->IsUndefined()) {
-            return THREXC("All arguments must be defined");
+            return NanThrowError("All arguments must be defined");
         }
 
         if (js_param->IsNull()) {
@@ -317,7 +327,7 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
             date_data = new MYSQL_TIME;
             date_timet = static_cast<time_t>(js_param->NumberValue()/1000);
             if (!gmtime_r(&date_timet, &date_timeinfo)) {
-                return THREXC("Error occured in gmtime_r()");
+                return NanThrowError("Error occured in gmtime_r()");
             }
             date_data->year = date_timeinfo.tm_year + 1900;
             date_data->month = date_timeinfo.tm_mon + 1;
@@ -343,19 +353,19 @@ Handle<Value> MysqlStatement::BindParamsSync(const Arguments& args) {
     }
 
     if (mysql_stmt_bind_param(stmt->_stmt, stmt->binds)) {
-      return scope.Close(False());
+      NanReturnValue(False());
     }
 
     stmt->state = STMT_BINDED_PARAMS;
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
  * Bind resultset buffers
  */
-Handle<Value> MysqlStatement::BindResultSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::BindResultSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
@@ -374,7 +384,7 @@ Handle<Value> MysqlStatement::BindResultSync(const Arguments& args) {
 
     meta_result = mysql_stmt_result_metadata(stmt->_stmt);
     if (meta_result == NULL) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
     field_count = mysql_stmt_field_count(stmt->_stmt);
@@ -455,13 +465,13 @@ Handle<Value> MysqlStatement::BindResultSync(const Arguments& args) {
 
     if (mysql_stmt_bind_result(stmt->_stmt, bind)) {
         FreeMysqlBinds(bind, field_count, false);
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
     stmt->result_binds = bind;
     stmt->state = STMT_BINDED_RESULT;
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 
@@ -470,21 +480,21 @@ Handle<Value> MysqlStatement::BindResultSync(const Arguments& args) {
  *
  * @return {Boolean}
  */
-Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::CloseSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
     if (mysql_stmt_close(stmt->_stmt)) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
     stmt->state = STMT_CLOSED;
     stmt->_stmt = NULL;
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -492,8 +502,8 @@ Handle<Value> MysqlStatement::CloseSync(const Arguments& args) {
  *
  * @param {Integer} offset
  */
-Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::DataSeekSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
@@ -503,12 +513,12 @@ Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
     REQ_UINT_ARG(0, offset_uint)
 
     if (offset_double < 0 || offset_uint >= mysql_stmt_num_rows(stmt->_stmt)) {
-        return THREXC("Invalid row offset");
+        return NanThrowError("Invalid row offset");
     }
 
     mysql_stmt_data_seek(stmt->_stmt, offset_uint);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /**
@@ -516,14 +526,14 @@ Handle<Value> MysqlStatement::DataSeekSync(const Arguments& args) {
  *
  * @return {Integer}
  */
-Handle<Value> MysqlStatement::ErrnoSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::ErrnoSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
-    return scope.Close(Integer::New(mysql_stmt_errno(stmt->_stmt)));
+    NanReturnValue(Integer::New(mysql_stmt_errno(stmt->_stmt)));
 }
 
 /**
@@ -531,8 +541,8 @@ Handle<Value> MysqlStatement::ErrnoSync(const Arguments& args) {
  *
  * @return {String}
  */
-Handle<Value> MysqlStatement::ErrorSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::ErrorSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
@@ -540,7 +550,7 @@ Handle<Value> MysqlStatement::ErrorSync(const Arguments& args) {
 
     const char *error = mysql_stmt_error(stmt->_stmt);
 
-    return scope.Close(V8STR(error));
+    NanReturnValue(V8STR(error));
 }
 
 /**
@@ -550,17 +560,22 @@ void MysqlStatement::EIO_After_Execute(uv_work_t *req) {
     struct execute_request* execute_req = (struct execute_request *) (req->data);
     MysqlStatement* stmt = execute_req->stmt;
 
-    Local<Value> argv[1];
+    const int argc = 1;
+    Local<Value> argv[argc];
 
     if (!execute_req->ok) {
         argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
     } else {
         stmt->state = STMT_EXECUTED;
-        argv[0] = Local<Value>::New(Null());
+        argv[0] = NanNewLocal(Null());
     }
 
-    node::MakeCallback(Context::GetCurrent()->Global(), execute_req->callback, 1, argv);
-    execute_req->callback.Dispose();
+    Local<Function> fcallback = NanPersistentToLocal(execute_req->callback.As<Function>());
+    NanCallback *ncallback = new NanCallback(fcallback);
+    ncallback->Call(argc, argv);
+    delete ncallback;
+
+    NanDisposePersistent(execute_req->callback);
     execute_req->stmt->Unref();
 
     delete execute_req;
@@ -581,8 +596,8 @@ void MysqlStatement::EIO_Execute(uv_work_t *req) {
     }
 }
 
-Handle<Value> MysqlStatement::Execute(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::Execute) {
+    NanScope();
 
     REQ_FUN_ARG(0, callback);
 
@@ -592,7 +607,8 @@ Handle<Value> MysqlStatement::Execute(const Arguments& args) {
 
     execute_request* execute_req = new execute_request;
 
-    execute_req->callback = Persistent<Function>::New(callback);
+    NanAssignPersistent(Function, execute_req->callback, callback);
+
     execute_req->stmt = stmt;
     stmt->Ref();
 
@@ -600,7 +616,7 @@ Handle<Value> MysqlStatement::Execute(const Arguments& args) {
     _req->data = execute_req;
     uv_queue_work(uv_default_loop(), _req, EIO_Execute, (uv_after_work_cb)EIO_After_Execute);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /**
@@ -608,23 +624,23 @@ Handle<Value> MysqlStatement::Execute(const Arguments& args) {
  *
  * @return {Boolean}
  */
-Handle<Value> MysqlStatement::ExecuteSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::ExecuteSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_PREPARED;
 
     if (mysql_stmt_execute(stmt->_stmt)) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
     stmt->state = STMT_EXECUTED;
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
-    HandleScope scope;
+    NanScope();
 
     struct fetch_request* fetchAll_req = (struct fetch_request *) (req->data);
     MysqlStatement* stmt = fetchAll_req->stmt;
@@ -642,7 +658,7 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
         argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
     } else if (fetchAll_req->empty_resultset) {
         argc = 2;
-        argv[0] = argv[1] = Local<Value>::New(Null());
+        argv[0] = argv[1] = NanNewLocal(Null());
     } else {
         fields = fetchAll_req->meta->fields;
 
@@ -672,7 +688,7 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
 
                 Local<Value> js_field;
                 if (*(stmt->result_binds[j].is_null)) {
-                    js_field = Local<Value>::New(Null());
+                    js_field = NanNewLocal(Null());
                 } else {
                     js_field = GetFieldValue(ptr, *(stmt->result_binds[j].length), fields[j]);
                 }
@@ -690,7 +706,7 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
             argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
         } else {
             argc = 2;
-            argv[0] = Local<Value>::New(Null());
+            argv[0] = NanNewLocal(Null());
             argv[1] = js_result;
         }
     }
@@ -699,8 +715,12 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
         mysql_free_result(fetchAll_req->meta);
     }
 
-    node::MakeCallback(Context::GetCurrent()->Global(), fetchAll_req->callback, argc, argv);
-    fetchAll_req->callback.Dispose();
+    Local<Function> fcallback = NanPersistentToLocal(fetchAll_req->callback.As<Function>());
+    NanCallback *ncallback = new NanCallback(fcallback);
+    ncallback->Call(argc, argv);
+    delete ncallback;
+
+    NanDisposePersistent(fetchAll_req->callback);
     fetchAll_req->stmt->Unref();
 
     delete fetchAll_req;
@@ -727,20 +747,21 @@ void MysqlStatement::EIO_FetchAll(uv_work_t *req) {
     }
 }
 
-Handle<Value> MysqlStatement::FetchAll(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::FetchAll) {
+    NanScope();
 
     REQ_FUN_ARG(0, callback);
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
 
     if (stmt->state < STMT_BINDED_RESULT) {
-        return THREXC("Resultset buffers not binded");
+        return NanThrowError("Resultset buffers not binded");
     }
 
     fetch_request *fetchAll_req = new fetch_request;
 
-    fetchAll_req->callback = Persistent<Function>::New(callback);
+    NanAssignPersistent(Function, fetchAll_req->callback, callback);
+
     fetchAll_req->stmt = stmt;
     fetchAll_req->meta = NULL;
     stmt->Ref();
@@ -749,7 +770,7 @@ Handle<Value> MysqlStatement::FetchAll(const Arguments& args) {
     _req->data = fetchAll_req;
     uv_queue_work(uv_default_loop(), _req, EIO_FetchAll, (uv_after_work_cb)EIO_After_FetchAll);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /**
@@ -757,13 +778,13 @@ Handle<Value> MysqlStatement::FetchAll(const Arguments& args) {
  *
  * Returns row data from statement result
  **/
-Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::FetchAllSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
 
     if (stmt->state < STMT_BINDED_RESULT) {
-        return THREXC("Resultset buffers not binded");
+        return NanThrowError("Resultset buffers not binded");
     }
 
     MYSQL_RES* meta;
@@ -780,7 +801,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     // Get meta data for binding buffers
     meta = mysql_stmt_result_metadata(stmt->_stmt);
     if (meta == NULL) {
-        return scope.Close(Null());
+        NanReturnValue(Null());
     }
 
     fields = meta->fields;
@@ -812,7 +833,7 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
 
             Local<Value> js_field;
             if (*(stmt->result_binds[j].is_null)) {
-                js_field = Local<Value>::New(Null());
+                js_field = NanNewLocal(Null());
             } else {
                 js_field = GetFieldValue(ptr, *(stmt->result_binds[j].length), fields[j]);
             }
@@ -831,14 +852,14 @@ Handle<Value> MysqlStatement::FetchAllSync(const Arguments& args) {
     }
 
     if (error && error != MYSQL_NO_DATA) {
-        return THREXC(mysql_stmt_error(stmt->_stmt));
+        return NanThrowError(mysql_stmt_error(stmt->_stmt));
     } else {
-        return scope.Close(js_result);
+        NanReturnValue(js_result);
     }
 }
 
 void MysqlStatement::EIO_After_Fetch(uv_work_t* req) {
-    HandleScope scope;
+    NanScope();
 
     struct fetch_request* fetch_req = (struct fetch_request *) (req->data);
     MysqlStatement* stmt = fetch_req->stmt;
@@ -854,7 +875,7 @@ void MysqlStatement::EIO_After_Fetch(uv_work_t* req) {
         argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
     } else if (fetch_req->empty_resultset) {
         argc = 2;
-        argv[0] = argv[1] = Local<Value>::New(Null());
+        argv[0] = argv[1] = NanNewLocal(Null());
     } else {
         fields = fetch_req->meta->fields;
         js_result_row = Object::New();
@@ -866,7 +887,7 @@ void MysqlStatement::EIO_After_Fetch(uv_work_t* req) {
 
             Local<Value> js_field;
             if (*(stmt->result_binds[i].is_null)) {
-                js_field = Local<Value>::New(Null());
+                js_field = NanNewLocal(Null());
             } else {
                 js_field = GetFieldValue(ptr, *(stmt->result_binds[i].length), fields[i]);
             }
@@ -875,7 +896,7 @@ void MysqlStatement::EIO_After_Fetch(uv_work_t* req) {
             i++;
         }
         argc = 2;
-        argv[0] = Local<Value>::New(Null());
+        argv[0] = NanNewLocal(Null());
         argv[1] = js_result_row;
     }
 
@@ -883,8 +904,12 @@ void MysqlStatement::EIO_After_Fetch(uv_work_t* req) {
         mysql_free_result(fetch_req->meta);
     }
 
-    node::MakeCallback(Context::GetCurrent()->Global(), fetch_req->callback, argc, argv);
-    fetch_req->callback.Dispose();
+    Local<Function> fcallback = NanPersistentToLocal(fetch_req->callback.As<Function>());
+    NanCallback *ncallback = new NanCallback(fcallback);
+    ncallback->Call(argc, argv);
+    delete ncallback;
+
+    NanDisposePersistent(fetch_req->callback);
     fetch_req->stmt->Unref();
 
     delete fetch_req;
@@ -929,20 +954,21 @@ void MysqlStatement::EIO_Fetch(uv_work_t *req) {
     }
 }
 
-Handle<Value> MysqlStatement::Fetch(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::Fetch) {
+    NanScope();
 
     REQ_FUN_ARG(0, callback);
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.This());
 
     if (stmt->state < STMT_BINDED_RESULT) {
-        return THREXC("Resultset buffers not binded");
+        return NanThrowError("Resultset buffers not binded");
     }
 
     fetch_request *fetch_req = new fetch_request;
 
-    fetch_req->callback = Persistent<Function>::New(callback);
+    NanAssignPersistent(Function, fetch_req->callback, callback);
+
     fetch_req->stmt = stmt;
     fetch_req->meta = NULL;
     stmt->Ref();
@@ -951,19 +977,19 @@ Handle<Value> MysqlStatement::Fetch(const Arguments& args) {
     _req->data = fetch_req;
     uv_queue_work(uv_default_loop(), _req, EIO_Fetch, (uv_after_work_cb)EIO_After_Fetch);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /**
  * Fetch row
  */
-Handle<Value> MysqlStatement::FetchSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::FetchSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     if (stmt->state < STMT_BINDED_RESULT) {
-        return THREXC("Resultset buffers not binded");
+        return NanThrowError("Resultset buffers not binded");
     }
 
     MYSQL_RES* meta;
@@ -980,13 +1006,13 @@ Handle<Value> MysqlStatement::FetchSync(const Arguments& args) {
     // Get meta data for binding buffers
     meta = mysql_stmt_result_metadata(stmt->_stmt);
     if (meta == NULL) {
-        return scope.Close(Null());
+        NanReturnValue(Null());
     }
 
     fields = meta->fields;
 
     if (!mysql_stmt_num_rows(stmt->_stmt)) {
-        return scope.Close(Null());
+        NanReturnValue(Null());
     }
 
     error = mysql_stmt_fetch(stmt->_stmt);
@@ -999,7 +1025,7 @@ Handle<Value> MysqlStatement::FetchSync(const Arguments& args) {
         FreeMysqlBinds(stmt->result_binds, field_count, false);
 
         error = 0;
-        js_result_row = Local<Value>::New(Null());
+        js_result_row = NanNewLocal(Null());
     } else if (!error) {
         js_result_row = Object::New();
 
@@ -1010,7 +1036,7 @@ Handle<Value> MysqlStatement::FetchSync(const Arguments& args) {
 
             Local<Value> js_field;
             if (*(stmt->result_binds[i].is_null)) {
-                js_field = Local<Value>::New(Null());
+                js_field = NanNewLocal(Null());
             } else {
                 js_field = GetFieldValue(ptr, *(stmt->result_binds[i].length), fields[i]);
             }
@@ -1025,9 +1051,9 @@ Handle<Value> MysqlStatement::FetchSync(const Arguments& args) {
     }
 
     if (error) {
-        return THREXC(mysql_stmt_error(stmt->_stmt));
+        return NanThrowError(mysql_stmt_error(stmt->_stmt));
     } else {
-        return scope.Close(js_result_row);
+        NanReturnValue(js_result_row);
     }
 }
 
@@ -1036,14 +1062,14 @@ Handle<Value> MysqlStatement::FetchSync(const Arguments& args) {
  *
  * @return {Integer}
  */
-Handle<Value> MysqlStatement::FieldCountSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::FieldCountSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_PREPARED;
 
-    return scope.Close(Integer::New(mysql_stmt_field_count(stmt->_stmt)));
+    NanReturnValue(Integer::New(mysql_stmt_field_count(stmt->_stmt)));
 }
 
 /**
@@ -1051,14 +1077,14 @@ Handle<Value> MysqlStatement::FieldCountSync(const Arguments& args) {
  *
  * @return {Boolean}
  */
-Handle<Value> MysqlStatement::FreeResultSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::FreeResultSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_EXECUTED;
 
-    return scope.Close(!mysql_stmt_free_result(stmt->_stmt) ? True() : False());
+    NanReturnValue(!mysql_stmt_free_result(stmt->_stmt) ? True() : False());
 }
 
 /**
@@ -1148,7 +1174,7 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
         // handle as boolean
         if (length == 1) {
             DEBUG_PRINTF("TINYINT(1) %d\n", val);
-            return Local<Value>::New(Boolean::New(val));
+            return NanNewLocal(Boolean::New(val));
         // handle as integer
         } else {
             DEBUG_PRINTF("TINYINT(>1) %d\n", val);
@@ -1193,19 +1219,14 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
     type == MYSQL_TYPE_BIT ||                  // BIT
     type == MYSQL_TYPE_ENUM ||                 // ENUM
     type == MYSQL_TYPE_GEOMETRY) {             // Spatial fields
-        char *data = (char *) ptr;
-        // create buffer
+        char *data = (char *)ptr;
+
         if (field.flags & BINARY_FLAG) {
             DEBUG_PRINTF("Blob, length: (%lu)\n", length);
 
-            // taken from: http://sambro.is-super-awesome.com/2011/03/03/creating-a-proper-buffer-in-a-node-c-addon/
-            node::Buffer *slowBuffer = node::Buffer::New(length);
-            memcpy(node::Buffer::Data(slowBuffer), data, length);
-            v8::Local<v8::Object> globalObj = v8::Context::GetCurrent()->Global();
-            v8::Local<v8::Function> bufferConstructor = v8::Local<v8::Function>::Cast(globalObj->Get(v8::String::New("Buffer")));
-            v8::Handle<v8::Value> constructorArgs[3] = { slowBuffer->handle_, v8::Integer::New(length), v8::Integer::New(0) };
-            return bufferConstructor->NewInstance(3, constructorArgs);
-        // create string
+            Local<Object> local_js_buffer = NanNewBufferHandle(data, length);
+
+            return local_js_buffer;
         } else {
             DEBUG_PRINTF("String, length: %lu/%lu\n", length, field.length);
             return V8STR2(data, length);
@@ -1265,14 +1286,14 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
  *
  * @return {Integer}
  */
-Handle<Value> MysqlStatement::LastInsertIdSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::LastInsertIdSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_EXECUTED;
 
-    return scope.Close(Integer::New(mysql_stmt_insert_id(stmt->_stmt)));
+    NanReturnValue(Integer::New(mysql_stmt_insert_id(stmt->_stmt)));
 }
 
 /**
@@ -1280,14 +1301,14 @@ Handle<Value> MysqlStatement::LastInsertIdSync(const Arguments& args) {
  *
  * @return {Integer}
  */
-Handle<Value> MysqlStatement::NextResultSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::NextResultSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_EXECUTED;
 
-    return scope.Close(Integer::New(mysql_stmt_next_result(stmt->_stmt)));
+    NanReturnValue(Integer::New(mysql_stmt_next_result(stmt->_stmt)));
 }
 
 /**
@@ -1295,14 +1316,14 @@ Handle<Value> MysqlStatement::NextResultSync(const Arguments& args) {
  *
  * @return {Integer}
  */
-Handle<Value> MysqlStatement::NumRowsSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::NumRowsSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_STORED;  // TODO(Sannis): Or all result already fetched!
 
-    return scope.Close(Integer::New(mysql_stmt_num_rows(stmt->_stmt)));
+    NanReturnValue(Integer::New(mysql_stmt_num_rows(stmt->_stmt)));
 }
 
 /**
@@ -1311,8 +1332,8 @@ Handle<Value> MysqlStatement::NumRowsSync(const Arguments& args) {
  * @param {String} query
  * @return {Boolean}
  */
-Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::PrepareSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
@@ -1325,7 +1346,7 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
     unsigned long int query_len = args[0]->ToString()->Utf8Length();
 
     if (mysql_stmt_prepare(stmt->_stmt, *query, query_len)) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
     if (stmt->binds) {
@@ -1343,7 +1364,7 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
 
     stmt->state = STMT_PREPARED;
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -1351,19 +1372,19 @@ Handle<Value> MysqlStatement::PrepareSync(const Arguments& args) {
  *
  * @return {Boolean}
  */
-Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::ResetSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_PREPARED;
 
     if (mysql_stmt_reset(stmt->_stmt)) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
     stmt->state = STMT_INITIALIZED;
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -1371,8 +1392,8 @@ Handle<Value> MysqlStatement::ResetSync(const Arguments& args) {
  *
  * @return {MysqlResult}
  */
-Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::ResultMetadataSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
@@ -1381,18 +1402,12 @@ Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
     MYSQL_RES *my_result = mysql_stmt_result_metadata(stmt->_stmt);
 
     if (!my_result) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    const int argc = 3;
-    Local<Value> argv[argc];
-    argv[0] = External::New(stmt->_stmt->mysql); // MySQL connection handle
-    argv[1] = External::New(my_result);
-    argv[2] = Integer::New(mysql_stmt_field_count(stmt->_stmt));
-    Persistent<Object> js_result(MysqlResult::constructor_template->
-                             GetFunction()->NewInstance(argc, argv));
+    Local<Object> local_js_result = MysqlResult::NewInstance(stmt->_stmt->mysql, my_result, mysql_stmt_field_count(stmt->_stmt));
 
-    return scope.Close(js_result);
+    NanReturnValue(local_js_result);
 }
 
 /**
@@ -1402,8 +1417,8 @@ Handle<Value> MysqlStatement::ResultMetadataSync(const Arguments& args) {
  * @param {String} data
  * @return {Boolean}
  */
-Handle<Value> MysqlStatement::SendLongDataSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::SendLongDataSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
@@ -1414,10 +1429,10 @@ Handle<Value> MysqlStatement::SendLongDataSync(const Arguments& args) {
 
     if (mysql_stmt_send_long_data(stmt->_stmt,
                                   parameter_number, *data, data.length())) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -1425,14 +1440,14 @@ Handle<Value> MysqlStatement::SendLongDataSync(const Arguments& args) {
  *
  * @return {String}
  */
-Handle<Value> MysqlStatement::SqlStateSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::SqlStateSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
-    return scope.Close(V8STR(mysql_stmt_sqlstate(stmt->_stmt)));
+    NanReturnValue(V8STR(mysql_stmt_sqlstate(stmt->_stmt)));
 }
 
 /**
@@ -1442,17 +1457,23 @@ void MysqlStatement::EIO_After_StoreResult(uv_work_t *req) {
     struct store_result_request* store_req = (struct store_result_request *) (req->data);
     MysqlStatement* stmt = store_req->stmt;
 
-    Local<Value> argv[1];
+    const int argc = 1;
+    Local<Value> argv[argc];
 
     if (!store_req->ok) {
         argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
     } else {
         stmt->state = STMT_STORED_RESULT;
-        argv[0] = Local<Value>::New(Null());
+        argv[0] = NanNewLocal(Null());
     }
 
-    node::MakeCallback(Context::GetCurrent()->Global(), store_req->callback, 1, argv);
-    store_req->callback.Dispose();
+    Local<Function> fcallback = NanPersistentToLocal(store_req->callback.As<Function>());
+    NanCallback *ncallback = new NanCallback(fcallback);
+    ncallback->Call(argc, argv);
+    delete ncallback;
+
+    NanDisposePersistent(store_req->callback);
+
     store_req->stmt->Unref();
 
     delete store_req;
@@ -1469,8 +1490,8 @@ void MysqlStatement::EIO_StoreResult(uv_work_t *req) {
     store_req->ok = !mysql_stmt_store_result(stmt->_stmt);
 }
 
-Handle<Value> MysqlStatement::StoreResult(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::StoreResult) {
+    NanScope();
 
     REQ_FUN_ARG(0, callback);
 
@@ -1480,7 +1501,8 @@ Handle<Value> MysqlStatement::StoreResult(const Arguments& args) {
 
     store_result_request* store_req = new store_result_request;
 
-    store_req->callback = Persistent<Function>::New(callback);
+    NanAssignPersistent(Function, store_req->callback, callback);
+
     store_req->stmt = stmt;
     stmt->Ref();
 
@@ -1488,7 +1510,7 @@ Handle<Value> MysqlStatement::StoreResult(const Arguments& args) {
     _req->data = store_req;
     uv_queue_work(uv_default_loop(), _req, EIO_StoreResult, (uv_after_work_cb)EIO_After_StoreResult);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /**
@@ -1496,18 +1518,18 @@ Handle<Value> MysqlStatement::StoreResult(const Arguments& args) {
  *
  * @return {Boolean}
  */
-Handle<Value> MysqlStatement::StoreResultSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlStatement::StoreResultSync) {
+    NanScope();
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(args.Holder());
 
     MYSQLSTMT_MUSTBE_EXECUTED;
 
     if (mysql_stmt_store_result(stmt->_stmt) != 0) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
     stmt->state = STMT_STORED_RESULT;
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }

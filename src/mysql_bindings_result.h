@@ -24,7 +24,7 @@
 
 #define MYSQLRES_MUSTBE_VALID \
     if (!res->_res) { \
-        return THREXC("Result has been freed."); \
+        return NanThrowError("Result has been freed."); \
     }
 
 /** section: Classes
@@ -38,6 +38,8 @@ class MysqlResult : public node::ObjectWrap {
 
     static void Init(Handle<Object> target);
 
+    static v8::Handle<v8::Object> NewInstance(MYSQL *my_conn, MYSQL_RES *my_result, uint32_t field_count);
+
     static void AddFieldProperties(Local<Object> &js_field_obj, MYSQL_FIELD *field);
 
     static Local<Value> GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length);
@@ -50,7 +52,7 @@ class MysqlResult : public node::ObjectWrap {
 
     void Free();
 
-  protected:
+  private:
     MYSQL *_conn;
     MYSQL_RES *_res;
 
@@ -68,15 +70,15 @@ class MysqlResult : public node::ObjectWrap {
 
     // Constructor
 
-    static Handle<Value> New(const Arguments& args);
+    static NAN_METHOD(New);
 
     // Properties
 
-    static Handle<Value> FieldCountGetter(Local<String> property, const AccessorInfo &info);
+    static NAN_GETTER(FieldCountGetter);
 
     // Methods
 
-    static Handle<Value> DataSeekSync(const Arguments& args);
+    static NAN_METHOD(DataSeekSync);
 
     struct fetchAll_request {
         bool ok;
@@ -91,27 +93,27 @@ class MysqlResult : public node::ObjectWrap {
     };
     static void EIO_After_FetchAll(uv_work_t *req);
     static void EIO_FetchAll(uv_work_t *req);
-    static Handle<Value> FetchAll(const Arguments& args);
+    static NAN_METHOD(FetchAll);
 
-    static Handle<Value> FetchAllSync(const Arguments& args);
+    static NAN_METHOD(FetchAllSync);
 
-    static Handle<Value> FetchFieldSync(const Arguments& args);
+    static NAN_METHOD(FetchFieldSync);
 
-    static Handle<Value> FetchFieldDirectSync(const Arguments& args);
+    static NAN_METHOD(FetchFieldDirectSync);
 
-    static Handle<Value> FetchFieldsSync(const Arguments& args);
+    static NAN_METHOD(FetchFieldsSync);
 
-    static Handle<Value> FetchLengthsSync(const Arguments& args);
+    static NAN_METHOD(FetchLengthsSync);
 
-    static Handle<Value> FetchRowSync(const Arguments& args);
+    static NAN_METHOD(FetchRowSync);
 
-    static Handle<Value> FieldSeekSync(const Arguments& args);
+    static NAN_METHOD(FieldSeekSync);
 
-    static Handle<Value> FieldTellSync(const Arguments& args);
+    static NAN_METHOD(FieldTellSync);
 
-    static Handle<Value> FreeSync(const Arguments& args);
+    static NAN_METHOD(FreeSync);
 
-    static Handle<Value> NumRowsSync(const Arguments& args);
+    static NAN_METHOD(NumRowsSync);
 };
 
 #endif  // SRC_MYSQL_BINDINGS_RESULT_H_

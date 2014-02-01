@@ -28,7 +28,7 @@
  * * MysqlStatement
  */
 void InitMysqlLibmysqlclient(Handle<Object> target) {
-    HandleScope scope;
+    NanScope();
 
     //// Populate classes constructors
     MysqlConnection::Init(target);

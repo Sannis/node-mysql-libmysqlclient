@@ -17,37 +17,54 @@
 Persistent<FunctionTemplate> MysqlResult::constructor_template;
 
 void MysqlResult::Init(Handle<Object> target) {
-    HandleScope scope;
-
-    Local<FunctionTemplate> t = FunctionTemplate::New(MysqlResult::New);
+    NanScope();
 
     // Constructor template
-    constructor_template = Persistent<FunctionTemplate>::New(t);
-    constructor_template->SetClassName(String::NewSymbol("MysqlResult"));
+    Local<FunctionTemplate> tpl = FunctionTemplate::New(MysqlResult::New);
+    NanAssignPersistent(FunctionTemplate, constructor_template, tpl);
+    tpl->SetClassName(NanSymbol("MysqlResult"));
 
     // Instance template
-    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate();
+    Local<ObjectTemplate> instance_template = tpl->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
     // Properties
     instance_template->SetAccessor(V8STR("fieldCount"), FieldCountGetter);
 
     // Methods
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "dataSeekSync",         MysqlResult::DataSeekSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAll",             MysqlResult::FetchAll);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchAllSync",         MysqlResult::FetchAllSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchFieldSync",       MysqlResult::FetchFieldSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchFieldDirectSync", MysqlResult::FetchFieldDirectSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchFieldsSync",      MysqlResult::FetchFieldsSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchLengthsSync",     MysqlResult::FetchLengthsSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fetchRowSync",         MysqlResult::FetchRowSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldSeekSync",        MysqlResult::FieldSeekSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldTellSync",        MysqlResult::FieldTellSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "freeSync",             MysqlResult::FreeSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "numRowsSync",          MysqlResult::NumRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "dataSeekSync",         MysqlResult::DataSeekSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAll",             MysqlResult::FetchAll);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAllSync",         MysqlResult::FetchAllSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchFieldSync",       MysqlResult::FetchFieldSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchFieldDirectSync", MysqlResult::FetchFieldDirectSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchFieldsSync",      MysqlResult::FetchFieldsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchLengthsSync",     MysqlResult::FetchLengthsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchRowSync",         MysqlResult::FetchRowSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldSeekSync",        MysqlResult::FieldSeekSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldTellSync",        MysqlResult::FieldTellSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "freeSync",             MysqlResult::FreeSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "numRowsSync",          MysqlResult::NumRowsSync);
 
     // Make it visible in JavaScript
-    target->Set(String::NewSymbol("MysqlResult"), constructor_template->GetFunction());
+    target->Set(NanSymbol("MysqlResult"), tpl->GetFunction());
+}
+
+v8::Handle<v8::Object> MysqlResult::NewInstance(MYSQL *my_conn, MYSQL_RES *my_result, uint32_t field_count) {
+    NanScope();
+
+    v8::Local<v8::Object> instance;
+
+    v8::Local<v8::FunctionTemplate> tpl = NanPersistentToLocal(constructor_template);
+
+    const int argc = 3;
+    Local<Value> argv[argc];
+    argv[0] = External::New(my_conn);
+    argv[1] = External::New(my_result);
+    argv[2] = Integer::NewFromUnsigned(field_count);
+
+    instance = tpl->GetFunction()->NewInstance(argc, argv);
+
+    return instance;
 }
 
 MysqlResult::MysqlResult(): ObjectWrap() {}
@@ -83,9 +100,9 @@ void MysqlResult::AddFieldProperties(Local<Object> &js_field_obj, MYSQL_FIELD *f
 }
 
 Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length) {
-    HandleScope scope;
+    NanScope();
 
-    Local<Value> js_field = Local<Value>::New(Null());
+    Local<Value> js_field = NanNewLocal(Null());
 
     switch (field.type) {
         case MYSQL_TYPE_NULL:   // NULL-type field
@@ -170,7 +187,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
         case MYSQL_TYPE_VAR_STRING:
             if (field_value) {
                 if (field.flags & BINARY_FLAG) {
-                    js_field = Local<Value>::New(node::Buffer::New(V8STR2(field_value, field_length)));
+                    js_field = NanNewLocal(node::Buffer::New(V8STR2(field_value, field_length)));
                 } else {
                     js_field = V8STR2(field_value, field_length);
                 }
@@ -263,8 +280,8 @@ void MysqlResult::Free() {
  *
  * Creates new MysqlResult object
  **/
-Handle<Value> MysqlResult::New(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlResult::New) {
+    NanScope();
 
     REQ_EXT_ARG(0, js_connection);
     REQ_EXT_ARG(1, js_result);
@@ -276,7 +293,7 @@ Handle<Value> MysqlResult::New(const Arguments& args) {
     MysqlResult *my_res = new MysqlResult(connection, result, field_count);
     my_res->Wrap(args.Holder());
 
-    return args.Holder();
+    NanReturnValue(args.Holder());
 }
 
 /** read-only
@@ -284,17 +301,17 @@ Handle<Value> MysqlResult::New(const Arguments& args) {
  *
  * Get the number of fields in a result
  **/
-Handle<Value> MysqlResult::FieldCountGetter(Local<String> property, const AccessorInfo &info) {
-    HandleScope scope;
+NAN_GETTER(MysqlResult::FieldCountGetter) {
+    NanScope();
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
     if (res->field_count > 0) {
-        return scope.Close(Integer::NewFromUnsigned(res->field_count));
+        NanReturnValue(Integer::NewFromUnsigned(res->field_count));
     } else {
-        return Undefined();
+        NanReturnUndefined();
     }
 }
 
@@ -304,8 +321,8 @@ Handle<Value> MysqlResult::FieldCountGetter(Local<String> property, const Access
  *
  * Adjusts the result pointer to an arbitrary row in the result
  **/
-Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlResult::DataSeekSync) {
+    NanScope();
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
@@ -314,23 +331,23 @@ Handle<Value> MysqlResult::DataSeekSync(const Arguments& args) {
     REQ_UINT_ARG(0, offset)
 
     if (mysql_result_is_unbuffered(res->_res)) {
-        return THREXC("Function cannot be used with MYSQL_USE_RESULT");
+        return NanThrowError("Function cannot be used with MYSQL_USE_RESULT");
     }
 
     if (offset >= mysql_num_rows(res->_res)) {
-        return THREXC("Invalid row offset");
+        return NanThrowError("Invalid row offset");
     }
 
     mysql_data_seek(res->_res, offset);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /*!
  * EIO wrapper functions for MysqlResult::FetchAll
  */
 void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
-    HandleScope scope;
+    NanScope();
 
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
 
@@ -410,15 +427,17 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
 
             argv[1] = js_result;
             argv[2] = js_fields;
-            argv[0] = Local<Value>::New(Null());
+            argv[0] = NanNewLocal(Null());
             argc = 3;
         }
     }
 
-    node::MakeCallback(Context::GetCurrent()->Global(), fetchAll_req->callback, argc, argv);
+    Local<Function> fcallback = NanPersistentToLocal(fetchAll_req->callback.As<Function>());
+    NanCallback *ncallback = new NanCallback(fcallback);
+    ncallback->Call(argc, argv);
+    delete ncallback;
 
-    fetchAll_req->callback.Dispose();
-    
+    NanDisposePersistent(fetchAll_req->callback);
     fetchAll_req->res->Unref();
 
     // Free the result object after callback
@@ -430,7 +449,6 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
     // delete fetchAll_req->res;
     
     delete fetchAll_req;
-
     delete req;
 }
 
@@ -454,8 +472,8 @@ void MysqlResult::EIO_FetchAll(uv_work_t *req) {
  *
  * Fetches all result rows as an array
  **/
-Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlResult::FetchAll) {
+    NanScope();
 
     int arg_pos = 0;
     fetch_options fo = {false, false};
@@ -482,17 +500,12 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
         Local<Value> argv[1];
         argv[0] = V8EXC("fetchAllSync can handle only (options) or none arguments");
         node::MakeCallback(Context::GetCurrent()->Global(), callback, argc, argv);
-        return Undefined();
+        NanReturnUndefined();
     }
 
     if (fo.results_as_array && fo.results_nest_tables) {
         // Cuz' this is not run-time error, just programmers mistake
-        return THREXC("You can't mix 'asArray' and 'nestTables' options");
-        //int argc = 1;
-        //Local<Value> argv[1];
-        //argv[0] = V8EXC("You can't mix 'asArray' and 'nestTables' options");
-        //node::MakeCallback(Context::GetCurrent()->Global(), callback, argc, argv);
-        //return Undefined();
+        return NanThrowError("You can't mix 'asArray' and 'nestTables' options");
     }
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder()); // NOLINT
@@ -501,7 +514,8 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
 
     fetchAll_request *fetchAll_req = new fetchAll_request;
 
-    fetchAll_req->callback = Persistent<Function>::New(callback);
+    NanAssignPersistent(Function, fetchAll_req->callback, callback);
+
     fetchAll_req->res = res;
     res->Ref();
     
@@ -511,7 +525,7 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
     _req->data = fetchAll_req;
     uv_queue_work(uv_default_loop(), _req, EIO_FetchAll, (uv_after_work_cb)EIO_After_FetchAll);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /**
@@ -520,8 +534,8 @@ Handle<Value> MysqlResult::FetchAll(const Arguments& args) {
  *
  * Fetches all result rows as an array
  **/
-Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlResult::FetchAllSync) {
+    NanScope();
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
@@ -531,13 +545,13 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
 
     if (args.Length() > 0) {
         if (!args[0]->IsObject()) {
-            return THREXC("fetchAllSync can handle only (options) or none arguments");
+            return NanThrowError("fetchAllSync can handle only (options) or none arguments");
         }
         fo = MysqlResult::GetFetchOptions(args[0]->ToObject());
     }
 
     if (fo.results_as_array && fo.results_nest_tables) {
-        return THREXC("You can't mix 'asArray' and 'nestTables' options");
+        return NanThrowError("You can't mix 'asArray' and 'nestTables' options");
     }
 
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
@@ -581,7 +595,7 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
         i++;
     }
 
-    return scope.Close(js_result);
+    NanReturnValue(js_result);
 }
 
 /**
@@ -589,8 +603,8 @@ Handle<Value> MysqlResult::FetchAllSync(const Arguments& args) {
  *
  * Returns metadata of the next field in the result set
  **/
-Handle<Value> MysqlResult::FetchFieldSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlResult::FetchFieldSync) {
+    NanScope();
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
@@ -603,13 +617,13 @@ Handle<Value> MysqlResult::FetchFieldSync(const Arguments& args) {
     field = mysql_fetch_field(res->_res);
 
     if (!field) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
     js_result = Object::New();
     AddFieldProperties(js_result, field);
 
-    return scope.Close(js_result);
+    NanReturnValue(js_result);
 }
 
 /**
@@ -618,8 +632,8 @@ Handle<Value> MysqlResult::FetchFieldSync(const Arguments& args) {
  *
  * Returns metadata of the arbitrary field in the result set
  **/
-Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLINT
-    HandleScope scope;
+NAN_METHOD(MysqlResult::FetchFieldDirectSync) { // NOLINT
+    NanScope();
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
@@ -634,13 +648,13 @@ Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLI
     field = mysql_fetch_field_direct(res->_res, field_num);
 
     if (!field) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
     js_result = Object::New();
     AddFieldProperties(js_result, field);
 
-    return scope.Close(js_result);
+    NanReturnValue(js_result);
 }
 
 /**
@@ -648,8 +662,8 @@ Handle<Value> MysqlResult::FetchFieldDirectSync(const Arguments& args) { // NOLI
  *
  * Returns an array of objects representing the fields in a result set
  **/
-Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlResult::FetchFieldsSync) {
+    NanScope();
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
@@ -671,7 +685,7 @@ Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
         js_result->Set(Integer::NewFromUnsigned(i), js_result_obj);
     }
 
-    return scope.Close(js_result);
+    NanReturnValue(js_result);
 }
 
 /**
@@ -679,8 +693,8 @@ Handle<Value> MysqlResult::FetchFieldsSync(const Arguments& args) {
  *
  * Returns the lengths of the columns of the current row in the result set
  **/
-Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlResult::FetchLengthsSync) {
+    NanScope();
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
@@ -693,7 +707,7 @@ Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
     Local<Array> js_result = Array::New();
 
     if (!lengths) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
     for (i = 0; i < num_fields; i++) {
@@ -701,7 +715,7 @@ Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
                        Integer::NewFromUnsigned(lengths[i]));
     }
 
-    return scope.Close(js_result);
+    NanReturnValue(js_result);
 }
 
 /**
@@ -710,8 +724,8 @@ Handle<Value> MysqlResult::FetchLengthsSync(const Arguments& args) {
  *
  * Fetch one row from result
  **/
-Handle<Value> MysqlResult::FetchRowSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlResult::FetchRowSync) {
+    NanScope();
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
@@ -721,13 +735,13 @@ Handle<Value> MysqlResult::FetchRowSync(const Arguments& args) {
 
     if (args.Length() > 0) {
         if (!args[0]->IsObject()) {
-            return THREXC("fetchRowSync can handle only (options) or none arguments");
+            return NanThrowError("fetchRowSync can handle only (options) or none arguments");
         }
         fo = MysqlResult::GetFetchOptions(args[0]->ToObject());
     }
 
     if (fo.results_as_array && fo.results_nest_tables) {
-        return THREXC("You can't mix 'asArray' and 'nestTables' options");
+        return NanThrowError("You can't mix 'asArray' and 'nestTables' options");
     }
 
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
@@ -740,7 +754,7 @@ Handle<Value> MysqlResult::FetchRowSync(const Arguments& args) {
     MYSQL_ROW result_row = mysql_fetch_row(res->_res);
 
     if (!result_row) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
     unsigned long *field_lengths = mysql_fetch_lengths(res->_res);
@@ -767,7 +781,7 @@ Handle<Value> MysqlResult::FetchRowSync(const Arguments& args) {
         }
     }
 
-    return scope.Close(js_result_row);
+    NanReturnValue(js_result_row);
 }
 
 /**
@@ -776,8 +790,8 @@ Handle<Value> MysqlResult::FetchRowSync(const Arguments& args) {
  *
  * Set result pointer to a specified field offset
  **/
-Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlResult::FieldSeekSync) {
+    NanScope();
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
@@ -786,12 +800,12 @@ Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
     REQ_UINT_ARG(0, field_num)
 
     if (field_num >= res->field_count) {
-        return THREXC("Invalid field offset");
+        return NanThrowError("Invalid field offset");
     }
 
     mysql_field_seek(res->_res, field_num);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /**
@@ -799,14 +813,14 @@ Handle<Value> MysqlResult::FieldSeekSync(const Arguments& args) {
  *
  * Returns the position of the field cursor
  **/
-Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlResult::FieldTellSync) {
+    NanScope();
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
-    return scope.Close(Integer::NewFromUnsigned(mysql_field_tell(res->_res)));
+    NanReturnValue(Integer::NewFromUnsigned(mysql_field_tell(res->_res)));
 }
 
 /**
@@ -814,8 +828,8 @@ Handle<Value> MysqlResult::FieldTellSync(const Arguments& args) {
  *
  * Frees the memory associated with a result
  **/
-Handle<Value> MysqlResult::FreeSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlResult::FreeSync) {
+    NanScope();
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
@@ -823,7 +837,7 @@ Handle<Value> MysqlResult::FreeSync(const Arguments& args) {
 
     res->Free();
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /**
@@ -831,16 +845,16 @@ Handle<Value> MysqlResult::FreeSync(const Arguments& args) {
  *
  * Gets the number of rows in a result
  **/
-Handle<Value> MysqlResult::NumRowsSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlResult::NumRowsSync) {
+    NanScope();
 
     MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
     if (mysql_result_is_unbuffered(res->_res)) {
-        return THREXC("Function cannot be used with MYSQL_USE_RESULT");
+        return NanThrowError("Function cannot be used with MYSQL_USE_RESULT");
     }
 
-    return scope.Close(Integer::New(mysql_num_rows(res->_res)));
+    NanReturnValue(Integer::New(mysql_num_rows(res->_res)));
 }

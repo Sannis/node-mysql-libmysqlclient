@@ -11,6 +11,8 @@
 #include <v8.h>
 #include <node_buffer.h>
 
+#include "nan.h"
+
 /*!
  * Useful macroses for utility operations
  * such as argument checking and C=+ <-> V8 type conversions
@@ -22,8 +24,6 @@
 // Lines should very rarely be longer than 100 characters
 // [whitespace/line_length] [4]
 #define V8EXC(str) Exception::Error(String::New(str))
-#define THREXC(str) ThrowException(Exception::Error(String::New(str)))
-#define THRTYPEEXC(str) ThrowException(Exception::TypeError(String::New(str)))
 #define OBJUNWRAP ObjectWrap::Unwrap
 #define V8STR(str) String::New(str)
 #define V8STR2(str, len) String::New(str, len)
@@ -31,26 +31,22 @@
 
 #define REQ_INT_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsInt32()) \
-return ThrowException(Exception::TypeError( \
-String::New("Argument " #I " must be an integer"))); \
+return NanThrowTypeError("Argument " #I " must be an integer"); \
 int32_t VAR = args[I]->Int32Value();
 
 #define REQ_UINT_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsUint32()) \
-return ThrowException(Exception::TypeError( \
-String::New("Argument " #I " must be an integer"))); \
+return NanThrowTypeError("Argument " #I " must be an integer"); \
 uint32_t VAR = args[I]->Uint32Value();
 
 #define REQ_NUMBER_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsNumber()) \
-return ThrowException(Exception::TypeError( \
-String::New("Argument " #I " must be an integer"))); \
+return NanThrowTypeError("Argument " #I " must be a number"); \
 double VAR = args[I]->NumberValue();
 
 #define REQ_STR_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsString()) \
-return ThrowException(Exception::TypeError( \
-String::New("Argument " #I " must be a string"))); \
+return NanThrowTypeError("Argument " #I " must be a string"); \
 String::Utf8Value VAR(args[I]->ToString());
 
 #define OPTIONAL_STR_ARG(I, VAR) \
@@ -64,26 +60,22 @@ if (args[I]->IsString()) { \
 
 #define REQ_BOOL_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsBoolean()) \
-return ThrowException(Exception::TypeError( \
-String::New("Argument " #I " must be a boolean"))); \
+return NanThrowTypeError("Argument " #I " must be a boolean"); \
 bool VAR = args[I]->BooleanValue();
 
 #define REQ_ARRAY_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsArray()) \
-return ThrowException(Exception::TypeError( \
-String::New("Argument " #I " must be an array"))); \
+return NanThrowTypeError("Argument " #I " must be an array"); \
 Local<Array> VAR = Local<Array>::Cast(args[I]);
 
 #define REQ_EXT_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsExternal()) \
-return ThrowException(Exception::TypeError( \
-String::New("Argument " #I " must be an external"))); \
+return NanThrowTypeError("Argument " #I " must be an external"); \
 Local<External> VAR = Local<External>::Cast(args[I]);
 
 #define REQ_FUN_ARG(I, VAR) \
 if (args.Length() <= (I) || !args[I]->IsFunction()) \
-return ThrowException(Exception::TypeError( \
-String::New("Argument " #I " must be a function"))); \
+return NanThrowTypeError("Argument " #I " must be a function"); \
 Local<Function> VAR = Local<Function>::Cast(args[I]);
 
 #define OPTIONAL_FUN_ARG(I, VAR) \

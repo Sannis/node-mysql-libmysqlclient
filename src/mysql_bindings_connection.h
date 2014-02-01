@@ -12,7 +12,6 @@
 
 #include <v8.h>
 #include <node.h>
-#include <node_version.h>
 
 #include <unistd.h>
 #include <pthread.h>
@@ -36,12 +35,12 @@
 
 #define MYSQLCONN_MUSTBE_CONNECTED \
     if (!conn->_conn || !conn->connected) { \
-        return THREXC("Not connected"); \
+        return NanThrowError("Not connected"); \
     }
 
 #define MYSQLCONN_MUSTBE_INITIALIZED \
     if (!conn->_conn) { \
-        return THREXC("Not initialized"); \
+        return NanThrowError("Not initialized"); \
     }
 
 using namespace v8; // NOLINT
@@ -75,7 +74,7 @@ class MysqlConnection : public node::ObjectWrap {
 
     void Close();
 
-  protected:
+  private:
     MYSQL *_conn;
     bool connected;
 
@@ -93,23 +92,23 @@ class MysqlConnection : public node::ObjectWrap {
 
     // Constructor
 
-    static Handle<Value> New(const Arguments& args);
+    static NAN_METHOD(New);
 
     // Properties
 
-    static Handle<Value> ConnectErrnoGetter(Local<String> property, const AccessorInfo &info);
+    static NAN_GETTER(ConnectErrnoGetter);
 
-    static Handle<Value> ConnectErrorGetter(Local<String> property, const AccessorInfo &info);
+    static NAN_GETTER(ConnectErrorGetter);
 
     // Methods
 
-    static Handle<Value> AffectedRowsSync(const Arguments& args);
+    static NAN_METHOD(AffectedRowsSync);
 
-    static Handle<Value> AutoCommitSync(const Arguments& args);
+    static NAN_METHOD(AutoCommitSync);
 
-    static Handle<Value> ChangeUserSync(const Arguments& args);
+    static NAN_METHOD(ChangeUserSync);
 
-    static Handle<Value> CommitSync(const Arguments& args);
+    static NAN_METHOD(CommitSync);
 
     struct connect_request {
         bool ok;
@@ -127,51 +126,51 @@ class MysqlConnection : public node::ObjectWrap {
     };
     static void EIO_After_Connect(uv_work_t *req);
     static void EIO_Connect(uv_work_t *req);
-    static Handle<Value> Connect(const Arguments& args);
+    static NAN_METHOD(Connect);
 
-    static Handle<Value> ConnectSync(const Arguments& args);
+    static NAN_METHOD(ConnectSync);
 
-    static Handle<Value> ConnectedSync(const Arguments& args);
+    static NAN_METHOD(ConnectedSync);
 
-    static Handle<Value> CloseSync(const Arguments& args);
+    static NAN_METHOD(CloseSync);
 
-    static Handle<Value> DebugSync(const Arguments& args);
+    static NAN_METHOD(DebugSync);
 
-    static Handle<Value> DumpDebugInfoSync(const Arguments& args);
+    static NAN_METHOD(DumpDebugInfoSync);
 
-    static Handle<Value> ErrnoSync(const Arguments& args);
+    static NAN_METHOD(ErrnoSync);
 
-    static Handle<Value> ErrorSync(const Arguments& args);
+    static NAN_METHOD(ErrorSync);
 
-    static Handle<Value> EscapeSync(const Arguments& args);
+    static NAN_METHOD(EscapeSync);
 
-    static Handle<Value> FieldCountSync(const Arguments& args);
+    static NAN_METHOD(FieldCountSync);
 
-    static Handle<Value> GetCharsetSync(const Arguments& args);
+    static NAN_METHOD(GetCharsetSync);
 
-    static Handle<Value> GetCharsetNameSync(const Arguments& args);
+    static NAN_METHOD(GetCharsetNameSync);
 
-    static Handle<Value> GetClientInfoSync(const Arguments& args);
+    static NAN_METHOD(GetClientInfoSync);
 
-    static Handle<Value> GetInfoSync(const Arguments& args);
+    static NAN_METHOD(GetInfoSync);
 
-    static Handle<Value> GetInfoStringSync(const Arguments& args);
+    static NAN_METHOD(GetInfoStringSync);
 
-    static Handle<Value> GetWarningsSync(const Arguments& args);
+    static NAN_METHOD(GetWarningsSync);
 
-    static Handle<Value> InitSync(const Arguments& args);
+    static NAN_METHOD(InitSync);
 
-    static Handle<Value> InitStatementSync(const Arguments& args);
+    static NAN_METHOD(InitStatementSync);
 
-    static Handle<Value> LastInsertIdSync(const Arguments& args);
+    static NAN_METHOD(LastInsertIdSync);
 
-    static Handle<Value> MultiMoreResultsSync(const Arguments& args);
+    static NAN_METHOD(MultiMoreResultsSync);
 
-    static Handle<Value> MultiNextResultSync(const Arguments& args);
+    static NAN_METHOD(MultiNextResultSync);
 
-    static Handle<Value> MultiRealQuerySync(const Arguments& args);
+    static NAN_METHOD(MultiRealQuerySync);
 
-    static Handle<Value> PingSync(const Arguments& args);
+    static NAN_METHOD(PingSync);
     struct local_infile_data {
       char * buffer;
       size_t length;
@@ -216,41 +215,41 @@ class MysqlConnection : public node::ObjectWrap {
     static local_infile_data * PrepareLocalInfileData(Handle<Value> buffer);
     static void EIO_After_Query(uv_work_t *req);
     static void EIO_Query(uv_work_t *req);
-    static Handle<Value> Query(const Arguments& args);
+    static NAN_METHOD(Query);
 
     static void EV_After_QuerySend(uv_poll_t* handle, int status, int events);
     static void EV_After_QuerySend_OnWatchHandleClose(uv_handle_t* handle);
-    static Handle<Value> QuerySend(const Arguments& args);
+    static NAN_METHOD(QuerySend);
 
-    static Handle<Value> QuerySync(const Arguments& args);
+    static NAN_METHOD(QuerySync);
 
-    static Handle<Value> RealConnectSync(const Arguments& args);
+    static NAN_METHOD(RealConnectSync);
 
-    static Handle<Value> RealQuerySync(const Arguments& args);
+    static NAN_METHOD(RealQuerySync);
 
-    static Handle<Value> RollbackSync(const Arguments& args);
+    static NAN_METHOD(RollbackSync);
 
-    static Handle<Value> SelectDbSync(const Arguments& args);
+    static NAN_METHOD(SelectDbSync);
 
-    static Handle<Value> SetCharsetSync(const Arguments& args);
+    static NAN_METHOD(SetCharsetSync);
 
-    static Handle<Value> SetOptionSync(const Arguments& args);
+    static NAN_METHOD(SetOptionSync);
 
-    static Handle<Value> SetSslSync(const Arguments& args);
+    static NAN_METHOD(SetSslSync);
 
-    static Handle<Value> SqlStateSync(const Arguments& args);
+    static NAN_METHOD(SqlStateSync);
 
-    static Handle<Value> StatSync(const Arguments& args);
+    static NAN_METHOD(StatSync);
 
-    static Handle<Value> StoreResultSync(const Arguments& args);
+    static NAN_METHOD(StoreResultSync);
 
-    static Handle<Value> ThreadIdSync(const Arguments& args);
+    static NAN_METHOD(ThreadIdSync);
 
-    static Handle<Value> ThreadSafeSync(const Arguments& args);
+    static NAN_METHOD(ThreadSafeSync);
 
-    static Handle<Value> UseResultSync(const Arguments& args);
+    static NAN_METHOD(UseResultSync);
 
-    static Handle<Value> WarningCountSync(const Arguments& args);
+    static NAN_METHOD(WarningCountSync);
 };
 
 #endif  // SRC_MYSQL_BINDINGS_CONNECTION_H_

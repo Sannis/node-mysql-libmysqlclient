@@ -18,22 +18,22 @@
 
 #define MYSQLSTMT_MUSTBE_INITIALIZED \
     if (stmt->state < STMT_INITIALIZED) { \
-        return THREXC("Statement not initialized"); \
+        return NanThrowError("Statement not initialized"); \
     }
 
 #define MYSQLSTMT_MUSTBE_PREPARED \
     if (stmt->state < STMT_PREPARED) { \
-        return THREXC("Statement not prepared"); \
+        return NanThrowError("Statement not prepared"); \
     }
 
 #define MYSQLSTMT_MUSTBE_EXECUTED \
     if (stmt->state < STMT_EXECUTED) { \
-        return THREXC("Statement not executed"); \
+        return NanThrowError("Statement not executed"); \
     }
 
 #define MYSQLSTMT_MUSTBE_STORED \
     if (stmt->state < STMT_STORED_RESULT) { \
-        return THREXC("Statement result not stored"); \
+        return NanThrowError("Statement result not stored"); \
     }
 
 /** section: Classes
@@ -47,7 +47,9 @@ class MysqlStatement : public node::ObjectWrap {
 
     static void Init(Handle<Object> target);
 
-  protected:
+    static v8::Handle<v8::Object> NewInstance(MYSQL_STMT *my_statement);
+
+  private:
     MYSQL_STMT *_stmt;
 
     MYSQL_BIND *binds;
@@ -71,32 +73,31 @@ class MysqlStatement : public node::ObjectWrap {
 
     // Constructor
 
-    static Handle<Value> New(const Arguments& args);
+    static NAN_METHOD(New);
 
     // Properties
 
-    static Handle<Value> ParamCountGetter(Local<String> property,
-                                           const AccessorInfo &info);
+    static NAN_GETTER(ParamCountGetter);
 
     // Methods
 
-    static Handle<Value> AffectedRowsSync(const Arguments& args);
+    static NAN_METHOD(AffectedRowsSync);
 
-    static Handle<Value> AttrGetSync(const Arguments& args);
+    static NAN_METHOD(AttrGetSync);
 
-    static Handle<Value> AttrSetSync(const Arguments& args);
+    static NAN_METHOD(AttrSetSync);
 
-    static Handle<Value> BindParamsSync(const Arguments& args);
+    static NAN_METHOD(BindParamsSync);
 
-    static Handle<Value> BindResultSync(const Arguments& args);
+    static NAN_METHOD(BindResultSync);
 
-    static Handle<Value> CloseSync(const Arguments& args);
+    static NAN_METHOD(CloseSync);
 
-    static Handle<Value> DataSeekSync(const Arguments& args);
+    static NAN_METHOD(DataSeekSync);
 
-    static Handle<Value> ErrnoSync(const Arguments& args);
+    static NAN_METHOD(ErrnoSync);
 
-    static Handle<Value> ErrorSync(const Arguments& args);
+    static NAN_METHOD(ErrorSync);
 
     struct execute_request {
         bool ok;
@@ -109,9 +110,9 @@ class MysqlStatement : public node::ObjectWrap {
 
     static void EIO_Execute(uv_work_t* req);
 
-    static Handle<Value> Execute(const Arguments& args);
+    static NAN_METHOD(Execute);
 
-    static Handle<Value> ExecuteSync(const Arguments& args);
+    static NAN_METHOD(ExecuteSync);
 
     struct fetch_request {
         bool ok;
@@ -128,41 +129,41 @@ class MysqlStatement : public node::ObjectWrap {
 
     static void EIO_FetchAll(uv_work_t* req);
 
-    static Handle<Value> FetchAll(const Arguments& args);
+    static NAN_METHOD(FetchAll);
 
-    static Handle<Value> FetchAllSync(const Arguments& args);
+    static NAN_METHOD(FetchAllSync);
 
     static void EIO_After_Fetch(uv_work_t* req);
 
     static void EIO_Fetch(uv_work_t* req);
 
-    static Handle<Value> Fetch(const Arguments& args);
+    static NAN_METHOD(Fetch);
 
-    static Handle<Value> FetchSync(const Arguments& args);
+    static NAN_METHOD(FetchSync);
 
-    static Handle<Value> FieldCountSync(const Arguments& args);
+    static NAN_METHOD(FieldCountSync);
 
-    static Handle<Value> FreeResultSync(const Arguments& args);
+    static NAN_METHOD(FreeResultSync);
 
     static void FreeMysqlBinds(MYSQL_BIND *binds, unsigned long size, bool params);
 
     static Local<Value> GetFieldValue(void* ptr, unsigned long& length, MYSQL_FIELD& field);
 
-    static Handle<Value> LastInsertIdSync(const Arguments& args);
+    static NAN_METHOD(LastInsertIdSync);
 
-    static Handle<Value> NextResultSync(const Arguments& args);
+    static NAN_METHOD(NextResultSync);
 
-    static Handle<Value> NumRowsSync(const Arguments& args);
+    static NAN_METHOD(NumRowsSync);
 
-    static Handle<Value> PrepareSync(const Arguments& args);
+    static NAN_METHOD(PrepareSync);
 
-    static Handle<Value> ResetSync(const Arguments& args);
+    static NAN_METHOD(ResetSync);
 
-    static Handle<Value> ResultMetadataSync(const Arguments& args);
+    static NAN_METHOD(ResultMetadataSync);
 
-    static Handle<Value> SendLongDataSync(const Arguments& args);
+    static NAN_METHOD(SendLongDataSync);
 
-    static Handle<Value> StoreResultSync(const Arguments& args);
+    static NAN_METHOD(StoreResultSync);
 
     struct store_result_request {
         bool ok;
@@ -175,9 +176,9 @@ class MysqlStatement : public node::ObjectWrap {
 
     static void EIO_StoreResult(uv_work_t* req);
 
-    static Handle<Value> StoreResult(const Arguments& args);
+    static NAN_METHOD(StoreResult);
 
-    static Handle<Value> SqlStateSync(const Arguments& args);
+    static NAN_METHOD(SqlStateSync);
 };
 
 #endif  // SRC_MYSQL_BINDINGS_STATEMENT_H_

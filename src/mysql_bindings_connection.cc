@@ -18,16 +18,15 @@
 Persistent<FunctionTemplate> MysqlConnection::constructor_template;
 
 void MysqlConnection::Init(Handle<Object> target) {
-    HandleScope scope;
-
-    Local<FunctionTemplate> t = FunctionTemplate::New(MysqlConnection::New);
+    NanScope();
 
     // Constructor template
-    constructor_template = Persistent<FunctionTemplate>::New(t);
-    constructor_template->SetClassName(String::NewSymbol("MysqlConnection"));
+    Local<FunctionTemplate> tpl = FunctionTemplate::New(MysqlConnection::New);
+    NanAssignPersistent(FunctionTemplate, constructor_template, tpl);
+    tpl->SetClassName(NanSymbol("MysqlConnection"));
 
     // Instance template
-    Local<ObjectTemplate> instance_template = constructor_template->InstanceTemplate();
+    Local<ObjectTemplate> instance_template = tpl->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
     // Properties
@@ -35,53 +34,53 @@ void MysqlConnection::Init(Handle<Object> target) {
     instance_template->SetAccessor(V8STR("connectError"), MysqlConnection::ConnectErrorGetter);
 
     // Methods
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "affectedRowsSync",     MysqlConnection::AffectedRowsSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "autoCommitSync",       MysqlConnection::AutoCommitSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "changeUserSync",       MysqlConnection::ChangeUserSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "commitSync",           MysqlConnection::CommitSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "connect",              MysqlConnection::Connect);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "connectSync",          MysqlConnection::ConnectSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "connectedSync",        MysqlConnection::ConnectedSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "closeSync",            MysqlConnection::CloseSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "debugSync",            MysqlConnection::DebugSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "dumpDebugInfoSync",    MysqlConnection::DumpDebugInfoSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "errnoSync",            MysqlConnection::ErrnoSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "errorSync",            MysqlConnection::ErrorSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "escapeSync",           MysqlConnection::EscapeSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "fieldCountSync",       MysqlConnection::FieldCountSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getCharsetSync",       MysqlConnection::GetCharsetSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getCharsetNameSync",   MysqlConnection::GetCharsetNameSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getClientInfoSync",    MysqlConnection::GetClientInfoSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getInfoSync",          MysqlConnection::GetInfoSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getInfoStringSync",    MysqlConnection::GetInfoStringSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "getWarningsSync",      MysqlConnection::GetWarningsSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "initSync",             MysqlConnection::InitSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "initStatementSync",    MysqlConnection::InitStatementSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "lastInsertIdSync",     MysqlConnection::LastInsertIdSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "multiMoreResultsSync", MysqlConnection::MultiMoreResultsSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "multiNextResultSync",  MysqlConnection::MultiNextResultSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "multiRealQuerySync",   MysqlConnection::MultiRealQuerySync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "pingSync",             MysqlConnection::PingSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "query",                MysqlConnection::Query);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "querySend",            MysqlConnection::QuerySend);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "querySync",            MysqlConnection::QuerySync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "realConnectSync",      MysqlConnection::RealConnectSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "realQuerySync",        MysqlConnection::RealQuerySync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "rollbackSync",         MysqlConnection::RollbackSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "selectDbSync",         MysqlConnection::SelectDbSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setCharsetSync",       MysqlConnection::SetCharsetSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setOptionSync",        MysqlConnection::SetOptionSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "setSslSync",           MysqlConnection::SetSslSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "sqlStateSync",         MysqlConnection::SqlStateSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "statSync",             MysqlConnection::StatSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "storeResultSync",      MysqlConnection::StoreResultSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "threadIdSync",         MysqlConnection::ThreadIdSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "threadSafeSync",       MysqlConnection::ThreadSafeSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "useResultSync",        MysqlConnection::UseResultSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "warningCountSync",     MysqlConnection::WarningCountSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "affectedRowsSync",     MysqlConnection::AffectedRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "autoCommitSync",       MysqlConnection::AutoCommitSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "changeUserSync",       MysqlConnection::ChangeUserSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "commitSync",           MysqlConnection::CommitSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "connect",              MysqlConnection::Connect);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "connectSync",          MysqlConnection::ConnectSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "connectedSync",        MysqlConnection::ConnectedSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "closeSync",            MysqlConnection::CloseSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "debugSync",            MysqlConnection::DebugSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "dumpDebugInfoSync",    MysqlConnection::DumpDebugInfoSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "errnoSync",            MysqlConnection::ErrnoSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "errorSync",            MysqlConnection::ErrorSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "escapeSync",           MysqlConnection::EscapeSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldCountSync",       MysqlConnection::FieldCountSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getCharsetSync",       MysqlConnection::GetCharsetSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getCharsetNameSync",   MysqlConnection::GetCharsetNameSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getClientInfoSync",    MysqlConnection::GetClientInfoSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getInfoSync",          MysqlConnection::GetInfoSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getInfoStringSync",    MysqlConnection::GetInfoStringSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getWarningsSync",      MysqlConnection::GetWarningsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "initSync",             MysqlConnection::InitSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "initStatementSync",    MysqlConnection::InitStatementSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "lastInsertIdSync",     MysqlConnection::LastInsertIdSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "multiMoreResultsSync", MysqlConnection::MultiMoreResultsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "multiNextResultSync",  MysqlConnection::MultiNextResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "multiRealQuerySync",   MysqlConnection::MultiRealQuerySync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "pingSync",             MysqlConnection::PingSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "query",                MysqlConnection::Query);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "querySend",            MysqlConnection::QuerySend);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "querySync",            MysqlConnection::QuerySync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "realConnectSync",      MysqlConnection::RealConnectSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "realQuerySync",        MysqlConnection::RealQuerySync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "rollbackSync",         MysqlConnection::RollbackSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "selectDbSync",         MysqlConnection::SelectDbSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "setCharsetSync",       MysqlConnection::SetCharsetSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "setOptionSync",        MysqlConnection::SetOptionSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "setSslSync",           MysqlConnection::SetSslSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "sqlStateSync",         MysqlConnection::SqlStateSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "statSync",             MysqlConnection::StatSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "storeResultSync",      MysqlConnection::StoreResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "threadIdSync",         MysqlConnection::ThreadIdSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "threadSafeSync",       MysqlConnection::ThreadSafeSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "useResultSync",        MysqlConnection::UseResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "warningCountSync",     MysqlConnection::WarningCountSync);
 
     // Make it visible in JavaScript
-    target->Set(String::NewSymbol("MysqlConnection"), constructor_template->GetFunction());
+    target->Set(NanSymbol("MysqlConnection"), tpl->GetFunction());
 }
 
 bool MysqlConnection::Connect(const char* hostname,
@@ -219,13 +218,13 @@ MysqlConnection::~MysqlConnection() {
  *
  * Creates new MysqlConnection object
  **/
-Handle<Value> MysqlConnection::New(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::New) {
+    NanScope();
 
     MysqlConnection *conn = new MysqlConnection();
     conn->Wrap(args.Holder());
 
-    return args.Holder();
+    NanReturnValue(args.Holder());
 }
 
 /** read-only
@@ -233,12 +232,12 @@ Handle<Value> MysqlConnection::New(const Arguments& args) {
  *
  * Gets last connect error number
  **/
-Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property, const AccessorInfo &info) {
-    HandleScope scope;
+NAN_GETTER(MysqlConnection::ConnectErrnoGetter) {
+    NanScope();
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
-    return scope.Close(Integer::NewFromUnsigned(conn->connect_errno));
+    NanReturnValue(Integer::NewFromUnsigned(conn->connect_errno));
 }
 
 /** read-only
@@ -246,12 +245,12 @@ Handle<Value> MysqlConnection::ConnectErrnoGetter(Local<String> property, const 
  *
  * Gets last connect error string
  **/
-Handle<Value> MysqlConnection::ConnectErrorGetter(Local<String> property, const AccessorInfo &info) {
-    HandleScope scope;
+NAN_GETTER(MysqlConnection::ConnectErrorGetter) {
+    NanScope();
 
-    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
+    MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
-    return scope.Close(V8STR(conn->connect_error ? conn->connect_error : ""));
+    NanReturnValue(V8STR(conn->connect_error ? conn->connect_error : ""));
 }
 
 /**
@@ -259,8 +258,8 @@ Handle<Value> MysqlConnection::ConnectErrorGetter(Local<String> property, const 
  *
  * Gets number of affected rows in previous operation
  **/
-Handle<Value> MysqlConnection::AffectedRowsSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::AffectedRowsSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -269,10 +268,10 @@ Handle<Value> MysqlConnection::AffectedRowsSync(const Arguments& args) {
     my_ulonglong affected_rows = mysql_affected_rows(conn->_conn);
 
     if (affected_rows == ((my_ulonglong)-1)) {
-        return scope.Close(Integer::New(-1));
+        NanReturnValue(Integer::New(-1));
     }
 
-    return scope.Close(Integer::New(affected_rows));
+    NanReturnValue(Integer::New(affected_rows));
 }
 
 /**
@@ -281,8 +280,8 @@ Handle<Value> MysqlConnection::AffectedRowsSync(const Arguments& args) {
  *
  * Sets autocommit mode
  **/
-Handle<Value> MysqlConnection::AutoCommitSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::AutoCommitSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -291,10 +290,10 @@ Handle<Value> MysqlConnection::AutoCommitSync(const Arguments& args) {
     REQ_BOOL_ARG(0, autocomit)
 
     if (mysql_autocommit(conn->_conn, autocomit)) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -305,8 +304,8 @@ Handle<Value> MysqlConnection::AutoCommitSync(const Arguments& args) {
  *
  * Changes the user and causes the database to become the default
  **/
-Handle<Value> MysqlConnection::ChangeUserSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::ChangeUserSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -317,12 +316,12 @@ Handle<Value> MysqlConnection::ChangeUserSync(const Arguments& args) {
     // TODO(Sannis): Check logic
     if ( (args.Length() < 2) || (!args[0]->IsString()) ||
          (!args[1]->IsString()) ) {
-        return THRTYPEEXC("Must give at least user and password as arguments");
+        return NanThrowTypeError("Must give at least user and password as arguments");
     }
     String::Utf8Value password(args[1]->ToString());
 
     if ( (args.Length() == 3) && (!args[2]->IsString()) ) {
-        return THRTYPEEXC("Must give string value as third argument, dbname");
+        return NanThrowTypeError("Must give string value as third argument, dbname");
     }
     String::Utf8Value dbname(args[2]->ToString());
 
@@ -332,10 +331,10 @@ Handle<Value> MysqlConnection::ChangeUserSync(const Arguments& args) {
                                args[2]->IsString() ? *dbname : NULL);
 
     if (r) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -343,25 +342,25 @@ Handle<Value> MysqlConnection::ChangeUserSync(const Arguments& args) {
  *
  * Commits the current transaction
  **/
-Handle<Value> MysqlConnection::CommitSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::CommitSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
     if (mysql_commit(conn->_conn)) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /*!
  * EIO wrapper functions for MysqlConnection::Connect
  */
 void MysqlConnection::EIO_After_Connect(uv_work_t *req) {
-    HandleScope scope;
+    NanScope();
 
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
@@ -379,12 +378,15 @@ void MysqlConnection::EIO_After_Connect(uv_work_t *req) {
         argv[0] = V8EXC(error_string);
         delete[] error_string;
     } else {
-        argv[0] = Local<Value>::New(Null());
+        argv[0] = NanNewLocal(Null());
     }
 
-    node::MakeCallback(Context::GetCurrent()->Global(), conn_req->callback, argc, argv);
+    Local<Function> fcallback = NanPersistentToLocal(conn_req->callback.As<Function>());
+    NanCallback *ncallback = new NanCallback(fcallback);
+    ncallback->Call(argc, argv);
+    delete ncallback;
 
-    conn_req->callback.Dispose();
+    NanDisposePersistent(conn_req->callback);
 
     conn_req->conn->Unref();
 
@@ -424,8 +426,8 @@ void MysqlConnection::EIO_Connect(uv_work_t *req) {
  *
  * Connects to the MySQL server
  **/
-Handle<Value> MysqlConnection::Connect(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::Connect) {
+    NanScope();
 
     REQ_FUN_ARG(args.Length() - 1, callback);
 
@@ -446,12 +448,12 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
             node::FatalException(try_catch);
         }
 
-        return Undefined();
+        NanReturnUndefined();
     }
 
     connect_request *conn_req = new connect_request;
 
-    conn_req->callback = Persistent<Function>::New(callback);
+    NanAssignPersistent(Function, conn_req->callback, callback);
     conn_req->conn = conn;
     conn->Ref();
 
@@ -475,7 +477,7 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
     _req->data = conn_req; \
     uv_queue_work(uv_default_loop(), _req, EIO_Connect, (uv_after_work_cb)EIO_After_Connect);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /**
@@ -489,13 +491,12 @@ Handle<Value> MysqlConnection::Connect(const Arguments& args) {
  *
  * Connects to the MySQL server
  **/
-Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::ConnectSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
     if (conn->_conn) {
-        return THREXC("Already initialized. "
-                      "Use conn.realConnectSync() after conn.initSync()");
+        return NanThrowError("Already initialized. Use conn.realConnectSync() after conn.initSync()");
     }
 
     String::Utf8Value hostname(args[0]->ToString());
@@ -517,10 +518,10 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
     );
 
     if (!r) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -528,12 +529,12 @@ Handle<Value> MysqlConnection::ConnectSync(const Arguments& args) {
  *
  * Returns current connected status
  **/
-Handle<Value> MysqlConnection::ConnectedSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::ConnectedSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
-    return scope.Close(conn->connected ? True() : False());
+    NanReturnValue(conn->connected ? True() : False());
 }
 
 /**
@@ -541,8 +542,8 @@ Handle<Value> MysqlConnection::ConnectedSync(const Arguments& args) {
  *
  * Closes database connection
  **/
-Handle<Value> MysqlConnection::CloseSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::CloseSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -550,7 +551,7 @@ Handle<Value> MysqlConnection::CloseSync(const Arguments& args) {
 
     conn->Close();
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /**
@@ -559,8 +560,8 @@ Handle<Value> MysqlConnection::CloseSync(const Arguments& args) {
  *
  * Performs debug logging
  **/
-Handle<Value> MysqlConnection::DebugSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::DebugSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -570,7 +571,7 @@ Handle<Value> MysqlConnection::DebugSync(const Arguments& args) {
 
     mysql_debug(*debug);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /**
@@ -578,13 +579,13 @@ Handle<Value> MysqlConnection::DebugSync(const Arguments& args) {
  *
  * Dump debugging information into the log
  **/
-Handle<Value> MysqlConnection::DumpDebugInfoSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::DumpDebugInfoSync) {
+    NanScope();
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    return scope.Close(mysql_dump_debug_info(conn->_conn) ? False() : True());
+    NanReturnValue(mysql_dump_debug_info(conn->_conn) ? False() : True());
 }
 
 /**
@@ -592,14 +593,14 @@ Handle<Value> MysqlConnection::DumpDebugInfoSync(const Arguments& args) {
  *
  * Returns the last error code
  **/
-Handle<Value> MysqlConnection::ErrnoSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::ErrnoSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    return scope.Close(Integer::NewFromUnsigned(mysql_errno(conn->_conn)));
+    NanReturnValue(Integer::NewFromUnsigned(mysql_errno(conn->_conn)));
 }
 
 /**
@@ -607,8 +608,8 @@ Handle<Value> MysqlConnection::ErrnoSync(const Arguments& args) {
  *
  * Returns the last error message
  **/
-Handle<Value> MysqlConnection::ErrorSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::ErrorSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -616,7 +617,7 @@ Handle<Value> MysqlConnection::ErrorSync(const Arguments& args) {
 
     const char *error = mysql_error(conn->_conn);
 
-    return scope.Close(V8STR(error));
+    NanReturnValue(V8STR(error));
 }
 
 /**
@@ -626,8 +627,8 @@ Handle<Value> MysqlConnection::ErrorSync(const Arguments& args) {
  * Escapes special characters in a string for use in an SQL statement,
  * taking into account the current charset of the connection
  **/
-Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::EscapeSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -639,7 +640,7 @@ Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
     char *result = new char[2*len + 1];
     if (!result) {
         V8::LowMemoryNotification();
-        return THREXC("Not enough memory");
+        return NanThrowError("Not enough memory");
     }
 
     len = mysql_real_escape_string(conn->_conn, result, *str, len);
@@ -647,7 +648,7 @@ Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
 
     delete[] result;
 
-    return scope.Close(js_result);
+    NanReturnValue(js_result);
 }
 
 /**
@@ -655,14 +656,14 @@ Handle<Value> MysqlConnection::EscapeSync(const Arguments& args) {
  *
  * Returns the number of columns for the most recent query
  **/
-Handle<Value> MysqlConnection::FieldCountSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::FieldCountSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    return scope.Close(
+    NanReturnValue(
                 Integer::NewFromUnsigned(
                     mysql_field_count(conn->_conn)));
 }
@@ -672,8 +673,8 @@ Handle<Value> MysqlConnection::FieldCountSync(const Arguments& args) {
  *
  * Returns a character set object
  **/
-Handle<Value> MysqlConnection::GetCharsetSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::GetCharsetSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -694,7 +695,7 @@ Handle<Value> MysqlConnection::GetCharsetSync(const Arguments& args) {
     js_result->Set(V8STR("state"), Integer::NewFromUnsigned(cs.state));
     js_result->Set(V8STR("comment"), V8STR(cs.comment ? cs.comment : ""));
 
-    return scope.Close(js_result);
+    NanReturnValue(js_result);
 }
 
 /**
@@ -702,14 +703,14 @@ Handle<Value> MysqlConnection::GetCharsetSync(const Arguments& args) {
  *
  * Returns a character set name
  **/
-Handle<Value> MysqlConnection::GetCharsetNameSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::GetCharsetNameSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    return scope.Close(V8STR(mysql_character_set_name(conn->_conn)));
+    NanReturnValue(V8STR(mysql_character_set_name(conn->_conn)));
 }
 
 /**
@@ -717,8 +718,8 @@ Handle<Value> MysqlConnection::GetCharsetNameSync(const Arguments& args) {
  *
  * Returns the MySQL client version and information
  **/
-Handle<Value> MysqlConnection::GetClientInfoSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::GetClientInfoSync) {
+    NanScope();
 
     Local<Object> js_result = Object::New();
 
@@ -727,7 +728,7 @@ Handle<Value> MysqlConnection::GetClientInfoSync(const Arguments& args) {
     js_result->Set(V8STR("client_version"),
                    Integer::NewFromUnsigned(mysql_get_client_version()));
 
-    return scope.Close(js_result);
+    NanReturnValue(js_result);
 }
 
 /**
@@ -735,8 +736,8 @@ Handle<Value> MysqlConnection::GetClientInfoSync(const Arguments& args) {
  *
  * Returns the MySQL client, server, host and protocol version and information
  **/
-Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::GetInfoSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -758,7 +759,7 @@ Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
     js_result->Set(V8STR("proto_info"),
                    Integer::NewFromUnsigned(mysql_get_proto_info(conn->_conn)));
 
-    return scope.Close(js_result);
+    NanReturnValue(js_result);
 }
 
 /**
@@ -766,8 +767,8 @@ Handle<Value> MysqlConnection::GetInfoSync(const Arguments& args) {
  *
  * Retrieves information about the most recently executed query
  **/
-Handle<Value> MysqlConnection::GetInfoStringSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::GetInfoStringSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -775,7 +776,7 @@ Handle<Value> MysqlConnection::GetInfoStringSync(const Arguments& args) {
 
     const char *info = mysql_info(conn->_conn);
 
-    return scope.Close(V8STR(info ? info : ""));
+    NanReturnValue(V8STR(info ? info : ""));
 }
 
 /**
@@ -783,8 +784,8 @@ Handle<Value> MysqlConnection::GetInfoStringSync(const Arguments& args) {
  *
  * Gets result of SHOW WARNINGS
  **/
-Handle<Value> MysqlConnection::GetWarningsSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::GetWarningsSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -815,7 +816,7 @@ Handle<Value> MysqlConnection::GetWarningsSync(const Arguments& args) {
         }
     }
 
-    return scope.Close(js_result);
+    NanReturnValue(js_result);
 }
 
 /**
@@ -823,22 +824,22 @@ Handle<Value> MysqlConnection::GetWarningsSync(const Arguments& args) {
  *
  * Initializes MysqlConnection
  **/
-Handle<Value> MysqlConnection::InitSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::InitSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     if (conn->_conn) {
-        return THREXC("Already initialized");
+        return NanThrowError("Already initialized");
     }
 
     conn->_conn = mysql_init(NULL);
 
     if (!conn->_conn) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -846,8 +847,8 @@ Handle<Value> MysqlConnection::InitSync(const Arguments& args) {
  *
  * Initializes a statement and returns it
  **/
-Handle<Value> MysqlConnection::InitStatementSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::InitStatementSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -856,14 +857,14 @@ Handle<Value> MysqlConnection::InitStatementSync(const Arguments& args) {
     MYSQL_STMT *my_statement = mysql_stmt_init(conn->_conn);
 
     if (!my_statement) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    Local<Value> arg = External::New(my_statement);
-    Persistent<Object> js_result(MysqlStatement::constructor_template->
-                             GetFunction()->NewInstance(1, &arg));
+    Local<Object> local_js_result = MysqlStatement::NewInstance(my_statement);
+    Persistent<Object> persistent_js_result;
+    NanAssignPersistent(Object, persistent_js_result, local_js_result);
 
-    return scope.Close(js_result);
+    NanReturnValue(persistent_js_result);
 }
 
 /**
@@ -871,8 +872,8 @@ Handle<Value> MysqlConnection::InitStatementSync(const Arguments& args) {
  *
  * Returns the auto generated id used in the last query
  **/
-Handle<Value> MysqlConnection::LastInsertIdSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::LastInsertIdSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -887,7 +888,7 @@ Handle<Value> MysqlConnection::LastInsertIdSync(const Arguments& args) {
         insert_id = mysql_insert_id(conn->_conn);
     }
 
-    return scope.Close(Integer::New(insert_id));
+    NanReturnValue(Integer::New(insert_id));
 }
 
 /**
@@ -895,18 +896,18 @@ Handle<Value> MysqlConnection::LastInsertIdSync(const Arguments& args) {
  *
  * Checks if there are any more query results from a multi query
  **/
-Handle<Value> MysqlConnection::MultiMoreResultsSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::MultiMoreResultsSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
     if (mysql_more_results(conn->_conn)) {
-        return scope.Close(True());
+        NanReturnValue(True());
     }
 
-    return scope.Close(False());
+    NanReturnValue(False());
 }
 
 /**
@@ -914,24 +915,22 @@ Handle<Value> MysqlConnection::MultiMoreResultsSync(const Arguments& args) {
  *
  * Prepare next result from multi query
  **/
-Handle<Value> MysqlConnection::MultiNextResultSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::MultiNextResultSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
     if (!mysql_more_results(conn->_conn)) {
-        return THREXC("There is no next result set."
-                        "Please, call MultiMoreResultsSync() to check "
-                        "whether to call this function/method");
+        return NanThrowError("There is no next result set. Please, call MultiMoreResultsSync() to check whether to call this function/method");
     }
 
     if (!mysql_next_result(conn->_conn)) {
-        return scope.Close(True());
+        NanReturnValue(True());
     }
 
-    return scope.Close(False());
+    NanReturnValue(False());
 }
 
 /**
@@ -940,8 +939,8 @@ Handle<Value> MysqlConnection::MultiNextResultSync(const Arguments& args) {
  *
  * Performs a multi query on the database
  **/
-Handle<Value> MysqlConnection::MultiRealQuerySync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::MultiRealQuerySync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -953,11 +952,11 @@ Handle<Value> MysqlConnection::MultiRealQuerySync(const Arguments& args) {
     unsigned int query_len = static_cast<unsigned int>(query.length());
     if (mysql_real_query(conn->_conn, *query, query_len) != 0) {
         MYSQLCONN_DISABLE_MQ;
-        return scope.Close(False());
+        NanReturnValue(False());
     }
     MYSQLCONN_DISABLE_MQ;
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -966,32 +965,32 @@ Handle<Value> MysqlConnection::MultiRealQuerySync(const Arguments& args) {
  * Pings a server connection,
  * or tries to reconnect if the connection has gone down
  **/
-Handle<Value> MysqlConnection::PingSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::PingSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
     if (mysql_ping(conn->_conn)) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /*!
  * EIO wrapper functions for MysqlConnection::Query
  */
 void MysqlConnection::EIO_After_Query(uv_work_t *req) {
-    HandleScope scope;
+    NanScope();
 
     struct query_request *query_req = (struct query_request *)(req->data);
 
     // We can't use const int argc here because argv is used
     // for both MysqlResult creation and callback call
     int argc = 1; // node.js convention, there is always at least one argument for callback
-    Local<Value> argv[3];
+    Local<Value> argv[2];
     DEBUG_PRINTF("EIO_After_Query: in\n");
     if (!query_req->conn->_conn || !query_req->conn->connected || query_req->connection_closed) {
         DEBUG_PRINTF("EIO_After_Query: !query_req->conn->_conn || !query_req->conn->connected || query_req->connection_closed\n");
@@ -1008,35 +1007,30 @@ void MysqlConnection::EIO_After_Query(uv_work_t *req) {
         argv[0] = V8EXC(error_string);
         delete[] error_string;
     } else {
-        if (query_req->have_result_set) {
-            argv[0] = External::New(query_req->conn->_conn);
-            argv[1] = External::New(query_req->my_result);
-            argv[2] = Integer::NewFromUnsigned(query_req->field_count);
-            Persistent<Object> js_result(MysqlResult::constructor_template->
-                                     GetFunction()->NewInstance(3, argv));
-
-            argv[1] = Local<Object>::New(js_result);
-        } else {
-            Local<Object> js_result = Object::New();
-            js_result->Set(V8STR("affectedRows"),
-                           Integer::New(query_req->affected_rows));
-            js_result->Set(V8STR("insertId"),
-                           Integer::New(query_req->insert_id));
-            argv[1] = Local<Object>::New(js_result);
-        }
         argc = 2;
-        argv[0] = Local<Value>::New(Null());
+        argv[0] = NanNewLocal(Null());
+        if (query_req->have_result_set) {
+            Local<Object> local_js_result = MysqlResult::NewInstance(query_req->conn->_conn, query_req->my_result, query_req->field_count);
+            argv[1] = local_js_result;
+        } else {
+            Local<Object> local_js_result = Object::New();
+            local_js_result->Set(V8STR("affectedRows"),
+                           Integer::New(query_req->affected_rows));
+            local_js_result->Set(V8STR("insertId"),
+                           Integer::New(query_req->insert_id));
+            argv[1] = local_js_result;
+        }
     }
 
-    if (query_req->callback->IsFunction()) {
+    Local<Function> fcallback = NanPersistentToLocal(query_req->callback.As<Function>());
+    if (fcallback->IsFunction()) {
         DEBUG_PRINTF("EIO_After_Query: node::MakeCallback\n");
-        node::MakeCallback(
-            Context::GetCurrent()->Global(),
-            Persistent<Function>::Cast(query_req->callback),
-            argc, argv
-        );
 
-        query_req->callback.Dispose();
+        NanCallback *ncallback = new NanCallback(fcallback);
+        ncallback->Call(argc, argv);
+        delete ncallback;
+
+        NanDisposePersistent(query_req->callback);
     }
 
     // See comment above
@@ -1132,8 +1126,8 @@ void MysqlConnection::EIO_Query(uv_work_t *req) {
  * Performs a query on the database.
  * Uses mysql_real_query.
  **/
-Handle<Value> MysqlConnection::Query(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::Query) {
+    NanScope();
 
     REQ_STR_ARG(0, query);
     OPTIONAL_BUFFER_ARG(1, local_infile_buffer);
@@ -1161,7 +1155,8 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
     memcpy(query_req->query, *query, query_len);
     query_req->query[query_len] = '\0';
 
-    query_req->callback = Persistent<Value>::New(callback);
+    NanAssignPersistent(Function, query_req->callback, callback);
+
     query_req->conn = conn;
     conn->Ref();
 
@@ -1169,14 +1164,14 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
     _req->data = query_req;
     uv_queue_work(uv_default_loop(), _req, EIO_Query, (uv_after_work_cb)EIO_After_Query);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 /*!
  * Callback function for MysqlConnection::QuerySend
  */
 void MysqlConnection::EV_After_QuerySend(uv_poll_t* handle, int status, int events) {
-    HandleScope scope;
+    NanScope();
 
     // Fake uv_work_t struct for EIO_After_Query call
     uv_work_t *_req = new uv_work_t;
@@ -1260,8 +1255,8 @@ void MysqlConnection::EV_After_QuerySend_OnWatchHandleClose(uv_handle_t* handle)
  * Performs a query on the database.
  * Uses mysql_send_query.
  */
-Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::QuerySend) {
+    NanScope();
 
     REQ_STR_ARG(0, query);
     OPTIONAL_FUN_ARG(1, callback);
@@ -1279,7 +1274,8 @@ Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
     memcpy(query_req->query, *query, query_len);
     query_req->query[query_len] = '\0';
 
-    query_req->callback = Persistent<Value>::New(callback);
+    NanAssignPersistent(Function, query_req->callback, callback);
+
     query_req->conn = conn;
     conn->Ref();
 
@@ -1292,7 +1288,7 @@ Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
     uv_poll_init(uv_default_loop(), handle, conn->_conn->net.fd);
     uv_poll_start(handle, UV_READABLE, EV_After_QuerySend);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 
@@ -1302,8 +1298,8 @@ Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
  *
  * Performs a query on the database.
  **/
-Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::QuerySync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -1332,28 +1328,24 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
     pthread_mutex_unlock(&conn->query_lock);
     if (r != 0) {
         // Query error
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
     if (!my_result) {
         if (field_count == 0) {
             // No result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN
-            return scope.Close(True());
+            NanReturnValue(True());
         } else {
             // Error
-            return scope.Close(False());
+            NanReturnValue(False());
         }
     }
 
-    const int argc = 3;
-    Local<Value> argv[argc];
-    argv[0] = External::New(conn->_conn);
-    argv[1] = External::New(my_result);
-    argv[2] = Integer::NewFromUnsigned(field_count);
-    Persistent<Object> js_result(MysqlResult::constructor_template->
-                             GetFunction()->NewInstance(argc, argv));
+    Local<Object> local_js_result = MysqlResult::NewInstance(conn->_conn, my_result, field_count);
+    Persistent<Object> persistent_js_result;
+    NanAssignPersistent(Object, persistent_js_result, local_js_result);
 
-    return scope.Close(js_result);
+    NanReturnValue(persistent_js_result);
 }
 
 /**
@@ -1361,18 +1353,18 @@ Handle<Value> MysqlConnection::QuerySync(const Arguments& args) {
  *
  * Rolls back current transaction
  **/
-Handle<Value> MysqlConnection::RollbackSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::RollbackSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
     if (mysql_rollback(conn->_conn)) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -1386,8 +1378,8 @@ Handle<Value> MysqlConnection::RollbackSync(const Arguments& args) {
  *
  * Open a new connection to the MySQL server
  **/
-Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::RealConnectSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -1409,10 +1401,10 @@ Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
                                args[6]->IsUint32() ? flags     : 0);
 
     if (!r) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -1421,8 +1413,8 @@ Handle<Value> MysqlConnection::RealConnectSync(const Arguments& args) {
  *
  * Executes an SQL query
  **/
-Handle<Value> MysqlConnection::RealQuerySync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::RealQuerySync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -1439,10 +1431,10 @@ Handle<Value> MysqlConnection::RealQuerySync(const Arguments& args) {
     pthread_mutex_unlock(&conn->query_lock);
 
     if (r != 0) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -1451,8 +1443,8 @@ Handle<Value> MysqlConnection::RealQuerySync(const Arguments& args) {
  *
  * Selects the default database for database queries
  **/
-Handle<Value> MysqlConnection::SelectDbSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::SelectDbSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -1461,10 +1453,10 @@ Handle<Value> MysqlConnection::SelectDbSync(const Arguments& args) {
     REQ_STR_ARG(0, dbname)
 
     if (mysql_select_db(conn->_conn, *dbname)) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -1473,8 +1465,8 @@ Handle<Value> MysqlConnection::SelectDbSync(const Arguments& args) {
  *
  * Sets the default client character set
  **/
-Handle<Value> MysqlConnection::SetCharsetSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::SetCharsetSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -1483,10 +1475,10 @@ Handle<Value> MysqlConnection::SetCharsetSync(const Arguments& args) {
     REQ_STR_ARG(0, charset)
 
     if (mysql_set_character_set(conn->_conn, *charset)) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -1496,8 +1488,8 @@ Handle<Value> MysqlConnection::SetCharsetSync(const Arguments& args) {
  *
  * Sets connection options
  **/
-Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::SetOptionSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -1548,24 +1540,24 @@ Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
             break;
         case MYSQL_OPT_NAMED_PIPE:
         case MYSQL_SHARED_MEMORY_BASE_NAME:
-            return THREXC("This option isn't used because Windows");
+            return NanThrowError("This option isn't used because Windows");
             break;
         case MYSQL_OPT_GUESS_CONNECTION:
         case MYSQL_SET_CLIENT_IP:
         case MYSQL_OPT_USE_EMBEDDED_CONNECTION:
         case MYSQL_OPT_USE_REMOTE_CONNECTION:
-            return THREXC("This option isn't used because not embedded");
+            return NanThrowError("This option isn't used because not embedded");
             break;
         case MYSQL_OPT_USE_RESULT:
         default:
-            return THREXC("This option isn't supported by MySQL");
+            return NanThrowError("This option isn't supported by MySQL");
     }
 
     if (r) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    return scope.Close(True());
+    NanReturnValue(True());
 }
 
 /**
@@ -1580,15 +1572,15 @@ Handle<Value> MysqlConnection::SetOptionSync(const Arguments& args) {
  * - capath(String): CA certificates in PEM directory
  * - cipher (String): Allowable ciphers
  **/
-Handle<Value> MysqlConnection::SetSslSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::SetSslSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_INITIALIZED;
 
     if (args.Length() < 5) {
-        return THREXC("setSslSync() require 5 string or null arguments");
+        return NanThrowError("setSslSync() require 5 string or null arguments");
     }
 
     OPTIONAL_STR_ARG(0, key)
@@ -1606,7 +1598,7 @@ Handle<Value> MysqlConnection::SetSslSync(const Arguments& args) {
         cipher
     );
 
-    return scope.Close(Undefined());
+    NanReturnUndefined();
 }
 
 /**
@@ -1614,14 +1606,14 @@ Handle<Value> MysqlConnection::SetSslSync(const Arguments& args) {
  *
  * Returns the SQLSTATE error from previous MySQL operation
  **/
-Handle<Value> MysqlConnection::SqlStateSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::SqlStateSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    return scope.Close(V8STR(mysql_sqlstate(conn->_conn)));
+    NanReturnValue(V8STR(mysql_sqlstate(conn->_conn)));
 }
 
 /**
@@ -1629,8 +1621,8 @@ Handle<Value> MysqlConnection::SqlStateSync(const Arguments& args) {
  *
  * Gets the current system status
  **/
-Handle<Value> MysqlConnection::StatSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::StatSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -1638,7 +1630,7 @@ Handle<Value> MysqlConnection::StatSync(const Arguments& args) {
 
     const char *stat = mysql_stat(conn->_conn);
 
-    return scope.Close(V8STR(stat ? stat : ""));
+    NanReturnValue(V8STR(stat ? stat : ""));
 }
 
 /**
@@ -1646,31 +1638,27 @@ Handle<Value> MysqlConnection::StatSync(const Arguments& args) {
  *
  * Transfers a result set from the last query
  **/
-Handle<Value> MysqlConnection::StoreResultSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::StoreResultSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     if (!mysql_field_count(conn->_conn)) {
         /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
-        return scope.Close(True());
+        NanReturnValue(True());
     }
 
     MYSQL_RES *my_result = mysql_store_result(conn->_conn);
 
     if (!my_result) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    const int argc = 3;
-    Local<Value> argv[argc];
-    argv[0] = External::New(conn->_conn);
-    argv[1] = External::New(my_result);
-    argv[2] = Integer::NewFromUnsigned(mysql_field_count(conn->_conn));
-    Persistent<Object> js_result(MysqlResult::constructor_template->
-                             GetFunction()->NewInstance(argc, argv));
+    Local<Object> local_js_result = MysqlResult::NewInstance(conn->_conn, my_result, mysql_field_count(conn->_conn));
+    Persistent<Object> persistent_js_result;
+    NanAssignPersistent(Object, persistent_js_result, local_js_result);
 
-    return scope.Close(js_result);
+    NanReturnValue(persistent_js_result);
 }
 
 /**
@@ -1678,8 +1666,8 @@ Handle<Value> MysqlConnection::StoreResultSync(const Arguments& args) {
  *
  * Returns the thread ID for the current connection
  **/
-Handle<Value> MysqlConnection::ThreadIdSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::ThreadIdSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -1687,7 +1675,7 @@ Handle<Value> MysqlConnection::ThreadIdSync(const Arguments& args) {
 
     uint64_t thread_id = mysql_thread_id(conn->_conn);
 
-    return scope.Close(Integer::New(thread_id));
+    NanReturnValue(Integer::New(thread_id));
 }
 
 /**
@@ -1695,13 +1683,13 @@ Handle<Value> MysqlConnection::ThreadIdSync(const Arguments& args) {
  *
  * Returns whether thread safety is given or not
  **/
-Handle<Value> MysqlConnection::ThreadSafeSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::ThreadSafeSync) {
+    NanScope();
 
     if (mysql_thread_safe()) {
-        return scope.Close(True());
+        NanReturnValue(True());
     } else {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 }
 
@@ -1710,31 +1698,27 @@ Handle<Value> MysqlConnection::ThreadSafeSync(const Arguments& args) {
  *
  * Initiates a result set retrieval for the last query
  **/
-Handle<Value> MysqlConnection::UseResultSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::UseResultSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
     if (!mysql_field_count(conn->_conn)) {
         /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
-        return scope.Close(True());
+        NanReturnValue(True());
     }
 
     MYSQL_RES *my_result = mysql_use_result(conn->_conn);
 
     if (!my_result) {
-        return scope.Close(False());
+        NanReturnValue(False());
     }
 
-    const int argc = 3;
-    Local<Value> argv[argc];
-    argv[0] = External::New(conn->_conn);
-    argv[1] = External::New(my_result);
-    argv[2] = Integer::NewFromUnsigned(mysql_field_count(conn->_conn));
-    Persistent<Object> js_result(MysqlResult::constructor_template->
-                             GetFunction()->NewInstance(argc, argv));
+    Local<Object> local_js_result = MysqlResult::NewInstance(conn->_conn, my_result, mysql_field_count(conn->_conn));
+    Persistent<Object> persistent_js_result;
+    NanAssignPersistent(Object, persistent_js_result, local_js_result);
 
-    return scope.Close(js_result);
+    NanReturnValue(persistent_js_result);
 }
 
 /**
@@ -1742,8 +1726,8 @@ Handle<Value> MysqlConnection::UseResultSync(const Arguments& args) {
  *
  * Returns the number of warnings from the last query for the given link
  **/
-Handle<Value> MysqlConnection::WarningCountSync(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(MysqlConnection::WarningCountSync) {
+    NanScope();
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -1751,7 +1735,7 @@ Handle<Value> MysqlConnection::WarningCountSync(const Arguments& args) {
 
     uint32_t warning_count = mysql_warning_count(conn->_conn);
 
-    return scope.Close(Integer::NewFromUnsigned(warning_count));
+    NanReturnValue(Integer::NewFromUnsigned(warning_count));
 }
 int MysqlConnection::CustomLocalInfileInit(void ** ptr, const char * filename, void * userdata) {
   *ptr = userdata;
@@ -1791,8 +1775,7 @@ MysqlConnection::local_infile_data * MysqlConnection::PrepareLocalInfileData(Han
   memcpy(infile_data->buffer, node::Buffer::Data(buffer->ToObject()), infile_data->length);
   return infile_data;
 }
-void MysqlConnection::SetCorrectLocalInfileHandlers(local_infile_data * infile_data,
-                                                    MYSQL * conn) {
+void MysqlConnection::SetCorrectLocalInfileHandlers(local_infile_data * infile_data, MYSQL * conn) {
   if (infile_data) {
     mysql_set_local_infile_handler(conn,
                                    MysqlConnection::CustomLocalInfileInit,
@@ -1809,8 +1792,7 @@ void MysqlConnection::SetCorrectLocalInfileHandlers(local_infile_data * infile_d
     mysql_set_local_infile_default(conn);
   }
 }
-void MysqlConnection::RestoreLocalInfileHandlers(local_infile_data * infile_data,
-                                                 MYSQL * conn) {
+void MysqlConnection::RestoreLocalInfileHandlers(local_infile_data * infile_data, MYSQL * conn) {
   if (infile_data) {
     mysql_set_local_infile_default(conn);
     if (infile_data->buffer) {

@@ -9,6 +9,9 @@
         'src/mysql_bindings_result.cc',
         'src/mysql_bindings_statement.cc',
       ],
+      "include_dirs" : [
+        '<!(node -e "require(\'nan\')")'
+      ],
       'conditions': [
         ['OS=="win"', {
           # no Windows support yet...
