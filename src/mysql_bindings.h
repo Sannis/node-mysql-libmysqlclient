@@ -9,12 +9,7 @@
 #define SRC_MYSQL_BINDINGS_H_
 
 #include <v8.h>
-#include<node_buffer.h>
-/*!
- * Use this header file to conditionally invoke different libev/libeio/libuv functions
- * depending on the node version that the module is being compiled for.
- */
-#include "./node_addon_shim.h"
+#include <node_buffer.h>
 
 /*!
  * Useful macroses for utility operations
@@ -114,19 +109,6 @@ if (args.Length() > (I) \
     #define DEBUG_PRINTF(...) fprintf(stdout, __VA_ARGS__)
 #else
     #define DEBUG_PRINTF(...) (void)0
-#endif
-
-/* Backport MakeCallback from Node v0.7.8 */
-#if NODE_VERSION_AT_LEAST(0, 7, 8)
-  // Nothing
-#else
-    namespace node {
-        v8::Handle<v8::Value>
-        MakeCallback(const v8::Handle<v8::Object> object,
-                     const v8::Handle<v8::Function> callback,
-                     int argc,
-                     v8::Handle<v8::Value> argv[]);
-    }  // namespace node
 #endif
 
 #endif  // SRC_MYSQL_BINDINGS_H_

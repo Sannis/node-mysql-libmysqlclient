@@ -600,7 +600,7 @@ Handle<Value> MysqlStatement::Execute(const Arguments& args) {
 
     uv_work_t *_req = new uv_work_t;
     _req->data = execute_req;
-    uv_queue_work(uv_default_loop(), _req, EIO_Execute, EIO_After_Execute);
+    uv_queue_work(uv_default_loop(), _req, EIO_Execute, (uv_after_work_cb)EIO_After_Execute);
 
     return Undefined();
 }
@@ -749,7 +749,7 @@ Handle<Value> MysqlStatement::FetchAll(const Arguments& args) {
 
     uv_work_t *_req = new uv_work_t;
     _req->data = fetchAll_req;
-    uv_queue_work(uv_default_loop(), _req, EIO_FetchAll, EIO_After_FetchAll);
+    uv_queue_work(uv_default_loop(), _req, EIO_FetchAll, (uv_after_work_cb)EIO_After_FetchAll);
 
     return Undefined();
 }
@@ -951,7 +951,7 @@ Handle<Value> MysqlStatement::Fetch(const Arguments& args) {
 
     uv_work_t *_req = new uv_work_t;
     _req->data = fetch_req;
-    uv_queue_work(uv_default_loop(), _req, EIO_Fetch, EIO_After_Fetch);
+    uv_queue_work(uv_default_loop(), _req, EIO_Fetch, (uv_after_work_cb)EIO_After_Fetch);
 
     return Undefined();
 }
@@ -1488,7 +1488,7 @@ Handle<Value> MysqlStatement::StoreResult(const Arguments& args) {
 
     uv_work_t *_req = new uv_work_t;
     _req->data = store_req;
-    uv_queue_work(uv_default_loop(), _req, EIO_StoreResult, EIO_After_StoreResult);
+    uv_queue_work(uv_default_loop(), _req, EIO_StoreResult, (uv_after_work_cb)EIO_After_StoreResult);
 
     return Undefined();
 }

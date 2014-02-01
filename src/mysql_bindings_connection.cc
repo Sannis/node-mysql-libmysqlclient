@@ -11,7 +11,7 @@
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
-#include<stdio.h>
+
 /*!
  * Init V8 structures for MysqlConnection class
  */
@@ -1176,20 +1176,16 @@ Handle<Value> MysqlConnection::Query(const Arguments& args) {
 /*!
  * Callback function for MysqlConnection::QuerySend
  */
-void MysqlConnection::EV_After_QuerySend(NODE_ADDON_SHIM_IO_WATCH_CALLBACK_ARGUMENTS) {
+void MysqlConnection::EV_After_QuerySend(uv_poll_t* handle, int status, int events) {
     HandleScope scope;
 
-    uv_work_t *_req = new uv_work_t;
-
     // Fake uv_work_t struct for EIO_After_Query call
-#if NODE_VERSION_AT_LEAST(0, 7, 9)
+    uv_work_t *_req = new uv_work_t;
     _req->data = handle->data;
-#else
-    _req->data = io_watcher->data;
-#endif
 
     // Stop IO watcher
-    NODE_ADDON_SHIM_STOP_IO_WATCH(EV_After_QuerySend_OnWatchHandleClose)
+    uv_poll_stop(handle);
+    uv_close((uv_handle_t *)handle, EV_After_QuerySend_OnWatchHandleClose);
 
     struct query_request *query_req = (struct query_request *)(_req->data);
 
@@ -1253,6 +1249,10 @@ void MysqlConnection::EV_After_QuerySend(NODE_ADDON_SHIM_IO_WATCH_CALLBACK_ARGUM
     EIO_After_Query(_req);
 }
 
+void MysqlConnection::EV_After_QuerySend_OnWatchHandleClose(uv_handle_t* handle) {
+    delete handle;
+}
+
 /**
  * MysqlConnection#querySend(query, callback)
  * - query (String): Query
@@ -1288,7 +1288,10 @@ Handle<Value> MysqlConnection::QuerySend(const Arguments& args) {
     mysql_send_query(conn->_conn, query_req->query, query_len + 1);
 
     // Init IO watcher
-    NODE_ADDON_SHIM_START_IO_READABLE_WATCH(query_req, EV_After_QuerySend, conn->_conn->net.fd)
+    uv_poll_t* handle = new uv_poll_t;
+    handle->data = query_req;
+    uv_poll_init(uv_default_loop(), handle, conn->_conn->net.fd);
+    uv_poll_start(handle, UV_READABLE, EV_After_QuerySend);
 
     return Undefined();
 }

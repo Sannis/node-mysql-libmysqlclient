@@ -33,10 +33,10 @@
   "scripts" : { "test" : "make test", "doc" : "make doc" },
 
   "devDependencies" :
-  { "nodeunit" : ">= 0.7"
-  , "nodelint" : ">= 0.6"
-  , "async"    : ">= 0.2.4"
-  , "ndoc"     : ">= 2.0.4"
+  { "nodeunit" : "~0.8.4"
+  , "nodelint" : "~0.6.2"
+  , "async"    : "~0.2.10"
+  , "ndoc"     : "~3.1.0"
   },
-  "engines" : { "node" : ">=0.6.x" }
+  "engines" : { "node" : ">=0.8.0" }
 }
