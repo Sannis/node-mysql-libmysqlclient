@@ -3,8 +3,11 @@ node_js:
   - 0.8  # previous stable release
   - 0.10 # latest stable release
   - 0.11 # latest development release
-services:
-  - mysql # start MySQL on startup
+
+# This causes `Job is already running: mysql`
+#services:
+#  - mysql # start MySQL on startup
+
 before_script:
   - "mysql -uroot -e \"DELETE FROM mysql.db WHERE Db = 'test\\_%';\""
   - "mysql -uroot -e \"DELETE FROM mysql.user WHERE Host = 'localhost' AND User = '';\""
