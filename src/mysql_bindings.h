@@ -96,7 +96,7 @@ if (args.Length() > (I) \
 }
 
 #ifdef DEBUG
-    #define DEBUG_PRINTF(...) fprintf(stdout, __VA_ARGS__)
+    #define DEBUG_PRINTF(...) printf("\nDEBUG_PRINTF: "); printf(__VA_ARGS__); printf("\n")
 #else
     #define DEBUG_PRINTF(...) (void)0
 #endif

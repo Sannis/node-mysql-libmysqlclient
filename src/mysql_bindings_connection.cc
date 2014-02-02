@@ -987,9 +987,9 @@ void MysqlConnection::EIO_After_Query(uv_work_t *req) {
     // for both MysqlResult creation and callback call
     int argc = 1; // node.js convention, there is always at least one argument for callback
     Local<Value> argv[2];
-    DEBUG_PRINTF("EIO_After_Query: in\n");
+    DEBUG_PRINTF("EIO_After_Query: in");
     if (!query_req->conn->_conn || !query_req->conn->connected || query_req->connection_closed) {
-        DEBUG_PRINTF("EIO_After_Query: !query_req->conn->_conn || !query_req->conn->connected || query_req->connection_closed\n");
+        DEBUG_PRINTF("EIO_After_Query: !query_req->conn->_conn || !query_req->conn->connected || query_req->connection_closed");
         // Check connection
         // If closeSync() is called after query(),
         // than connection is destroyed here
@@ -1020,7 +1020,7 @@ void MysqlConnection::EIO_After_Query(uv_work_t *req) {
 
     Local<Function> fcallback = NanPersistentToLocal(query_req->callback.As<Function>());
     if (fcallback->IsFunction()) {
-        DEBUG_PRINTF("EIO_After_Query: node::MakeCallback\n");
+        DEBUG_PRINTF("EIO_After_Query: (new NanCallback)->call()");
 
         NanCallback *ncallback = new NanCallback(fcallback);
         ncallback->Call(argc, argv);
@@ -1030,11 +1030,11 @@ void MysqlConnection::EIO_After_Query(uv_work_t *req) {
     }
 
     // See comment above
-    DEBUG_PRINTF("EIO_After_Query: Unref?\n");
+    DEBUG_PRINTF("EIO_After_Query: Unref?");
     if (!query_req->conn->_conn || !query_req->conn->connected) {
-        DEBUG_PRINTF("EIO_After_Query: Unref\n");
+        DEBUG_PRINTF("EIO_After_Query: Unref");
         query_req->conn->Unref();
-        DEBUG_PRINTF("EIO_After_Query: Unref'ed\n");
+        DEBUG_PRINTF("EIO_After_Query: Unref'ed");
     }
 
     delete[] query_req->query;
@@ -1187,7 +1187,7 @@ void MysqlConnection::EV_After_QuerySend(uv_poll_t* handle, int status, int even
         query_req->ok = false;
         query_req->connection_closed = true;
 
-        DEBUG_PRINTF("EV_After_QuerySend: !conn->_conn || !conn->connected\n");
+        DEBUG_PRINTF("EV_After_QuerySend: !conn->_conn || !conn->connected");
 
         // The callback part, just call the existing code
         EIO_After_Query(_req);

@@ -679,12 +679,8 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
 
             js_result_row = Object::New();
 
-            DEBUG_PRINTF("Fetching row #%d\n", i);
-
             while (j < fetchAll_req->field_count) {
                 ptr = stmt->result_binds[j].buffer;
-
-                DEBUG_PRINTF("Is null %d\n", *(stmt->result_binds[j].is_null));
 
                 Local<Value> js_field;
                 if (*(stmt->result_binds[j].is_null)) {
@@ -824,12 +820,8 @@ NAN_METHOD(MysqlStatement::FetchAllSync) {
 
         js_result_row = Object::New();
 
-        DEBUG_PRINTF("Fetching row #%d\n", i);
-
         while (j < field_count) {
             ptr = stmt->result_binds[j].buffer;
-
-            DEBUG_PRINTF("Is null %d\n", *(stmt->result_binds[j].is_null));
 
             Local<Value> js_field;
             if (*(stmt->result_binds[j].is_null)) {
@@ -882,8 +874,6 @@ void MysqlStatement::EIO_After_Fetch(uv_work_t* req) {
 
         while (i < fetch_req->field_count) {
             ptr = stmt->result_binds[i].buffer;
-
-            DEBUG_PRINTF("Is null %d\n", *(stmt->result_binds[i].is_null));
 
             Local<Value> js_field;
             if (*(stmt->result_binds[i].is_null)) {
@@ -1032,8 +1022,6 @@ NAN_METHOD(MysqlStatement::FetchSync) {
         while (i < field_count) {
             ptr = stmt->result_binds[i].buffer;
 
-            DEBUG_PRINTF("Is null %d\n", *(stmt->result_binds[i].is_null));
-
             Local<Value> js_field;
             if (*(stmt->result_binds[i].is_null)) {
                 js_field = NanNewLocal(Null());
@@ -1173,17 +1161,16 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
         int32_t val = *((signed char *) ptr);
         // handle as boolean
         if (length == 1) {
-            DEBUG_PRINTF("TINYINT(1) %d\n", val);
+            DEBUG_PRINTF("TINYINT(1) %d", val);
             return NanNewLocal(Boolean::New(val));
         // handle as integer
         } else {
-            DEBUG_PRINTF("TINYINT(>1) %d\n", val);
+            DEBUG_PRINTF("TINYINT(>1) %d", val);
             return Integer::New(val);
         }
     } else if (
     type == MYSQL_TYPE_SHORT ||                // SMALLINT
     type == MYSQL_TYPE_SHORT) {                // YEAR
-        DEBUG_PRINTF("SMALLINT %d\n", *((short int*) ptr));
         if (field.flags & UNSIGNED_FLAG) {
             return Integer::NewFromUnsigned((uint32_t) *((unsigned short int *) ptr));
         } else {
@@ -1192,20 +1179,16 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
     } else if (
     type == MYSQL_TYPE_INT24 ||                // MEDIUMINT
     type == MYSQL_TYPE_LONG) {                 // INT
-        DEBUG_PRINTF("INT %d\n", *((int *) ptr));
         if (field.flags & UNSIGNED_FLAG) {
             return Integer::NewFromUnsigned((uint32_t) *((unsigned int *) ptr));
         } else {
             return Integer::New((int32_t) *((int *) ptr));
         }
     } else if (type == MYSQL_TYPE_LONGLONG) {  // BIGINT
-        DEBUG_PRINTF("BIGINT %lld\n", *((long long int*) ptr));
         return Number::New((double) *((long long int *) ptr));
     } else if (type == MYSQL_TYPE_FLOAT) {     // FLOAT
-        DEBUG_PRINTF("FLOAT %f\n", *((float *) ptr));
         return Number::New(*((float *) ptr));
     } else if (type == MYSQL_TYPE_DOUBLE) {    // DOUBLE, REAL
-        DEBUG_PRINTF("DOUBLE %f\n", *((double *) ptr));
         return Number::New(*((double *) ptr));
     } else if (
     type == MYSQL_TYPE_DECIMAL ||              // DECIMAL, NUMERIC
@@ -1222,13 +1205,13 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
         char *data = (char *)ptr;
 
         if (field.flags & BINARY_FLAG) {
-            DEBUG_PRINTF("Blob, length: (%lu)\n", length);
+            DEBUG_PRINTF("Blob, length: (%lu)", length);
 
             Local<Object> local_js_buffer = NanNewBufferHandle(data, length);
 
             return local_js_buffer;
         } else {
-            DEBUG_PRINTF("String, length: %lu/%lu\n", length, field.length);
+            DEBUG_PRINTF("String, length: %lu/%lu", length, field.length);
             return V8STR2(data, length);
         }
     } else if (
@@ -1240,7 +1223,7 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
         MYSQL_TIME ts = *((MYSQL_TIME *) ptr);
 
         DEBUG_PRINTF(
-            "Time: %04d-%02d-%02d %02d:%02d:%02d\n",
+            "Time: %04d-%02d-%02d %02d:%02d:%02d",
             ts.year, ts.month, ts.day,
             ts.hour, ts.minute, ts.second);
 
@@ -1248,7 +1231,8 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
         sprintf(
             time_string,
             "%04d-%02d-%02d %02d:%02d:%02d GMT",
-            ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second);
+            ts.year, ts.month, ts.day,
+            ts.hour, ts.minute, ts.second);
 
         // First step is to get a handle to the global object:
         Local<v8::Object> globalObj = Context::GetCurrent()->Global();

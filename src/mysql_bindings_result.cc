@@ -261,10 +261,6 @@ MysqlResult::fetch_options MysqlResult::GetFetchOptions(Local<Object> options) {
         fo.results_nest_tables = options->ToObject()->Get(V8STR("nestTables"))->BooleanValue();
     }
 
-    if (fo.results_as_array || fo.results_nest_tables) {
-        DEBUG_PRINTF("\n");
-    }
-
     return fo;
 }
 
@@ -499,6 +495,7 @@ NAN_METHOD(MysqlResult::FetchAll) {
         int argc = 1;
         Local<Value> argv[1];
         argv[0] = V8EXC("fetchAllSync can handle only (options) or none arguments");
+        //TODO(Sannis): Use NanCallback here
         node::MakeCallback(Context::GetCurrent()->Global(), callback, argc, argv);
         NanReturnUndefined();
     }
