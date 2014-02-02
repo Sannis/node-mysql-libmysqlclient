@@ -83,7 +83,7 @@ class MysqlResult : public node::ObjectWrap {
     struct fetchAll_request {
         bool ok;
         
-        Persistent<Function> callback;
+        NanCallback *nan_callback;
         MysqlResult *res;
 
         MYSQL_FIELD *fields;

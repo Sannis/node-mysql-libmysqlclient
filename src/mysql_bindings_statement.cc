@@ -570,12 +570,9 @@ void MysqlStatement::EIO_After_Execute(uv_work_t *req) {
         argv[0] = NanNewLocal(Null());
     }
 
-    Local<Function> fcallback = NanPersistentToLocal(execute_req->callback.As<Function>());
-    NanCallback *ncallback = new NanCallback(fcallback);
-    ncallback->Call(argc, argv);
-    delete ncallback;
+    execute_req->nan_callback->Call(argc, argv);
+    delete execute_req->nan_callback;
 
-    NanDisposePersistent(execute_req->callback);
     execute_req->stmt->Unref();
 
     delete execute_req;
@@ -607,7 +604,7 @@ NAN_METHOD(MysqlStatement::Execute) {
 
     execute_request* execute_req = new execute_request;
 
-    NanAssignPersistent(Function, execute_req->callback, callback);
+    execute_req->nan_callback = new NanCallback(callback.As<Function>());
 
     execute_req->stmt = stmt;
     stmt->Ref();
@@ -711,12 +708,9 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
         mysql_free_result(fetchAll_req->meta);
     }
 
-    Local<Function> fcallback = NanPersistentToLocal(fetchAll_req->callback.As<Function>());
-    NanCallback *ncallback = new NanCallback(fcallback);
-    ncallback->Call(argc, argv);
-    delete ncallback;
+    fetchAll_req->nan_callback->Call(argc, argv);
+    delete fetchAll_req->nan_callback;
 
-    NanDisposePersistent(fetchAll_req->callback);
     fetchAll_req->stmt->Unref();
 
     delete fetchAll_req;
@@ -756,7 +750,7 @@ NAN_METHOD(MysqlStatement::FetchAll) {
 
     fetch_request *fetchAll_req = new fetch_request;
 
-    NanAssignPersistent(Function, fetchAll_req->callback, callback);
+    fetchAll_req->nan_callback = new NanCallback(callback.As<Function>());
 
     fetchAll_req->stmt = stmt;
     fetchAll_req->meta = NULL;
@@ -894,12 +888,9 @@ void MysqlStatement::EIO_After_Fetch(uv_work_t* req) {
         mysql_free_result(fetch_req->meta);
     }
 
-    Local<Function> fcallback = NanPersistentToLocal(fetch_req->callback.As<Function>());
-    NanCallback *ncallback = new NanCallback(fcallback);
-    ncallback->Call(argc, argv);
-    delete ncallback;
+    fetch_req->nan_callback->Call(argc, argv);
+    delete fetch_req->nan_callback;
 
-    NanDisposePersistent(fetch_req->callback);
     fetch_req->stmt->Unref();
 
     delete fetch_req;
@@ -957,7 +948,7 @@ NAN_METHOD(MysqlStatement::Fetch) {
 
     fetch_request *fetch_req = new fetch_request;
 
-    NanAssignPersistent(Function, fetch_req->callback, callback);
+    fetch_req->nan_callback = new NanCallback(callback.As<Function>());
 
     fetch_req->stmt = stmt;
     fetch_req->meta = NULL;
@@ -1451,12 +1442,8 @@ void MysqlStatement::EIO_After_StoreResult(uv_work_t *req) {
         argv[0] = NanNewLocal(Null());
     }
 
-    Local<Function> fcallback = NanPersistentToLocal(store_req->callback.As<Function>());
-    NanCallback *ncallback = new NanCallback(fcallback);
-    ncallback->Call(argc, argv);
-    delete ncallback;
-
-    NanDisposePersistent(store_req->callback);
+    store_req->nan_callback->Call(argc, argv);
+    delete store_req->nan_callback;
 
     store_req->stmt->Unref();
 
@@ -1485,7 +1472,7 @@ NAN_METHOD(MysqlStatement::StoreResult) {
 
     store_result_request* store_req = new store_result_request;
 
-    NanAssignPersistent(Function, store_req->callback, callback);
+    store_req->nan_callback = new NanCallback(callback.As<Function>());
 
     store_req->stmt = stmt;
     stmt->Ref();

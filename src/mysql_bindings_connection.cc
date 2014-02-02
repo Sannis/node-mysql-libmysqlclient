@@ -377,12 +377,8 @@ void MysqlConnection::EIO_After_Connect(uv_work_t *req) {
         argv[0] = NanNewLocal(Null());
     }
 
-    Local<Function> fcallback = NanPersistentToLocal(conn_req->callback.As<Function>());
-    NanCallback *ncallback = new NanCallback(fcallback);
-    ncallback->Call(argc, argv);
-    delete ncallback;
-
-    NanDisposePersistent(conn_req->callback);
+    conn_req->nan_callback->Call(argc, argv);
+    delete conn_req->nan_callback;
 
     conn_req->conn->Unref();
 
@@ -449,7 +445,8 @@ NAN_METHOD(MysqlConnection::Connect) {
 
     connect_request *conn_req = new connect_request;
 
-    NanAssignPersistent(Function, conn_req->callback, callback);
+    conn_req->nan_callback = new NanCallback(callback.As<Function>());
+
     conn_req->conn = conn;
     conn->Ref();
 
@@ -1018,15 +1015,11 @@ void MysqlConnection::EIO_After_Query(uv_work_t *req) {
         }
     }
 
-    Local<Function> fcallback = NanPersistentToLocal(query_req->callback.As<Function>());
-    if (fcallback->IsFunction()) {
-        DEBUG_PRINTF("EIO_After_Query: (new NanCallback)->call()");
+    if (query_req->nan_callback) {
+        DEBUG_PRINTF("EIO_After_Query: query_req->nan_callback->Call()");
 
-        NanCallback *ncallback = new NanCallback(fcallback);
-        ncallback->Call(argc, argv);
-        delete ncallback;
-
-        NanDisposePersistent(query_req->callback);
+        query_req->nan_callback->Call(argc, argv);
+        delete query_req->nan_callback;
     }
 
     // See comment above
@@ -1148,7 +1141,7 @@ NAN_METHOD(MysqlConnection::Query) {
     query_req->query[query_len] = '\0';
 
     if (callback->IsFunction()) {
-        NanAssignPersistent(Function, query_req->callback, callback.As<Function>());
+        query_req->nan_callback = new NanCallback(callback.As<Function>());
     }
 
     query_req->conn = conn;
@@ -1269,7 +1262,7 @@ NAN_METHOD(MysqlConnection::QuerySend) {
     query_req->query[query_len] = '\0';
 
     if (callback->IsFunction()) {
-        NanAssignPersistent(Function, query_req->callback, callback.As<Function>());
+        query_req->nan_callback = new NanCallback(callback.As<Function>());
     }
 
     query_req->conn = conn;
@@ -1338,10 +1331,8 @@ NAN_METHOD(MysqlConnection::QuerySync) {
     }
 
     Local<Object> local_js_result = MysqlResult::NewInstance(conn->_conn, my_result, field_count);
-    Persistent<Object> persistent_js_result;
-    NanAssignPersistent(Object, persistent_js_result, local_js_result);
 
-    NanReturnValue(persistent_js_result);
+    NanReturnValue(local_js_result);
 }
 
 /**

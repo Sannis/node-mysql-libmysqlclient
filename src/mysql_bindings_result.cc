@@ -428,12 +428,9 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
         }
     }
 
-    Local<Function> fcallback = NanPersistentToLocal(fetchAll_req->callback.As<Function>());
-    NanCallback *ncallback = new NanCallback(fcallback);
-    ncallback->Call(argc, argv);
-    delete ncallback;
+    fetchAll_req->nan_callback->Call(argc, argv);
+    delete fetchAll_req->nan_callback;
 
-    NanDisposePersistent(fetchAll_req->callback);
     fetchAll_req->res->Unref();
 
     // Free the result object after callback
@@ -511,7 +508,7 @@ NAN_METHOD(MysqlResult::FetchAll) {
 
     fetchAll_request *fetchAll_req = new fetchAll_request;
 
-    NanAssignPersistent(Function, fetchAll_req->callback, callback);
+    fetchAll_req->nan_callback = new NanCallback(callback.As<Function>());
 
     fetchAll_req->res = res;
     res->Ref();

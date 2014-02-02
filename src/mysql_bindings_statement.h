@@ -102,7 +102,7 @@ class MysqlStatement : public node::ObjectWrap {
     struct execute_request {
         bool ok;
 
-        Persistent<Function> callback;
+        NanCallback *nan_callback;
         MysqlStatement* stmt;
     };
 
@@ -118,25 +118,20 @@ class MysqlStatement : public node::ObjectWrap {
         bool ok;
         bool empty_resultset;
 
-        Persistent<Function> callback;
+        NanCallback *nan_callback;
         MysqlStatement* stmt;
 
         MYSQL_RES* meta;
         unsigned long field_count;
     };
-
     static void EIO_After_FetchAll(uv_work_t* req);
-
     static void EIO_FetchAll(uv_work_t* req);
-
     static NAN_METHOD(FetchAll);
 
     static NAN_METHOD(FetchAllSync);
 
     static void EIO_After_Fetch(uv_work_t* req);
-
     static void EIO_Fetch(uv_work_t* req);
-
     static NAN_METHOD(Fetch);
 
     static NAN_METHOD(FetchSync);
@@ -168,14 +163,11 @@ class MysqlStatement : public node::ObjectWrap {
     struct store_result_request {
         bool ok;
 
-        Persistent<Function> callback;
+        NanCallback *nan_callback;
         MysqlStatement* stmt;
     };
-
     static void EIO_After_StoreResult(uv_work_t* req);
-
     static void EIO_StoreResult(uv_work_t* req);
-
     static NAN_METHOD(StoreResult);
 
     static NAN_METHOD(SqlStateSync);

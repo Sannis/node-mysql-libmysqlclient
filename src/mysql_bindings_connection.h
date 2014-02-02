@@ -113,7 +113,7 @@ class MysqlConnection : public node::ObjectWrap {
     struct connect_request {
         bool ok;
 
-        Persistent<Function> callback;
+        NanCallback *nan_callback;
         MysqlConnection *conn;
 
         String::Utf8Value *hostname;
@@ -182,7 +182,7 @@ class MysqlConnection : public node::ObjectWrap {
         bool connection_closed;
         bool have_result_set;
 
-        Persistent<Function> callback;
+        NanCallback *nan_callback;
         MysqlConnection *conn;
 
         char *query;
