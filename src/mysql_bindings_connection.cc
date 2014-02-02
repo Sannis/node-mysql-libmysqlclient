@@ -181,11 +181,8 @@ bool MysqlConnection::RealConnect(const char* hostname,
 }
 
 void MysqlConnection::Close() {
-    DEBUG_PRINTF("Close: pthread_mutex_lock\n");
     pthread_mutex_lock(&this->query_lock);
-    DEBUG_PRINTF("Close: pthread_mutex_lock'ed\n");
     if (this->_conn) {
-
         mysql_close(this->_conn);
         this->_conn = NULL;
         this->connected = false;
@@ -194,7 +191,6 @@ void MysqlConnection::Close() {
         this->connect_errno = 0;
         this->connect_error = NULL;
     }
-    DEBUG_PRINTF("Close: pthread_mutex_unlock\n");
     pthread_mutex_unlock(&this->query_lock);
 }
 
@@ -1052,9 +1048,7 @@ void MysqlConnection::EIO_Query(uv_work_t *req) {
 
     MysqlConnection *conn = query_req->conn;
 
-    DEBUG_PRINTF("EIO_Query: pthread_mutex_lock\n");
     pthread_mutex_lock(&conn->query_lock);
-    DEBUG_PRINTF("EIO_Query: pthread_mutex_lock'ed\n");
 
     // Check connection
     // If closeSync() is called after query(),
@@ -1064,8 +1058,6 @@ void MysqlConnection::EIO_Query(uv_work_t *req) {
         query_req->ok = false;
         query_req->connection_closed = true;
 
-        DEBUG_PRINTF("EIO_Query: !conn->_conn || !conn->connected\n");
-        DEBUG_PRINTF("EIO_Query: pthread_mutex_unlock\n");
         pthread_mutex_unlock(&conn->query_lock);
         return;
     }
@@ -1114,7 +1106,7 @@ void MysqlConnection::EIO_Query(uv_work_t *req) {
             }
         }
     }
-    DEBUG_PRINTF("EIO_Query: pthread_mutex_unlock\n");
+
     pthread_mutex_unlock(&conn->query_lock);
 }
 
