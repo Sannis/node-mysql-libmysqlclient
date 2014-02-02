@@ -306,7 +306,8 @@ exports.CallStoredProcedureSelectNested = function (test) {
   test.strictEqual(res, true);
   
   conn.query("CALL test_procedure();", function (err, res) {
-    test.ok(err === null, "conn.query() err===null");
+    test.ok(err === null, "Error object is not present");
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
     
     numFromProcedure = res.fetchAllSync()[0].num;
     res.freeSync();
@@ -326,9 +327,8 @@ exports.CallStoredProcedureSelectNested = function (test) {
     }
     
     conn.query("CALL test_procedure();", function (err, res) {
-      test.ok(err === null, "conn.query() err===null");
-      
-      test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "CALL test_procedure();");
+      test.ok(err === null, "Error object is not present");
+      test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
     
       numFromProcedure = res.fetchAllSync()[0].num;
       res.freeSync();

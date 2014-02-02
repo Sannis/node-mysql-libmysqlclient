@@ -33,7 +33,7 @@ exports.mysql_libmysqlclient_createConnection_1_Function = function (test) {
 
   cfg.mysql_libmysqlclient.createConnection(function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
 
     if (conn.connectedSync()) {
       conn.closeSync();
@@ -90,7 +90,7 @@ exports.mysql_libmysqlclient_createConnection_4 = function (test) {
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
 
     if (conn.connectedSync()) {
       conn.closeSync();
@@ -105,7 +105,7 @@ exports.mysql_libmysqlclient_createConnection_5_AccessAllowed = function (test) 
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database, function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
 
     var isConnected = conn.connectedSync();
     test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(host, user, password, database, callback)");
@@ -142,7 +142,7 @@ exports.mysql_libmysqlclient_createConnection_6 = function (test) {
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database, cfg.port, function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
 
     var isConnected = conn.connectedSync();
     test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(host, user, password, database, flags, callback)");
@@ -165,7 +165,7 @@ exports.mysql_libmysqlclient_createConnection_8 = function (test) {
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database, null, null, compress_flag, function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
 
     var isConnected = conn.connectedSync();
     test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(host, user, password, database, flags, callback)");
@@ -188,7 +188,7 @@ exports.mysql_libmysqlclient_createConnectionSync_DSN_1 = function (test) {
 
   cfg.mysql_libmysqlclient.createConnection(dsn, function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
 
     var isConnected = conn.connectedSync();
     test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(dsn(user, password, host, port), callback)");
@@ -211,7 +211,7 @@ exports.mysql_libmysqlclient_createConnectionSync_DSN_2 = function (test) {
 
   cfg.mysql_libmysqlclient.createConnection(dsn, function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
 
     var isConnected = conn.connectedSync();
     test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(dsn(user, password, host, port), callback)");
@@ -234,7 +234,7 @@ exports.mysql_libmysqlclient_createConnectionSync_DSN_3 = function (test) {
 
   cfg.mysql_libmysqlclient.createConnection(dsn, function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
 
     var isConnected = conn.connectedSync();
     test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(dsn(user, password, host, port, database), callback)");

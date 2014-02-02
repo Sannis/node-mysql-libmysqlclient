@@ -12,7 +12,7 @@ exports.mysql_libmysqlclient_createConnectionHighlevelSync_0 = function (test) {
   test.expect(3);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionHighlevelSync();
-  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
   test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
   test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionHighlevel);
   if (conn.connectedSync()) {
@@ -25,7 +25,7 @@ exports.mysql_libmysqlclient_createConnectionHighlevelSync_4 = function (test) {
   test.expect(4);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionHighlevelSync(cfg.host, cfg.user, cfg.password, cfg.database);
-  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
   test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
   test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionHighlevel);
 
@@ -49,7 +49,7 @@ exports.mysql_libmysqlclient_createConnectionHighlevelSync_DSN = function (test)
     dsn = require('util').format("mysql://%s:%s@%s:%s/%s/zxcvbn?qwerty=1234", cfg.user, cfg.password, cfg.host, cfg.port, cfg.database),
     conn = cfg.mysql_libmysqlclient.createConnectionHighlevelSync(dsn),
     isConnected;
-  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
   test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
   test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionHighlevel);
 
@@ -81,7 +81,7 @@ exports.mysql_libmysqlclient_createConnectionHighlevel_1 = function (test) {
 
   cfg.mysql_libmysqlclient.createConnectionHighlevel(function (err, conn) {
     test.ok(err == null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionHighlevel);
 
@@ -98,7 +98,8 @@ exports.mysql_libmysqlclient_createConnectionHighlevel_5 = function (test) {
 
   cfg.mysql_libmysqlclient.createConnectionHighlevel(cfg.host, cfg.user, cfg.password, cfg.database, function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionHighlevel);
 
@@ -123,7 +124,8 @@ exports.mysql_libmysqlclient_createConnectionHighlevel_DSN = function (test) {
 
   cfg.mysql_libmysqlclient.createConnectionHighlevel(dsn, function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionHighlevel);
 

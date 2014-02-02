@@ -193,8 +193,8 @@ exports.QueryWithoutCallback = function (test) {
   });
   
   conn.query("SELECT random_number, random_boolean FROM " + cfg.test_table + ";", function (err, res) {
-    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
     test.ok(err === null, "Error object is not present");
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
     
     var rows = res.fetchAllSync();
     test.same(rows, [{random_number: 1, random_boolean: 0}],

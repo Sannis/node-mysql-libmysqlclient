@@ -575,8 +575,9 @@ exports.QueryWithQuerySync = function (test) {
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
   
   conn.query("SELECT SLEEP(2)", function (err, res) {
-    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
     test.ok(err === null, "Error object is not present");
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
+
     test.done();
   });
   
@@ -695,8 +696,7 @@ exports.SetSslSync = function (test) {
   conn.setSslSync(key, cert, ca, "", "ALL");
   conn.realConnectSync(cfg.host, cfg.user, cfg.password, cfg.database);
   if (!conn.connectedSync() && (conn.connectErrno == 2026)) {
-    console.log("ERROR 2026 (HY000): SSL connection error");
-    console.log("SetSslSync test is skipped");
+    console.log("SetSslSync test is skipped - 'ERROR 2026 (HY000): SSL connection error'");
 
     test.expect(1);
     test.done();

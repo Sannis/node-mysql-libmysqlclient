@@ -38,6 +38,7 @@ exports.ConnectWithCallback = function (test) {
 
   conn.connect(cfg.host, cfg.user, cfg.password, cfg.database, function (err) {
     test.ok(err === null, "Error object is not present");
+
     test.ok(arguments.length <= 1, "Only error arguments is possible.");
 
     test.done();

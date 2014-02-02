@@ -20,8 +20,8 @@ exports.Issue83Query = function (test) {
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
 
   res = conn.query("SELECT '1\u00002345\0' AS a;", function (err, res) {
-    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
     test.ok(err === null, "Error object is not present");
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
     
     rows = res.fetchAllSync();
     test.same(rows, [{a: "1\u00002345\0"}], "conn.querySync('SELECT ...').fetchAllSync()");

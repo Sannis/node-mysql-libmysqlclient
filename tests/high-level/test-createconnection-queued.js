@@ -12,7 +12,7 @@ exports.mysql_libmysqlclient_createConnectionQueuedSync_0 = function (test) {
   test.expect(2);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync();
-  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
   test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
   if (conn.connectedSync()) {
     conn.closeSync();
@@ -24,7 +24,7 @@ exports.mysql_libmysqlclient_createConnectionQueuedSync_4 = function (test) {
   test.expect(3);
 
   var conn = cfg.mysql_libmysqlclient.createConnectionQueuedSync(cfg.host, cfg.user, cfg.password, cfg.database);
-  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+  test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
   test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
 
   isConnected = conn.connectedSync();
@@ -77,7 +77,7 @@ exports.mysql_libmysqlclient_createConnectionQueued_1 = function (test) {
 
   cfg.mysql_libmysqlclient.createConnectionQueued(function (err, conn) {
     test.ok(err == null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
 
     if (conn.connectedSync()) {
@@ -93,7 +93,8 @@ exports.mysql_libmysqlclient_createConnectionQueued_5 = function (test) {
 
   cfg.mysql_libmysqlclient.createConnectionQueued(cfg.host, cfg.user, cfg.password, cfg.database, function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
 
     isConnected = conn.connectedSync();
@@ -117,7 +118,7 @@ exports.mysql_libmysqlclient_createConnectionQueued_DSN = function (test) {
 
   cfg.mysql_libmysqlclient.createConnectionQueued(dsn, function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection);
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
     test.ok(conn instanceof cfg.mysql_libmysqlclient.MysqlConnectionQueued);
 
     isConnected = conn.connectedSync();

@@ -50,23 +50,23 @@ exports.issue106 = function (test) {
   queries.push(queryTemplate.replace('%', 'three'));
 
   conn.query(queries.join(' UNION ALL '), function (err, res) {
-    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
     test.ok(err === null, "Error object is not present");
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
 
     res.fetchAll(function (err, rows) {
-      test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
       test.ok(err === null, "Error object is not present");
+      test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
 
       test.deepEqual(rows, [ { id: 1, value: 'one' }, { id: 3, value: 'three' } ]);
 
       conn.query(queries.join(' UNION ALL '), function (err, res) {
-        test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
         test.ok(err === null, "Error object is not present");
+        test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
     
         res.fetchAll(function (err, rows) {
-          test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "Result is defined");
           test.ok(err === null, "Error object is not present");
-    
+          test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
+
           test.deepEqual(rows, [ { id: 1, value: 'one' }, { id: 3, value: 'three' } ]);
 
           conn.closeSync();

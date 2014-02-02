@@ -90,17 +90,19 @@ exports.FetchAll_asArray = function (test) {
   test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
   
   res.fetchAll({'asArray': false}, function (err, rows) {
-    test.ok(err === null, "res.fetchAll() err===null");
+    test.ok(err === null, "Error object is not present");
     test.same(rows, [{size: 'small', colors: ['red']}], "conn.querySync('SELECT ...').fetchAllSync({'asArray': false})");
     res.freeSync();
     
     res = conn.querySync("SELECT size, colors FROM " + cfg.test_table + " WHERE size='small';");
-    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
     
     res.fetchAll({'asArray': true}, function (err, rows) {
-      test.ok(err === null, "res.fetchAll() err===null");
+      test.ok(err === null, "Error object is not present");
+
       test.ok(Array.isArray(rows), "Result returns an array");
       test.ok(Array.isArray(rows[0]), "Result returns an array of arrays");
+
       test.same(rows, [['small', ['red']]], "conn.querySync('SELECT ...').fetchAll({'asArray': true})");
       res.freeSync();
       
@@ -148,10 +150,11 @@ exports.FetchAll_nestTables = function (test) {
   res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
                        "FROM " + cfg.test_table + " t1, " + cfg.test_table2 + " t2 " +
                        "WHERE t1.size = t2.size AND t1.size != 'medium';");
-  test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
+  test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
   
   res.fetchAll({'nestTables': false}, function (err, rows) {
-    test.ok(err === null, "res.fetchAll() err===null");
+    test.ok(err === null, "Error object is not present");
+
     test.same(rows,
       [{size: 'small', colors: 'red'},
        {size: 'small', colors: 'orange'},
@@ -163,10 +166,11 @@ exports.FetchAll_nestTables = function (test) {
     res = conn.querySync("SELECT t1.size, t1.colors, t2.size, t2.colors " +
                          "FROM " + cfg.test_table + " t1, " + cfg.test_table2 + " t2 " +
                          "WHERE t1.size = t2.size AND t1.size != 'medium' AND t1.colors != 'green';");
-    test.ok(res instanceof cfg.mysql_bindings.MysqlResult);
-    
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
+
     res.fetchAll({'nestTables': true}, function (err, rows) {
-      test.ok(err === null, "res.fetchAll() err===null");
+      test.ok(err === null, "Error object is not present");
+
       test.ok(Array.isArray(rows), "Result returns an array");
       test.ok(rows[0] instanceof Object, "Result returns an array of objects");
       test.same(rows,
@@ -291,9 +295,11 @@ exports.setOptionSyncQueryFetchAll = function (test) {
   conn.realConnectSync(cfg.host, cfg.user, cfg.password, cfg.database);
 
   conn.query("SELECT size, colors FROM " + cfg.test_table + " WHERE size;", function (err, res) {
-    test.ok(err === null, "conn.query() err===null");
+    test.ok(err === null, "Error object is not present");
+    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
+
     res.fetchAll(function (err, rows, fields) {
-      test.ok(err === null, "res.fetchAll() err===null");
+      test.ok(err === null, "Error object is not present");
       
       test.same(rows,
                 [{size: 'small', colors: ['red']},
