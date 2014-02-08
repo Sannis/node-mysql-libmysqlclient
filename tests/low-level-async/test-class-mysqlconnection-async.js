@@ -89,7 +89,7 @@ exports.ConnectAfterConnectSync2 = function (test) {
 };
 
 exports.Query = function (test) {
-  test.expect(2);
+  test.expect(3);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
