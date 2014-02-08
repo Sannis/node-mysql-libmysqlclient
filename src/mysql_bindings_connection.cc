@@ -1017,8 +1017,8 @@ void MysqlConnection::EIO_After_Query(uv_work_t *req) {
 
     if (query_req->nan_callback) {
         DEBUG_PRINTF("EIO_After_Query: query_req->nan_callback->Call()");
-
         query_req->nan_callback->Call(argc, argv);
+        DEBUG_PRINTF("EIO_After_Query: delete query_req->nan_callback");
         delete query_req->nan_callback;
     }
 
@@ -1030,9 +1030,12 @@ void MysqlConnection::EIO_After_Query(uv_work_t *req) {
         DEBUG_PRINTF("EIO_After_Query: Unref'ed");
     }
 
+    DEBUG_PRINTF("EIO_After_Query: delete[] query_req->query");
     delete[] query_req->query;
+    DEBUG_PRINTF("EIO_After_Query: delete query_req");
     delete query_req;
 
+    DEBUG_PRINTF("EIO_After_Query: delete req");
     delete req;
 }
 
@@ -1114,16 +1117,21 @@ void MysqlConnection::EIO_Query(uv_work_t *req) {
 NAN_METHOD(MysqlConnection::Query) {
     NanScope();
 
+    DEBUG_PRINTF("Query: in");
+    DEBUG_ARGS();
+
     REQ_STR_ARG(0, query);
     OPTIONAL_BUFFER_ARG(1, local_infile_buffer);
 
     Local<Value> callback;
     if (local_infile_buffer->IsNull()) {
-      OPTIONAL_FUN_ARG(1, possibly_callback);
-      callback = possibly_callback;
+        DEBUG_PRINTF("Query: local_infile_buffer->IsNull()");
+        OPTIONAL_FUN_ARG(1, possibly_callback);
+        callback = possibly_callback;
     } else {
-      OPTIONAL_FUN_ARG(2, possibly_callback);
-      callback = possibly_callback;
+        DEBUG_PRINTF("Query: !local_infile_buffer->IsNull()");
+        OPTIONAL_FUN_ARG(2, possibly_callback);
+        callback = possibly_callback;
     }
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
@@ -1141,7 +1149,10 @@ NAN_METHOD(MysqlConnection::Query) {
     query_req->query[query_len] = '\0';
 
     if (callback->IsFunction()) {
+        DEBUG_PRINTF("Query: callback->IsFunction()\n\n\n");
         query_req->nan_callback = new NanCallback(callback.As<Function>());
+    } else {
+        DEBUG_PRINTF("Query: !callback->IsFunction()\n\n\n");
     }
 
     query_req->conn = conn;
@@ -1245,6 +1256,9 @@ void MysqlConnection::EV_After_QuerySend_OnWatchHandleClose(uv_handle_t* handle)
 NAN_METHOD(MysqlConnection::QuerySend) {
     NanScope();
 
+    DEBUG_PRINTF("QuerySend: in");
+    DEBUG_ARGS();
+
     REQ_STR_ARG(0, query);
     OPTIONAL_FUN_ARG(1, callback);
 
@@ -1262,7 +1276,10 @@ NAN_METHOD(MysqlConnection::QuerySend) {
     query_req->query[query_len] = '\0';
 
     if (callback->IsFunction()) {
+        DEBUG_PRINTF("QuerySend: callback->IsFunction()\n\n\n");
         query_req->nan_callback = new NanCallback(callback.As<Function>());
+    } else {
+        DEBUG_PRINTF("QuerySend: !callback->IsFunction()\n\n\n");
     }
 
     query_req->conn = conn;

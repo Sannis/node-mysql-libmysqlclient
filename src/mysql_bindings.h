@@ -97,8 +97,23 @@ if (args.Length() > (I) \
 
 #ifdef DEBUG
     #define DEBUG_PRINTF(...) printf("\nDEBUG_PRINTF: "); printf(__VA_ARGS__); printf("\n")
+    #define DEBUG_ARGS() for (int i = 0; i < args.Length(); i++) { \
+        printf( \
+            "DEBUG_ARGS[%d]: is_null(%d) is_bool(%d) is_number(%d) is_string(%d) is_object(%d) is_function(%d) is_external(%d)\n", \
+            i, \
+            args[i]->IsNull() ? 1 : 0, \
+            args[i]->IsBoolean() ? 1 : 0, \
+            args[i]->IsNumber() ? 1 : 0, \
+            args[i]->IsString() ? 1 : 0, \
+            args[i]->IsObject() ? 1 : 0, \
+            args[i]->IsFunction() ? 1 : 0, \
+            args[i]->IsExternal() ? 1 : 0 \
+        ); \
+    } \
+    printf("DEBUG_ARGS END\n\n");
 #else
     #define DEBUG_PRINTF(...) (void)0
+    #define DEBUG_ARGS() (void)0
 #endif
 
 #endif  // SRC_MYSQL_BINDINGS_H_
