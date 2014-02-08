@@ -29,11 +29,11 @@ void MysqlConnection::Init(Handle<Object> target) {
     Local<ObjectTemplate> instance_template = tpl->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
-    // Properties
+    // Instance properties
     instance_template->SetAccessor(V8STR("connectErrno"), MysqlConnection::ConnectErrnoGetter);
     instance_template->SetAccessor(V8STR("connectError"), MysqlConnection::ConnectErrorGetter);
 
-    // Methods
+    // Prototype methods
     NODE_SET_PROTOTYPE_METHOD(tpl, "affectedRowsSync",     MysqlConnection::AffectedRowsSync);
     NODE_SET_PROTOTYPE_METHOD(tpl, "autoCommitSync",       MysqlConnection::AutoCommitSync);
     NODE_SET_PROTOTYPE_METHOD(tpl, "changeUserSync",       MysqlConnection::ChangeUserSync);
@@ -79,7 +79,7 @@ void MysqlConnection::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(tpl, "useResultSync",        MysqlConnection::UseResultSync);
     NODE_SET_PROTOTYPE_METHOD(tpl, "warningCountSync",     MysqlConnection::WarningCountSync);
 
-    // Make it visible in JavaScript
+    // Make it visible in JavaScript land
     target->Set(NanSymbol("MysqlConnection"), tpl->GetFunction());
 }
 

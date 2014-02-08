@@ -28,10 +28,10 @@ void MysqlResult::Init(Handle<Object> target) {
     Local<ObjectTemplate> instance_template = tpl->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
-    // Properties
+    // Instance properties
     instance_template->SetAccessor(V8STR("fieldCount"), FieldCountGetter);
 
-    // Methods
+    // Prototype methods
     NODE_SET_PROTOTYPE_METHOD(tpl, "dataSeekSync",         MysqlResult::DataSeekSync);
     NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAll",             MysqlResult::FetchAll);
     NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAllSync",         MysqlResult::FetchAllSync);
@@ -45,7 +45,7 @@ void MysqlResult::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(tpl, "freeSync",             MysqlResult::FreeSync);
     NODE_SET_PROTOTYPE_METHOD(tpl, "numRowsSync",          MysqlResult::NumRowsSync);
 
-    // Make it visible in JavaScript
+    // Make it visible in JavaScript land
     target->Set(NanSymbol("MysqlResult"), tpl->GetFunction());
 }
 

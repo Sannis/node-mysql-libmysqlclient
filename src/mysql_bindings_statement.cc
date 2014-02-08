@@ -29,10 +29,10 @@ void MysqlStatement::Init(Handle<Object> target) {
     Local<ObjectTemplate> instance_template = tpl->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
-    // Properties
+    // Instance properties
     instance_template->SetAccessor(V8STR("paramCount"), ParamCountGetter);
 
-    // Methods
+    // Prototype methods
     NODE_SET_PROTOTYPE_METHOD(tpl, "affectedRowsSync",   MysqlStatement::AffectedRowsSync);
     NODE_SET_PROTOTYPE_METHOD(tpl, "attrGetSync",        MysqlStatement::AttrGetSync);
     NODE_SET_PROTOTYPE_METHOD(tpl, "attrSetSync",        MysqlStatement::AttrSetSync);
@@ -62,7 +62,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(tpl, "sqlStateSync",       MysqlStatement::SqlStateSync);
     NODE_SET_PROTOTYPE_METHOD(tpl, "setStringSize",      MysqlStatement::SqlStateSync);
 
-    // Make it visible in JavaScript
+    // Make it visible in JavaScript land
     target->Set(NanSymbol("MysqlStatement"), tpl->GetFunction());
 }
 
