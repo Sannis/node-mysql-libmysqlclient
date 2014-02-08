@@ -69,17 +69,15 @@ void MysqlStatement::Init(Handle<Object> target) {
 v8::Local<v8::Object> MysqlStatement::NewInstance(MYSQL_STMT *my_statement) {
     NanScope();
 
-    v8::Local<v8::Object> instance;
-
     v8::Local<v8::FunctionTemplate> tpl = NanPersistentToLocal(constructor_template);
 
     const int argc = 1;
     Local<Value> argv[argc];
     argv[0] = External::New(my_statement);
 
-    instance = tpl->GetFunction()->NewInstance(argc, argv);
+    v8::Local<v8::Object> instance = tpl->GetFunction()->NewInstance(argc, argv);
 
-    return instance;
+    return scope.Close(instance);
 }
 
 MysqlStatement::MysqlStatement(MYSQL_STMT *my_stmt): ObjectWrap() {

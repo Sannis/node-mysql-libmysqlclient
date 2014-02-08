@@ -52,8 +52,6 @@ void MysqlResult::Init(Handle<Object> target) {
 v8::Local<v8::Object> MysqlResult::NewInstance(MYSQL *my_conn, MYSQL_RES *my_result, uint32_t field_count) {
     NanScope();
 
-    v8::Local<v8::Object> instance;
-
     v8::Local<v8::FunctionTemplate> tpl = NanPersistentToLocal(constructor_template);
 
     const int argc = 3;
@@ -62,9 +60,9 @@ v8::Local<v8::Object> MysqlResult::NewInstance(MYSQL *my_conn, MYSQL_RES *my_res
     argv[1] = External::New(my_result);
     argv[2] = Integer::NewFromUnsigned(field_count);
 
-    instance = tpl->GetFunction()->NewInstance(argc, argv);
+    v8::Local<v8::Object> instance = tpl->GetFunction()->NewInstance(argc, argv);
 
-    return instance;
+    return scope.Close(instance);
 }
 
 MysqlResult::MysqlResult(): ObjectWrap() {}
