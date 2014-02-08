@@ -79,9 +79,11 @@ return NanThrowTypeError("Argument " #I " must be a function"); \
 Local<Function> VAR = Local<Function>::Cast(args[I]);
 
 #define OPTIONAL_FUN_ARG(I, VAR) \
-Local<Value> VAR; \
+Handle<Value> VAR; \
 if (args.Length() > (I) && args[I]->IsFunction()) {\
     VAR = args[I]; \
+} else { \
+    VAR = Null(); \
 }
 
 #define OPTIONAL_BUFFER_ARG(I, VAR) \
@@ -90,9 +92,9 @@ if (args.Length() > (I) \
  && args[I]->IsObject() \
  && node::Buffer::HasInstance(args[I]) \
 ) { \
-  VAR = args[I]->ToObject(); \
+    VAR = args[I]->ToObject(); \
 } else { \
-  VAR = Null(); \
+    VAR = Null(); \
 }
 
 #ifdef DEBUG

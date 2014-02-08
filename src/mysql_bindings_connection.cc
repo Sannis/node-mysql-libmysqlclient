@@ -1121,18 +1121,19 @@ NAN_METHOD(MysqlConnection::Query) {
     DEBUG_ARGS();
 
     REQ_STR_ARG(0, query);
-    OPTIONAL_BUFFER_ARG(1, local_infile_buffer);
+    OPTIONAL_BUFFER_ARG(1, optional_local_infile_buffer);
 
-    Local<Value> callback;
-    if (local_infile_buffer->IsNull()) {
+    int optional_callback_arg_number;
+    if (optional_local_infile_buffer->IsNull()) {
         DEBUG_PRINTF("Query: local_infile_buffer->IsNull()");
-        OPTIONAL_FUN_ARG(1, possibly_callback);
-        callback = possibly_callback;
+        optional_callback_arg_number = 1;
     } else {
         DEBUG_PRINTF("Query: !local_infile_buffer->IsNull()");
-        OPTIONAL_FUN_ARG(2, possibly_callback);
-        callback = possibly_callback;
+        optional_callback_arg_number = 2;
     }
+    OPTIONAL_FUN_ARG(optional_callback_arg_number, optional_callback);
+
+    DEBUG_PRINTF("Query: continue");
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -1143,16 +1144,17 @@ NAN_METHOD(MysqlConnection::Query) {
 
     query_req->query = new char[query_len + 1];
     query_req->query_len = query_len;
-    query_req->infile_data = MysqlConnection::PrepareLocalInfileData(local_infile_buffer);
+    query_req->infile_data = MysqlConnection::PrepareLocalInfileData(optional_local_infile_buffer);
     // Copy query from V8 value to buffer
     memcpy(query_req->query, *query, query_len);
     query_req->query[query_len] = '\0';
 
-    if (callback->IsFunction()) {
-        DEBUG_PRINTF("Query: callback->IsFunction()\n\n\n");
-        query_req->nan_callback = new NanCallback(callback.As<Function>());
+    if (optional_callback->IsFunction()) {
+        DEBUG_PRINTF("Query: optional_callback->IsFunction()");
+        query_req->nan_callback = new NanCallback(optional_callback.As<Function>());
     } else {
-        DEBUG_PRINTF("Query: !callback->IsFunction()\n\n\n");
+        DEBUG_PRINTF("Query: !optional_callback->IsFunction()");
+        query_req->nan_callback = NULL;
     }
 
     query_req->conn = conn;
@@ -1260,7 +1262,7 @@ NAN_METHOD(MysqlConnection::QuerySend) {
     DEBUG_ARGS();
 
     REQ_STR_ARG(0, query);
-    OPTIONAL_FUN_ARG(1, callback);
+    OPTIONAL_FUN_ARG(1, optional_callback);
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
@@ -1275,11 +1277,12 @@ NAN_METHOD(MysqlConnection::QuerySend) {
     memcpy(query_req->query, *query, query_len);
     query_req->query[query_len] = '\0';
 
-    if (callback->IsFunction()) {
-        DEBUG_PRINTF("QuerySend: callback->IsFunction()\n\n\n");
-        query_req->nan_callback = new NanCallback(callback.As<Function>());
+    if (optional_callback->IsFunction()) {
+        DEBUG_PRINTF("QuerySend: optional_callback->IsFunction()\n\n\n");
+        query_req->nan_callback = new NanCallback(optional_callback.As<Function>());
     } else {
-        DEBUG_PRINTF("QuerySend: !callback->IsFunction()\n\n\n");
+        DEBUG_PRINTF("QuerySend: !optional_callback->IsFunction()\n\n\n");
+        query_req->nan_callback = NULL;
     }
 
     query_req->conn = conn;
