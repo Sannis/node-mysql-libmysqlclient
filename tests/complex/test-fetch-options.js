@@ -285,7 +285,7 @@ exports.FetchAllSyncWithObjectOptionsConflicted = function (test) {
 };
 
 exports.setOptionSyncQueryFetchAll = function (test) {
-  test.expect(4);
+  test.expect(5);
   
   var conn = cfg.mysql_libmysqlclient.createConnectionSync();
   

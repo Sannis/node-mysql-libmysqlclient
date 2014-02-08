@@ -289,7 +289,7 @@ exports.CallStoredFunctionTwiceSync = function (test) {
 };
 
 exports.CallStoredProcedureSelectNested = function (test) {
-  test.expect(7);
+  test.expect(8);
   
   var
     conn = cfg.mysql_libmysqlclient.createConnectionSync(),
