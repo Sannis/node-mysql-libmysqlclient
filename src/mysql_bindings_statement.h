@@ -47,7 +47,7 @@ class MysqlStatement : public node::ObjectWrap {
 
     static void Init(Handle<Object> target);
 
-    static v8::Local<v8::Object> NewInstance(MYSQL_STMT *my_statement);
+    static Local<Object> NewInstance(MYSQL_STMT *my_statement);
 
   private:
     MYSQL_STMT *_stmt;

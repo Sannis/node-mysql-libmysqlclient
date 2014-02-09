@@ -38,7 +38,7 @@ class MysqlResult : public node::ObjectWrap {
 
     static void Init(Handle<Object> target);
 
-    static v8::Local<v8::Object> NewInstance(MYSQL *my_conn, MYSQL_RES *my_result, uint32_t field_count);
+    static Local<Object> NewInstance(MYSQL *my_conn, MYSQL_RES *my_result, uint32_t field_count);
 
     static void AddFieldProperties(Local<Object> &js_field_obj, MYSQL_FIELD *field);
 
