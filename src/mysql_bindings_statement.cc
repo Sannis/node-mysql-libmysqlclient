@@ -98,10 +98,10 @@ MysqlStatement::~MysqlStatement() {
 }
 
 /**
- * Creates new MySQL statement object
+ * new MysqlStatement()
  *
- * @constructor
- */
+ * Creates new MysqlStatement object
+ **/
 NAN_METHOD(MysqlStatement::New) {
     NanScope();
 
@@ -113,12 +113,11 @@ NAN_METHOD(MysqlStatement::New) {
     NanReturnValue(args.Holder());
 }
 
-/**
- * Returns the number of parameter for the given statement
+/** read-only
+ * MysqlStatement#paramCount -> Integer
  *
- * @getter
- * @return {Integer}
- */
+ * Gets the number of parameter for the given statement
+ **/
 NAN_GETTER(MysqlStatement::ParamCountGetter) {
     NanScope();
 
@@ -131,10 +130,10 @@ NAN_GETTER(MysqlStatement::ParamCountGetter) {
 }
 
 /**
- * Returns the total number of rows changed, deleted, or inserted by the last executed statement
+ * MysqlStatement#affectedRowsSync() -> Integer
  *
- * @return {Integer}
- */
+ * Gets number of affected rows in previous operation
+ **/
 NAN_METHOD(MysqlStatement::AffectedRowsSync) {
     NanScope();
 
@@ -153,11 +152,10 @@ NAN_METHOD(MysqlStatement::AffectedRowsSync) {
 }
 
 /**
- * Used to get the current value of a statement attribute
+ * MysqlStatement#attrGetSync(attr) -> Integer | Boolean
  *
- * @param {Integer} attr
- * @return {Boolean|Integer}
- */
+ * Used to get the current value of a statement attribute
+ **/
 NAN_METHOD(MysqlStatement::AttrGetSync) {
     NanScope();
 
@@ -192,12 +190,12 @@ NAN_METHOD(MysqlStatement::AttrGetSync) {
 }
 
 /**
- * Used to modify the behavior of a prepared statement
+ * MysqlStatement#attrSetSync(attr, value) -> Boolean
+ * - attr(Integer)
+ * - value(Integer | Boolean)
  *
- * @param {Integer} attr
- * @param {Boolean|Integer} value
- * @return {Boolean}
- */
+ * Used to modify the behavior of a prepared statement
+ **/
 NAN_METHOD(MysqlStatement::AttrSetSync) {
     NanScope();
 
@@ -236,11 +234,11 @@ NAN_METHOD(MysqlStatement::AttrSetSync) {
 }
 
 /**
- * Binds variables to a prepared statement as parameters
+ * MysqlStatement#bindParamsSync(params) -> Boolean
+ * - params(Array)
  *
- * @param {Array} params
- * @return {Boolean}
- */
+ * Binds variables to a prepared statement as parameters
+ **/
 NAN_METHOD(MysqlStatement::BindParamsSync) {
     NanScope();
 
@@ -253,13 +251,6 @@ NAN_METHOD(MysqlStatement::BindParamsSync) {
 
     uint32_t i = 0;
     Local<Value> js_param;
-
-    // For debug
-    /*String::Utf8Value *str;
-    for (i = 0; i < js_params->Length(); i++) {
-        str = new String::Utf8Value(js_params->Get(Integer::New(i))->ToString());
-        printf("%d: %s\n", i, **str);
-    }*/
 
     if (js_params->Length() != stmt->param_count) {
         return NanThrowError("Array length doesn't match number of parameters in prepared statement"); // NOLINT
@@ -360,8 +351,10 @@ NAN_METHOD(MysqlStatement::BindParamsSync) {
 }
 
 /**
- * Bind resultset buffers
- */
+ * MysqlStatement#bindResultSync() -> Boolean
+ *
+ * Bind result set buffers
+ **/
 NAN_METHOD(MysqlStatement::BindResultSync) {
     NanScope();
 
@@ -473,7 +466,7 @@ NAN_METHOD(MysqlStatement::BindResultSync) {
 }
 
 
-/**
+/*! todo: finish
  * Closes a prepared statement
  *
  * @return {Boolean}
@@ -495,7 +488,7 @@ NAN_METHOD(MysqlStatement::CloseSync) {
     NanReturnValue(True());
 }
 
-/**
+/*! todo: finish
  * Seeks to an arbitrary row in statement result set
  *
  * @param {Integer} offset
@@ -519,7 +512,7 @@ NAN_METHOD(MysqlStatement::DataSeekSync) {
     NanReturnUndefined();
 }
 
-/**
+/*! todo: finish
  * Returns the error code for the most recent statement call
  *
  * @return {Integer}
@@ -534,7 +527,7 @@ NAN_METHOD(MysqlStatement::ErrnoSync) {
     NanReturnValue(Integer::New(mysql_stmt_errno(stmt->_stmt)));
 }
 
-/**
+/*! todo: finish
  * Returns a string description for last statement error
  *
  * @return {String}
@@ -551,7 +544,7 @@ NAN_METHOD(MysqlStatement::ErrorSync) {
     NanReturnValue(V8STR(error));
 }
 
-/**
+/*! todo: finish
  * After function for Execute() method
  */
 void MysqlStatement::EIO_After_Execute(uv_work_t *req) {
@@ -577,7 +570,7 @@ void MysqlStatement::EIO_After_Execute(uv_work_t *req) {
     delete req;
 }
 
-/**
+/*! todo: finish
  * Thread function for Execute() method
  */
 void MysqlStatement::EIO_Execute(uv_work_t *req) {
@@ -614,7 +607,7 @@ NAN_METHOD(MysqlStatement::Execute) {
     NanReturnUndefined();
 }
 
-/**
+/*! todo: finish
  * Executes a prepared query
  *
  * @return {Boolean}
@@ -761,7 +754,7 @@ NAN_METHOD(MysqlStatement::FetchAll) {
     NanReturnUndefined();
 }
 
-/**
+/*! todo: finish
  * MysqlStatement#fetchAllSync() -> Object
  *
  * Returns row data from statement result
@@ -959,7 +952,7 @@ NAN_METHOD(MysqlStatement::Fetch) {
     NanReturnUndefined();
 }
 
-/**
+/*! todo: finish
  * Fetch row
  */
 NAN_METHOD(MysqlStatement::FetchSync) {
@@ -1034,7 +1027,7 @@ NAN_METHOD(MysqlStatement::FetchSync) {
     }
 }
 
-/**
+/*! todo: finish
  * Returns the number of field in the given statement
  *
  * @return {Integer}
@@ -1049,7 +1042,7 @@ NAN_METHOD(MysqlStatement::FieldCountSync) {
     NanReturnValue(Integer::New(mysql_stmt_field_count(stmt->_stmt)));
 }
 
-/**
+/*! todo: finish
  * Frees stored result memory for the given statement handle
  *
  * @return {Boolean}
@@ -1064,7 +1057,7 @@ NAN_METHOD(MysqlStatement::FreeResultSync) {
     NanReturnValue(!mysql_stmt_free_result(stmt->_stmt) ? True() : False());
 }
 
-/**
+/*! todo: finish
  * Helper for freeing memory of
  */
 void MysqlStatement::FreeMysqlBinds(MYSQL_BIND *binds, unsigned long size, bool params) {
@@ -1141,7 +1134,7 @@ void MysqlStatement::FreeMysqlBinds(MYSQL_BIND *binds, unsigned long size, bool 
     delete[] binds;
 }
 
-/**
+/*! todo: finish
  * Helper for FetchAll(), FetchAllSync() methods. Converts raw data to JS type.
  */
 Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYSQL_FIELD& field) {
@@ -1254,7 +1247,7 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
     }
 }
 
-/**
+/*! todo: finish
  * Get the ID generated from the previous INSERT operation
  *
  * @return {Integer}
@@ -1269,7 +1262,7 @@ NAN_METHOD(MysqlStatement::LastInsertIdSync) {
     NanReturnValue(Integer::New(mysql_stmt_insert_id(stmt->_stmt)));
 }
 
-/**
+/*! todo: finish
  * Return the number of rows in statements result set
  *
  * @return {Integer}
@@ -1284,7 +1277,7 @@ NAN_METHOD(MysqlStatement::NextResultSync) {
     NanReturnValue(Integer::New(mysql_stmt_next_result(stmt->_stmt)));
 }
 
-/**
+/*! todo: finish
  * Return the number of rows in statements result set
  *
  * @return {Integer}
@@ -1299,7 +1292,7 @@ NAN_METHOD(MysqlStatement::NumRowsSync) {
     NanReturnValue(Integer::New(mysql_stmt_num_rows(stmt->_stmt)));
 }
 
-/**
+/*! todo: finish
  * Prepare statement by given query
  *
  * @param {String} query
@@ -1340,7 +1333,7 @@ NAN_METHOD(MysqlStatement::PrepareSync) {
     NanReturnValue(True());
 }
 
-/**
+/*! todo: finish
  * Resets a prepared statement
  *
  * @return {Boolean}
@@ -1360,7 +1353,7 @@ NAN_METHOD(MysqlStatement::ResetSync) {
     NanReturnValue(True());
 }
 
-/**
+/*! todo: finish
  * Returns result set metadata from a prepared statement
  *
  * @return {MysqlResult}
@@ -1383,7 +1376,7 @@ NAN_METHOD(MysqlStatement::ResultMetadataSync) {
     NanReturnValue(local_js_result);
 }
 
-/**
+/*! todo: finish
  * Send parameter data to the server in blocks (or "chunks")
  *
  * @param {Integer} parameter number, beginning with 0
@@ -1408,7 +1401,7 @@ NAN_METHOD(MysqlStatement::SendLongDataSync) {
     NanReturnValue(True());
 }
 
-/**
+/*! todo: finish
  * Returns SQLSTATE error from previous statement operation
  *
  * @return {String}
@@ -1423,7 +1416,7 @@ NAN_METHOD(MysqlStatement::SqlStateSync) {
     NanReturnValue(V8STR(mysql_stmt_sqlstate(stmt->_stmt)));
 }
 
-/**
+/*! todo: finish
  * After function for StoreResult() method
  */
 void MysqlStatement::EIO_After_StoreResult(uv_work_t *req) {
@@ -1449,7 +1442,7 @@ void MysqlStatement::EIO_After_StoreResult(uv_work_t *req) {
     delete req;
 }
 
-/**
+/*! todo: finish
  * Thread function for StoreResult() method
  */
 void MysqlStatement::EIO_StoreResult(uv_work_t *req) {
@@ -1482,7 +1475,7 @@ NAN_METHOD(MysqlStatement::StoreResult) {
     NanReturnUndefined();
 }
 
-/**
+/*! todo: finish
  * Transfers a result set from a prepared statement
  *
  * @return {Boolean}
