@@ -1,0 +1,14 @@
+if obj.arguments
+  ul.arguments
+    for arg in obj.arguments
+      li
+        ul.argument
+          li.argument-name= arg.name
+          if arg.types
+            li
+              ul.argument-types
+                for type, i in arg.types
+                  li.argument-type= type
+          if arg.description
+            li.argument-description
+              mixin markdown(arg.description, true)

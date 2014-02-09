@@ -1,0 +1,191 @@
+//
+// Single document
+/////////////////////////////////////////
+
+mixin article(obj, parents)
+  if typeof obj === 'string'
+    obj = list[obj]
+
+  title = obj.id + (obj.type ? ' (' + obj.type + ')' : '')
+  article.docblock(id=obj.path, data-title=title)
+
+    include _doc_header.jade 
+
+    if obj.type === 'section' || obj.type === 'namespace' || obj.type === 'class' || obj.type === 'mixin'
+
+      if obj.description
+        .section.description
+          h3 Description
+          .content
+            mixin markdown(obj.description)
+
+      collection = obj.children.filter(function(x){return x.type === 'namespace'});
+      if collection.length
+        .section.namespaces
+          h3 Namespaces
+          .content
+            mixin short_description_list(collection)
+
+      collection = obj.children.filter(function(x){return x.type === 'class'});
+      if collection.length
+        .section.classes
+          h3 Classes
+          .content
+            mixin short_description_list(collection)
+
+      collection = obj.children.filter(function(x){return x.type === 'mixin'});
+      if collection.length
+        .section.mixins
+          h3 Mixins
+          .content
+            mixin short_description_list(collection)
+
+      if obj.type === 'class'
+
+        if obj.superclass
+          .section.superclass
+            h3 Superclass
+            .content
+              mixin link(obj.superclass)
+
+        if obj.subclasses.length
+          .section.subclasses
+            h3 Subclasses
+            .content
+              mixin links(obj.subclasses)
+
+      if obj.included_mixins
+        .section.mixins
+          h3 Includes
+          .content
+            mixin links(obj.included_mixins)
+
+      collection = obj.children.filter(function(x){return x.type === 'utility'})
+      if collection.length
+        .section.utilities
+          h3 Utilities
+          .content
+            mixin links(collection)
+
+      collection = obj.children.filter(function(x){return x.type === 'constructor'})
+      if collection.length
+        .section.constructor
+          h3 Constructor
+          .content
+          ul.method-list
+            li
+              mixin link(collection[0])
+
+      //-console.log('HERE', obj.id, obj.children.length)
+      for selector, title in {'Events': ['event', 'events'], 'Class methods': ['class method', 'class_methods'], 'Class properties': ['class property', 'class_properties'], 'Instance methods': ['instance method', 'instance_methods'], 'Instance properties': ['instance property', 'instance_properties'], 'Constants': ['constant', 'constants']}
+        methods = obj.children.filter(function(x){return x.type === selector[0]})
+        if methods.length
+          .section(class='#{selector[1]}')
+            h3 #{title}
+            .content
+              ul.method-list
+                for x in methods
+                  li
+                    mixin link(x, true)
+
+    else
+
+      .section.method
+        .content
+
+          include _signatures.jade
+
+          include _arguments.jade
+
+          mixin markdown(obj.description)
+
+          if obj.bound && ~obj.bound.indexOf('#')
+            p.note.methodized
+              | This method can be called <em>either</em> as an 
+              != link(obj.bound, 'instance method', ['link-short'])
+              |  <em>or</em> as a generic method. If calling as generic, pass the instance in as the first argument.
+          else if obj.bound && !~obj.bound.indexOf('#')
+            p.note.functionalized
+              | This method can be called <em>either</em> as an instance method <em>or</em> as a 
+              != link(obj.bound, 'generic method', ['link-short'])
+              |. If calling as generic, pass the instance in as the first argument.
+
+    if obj.aliases && obj.aliases.length
+      .alias.aliases
+        | Aliased as:
+        ul
+          for alias in obj.aliases
+            li
+              mixin link(alias)
+
+    if obj.alias_of
+      .alias.alias-of
+        | Alias of:
+        ul
+          li
+            mixin link(obj.alias_of)
+
+    if obj.related_to
+      .related-to
+        | Related to:
+        mixin link(obj.related_to)
+
+  //- children
+  for child in obj.children.filter(function(x){return x.type === 'section'})
+    mixin article(child, parents.concat(obj))
+  for child in obj.children.filter(function(x){return x.type === 'utility'})
+    mixin article(child, parents.concat(obj))
+  for child in obj.children.filter(function(x){return x.type === 'constructor'})
+    mixin article(child, parents.concat(obj))
+  for child in obj.children.filter(function(x){return x.type === 'namespace' || x.type === 'class' || x.type === 'mixin'})
+    mixin article(child, parents.concat(obj))
+  for child in obj.children.filter(function(x){return x.type === 'event'})
+    mixin article(child, parents.concat(obj))
+  for child in obj.children.filter(function(x){return x.type === 'class method'})
+    mixin article(child, parents.concat(obj))
+  for child in obj.children.filter(function(x){return x.type === 'class property'})
+    mixin article(child, parents.concat(obj))
+  for child in obj.children.filter(function(x){return x.type === 'instance method'})
+    mixin article(child, parents.concat(obj))
+  for child in obj.children.filter(function(x){return x.type === 'instance property'})
+    mixin article(child, parents.concat(obj))
+  for child in obj.children.filter(function(x){return x.type === 'constant'})
+    mixin article(child, parents.concat(obj))
+
+
+
+mixin api()
+  for obj in tree.children
+    if (showInternals || !obj.internal)
+      mixin article(obj, [])
+
+
+
+mixin short_description_list(collection)
+  ul.method-details-list
+    for obj in collection
+      if typeof obj === 'string'
+        obj = list[obj]
+      li.method-description
+        h4
+          mixin link(obj)
+        if obj.short_description
+          mixin markdown(obj.short_description, true)
+
+
+
+mixin link(obj, short, classes)
+  != link(obj, short, classes)
+
+
+
+mixin markdown(text, no_highlight)
+  != markdown(text, no_highlight)
+
+
+
+mixin links(collection)
+  ul.method-list
+    for obj in collection
+      li
+        mixin link(obj)

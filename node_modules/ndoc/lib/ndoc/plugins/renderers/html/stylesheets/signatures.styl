@@ -1,0 +1,65 @@
+.signatures
+  background-color #e0e8e0
+  border 1px solid grayLighter
+  box-shadow 0 0 3px grayLightest
+  border-radius 3px
+  padding 3px 5px
+  margin-left 0
+  list-style none
+.signature
+  list-style none
+  display: inline
+  margin-left 0
+  > li
+    display inline
+.signature-values
+  list-style none
+  display inline
+  margin-left 0
+  &:before
+    content '→'
+    margin 0 5px
+  > li
+    display inline
+    &:after
+      content "|"
+      margin 0 2px
+    &:last-child:after
+      content ""
+      margin 0
+
+.argument
+  margin-left 0
+  display inline
+  > li
+    display inline
+.argument-name
+  color: #006600
+  font-weight: bold
+  font-size 13px
+.argument-types
+  display: inline
+  margin-left: 5px
+  font-style: italic
+  font-size: 11px
+  &:before
+    content: '('
+    margin-right: 2px
+  &:after
+    content: ')'
+    margin-left: 2px
+  > li
+    display: inline
+    &:after
+      content: "|"
+      margin: 0 2px
+    &:last-child:after
+      content: ""
+      margin: 0
+.argument-description
+  p
+    display: inline
+  &:before
+    content: '—'
+    margin-left: 5px
+    margin-right: 5px

@@ -1,0 +1,23 @@
+if obj.signatures
+  ul.signatures
+    for sig in obj.signatures
+      li
+        ul.signature
+          li.signature-call
+            = signature(obj, sig)
+          if sig.returns
+            li
+              ul.signature-values
+                for ret in sig.returns
+                  //- N.B: type can be array. E.g. [ Element... ]
+                  //- N.B: type can be array. E.g. [ Element1, Element2 ]
+                  text = ''
+                  if (typeof ret.type !== 'string')
+                    - text = ret.type.map(function(r){ return link(r || '?', true, ['link-short']);}).join(', ');
+                  else
+                    text = link(ret.type || '?', true, ['link-short'])
+                  if ret.ellipsis
+                    text = text + '...'
+                  if ret.array
+                    text = '[ ' + text + ' ]'
+                  li!= text

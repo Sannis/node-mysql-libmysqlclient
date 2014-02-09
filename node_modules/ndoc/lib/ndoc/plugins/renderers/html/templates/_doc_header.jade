@@ -1,0 +1,36 @@
+header
+  ul.breadcrumbs
+    li
+      a(href='#home') Home
+    for crumb in parents
+      if crumb.id
+        li
+          mixin link(crumb, true)
+    li
+      mixin link(obj, true)
+  .type #{obj.type}
+  h2
+    if obj.type === 'section'
+      | #{obj.name} section
+    else
+      if obj.name_prefix
+        span.name_prefix #{obj.name_prefix}
+      | #{obj.name}
+  if obj.href
+    .source
+      a(href=obj.href) View source
+  if obj.readonly || obj.chainable || obj.internal
+    .labels
+      if obj.readonly
+        span.read-only read-only
+      if obj.chainable
+        span.chainable chainable
+      if obj.internal
+        span.internal internal
+  if obj.deprecated
+    .deprecated-note
+      | Deprecated
+      if obj.deprecated.since
+        | &nbsp;since #{obj.deprecated.since}
+        if obj.deprecated.off
+          | &nbsp;and will be removed on #{obj.deprecated.off}

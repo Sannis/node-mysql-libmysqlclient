@@ -1,0 +1,99 @@
+// STRUCTURAL LAYOUT
+// -----------------
+
+body
+  margin 0
+  font-family baseFontFamily
+  font-size baseFontSize
+  line-height baseLineHeight
+  color textColor
+  background-color white
+  // for ribbon clip
+  overflow-x hidden
+
+// LINKS
+// -----
+
+a
+  color linkColor
+  text-decoration none
+  border-bottom: 1px solid grayLight
+
+a:hover
+  color linkColorHover
+  border-color linkColorHover
+
+
+.main
+  padding-left 390px
+  width 600px
+
+
+.sidebar
+  background #f8f8f8
+  position fixed
+  top 0
+  bottom 0
+  left 0
+  width 240px
+  overflow: hidden
+#search
+  background-color: #eee
+  padding: 7px 0
+  height: 30px
+  box-shadow: 0 0 5px #AAAAAA
+  input
+    width: 90%
+    margin: auto
+    margin-top: 3px
+    padding 4px;
+    display: block
+    background-color: #f8f8f8
+    border: 0px none
+    border-radius: 3px
+    box-shadow: 0 0 2px gray inset
+#search-results
+  z-index: 1000
+  background-color: #f8fcf8
+  display: none
+
+
+
+.footer
+  border-top: 1px solid #eee
+  font-size: 10px
+  opacity .5
+
+
+
+// RIBBON
+// ------
+
+.gh-ribbon
+  position absolute
+  right -60px
+  top 44px
+  z-index 10000
+  background-color #686868
+  padding 1px 0
+  transform rotate(45deg)
+  width 230px
+  box-shadow 0 0 2px #6666
+  font-family "Helvetica Neue",Helvetica,Arial,sans-serif
+  display none
+  a
+    display block
+    color #fff
+    text-decoration none
+    border 1px solid #ccc
+    font-size 13px
+    font-weight bold
+    padding 4px 50px 2px
+    text-align center
+    outline none
+    &:hover
+      text-decoration none
+// use moderniser to show only fo browsers,
+// wich supports rotation
+.csstransforms .gh-ribbon
+  display block
