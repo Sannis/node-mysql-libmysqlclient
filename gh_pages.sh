@@ -6,7 +6,7 @@ then
     exit 1
 fi
 
-DESC=`git describe`
+DESC=`git describe --tags`
 
 # Update gh-pages branch
 TMP=`mktemp -d ${TMPDIR}temp.XXXXXXXXXX`
