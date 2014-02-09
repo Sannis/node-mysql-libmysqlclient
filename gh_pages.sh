@@ -10,12 +10,8 @@ fi
 
 DESC=`git describe`
 
-# Update master branch
-git add doc/*.js doc/*.html
-git ci -m "Update docs to $DESC"
-
 # Update gh-pages branch
-TMP=`mktemp --tmpdir -d temp.XXXXXXXXXX`
+TMP=`mktemp -d ${TMPDIR}temp.XXXXXXXXXX`
 cp ./doc/* $TMP
 rm -f $TMP/*~
 git checkout gh-pages
