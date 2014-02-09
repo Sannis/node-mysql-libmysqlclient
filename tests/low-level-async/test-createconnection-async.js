@@ -33,7 +33,7 @@ exports.mysql_libmysqlclient_createConnection_1_Function = function (test) {
 
   cfg.mysql_libmysqlclient.createConnection(function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
 
     if (conn.connectedSync()) {
       conn.closeSync();
@@ -48,7 +48,7 @@ exports.mysql_libmysqlclient_createConnection_2 = function (test) {
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, function (err, conn) {
     test.ok(err instanceof Error, "Error object is present");
-    test.ok(!conn, "Not connected");
+    test.ok(!conn, "Connection object is not defined");
 
     test.ok(err.message.match(/Connection error.*Access denied for user/));
 
@@ -57,10 +57,11 @@ exports.mysql_libmysqlclient_createConnection_2 = function (test) {
 };
 
 exports.mysql_libmysqlclient_createConnection_3_Function = function (test) {
-  test.expect(2);
+  test.expect(3);
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, function (err, conn) {
     test.ok(err instanceof Error, "Error object is present");
+    test.ok(!conn, "Connection object is not defined");
 
     var error = "Access denied for user '" + cfg.user + "'@'" + cfg.host + "' (using password: NO)";
     var errno = 1045;
@@ -126,7 +127,7 @@ exports.mysql_libmysqlclient_createConnection_5_AccessDenied = function (test) {
 
   cfg.mysql_libmysqlclient.createConnection(cfg.host, cfg.user, cfg.password, cfg.database_denied, function (err, conn) {
     test.ok(err, "Error object is present");
-    test.ok(!conn, "Connection is not defined");
+    test.ok(!conn, "Connection object is not defined");
 
     var error = "Access denied for user '" + cfg.user + "'@'" + cfg.host + "' to database '" + cfg.database_denied + "'";
     var errno = 1044;
@@ -234,7 +235,7 @@ exports.mysql_libmysqlclient_createConnectionSync_DSN_3 = function (test) {
 
   cfg.mysql_libmysqlclient.createConnection(dsn, function (err, conn) {
     test.ok(err === null, "Error object is not present");
-    test.ok(res instanceof cfg.mysql_bindings.MysqlResult, "res instanceof MysqlResult");
+    test.ok(conn instanceof cfg.mysql_bindings.MysqlConnection, "conn instanceof MysqlConnection");
 
     var isConnected = conn.connectedSync();
     test.ok(isConnected, "cfg.mysql_libmysqlclient.createConnection(dsn(user, password, host, port, database), callback)");
