@@ -1174,14 +1174,14 @@ void MysqlConnection::EV_After_QuerySend(uv_poll_t* handle, int status, int even
     NanScope();
 
     // Fake uv_work_t struct for EIO_After_Query call
-    uv_work_t *_req = new uv_work_t;
-    _req->data = handle->data;
+    uv_work_t *fake_req = new uv_work_t;
+    fake_req->data = handle->data;
 
     // Stop IO watcher
     uv_poll_stop(handle);
     uv_close((uv_handle_t *)handle, EV_After_QuerySend_OnWatchHandleClose);
 
-    struct query_request *query_req = (struct query_request *)(_req->data);
+    struct query_request *query_req = (struct query_request *)handle->data;
 
     MysqlConnection *conn = query_req->conn;
 
@@ -1196,8 +1196,7 @@ void MysqlConnection::EV_After_QuerySend(uv_poll_t* handle, int status, int even
         DEBUG_PRINTF("EV_After_QuerySend: !conn->_conn || !conn->connected");
 
         // The callback part, just call the existing code
-        EIO_After_Query(_req);
-
+        EIO_After_Query(fake_req);
         return;
     }
     query_req->connection_closed = false;
@@ -1240,7 +1239,7 @@ void MysqlConnection::EV_After_QuerySend(uv_poll_t* handle, int status, int even
     }
 
     // The callback part, just call the existing code
-    EIO_After_Query(_req);
+    EIO_After_Query(fake_req);
 }
 
 void MysqlConnection::EV_After_QuerySend_OnWatchHandleClose(uv_handle_t* handle) {
