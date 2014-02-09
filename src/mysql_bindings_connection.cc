@@ -21,7 +21,7 @@ void MysqlConnection::Init(Handle<Object> target) {
     NanScope();
 
     // Constructor template
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(MysqlConnection::New);
+    Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
     NanAssignPersistent(FunctionTemplate, constructor_template, tpl);
     tpl->SetClassName(NanSymbol("MysqlConnection"));
 
@@ -30,54 +30,54 @@ void MysqlConnection::Init(Handle<Object> target) {
     instance_template->SetInternalFieldCount(1);
 
     // Instance properties
-    instance_template->SetAccessor(V8STR("connectErrno"), MysqlConnection::ConnectErrnoGetter);
-    instance_template->SetAccessor(V8STR("connectError"), MysqlConnection::ConnectErrorGetter);
+    instance_template->SetAccessor(V8STR("connectErrno"), ConnectErrnoGetter);
+    instance_template->SetAccessor(V8STR("connectError"), ConnectErrorGetter);
 
     // Prototype methods
-    NODE_SET_PROTOTYPE_METHOD(tpl, "affectedRowsSync",     MysqlConnection::AffectedRowsSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "autoCommitSync",       MysqlConnection::AutoCommitSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "changeUserSync",       MysqlConnection::ChangeUserSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "commitSync",           MysqlConnection::CommitSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "connect",              MysqlConnection::Connect);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "connectSync",          MysqlConnection::ConnectSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "connectedSync",        MysqlConnection::ConnectedSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "closeSync",            MysqlConnection::CloseSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "debugSync",            MysqlConnection::DebugSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "dumpDebugInfoSync",    MysqlConnection::DumpDebugInfoSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "errnoSync",            MysqlConnection::ErrnoSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "errorSync",            MysqlConnection::ErrorSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "escapeSync",           MysqlConnection::EscapeSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldCountSync",       MysqlConnection::FieldCountSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getCharsetSync",       MysqlConnection::GetCharsetSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getCharsetNameSync",   MysqlConnection::GetCharsetNameSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getClientInfoSync",    MysqlConnection::GetClientInfoSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getInfoSync",          MysqlConnection::GetInfoSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getInfoStringSync",    MysqlConnection::GetInfoStringSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getWarningsSync",      MysqlConnection::GetWarningsSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "initSync",             MysqlConnection::InitSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "initStatementSync",    MysqlConnection::InitStatementSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "lastInsertIdSync",     MysqlConnection::LastInsertIdSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "multiMoreResultsSync", MysqlConnection::MultiMoreResultsSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "multiNextResultSync",  MysqlConnection::MultiNextResultSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "multiRealQuerySync",   MysqlConnection::MultiRealQuerySync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "pingSync",             MysqlConnection::PingSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "query",                MysqlConnection::Query);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "querySend",            MysqlConnection::QuerySend);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "querySync",            MysqlConnection::QuerySync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "realConnectSync",      MysqlConnection::RealConnectSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "realQuerySync",        MysqlConnection::RealQuerySync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "rollbackSync",         MysqlConnection::RollbackSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "selectDbSync",         MysqlConnection::SelectDbSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "setCharsetSync",       MysqlConnection::SetCharsetSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "setOptionSync",        MysqlConnection::SetOptionSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "setSslSync",           MysqlConnection::SetSslSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "sqlStateSync",         MysqlConnection::SqlStateSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "statSync",             MysqlConnection::StatSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "storeResultSync",      MysqlConnection::StoreResultSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "threadIdSync",         MysqlConnection::ThreadIdSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "threadSafeSync",       MysqlConnection::ThreadSafeSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "useResultSync",        MysqlConnection::UseResultSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "warningCountSync",     MysqlConnection::WarningCountSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "affectedRowsSync",     AffectedRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "autoCommitSync",       AutoCommitSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "changeUserSync",       ChangeUserSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "commitSync",           CommitSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "connect",              Connect);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "connectSync",          ConnectSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "connectedSync",        ConnectedSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "closeSync",            CloseSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "debugSync",            DebugSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "dumpDebugInfoSync",    DumpDebugInfoSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "errnoSync",            ErrnoSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "errorSync",            ErrorSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "escapeSync",           EscapeSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldCountSync",       FieldCountSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getCharsetSync",       GetCharsetSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getCharsetNameSync",   GetCharsetNameSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getClientInfoSync",    GetClientInfoSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getInfoSync",          GetInfoSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getInfoStringSync",    GetInfoStringSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getWarningsSync",      GetWarningsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "initSync",             InitSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "initStatementSync",    InitStatementSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "lastInsertIdSync",     LastInsertIdSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "multiMoreResultsSync", MultiMoreResultsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "multiNextResultSync",  MultiNextResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "multiRealQuerySync",   MultiRealQuerySync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "pingSync",             PingSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "query",                Query);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "querySend",            QuerySend);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "querySync",            QuerySync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "realConnectSync",      RealConnectSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "realQuerySync",        RealQuerySync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "rollbackSync",         RollbackSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "selectDbSync",         SelectDbSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "setCharsetSync",       SetCharsetSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "setOptionSync",        SetOptionSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "setSslSync",           SetSslSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "sqlStateSync",         SqlStateSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "statSync",             StatSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "storeResultSync",      StoreResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "threadIdSync",         ThreadIdSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "threadSafeSync",       ThreadSafeSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "useResultSync",        UseResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "warningCountSync",     WarningCountSync);
 
     // Make it visible in JavaScript land
     target->Set(NanSymbol("MysqlConnection"), tpl->GetFunction());

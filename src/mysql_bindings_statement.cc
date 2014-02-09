@@ -21,7 +21,7 @@ void MysqlStatement::Init(Handle<Object> target) {
     NanScope();
 
     // Constructor template
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(MysqlStatement::New);
+    Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
     NanAssignPersistent(FunctionTemplate, constructor_template, tpl);
     tpl->SetClassName(NanSymbol("MysqlStatement"));
 
@@ -33,34 +33,34 @@ void MysqlStatement::Init(Handle<Object> target) {
     instance_template->SetAccessor(V8STR("paramCount"), ParamCountGetter);
 
     // Prototype methods
-    NODE_SET_PROTOTYPE_METHOD(tpl, "affectedRowsSync",   MysqlStatement::AffectedRowsSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "attrGetSync",        MysqlStatement::AttrGetSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "attrSetSync",        MysqlStatement::AttrSetSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "bindParamsSync",     MysqlStatement::BindParamsSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "bindResultSync",     MysqlStatement::BindResultSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "closeSync",          MysqlStatement::CloseSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "dataSeekSync",       MysqlStatement::DataSeekSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "errnoSync",          MysqlStatement::ErrnoSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "errorSync",          MysqlStatement::ErrorSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "execute",            MysqlStatement::Execute);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "executeSync",        MysqlStatement::ExecuteSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAll",           MysqlStatement::FetchAll);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAllSync",       MysqlStatement::FetchAllSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchSync",          MysqlStatement::FetchSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetch",              MysqlStatement::Fetch);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldCountSync",     MysqlStatement::FieldCountSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "freeResultSync",     MysqlStatement::FreeResultSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "lastInsertIdSync",   MysqlStatement::LastInsertIdSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "nextResultSync",     MysqlStatement::NextResultSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "numRowsSync",        MysqlStatement::NumRowsSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "prepareSync",        MysqlStatement::PrepareSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "resetSync",          MysqlStatement::ResetSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "resultMetadataSync", MysqlStatement::ResultMetadataSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "sendLongDataSync",   MysqlStatement::SendLongDataSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "storeResultSync",    MysqlStatement::StoreResultSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "storeResult",        MysqlStatement::StoreResult);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "sqlStateSync",       MysqlStatement::SqlStateSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "setStringSize",      MysqlStatement::SqlStateSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "affectedRowsSync",   AffectedRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "attrGetSync",        AttrGetSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "attrSetSync",        AttrSetSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "bindParamsSync",     BindParamsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "bindResultSync",     BindResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "closeSync",          CloseSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "dataSeekSync",       DataSeekSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "errnoSync",          ErrnoSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "errorSync",          ErrorSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "execute",            Execute);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "executeSync",        ExecuteSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAll",           FetchAll);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAllSync",       FetchAllSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchSync",          FetchSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetch",              Fetch);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldCountSync",     FieldCountSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "freeResultSync",     FreeResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "lastInsertIdSync",   LastInsertIdSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "nextResultSync",     NextResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "numRowsSync",        NumRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "prepareSync",        PrepareSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "resetSync",          ResetSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "resultMetadataSync", ResultMetadataSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "sendLongDataSync",   SendLongDataSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "storeResultSync",    StoreResultSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "storeResult",        StoreResult);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "sqlStateSync",       SqlStateSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "setStringSize",      SqlStateSync);
 
     // Make it visible in JavaScript land
     target->Set(NanSymbol("MysqlStatement"), tpl->GetFunction());

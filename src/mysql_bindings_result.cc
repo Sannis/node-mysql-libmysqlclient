@@ -20,7 +20,7 @@ void MysqlResult::Init(Handle<Object> target) {
     NanScope();
 
     // Constructor template
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(MysqlResult::New);
+    Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
     NanAssignPersistent(FunctionTemplate, constructor_template, tpl);
     tpl->SetClassName(NanSymbol("MysqlResult"));
 
@@ -32,18 +32,18 @@ void MysqlResult::Init(Handle<Object> target) {
     instance_template->SetAccessor(V8STR("fieldCount"), FieldCountGetter);
 
     // Prototype methods
-    NODE_SET_PROTOTYPE_METHOD(tpl, "dataSeekSync",         MysqlResult::DataSeekSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAll",             MysqlResult::FetchAll);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAllSync",         MysqlResult::FetchAllSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchFieldSync",       MysqlResult::FetchFieldSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchFieldDirectSync", MysqlResult::FetchFieldDirectSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchFieldsSync",      MysqlResult::FetchFieldsSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchLengthsSync",     MysqlResult::FetchLengthsSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchRowSync",         MysqlResult::FetchRowSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldSeekSync",        MysqlResult::FieldSeekSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldTellSync",        MysqlResult::FieldTellSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "freeSync",             MysqlResult::FreeSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "numRowsSync",          MysqlResult::NumRowsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "dataSeekSync",         DataSeekSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAll",             FetchAll);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAllSync",         FetchAllSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchFieldSync",       FetchFieldSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchFieldDirectSync", FetchFieldDirectSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchFieldsSync",      FetchFieldsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchLengthsSync",     FetchLengthsSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchRowSync",         FetchRowSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldSeekSync",        FieldSeekSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldTellSync",        FieldTellSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "freeSync",             FreeSync);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "numRowsSync",          NumRowsSync);
 
     // Make it visible in JavaScript land
     target->Set(NanSymbol("MysqlResult"), tpl->GetFunction());
