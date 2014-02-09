@@ -66,16 +66,16 @@ void MysqlStatement::Init(Handle<Object> target) {
     target->Set(NanSymbol("MysqlStatement"), tpl->GetFunction());
 }
 
-v8::Local<v8::Object> MysqlStatement::NewInstance(MYSQL_STMT *my_statement) {
+Local<Object> MysqlStatement::NewInstance(MYSQL_STMT *my_statement) {
     NanScope();
 
-    v8::Local<v8::FunctionTemplate> tpl = NanPersistentToLocal(constructor_template);
+    Local<FunctionTemplate> tpl = NanPersistentToLocal(constructor_template);
 
     const int argc = 1;
     Local<Value> argv[argc];
     argv[0] = External::New(my_statement);
 
-    v8::Local<v8::Object> instance = tpl->GetFunction()->NewInstance(argc, argv);
+    Local<Object> instance = tpl->GetFunction()->NewInstance(argc, argv);
 
     return scope.Close(instance);
 }
@@ -1224,10 +1224,10 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
             ts.hour, ts.minute, ts.second);
 
         // First step is to get a handle to the global object:
-        Local<v8::Object> globalObj = Context::GetCurrent()->Global();
+        Local<Object> globalObj = Context::GetCurrent()->Global();
 
         // Now we need to grab the Date constructor function:
-        Local<v8::Function> dateConstructor = Local<Function>::Cast(globalObj->Get(V8STR("Date")));
+        Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(V8STR("Date")));
 
         // Great. We can use this constructor function to allocate new Dates:
         const int argc = 1;
