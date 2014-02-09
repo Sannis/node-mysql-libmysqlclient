@@ -13,6 +13,8 @@ TMP=`mktemp -d ${TMPDIR}temp.XXXXXXXXXX`
 cp -r ./doc/* $TMP
 rm -f $TMP/*~
 git checkout gh-pages
+git reset --hard
+git clean -df
 cp -r $TMP/* ./
 git add .
 git ci -m "Update docs to $DESC"
