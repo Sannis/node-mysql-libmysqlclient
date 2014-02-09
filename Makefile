@@ -32,7 +32,7 @@ clean-all: clean
 test: npm-install
 		./node_modules/.bin/nodeunit --reporter=minimal tests/low-level-sync tests/low-level-async \
 		                                                tests/high-level tests/complex tests/issues \
-																										tests/load-data-infile
+		                                                tests/load-data-infile
 
 test-slow: npm-install
 		./node_modules/.bin/nodeunit --reporter=minimal tests/slow

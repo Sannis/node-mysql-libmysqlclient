@@ -1253,7 +1253,7 @@ void MysqlConnection::EV_After_QuerySend_OnWatchHandleClose(uv_handle_t* handle)
  *
  * Performs a query on the database.
  * Uses mysql_send_query.
- */
+ **/
 NAN_METHOD(MysqlConnection::QuerySend) {
     NanScope();
 
