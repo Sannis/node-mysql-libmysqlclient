@@ -1,9 +1,0 @@
-.git/
-doc/
-node_modules/
-tmp/
-tests/
-skins/
-lib/ndoc/plugins/parsers/javascript/
-lib/ndoc/plugins/renderers/html/
-.cache/
