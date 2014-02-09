@@ -43,8 +43,6 @@
         return NanThrowError("Not initialized"); \
     }
 
-using namespace v8; // NOLINT
-
 /** section: Classes
  * class MysqlConnection
  *

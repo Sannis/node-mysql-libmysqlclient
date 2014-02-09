@@ -13,6 +13,8 @@
 
 #include "nan.h"
 
+using namespace v8; // NOLINT
+
 /*!
  * Useful macroses for utility operations
  * such as argument checking and C=+ <-> V8 type conversions
