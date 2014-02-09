@@ -3,11 +3,20 @@
 Revision history for node-mysql-libmysqlclient,
 the asynchronous MySQL binding for Node.js using libmysqlclient.
 
+## Version 1.6.0
+
+  * Memory leaks and logic errors fixed in MysqlStatement
+  * Added async version of prepared statement fetchAll method
+  * Test against node v0.11, drop v0.6 support
+  * Compatibility with latest (v0.8.26 and v0.10.25) Node.js API (using NAN)
+
+Special thanks to Alexander Makarenko for prepared statements support improvements
+
 ## Version 1.5.2
 
   * Handle unsigned fields correctly in MysqlStatement
   * Fixed MYSQL_TIME to JavaScript Date conversion in MysqlStatement
-  * Compatibility with latest (v0.8.19 & v0.9.9) Node.js API
+  * Compatibility with latest (v0.8.19 and v0.9.9) Node.js API
 
 ## Version 1.5.1
 
