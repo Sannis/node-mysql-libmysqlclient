@@ -502,17 +502,23 @@ exports.GetInfoStringSync = function (test) {
 };
 
 exports.GetWarningsSync = function (test) {
-  test.expect(3);
-  
+  test.expect(5);
+
   var conn = cfg.mysql_libmysqlclient.createConnectionSync(cfg.host, cfg.user, cfg.password, cfg.database);
   test.ok(conn, "mysql_libmysqlclient.createConnectionSync(host, user, password, database)");
-  
+
   test.ok(conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table_notexists + ";"));
-  test.same(conn.getWarningsSync(),
-            [{errno: 1051, reason: "Unknown table '" + cfg.test_table_notexists + "'" }],
-            "conn.getWarningsSync() after DROP TABLE IF EXISTS test_table_notexists");
+
+  var warnings = conn.getWarningsSync();
+  test.equals(warnings.length, 1, "Expect 1 warning");
+  test.equals(warnings[0].errno, 1051, "Expect 1 warning with errno = 1051");
+
+  var right_reason = (warnings[0].reason == "Unknown table '" + cfg.test_table_notexists + "'")
+    || (warnings[0].reason == "Unknown table '" + cfg.database + "." + cfg.test_table_notexists + "'");
+  test.ok(right_reason, "conn.getWarningsSync() after DROP TABLE IF EXISTS test_table_notexists");
+
   conn.closeSync();
-  
+
   test.done();
 };
 
