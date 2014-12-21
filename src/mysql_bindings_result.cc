@@ -146,34 +146,26 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
         case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
         case MYSQL_TYPE_DATETIME:   // DATETIME field
             if (field_value) {
-                // First step is to get a handle to the global object:
                 Local<Object> globalObj = NanGetCurrentContext()->Global();
-                
-                // Now we need to grab the Date constructor function:
+
                 Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(NanNew<String>("Date")));
-                
-                // Great. We can use this constructor function to allocate new Dates:
+
                 const int argc = 1;
                 Local<Value> argv[argc] = { String::Concat(NanNew<String>(field_value), NanNew<String>(" GMT")) };
-                
-                // Now we have our constructor, and our constructor args. Let's create the Date:
+
                 js_field = dateConstructor->NewInstance(argc, argv);
             }
             break;
         case MYSQL_TYPE_DATE:     // DATE field
         case MYSQL_TYPE_NEWDATE:  // Newer const used in MySQL > 5.0
             if (field_value) {
-                // First step is to get a handle to the global object:
                 Local<Object> globalObj = NanGetCurrentContext()->Global();
                 
-                // Now we need to grab the Date constructor function:
                 Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(NanNew<String>("Date")));
                 
-                // Great. We can use this constructor function to allocate new Dates:
                 const int argc = 1;
                 Local<Value> argv[argc] = { String::Concat(NanNew<String>(field_value), NanNew<String>(" GMT")) };
                 
-                // Now we have our constructor, and our constructor args. Let's create the Date:
                 js_field = dateConstructor->NewInstance(argc, argv);
             }
             break;
@@ -185,7 +177,17 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
         case MYSQL_TYPE_VAR_STRING:
             if (field_value) {
                 if (field.flags & BINARY_FLAG) {
-                    js_field = NanNewBufferHandle(field_value, field_length);
+                    Local<Object> slowBuffer = NanNewBufferHandle(field_length);
+                    memcpy(node::Buffer::Data(slowBuffer), field_value, field_length);
+
+                    Local<Object> globalObj = NanGetCurrentContext()->Global();
+
+                    Local<Function> bufferConstructor = Local<Function>::Cast(globalObj->Get(NanNew("Buffer")));
+
+                    const int argc = 3;
+                    Local<Value> argv[argc] = { slowBuffer, NanNew<Integer>(field_length), NanNew<Integer>(0) };
+
+                    js_field = bufferConstructor->NewInstance(argc, argv);
                 } else {
                     js_field = NanNew<String>(field_value, field_length);
                 }

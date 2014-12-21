@@ -1137,12 +1137,12 @@ void MysqlStatement::FreeMysqlBinds(MYSQL_BIND *binds, unsigned long size, bool 
 /*! todo: finish
  * Helper for FetchAll(), FetchAllSync() methods. Converts raw data to JS type.
  */
-Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYSQL_FIELD& field) {
+Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& field_length, MYSQL_FIELD& field) {
     unsigned int type = field.type;
     if (type == MYSQL_TYPE_TINY) {             // TINYINT
         int32_t val = *((signed char *) ptr);
         // handle as boolean
-        if (length == 1) {
+        if (field_length == 1) {
             DEBUG_PRINTF("TINYINT(1) %d", val);
             return val ? NanTrue() : NanFalse();
         // handle as integer
@@ -1185,17 +1185,27 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
         type == MYSQL_TYPE_ENUM ||                 // ENUM
         type == MYSQL_TYPE_GEOMETRY                // Spatial fields
     ) {
-        char *data = (char *)ptr;
+        char *field_value = (char *)ptr;
 
         if (field.flags & BINARY_FLAG) {
-            DEBUG_PRINTF("Blob, length: (%lu)", length);
+            DEBUG_PRINTF("Blob, length: (%lu)", field_length);
 
-            Local<Object> local_js_buffer = NanNewBufferHandle(data, length);
+            Local<Object> slowBuffer = NanNewBufferHandle(field_length);
+            memcpy(node::Buffer::Data(slowBuffer), field_value, field_length);
+
+            Local<Object> globalObj = NanGetCurrentContext()->Global();
+
+            Local<Function> bufferConstructor = Local<Function>::Cast(globalObj->Get(NanNew("Buffer")));
+
+            const int argc = 3;
+            Local<Value> argv[argc] = { slowBuffer, NanNew<Integer>(field_length), NanNew<Integer>(0) };
+
+            Local<Object> local_js_buffer = bufferConstructor->NewInstance(argc, argv);
 
             return local_js_buffer;
         } else {
-            DEBUG_PRINTF("String, length: %lu/%lu", length, field.length);
-            return NanNew<String>(data, length);
+            DEBUG_PRINTF("String, length: %lu/%lu", field_length, field.length);
+            return NanNew<String>(field_value, field_length);
         }
     } else if (
         type == MYSQL_TYPE_TIME ||                 // TIME
@@ -1218,17 +1228,13 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
             ts.year, ts.month, ts.day,
             ts.hour, ts.minute, ts.second);
 
-        // First step is to get a handle to the global object:
         Local<Object> globalObj = NanGetCurrentContext()->Global();
 
-        // Now we need to grab the Date constructor function:
         Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(NanNew<String>("Date")));
 
-        // Great. We can use this constructor function to allocate new Dates:
         const int argc = 1;
         Local<Value> argv[argc] = { NanNew<String>(time_string) };
 
-        // Now we have our constructor, and our constructor args. Let's create the Date:
         return dateConstructor->NewInstance(argc, argv);
     } else if (type == MYSQL_TYPE_SET) {       // SET
         // TODO(Sannis): Maybe memory leaks here
@@ -1245,7 +1251,7 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
 
         return js_field_array;
     } else {
-        return NanNew<String>((char *) ptr, length);
+        return NanNew<String>((char *) ptr, field_length);
     }
 }
 

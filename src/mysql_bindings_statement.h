@@ -142,7 +142,7 @@ class MysqlStatement : public node::ObjectWrap {
 
     static void FreeMysqlBinds(MYSQL_BIND *binds, unsigned long size, bool params);
 
-    static Local<Value> GetFieldValue(void* ptr, unsigned long& length, MYSQL_FIELD& field);
+    static Local<Value> GetFieldValue(void* ptr, unsigned long& field_length, MYSQL_FIELD& field);
 
     static NAN_METHOD(LastInsertIdSync);
 
