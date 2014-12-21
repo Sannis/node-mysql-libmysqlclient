@@ -1173,15 +1173,17 @@ NAN_METHOD(MysqlConnection::Query) {
 void MysqlConnection::EV_After_QuerySend(uv_poll_t* handle, int status, int events) {
     NanScope();
 
+    // Get query_req from handle data
+    struct query_request *query_req = (struct query_request *)handle->data;
+
     // Fake uv_work_t struct for EIO_After_Query call
     uv_work_t *fake_req = new uv_work_t;
-    fake_req->data = handle->data;
+    fake_req->data = query_req;
 
     // Stop IO watcher
     uv_poll_stop(handle);
     uv_close((uv_handle_t *)handle, EV_After_QuerySend_OnWatchHandleClose);
-
-    struct query_request *query_req = (struct query_request *)handle->data;
+    // *Note*: Do not use handle after this point
 
     MysqlConnection *conn = query_req->conn;
 
