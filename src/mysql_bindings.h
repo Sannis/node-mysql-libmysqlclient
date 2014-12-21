@@ -25,10 +25,8 @@ using namespace v8; // NOLINT
 // [whitespace/line_length] [2]
 // Lines should very rarely be longer than 100 characters
 // [whitespace/line_length] [4]
-#define V8EXC(str) Exception::Error(String::New(str))
+#define V8EXC(str) Exception::Error(NanNew<String>(str))
 #define OBJUNWRAP ObjectWrap::Unwrap
-#define V8STR(str) String::New(str)
-#define V8STR2(str, len) String::New(str, len)
 #define MALLOC_ARRAY(name, type, size) type* name = (type*) malloc(sizeof(type) * size);
 
 #define REQ_INT_ARG(I, VAR) \
@@ -85,7 +83,7 @@ Handle<Value> VAR; \
 if (args.Length() > (I) && args[I]->IsFunction()) {\
     VAR = args[I]; \
 } else { \
-    VAR = Null(); \
+    VAR = NanNull(); \
 }
 
 #define OPTIONAL_BUFFER_ARG(I, VAR) \
@@ -96,7 +94,7 @@ if (args.Length() > (I) \
 ) { \
     VAR = args[I]->ToObject(); \
 } else { \
-    VAR = Null(); \
+    VAR = NanNull(); \
 }
 
 #ifdef DEBUG

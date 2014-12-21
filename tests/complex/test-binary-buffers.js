@@ -63,7 +63,12 @@ exports.FetchAllSyncWithBinaryFields = function (test) {
                    [ '12\u0000\u0000',  new Buffer('12\0\0'),  new Buffer('12\0\0\0\0\0\0'), '12\u0000\u0000',  null ],
                    [ '34\u0000\u0000',  new Buffer('34\0\0'),  new Buffer('34\0\0\0\0\0\0'), null,              new Buffer('34\0\0') ] ];
 
-  test.same(cfg.util.inspect(rows), cfg.util.inspect(rowsExpected), "conn.querySync('SELECT ...').fetchAllSync(true)");
+  var difflet = require('difflet')({indent: 2, comment: true});
+  test.same(
+    cfg.util.inspect(rows),
+    cfg.util.inspect(rowsExpected),
+    "conn.querySync('SELECT ...').fetchAllSync(true) failed: " + difflet.compare(rowsExpected, rows)
+  );
 
   res.freeSync();
   

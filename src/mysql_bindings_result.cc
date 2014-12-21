@@ -20,16 +20,16 @@ void MysqlResult::Init(Handle<Object> target) {
     NanScope();
 
     // Constructor template
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-    NanAssignPersistent(FunctionTemplate, constructor_template, tpl);
-    tpl->SetClassName(NanSymbol("MysqlResult"));
+    Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
+    NanAssignPersistent(constructor_template, tpl);
+    tpl->SetClassName(NanNew<String>("MysqlResult"));
 
     // Instance template
     Local<ObjectTemplate> instance_template = tpl->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
     // Instance properties
-    instance_template->SetAccessor(V8STR("fieldCount"), FieldCountGetter);
+    instance_template->SetAccessor(NanNew<String>("fieldCount"), FieldCountGetter);
 
     // Prototype methods
     NODE_SET_PROTOTYPE_METHOD(tpl, "dataSeekSync",         DataSeekSync);
@@ -46,23 +46,23 @@ void MysqlResult::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(tpl, "numRowsSync",          NumRowsSync);
 
     // Make it visible in JavaScript land
-    target->Set(NanSymbol("MysqlResult"), tpl->GetFunction());
+    target->Set(NanNew<String>("MysqlResult"), tpl->GetFunction());
 }
 
 Local<Object> MysqlResult::NewInstance(MYSQL *my_conn, MYSQL_RES *my_result, uint32_t field_count) {
-    NanScope();
-
-    Local<FunctionTemplate> tpl = NanPersistentToLocal(constructor_template);
+    NanEscapableScope();
 
     const int argc = 3;
     Local<Value> argv[argc];
-    argv[0] = External::New(my_conn);
-    argv[1] = External::New(my_result);
-    argv[2] = Integer::NewFromUnsigned(field_count);
+    argv[0] = NanNew<External>(my_conn);
+    argv[1] = NanNew<External>(my_result);
+    argv[2] = NanNew(field_count);
+
+    Local<FunctionTemplate> tpl = NanNew(constructor_template);
 
     Local<Object> instance = tpl->GetFunction()->NewInstance(argc, argv);
 
-    return scope.Close(instance);
+    return NanEscapeScope(instance);
 }
 
 MysqlResult::MysqlResult(): ObjectWrap() {}
@@ -72,35 +72,35 @@ MysqlResult::~MysqlResult() {
 }
 
 void MysqlResult::AddFieldProperties(Local<Object> &js_field_obj, MYSQL_FIELD *field) {
-    js_field_obj->Set(V8STR("name"),
-                      V8STR(field->name ? field->name : ""));
-    js_field_obj->Set(V8STR("orgname"),
-                      V8STR(field->org_name ? field->org_name : ""));
-    js_field_obj->Set(V8STR("table"),
-                      V8STR(field->table ? field->table : ""));
-    js_field_obj->Set(V8STR("orgtable"),
-                      V8STR(field->org_table ? field->org_table : ""));
-    js_field_obj->Set(V8STR("def"),
-                      V8STR(field->def ? field->def : ""));
+    js_field_obj->Set(NanNew<String>("name"),
+                      NanNew<String>(field->name ? field->name : ""));
+    js_field_obj->Set(NanNew<String>("orgname"),
+                      NanNew<String>(field->org_name ? field->org_name : ""));
+    js_field_obj->Set(NanNew<String>("table"),
+                      NanNew<String>(field->table ? field->table : ""));
+    js_field_obj->Set(NanNew<String>("orgtable"),
+                      NanNew<String>(field->org_table ? field->org_table : ""));
+    js_field_obj->Set(NanNew<String>("def"),
+                      NanNew<String>(field->def ? field->def : ""));
 
-    js_field_obj->Set(V8STR("max_length"),
-                      Integer::NewFromUnsigned(field->max_length));
-    js_field_obj->Set(V8STR("length"),
-                      Integer::NewFromUnsigned(field->length));
-    js_field_obj->Set(V8STR("charsetnr"),
-                      Integer::NewFromUnsigned(field->charsetnr));
-    js_field_obj->Set(V8STR("flags"),
-                      Integer::NewFromUnsigned(field->flags));
-    js_field_obj->Set(V8STR("type"),
-                      Integer::New(field->type));
-    js_field_obj->Set(V8STR("decimals"),
-                      Integer::NewFromUnsigned(field->decimals));
+    js_field_obj->Set(NanNew<String>("max_length"),
+                      NanNew((unsigned int)field->max_length));
+    js_field_obj->Set(NanNew<String>("length"),
+                      NanNew((unsigned int)field->length));
+    js_field_obj->Set(NanNew<String>("charsetnr"),
+                      NanNew(field->charsetnr));
+    js_field_obj->Set(NanNew<String>("flags"),
+                      NanNew(field->flags));
+    js_field_obj->Set(NanNew<String>("type"),
+                      NanNew(field->type));
+    js_field_obj->Set(NanNew<String>("decimals"),
+                      NanNew(field->decimals));
 }
 
 Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length) {
-    NanScope();
+    NanEscapableScope();
 
-    Local<Value> js_field = NanNewLocal(Null());
+    Local<Value> js_field = NanNull();
 
     switch (field.type) {
         case MYSQL_TYPE_NULL:   // NULL-type field
@@ -112,27 +112,27 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
         case MYSQL_TYPE_INT24:  // MEDIUMINT field
         case MYSQL_TYPE_YEAR:   // YEAR field
             if (field_value) {
-              js_field = V8STR(field_value)->ToInteger();
+              js_field = NanNew<String>(field_value)->ToInteger();
             }
             break;
         case MYSQL_TYPE_BIT:       // BIT field (MySQL 5.0.3 and up)
         case MYSQL_TYPE_LONGLONG:  // BIGINT field
             // Return BIGINT as string, see #110
             if (field_value) {
-              js_field = V8STR(field_value);
+              js_field = NanNew<String>(field_value);
             }
             break;
         case MYSQL_TYPE_FLOAT:   // FLOAT field
         case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
             if (field_value) {
-              js_field = V8STR(field_value)->ToNumber();
+              js_field = NanNew<String>(field_value)->ToNumber();
             }
             break;
         case MYSQL_TYPE_DECIMAL:     // DECIMAL or NUMERIC field
         case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
             // Return DECIMAL/NUMERIC as string, see #110
             if (field_value) {
-              js_field = V8STR(field_value);
+              js_field = NanNew<String>(field_value);
             }
             break;
         case MYSQL_TYPE_TIME:  // TIME field
@@ -140,21 +140,21 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
               int hours = 0, minutes = 0, seconds = 0;
               sscanf(field_value, "%d:%d:%d", &hours, &minutes, &seconds);
               time_t result = hours*60*60 + minutes*60 + seconds;
-              js_field = Date::New(static_cast<double>(result)*1000);
+              js_field = NanNew<Date>(static_cast<double>(result)*1000);
             }
             break;
         case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
         case MYSQL_TYPE_DATETIME:   // DATETIME field
             if (field_value) {
                 // First step is to get a handle to the global object:
-                Local<Object> globalObj = Context::GetCurrent()->Global();
+                Local<Object> globalObj = NanGetCurrentContext()->Global();
                 
                 // Now we need to grab the Date constructor function:
-                Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(V8STR("Date")));
+                Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(NanNew<String>("Date")));
                 
                 // Great. We can use this constructor function to allocate new Dates:
                 const int argc = 1;
-                Local<Value> argv[argc] = { String::Concat(V8STR(field_value), V8STR(" GMT")) };
+                Local<Value> argv[argc] = { String::Concat(NanNew<String>(field_value), NanNew<String>(" GMT")) };
                 
                 // Now we have our constructor, and our constructor args. Let's create the Date:
                 js_field = dateConstructor->NewInstance(argc, argv);
@@ -164,14 +164,14 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
         case MYSQL_TYPE_NEWDATE:  // Newer const used in MySQL > 5.0
             if (field_value) {
                 // First step is to get a handle to the global object:
-                Local<Object> globalObj = Context::GetCurrent()->Global();
+                Local<Object> globalObj = NanGetCurrentContext()->Global();
                 
                 // Now we need to grab the Date constructor function:
-                Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(V8STR("Date")));
+                Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(NanNew<String>("Date")));
                 
                 // Great. We can use this constructor function to allocate new Dates:
                 const int argc = 1;
-                Local<Value> argv[argc] = { String::Concat(V8STR(field_value), V8STR(" GMT")) };
+                Local<Value> argv[argc] = { String::Concat(NanNew<String>(field_value), NanNew<String>(" GMT")) };
                 
                 // Now we have our constructor, and our constructor args. Let's create the Date:
                 js_field = dateConstructor->NewInstance(argc, argv);
@@ -185,9 +185,9 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
         case MYSQL_TYPE_VAR_STRING:
             if (field_value) {
                 if (field.flags & BINARY_FLAG) {
-                    js_field = NanNewLocal(node::Buffer::New(V8STR2(field_value, field_length)));
+                    js_field = NanNewBufferHandle(field_value, field_length);
                 } else {
-                    js_field = V8STR2(field_value, field_length);
+                    js_field = NanNew<String>(field_value, field_length);
                 }
             }
             break;
@@ -196,11 +196,11 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
             if (field_value) {
                 char *pch, *last;
                 int i = 0;
-                Local<Array> js_field_array = Array::New();
+                Local<Array> js_field_array = NanNew<Array>();
 
                 pch = strtok_r(field_value, ",", &last);
                 while (pch != NULL) {
-                    js_field_array->Set(Integer::New(i), V8STR(pch));
+                    js_field_array->Set(NanNew(i), NanNew<String>(pch));
                     pch = strtok_r(NULL, ",", &last);
                     i++;
                 }
@@ -210,19 +210,19 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
             break;
         case MYSQL_TYPE_ENUM:  // ENUM field
             if (field_value) {
-                js_field = V8STR(field_value);
+                js_field = NanNew<String>(field_value);
             }
             break;
         case MYSQL_TYPE_GEOMETRY:  // Spatial fields
             // See for information:
             // http://dev.mysql.com/doc/refman/5.1/en/spatial-extensions.html
             if (field_value) {
-                js_field = V8STR(field_value);
+                js_field = NanNew<String>(field_value);
             }
             break;
         default:
             if (field_value) {
-                js_field = V8STR(field_value);
+                js_field = NanNew<String>(field_value);
             }
     }
 
@@ -231,11 +231,11 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
     if (field_value && (field.flags & SET_FLAG)) {
         char *pch, *last;
         int i = 0;
-        Local<Array> js_field_array = Array::New();
+        Local<Array> js_field_array = NanNew<Array>();
 
         pch = strtok_r(field_value, ",", &last);
         while (pch != NULL) {
-            js_field_array->Set(Integer::New(i), V8STR(pch));
+            js_field_array->Set(NanNew(i), NanNew<String>(pch));
             pch = strtok_r(NULL, ",", &last);
             i++;
         }
@@ -243,20 +243,20 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
         js_field = js_field_array;
     }
 
-    return scope.Close(js_field);
+    return NanEscapeScope(js_field);
 }
 
 MysqlResult::fetch_options MysqlResult::GetFetchOptions(Local<Object> options) {
     fetch_options fo = {false, false};
 
     // Inherit from options object
-    if (options->Has(V8STR("asArray"))) {
+    if (options->Has(NanNew<String>("asArray"))) {
         DEBUG_PRINTF("+asArray");
-        fo.results_as_array = options->Get(V8STR("asArray"))->BooleanValue();
+        fo.results_as_array = options->Get(NanNew<String>("asArray"))->BooleanValue();
     }
-    if (options->Has(V8STR("nestTables"))) {
+    if (options->Has(NanNew<String>("nestTables"))) {
         DEBUG_PRINTF("+nestTables");
-        fo.results_nest_tables = options->ToObject()->Get(V8STR("nestTables"))->BooleanValue();
+        fo.results_nest_tables = options->ToObject()->Get(NanNew<String>("nestTables"))->BooleanValue();
     }
 
     return fo;
@@ -303,7 +303,7 @@ NAN_GETTER(MysqlResult::FieldCountGetter) {
     MYSQLRES_MUSTBE_VALID;
 
     if (res->field_count > 0) {
-        NanReturnValue(Integer::NewFromUnsigned(res->field_count));
+        NanReturnValue(NanNew(res->field_count));
     } else {
         NanReturnUndefined();
     }
@@ -358,39 +358,43 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
         MYSQL_ROW result_row;
         unsigned long *field_lengths;
         uint32_t i = 0, j = 0;
+        my_ulonglong row_count = 0;
 
         // Get rows
-        Local<Array> js_result = Array::New();
+        Local<Array> js_result;
         Local<Object> js_result_row;
         Local<Value> js_field;
+
+        row_count = mysql_num_rows(fetchAll_req->res->_res);
+        js_result = NanNew<Array>((unsigned int)row_count);
 
         i = 0;
         while ((result_row = mysql_fetch_row(fetchAll_req->res->_res))) {
             field_lengths = mysql_fetch_lengths(fetchAll_req->res->_res);
 
             if (fetchAll_req->fo.results_as_array) {
-              js_result_row = Array::New();
+              js_result_row = NanNew<Array>();
             } else {
-              js_result_row = Object::New();
+              js_result_row = NanNew<Object>();
             }
 
             for (j = 0; j < num_fields; j++) {
                 js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
 
                 if (fetchAll_req->fo.results_as_array) {
-                    js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
+                    js_result_row->Set(NanNew(j), js_field);
                 } else if (fetchAll_req->fo.results_nest_tables) {
-                    if (!js_result_row->Has(V8STR(fields[j].table))) {
-                        js_result_row->Set(V8STR(fields[j].table), Object::New());
+                    if (!js_result_row->Has(NanNew<String>(fields[j].table))) {
+                        js_result_row->Set(NanNew<String>(fields[j].table), NanNew<Object>());
                     }
-                    js_result_row->Get(V8STR(fields[j].table))->ToObject()
-                                 ->Set(V8STR(fields[j].name), js_field);
+                    js_result_row->Get(NanNew<String>(fields[j].table))->ToObject()
+                                 ->Set(NanNew<String>(fields[j].name), js_field);
                 } else {
-                    js_result_row->Set(V8STR(fields[j].name), js_field);
+                    js_result_row->Set(NanNew<String>(fields[j].name), js_field);
                 }
             }
 
-            js_result->Set(Integer::NewFromUnsigned(i), js_result_row);
+            js_result->Set(NanNew(i), js_result_row);
 
             i++;
         }
@@ -410,18 +414,18 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
             delete[] error_string;
         } else {
             // Get fields info
-            Local<Array> js_fields = Array::New();
+            Local<Array> js_fields = NanNew<Array>();
 
             for (i = 0; i < num_fields; i++) {
-                js_result_row = Object::New();
+                js_result_row = NanNew<Object>();
                 AddFieldProperties(js_result_row, &fields[i]);
 
-                js_fields->Set(Integer::NewFromUnsigned(i), js_result_row);
+                js_fields->Set(NanNew(i), js_result_row);
             }
 
             argv[1] = js_result;
             argv[2] = js_fields;
-            argv[0] = NanNewLocal(Null());
+            argv[0] = NanNull();
             argc = 3;
         }
     }
@@ -490,8 +494,11 @@ NAN_METHOD(MysqlResult::FetchAll) {
         int argc = 1;
         Local<Value> argv[1];
         argv[0] = V8EXC("fetchAllSync can handle only (options) or none arguments");
-        //TODO(Sannis): Use NanCallback here
-        node::MakeCallback(Context::GetCurrent()->Global(), callback, argc, argv);
+
+        NanCallback *nan_callback = new NanCallback(callback.As<Function>());
+        nan_callback->Call(argc, argv);
+        delete nan_callback;
+
         NanReturnUndefined();
     }
 
@@ -552,7 +559,7 @@ NAN_METHOD(MysqlResult::FetchAllSync) {
     unsigned long *field_lengths;
     uint32_t i = 0, j = 0;
 
-    Local<Array> js_result = Array::New();
+    Local<Array> js_result = NanNew<Array>();
     Local<Object> js_result_row;
     Local<Value> js_field;
 
@@ -561,28 +568,28 @@ NAN_METHOD(MysqlResult::FetchAllSync) {
         field_lengths = mysql_fetch_lengths(res->_res);
 
         if (fo.results_as_array) {
-            js_result_row = Array::New();
+            js_result_row = NanNew<Array>();
         } else {
-            js_result_row = Object::New();
+            js_result_row = NanNew<Object>();
         }
 
         for (j = 0; j < num_fields; j++) {
             js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
 
             if (fo.results_as_array) {
-                js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
+                js_result_row->Set(NanNew(j), js_field);
             } else if (fo.results_nest_tables) {
-                if (!js_result_row->Has(V8STR(fields[j].table))) {
-                    js_result_row->Set(V8STR(fields[j].table), Object::New());
+                if (!js_result_row->Has(NanNew<String>(fields[j].table))) {
+                    js_result_row->Set(NanNew<String>(fields[j].table), NanNew<Object>());
                 }
-                js_result_row->Get(V8STR(fields[j].table))->ToObject()
-                             ->Set(V8STR(fields[j].name), js_field);
+                js_result_row->Get(NanNew<String>(fields[j].table))->ToObject()
+                             ->Set(NanNew<String>(fields[j].name), js_field);
             } else {
-                js_result_row->Set(V8STR(fields[j].name), js_field);
+                js_result_row->Set(NanNew<String>(fields[j].name), js_field);
             }
         }
 
-        js_result->Set(Integer::NewFromUnsigned(i), js_result_row);
+        js_result->Set(NanNew(i), js_result_row);
 
         i++;
     }
@@ -609,10 +616,10 @@ NAN_METHOD(MysqlResult::FetchFieldSync) {
     field = mysql_fetch_field(res->_res);
 
     if (!field) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    js_result = Object::New();
+    js_result = NanNew<Object>();
     AddFieldProperties(js_result, field);
 
     NanReturnValue(js_result);
@@ -640,10 +647,10 @@ NAN_METHOD(MysqlResult::FetchFieldDirectSync) { // NOLINT
     field = mysql_fetch_field_direct(res->_res, field_num);
 
     if (!field) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    js_result = Object::New();
+    js_result = NanNew<Object>();
     AddFieldProperties(js_result, field);
 
     NanReturnValue(js_result);
@@ -665,16 +672,16 @@ NAN_METHOD(MysqlResult::FetchFieldsSync) {
     MYSQL_FIELD *field;
     uint32_t i = 0;
 
-    Local<Array> js_result = Array::New();
+    Local<Array> js_result = NanNew<Array>();
     Local<Object> js_result_obj;
 
     for (i = 0; i < num_fields; i++) {
         field = mysql_fetch_field_direct(res->_res, i);
 
-        js_result_obj = Object::New();
+        js_result_obj = NanNew<Object>();
         AddFieldProperties(js_result_obj, field);
 
-        js_result->Set(Integer::NewFromUnsigned(i), js_result_obj);
+        js_result->Set(NanNew(i), js_result_obj);
     }
 
     NanReturnValue(js_result);
@@ -696,15 +703,15 @@ NAN_METHOD(MysqlResult::FetchLengthsSync) {
     unsigned long int *lengths = mysql_fetch_lengths(res->_res); // NOLINT
     uint32_t i = 0;
 
-    Local<Array> js_result = Array::New();
+    Local<Array> js_result = NanNew<Array>();
 
     if (!lengths) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     for (i = 0; i < num_fields; i++) {
-        js_result->Set(Integer::NewFromUnsigned(i),
-                       Integer::NewFromUnsigned(lengths[i]));
+        js_result->Set(NanNew(i),
+                       NanNew((unsigned int)lengths[i]));
     }
 
     NanReturnValue(js_result);
@@ -746,30 +753,30 @@ NAN_METHOD(MysqlResult::FetchRowSync) {
     MYSQL_ROW result_row = mysql_fetch_row(res->_res);
 
     if (!result_row) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     unsigned long *field_lengths = mysql_fetch_lengths(res->_res);
 
     if (fo.results_as_array) {
-        js_result_row = Array::New();
+        js_result_row = NanNew<Array>();
     } else {
-        js_result_row = Object::New();
+        js_result_row = NanNew<Object>();
     }
 
     for (j = 0; j < num_fields; j++) {
         js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
 
         if (fo.results_as_array) {
-            js_result_row->Set(Integer::NewFromUnsigned(j), js_field);
+            js_result_row->Set(NanNew(j), js_field);
         } else if (fo.results_nest_tables) {
-            if (!js_result_row->Has(V8STR(fields[j].table))) {
-                js_result_row->Set(V8STR(fields[j].table), Object::New());
+            if (!js_result_row->Has(NanNew<String>(fields[j].table))) {
+                js_result_row->Set(NanNew<String>(fields[j].table), NanNew<Object>());
             }
-            js_result_row->Get(V8STR(fields[j].table))->ToObject()
-                         ->Set(V8STR(fields[j].name), js_field);
+            js_result_row->Get(NanNew<String>(fields[j].table))->ToObject()
+                         ->Set(NanNew<String>(fields[j].name), js_field);
         } else {
-            js_result_row->Set(V8STR(fields[j].name), js_field);
+            js_result_row->Set(NanNew<String>(fields[j].name), js_field);
         }
     }
 
@@ -812,7 +819,7 @@ NAN_METHOD(MysqlResult::FieldTellSync) {
 
     MYSQLRES_MUSTBE_VALID;
 
-    NanReturnValue(Integer::NewFromUnsigned(mysql_field_tell(res->_res)));
+    NanReturnValue(NanNew(mysql_field_tell(res->_res)));
 }
 
 /**
@@ -848,5 +855,5 @@ NAN_METHOD(MysqlResult::NumRowsSync) {
         return NanThrowError("Function cannot be used with MYSQL_USE_RESULT");
     }
 
-    NanReturnValue(Integer::New(mysql_num_rows(res->_res)));
+    NanReturnValue(NanNew((unsigned int)mysql_num_rows(res->_res)));
 }

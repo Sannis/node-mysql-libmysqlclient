@@ -21,17 +21,17 @@ void MysqlConnection::Init(Handle<Object> target) {
     NanScope();
 
     // Constructor template
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-    NanAssignPersistent(FunctionTemplate, constructor_template, tpl);
-    tpl->SetClassName(NanSymbol("MysqlConnection"));
+    Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
+    NanAssignPersistent(constructor_template, tpl);
+    tpl->SetClassName(NanNew<String>("MysqlConnection"));
 
     // Instance template
     Local<ObjectTemplate> instance_template = tpl->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
     // Instance properties
-    instance_template->SetAccessor(V8STR("connectErrno"), ConnectErrnoGetter);
-    instance_template->SetAccessor(V8STR("connectError"), ConnectErrorGetter);
+    instance_template->SetAccessor(NanNew<String>("connectErrno"), ConnectErrnoGetter);
+    instance_template->SetAccessor(NanNew<String>("connectError"), ConnectErrorGetter);
 
     // Prototype methods
     NODE_SET_PROTOTYPE_METHOD(tpl, "affectedRowsSync",     AffectedRowsSync);
@@ -80,7 +80,7 @@ void MysqlConnection::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(tpl, "warningCountSync",     WarningCountSync);
 
     // Make it visible in JavaScript land
-    target->Set(NanSymbol("MysqlConnection"), tpl->GetFunction());
+    target->Set(NanNew<String>("MysqlConnection"), tpl->GetFunction());
 }
 
 bool MysqlConnection::Connect(const char* hostname,
@@ -233,7 +233,7 @@ NAN_GETTER(MysqlConnection::ConnectErrnoGetter) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
-    NanReturnValue(Integer::NewFromUnsigned(conn->connect_errno));
+    NanReturnValue(NanNew(conn->connect_errno));
 }
 
 /** read-only
@@ -246,7 +246,7 @@ NAN_GETTER(MysqlConnection::ConnectErrorGetter) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
-    NanReturnValue(V8STR(conn->connect_error ? conn->connect_error : ""));
+    NanReturnValue(NanNew<String>(conn->connect_error ? conn->connect_error : ""));
 }
 
 /**
@@ -264,10 +264,10 @@ NAN_METHOD(MysqlConnection::AffectedRowsSync) {
     my_ulonglong affected_rows = mysql_affected_rows(conn->_conn);
 
     if (affected_rows == ((my_ulonglong)-1)) {
-        NanReturnValue(Integer::New(-1));
+        NanReturnValue(NanNew(-1));
     }
 
-    NanReturnValue(Integer::New(affected_rows));
+    NanReturnValue(NanNew((unsigned int)affected_rows));
 }
 
 /**
@@ -286,10 +286,10 @@ NAN_METHOD(MysqlConnection::AutoCommitSync) {
     REQ_BOOL_ARG(0, autocomit)
 
     if (mysql_autocommit(conn->_conn, autocomit)) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -327,10 +327,10 @@ NAN_METHOD(MysqlConnection::ChangeUserSync) {
                                args[2]->IsString() ? *dbname : NULL);
 
     if (r) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -346,10 +346,10 @@ NAN_METHOD(MysqlConnection::CommitSync) {
     MYSQLCONN_MUSTBE_CONNECTED;
 
     if (mysql_commit(conn->_conn)) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /*!
@@ -374,7 +374,7 @@ void MysqlConnection::EIO_After_Connect(uv_work_t *req) {
         argv[0] = V8EXC(error_string);
         delete[] error_string;
     } else {
-        argv[0] = NanNewLocal(Null());
+        argv[0] = NanNull();
     }
 
     conn_req->nan_callback->Call(argc, argv);
@@ -434,7 +434,9 @@ NAN_METHOD(MysqlConnection::Connect) {
 
         TryCatch try_catch;
 
-        callback->Call(Context::GetCurrent()->Global(), argc, argv);
+        NanCallback *nan_callback = new NanCallback(callback.As<Function>());
+        nan_callback->Call(argc, argv);
+        delete nan_callback;
 
         if (try_catch.HasCaught()) {
             node::FatalException(try_catch);
@@ -511,10 +513,10 @@ NAN_METHOD(MysqlConnection::ConnectSync) {
     );
 
     if (!r) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -527,7 +529,7 @@ NAN_METHOD(MysqlConnection::ConnectedSync) {
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(args.Holder());
 
-    NanReturnValue(conn->connected ? True() : False());
+    NanReturnValue(conn->connected ? NanTrue() : NanFalse());
 }
 
 /**
@@ -578,7 +580,7 @@ NAN_METHOD(MysqlConnection::DumpDebugInfoSync) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    NanReturnValue(mysql_dump_debug_info(conn->_conn) ? False() : True());
+    NanReturnValue(mysql_dump_debug_info(conn->_conn) ? NanFalse() : NanTrue());
 }
 
 /**
@@ -593,7 +595,7 @@ NAN_METHOD(MysqlConnection::ErrnoSync) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    NanReturnValue(Integer::NewFromUnsigned(mysql_errno(conn->_conn)));
+    NanReturnValue(NanNew(mysql_errno(conn->_conn)));
 }
 
 /**
@@ -610,7 +612,7 @@ NAN_METHOD(MysqlConnection::ErrorSync) {
 
     const char *error = mysql_error(conn->_conn);
 
-    NanReturnValue(V8STR(error));
+    NanReturnValue(NanNew<String>(error));
 }
 
 /**
@@ -637,7 +639,7 @@ NAN_METHOD(MysqlConnection::EscapeSync) {
     }
 
     len = mysql_real_escape_string(conn->_conn, result, *str, len);
-    Local<Value> js_result = V8STR2(result, len);
+    Local<Value> js_result = NanNew<String>(result, len);
 
     delete[] result;
 
@@ -656,9 +658,7 @@ NAN_METHOD(MysqlConnection::FieldCountSync) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    NanReturnValue(
-                Integer::NewFromUnsigned(
-                    mysql_field_count(conn->_conn)));
+    NanReturnValue(NanNew(mysql_field_count(conn->_conn)));
 }
 
 /**
@@ -677,16 +677,16 @@ NAN_METHOD(MysqlConnection::GetCharsetSync) {
 
     mysql_get_character_set_info(conn->_conn, &cs);
 
-    Local<Object> js_result = Object::New();
+    Local<Object> js_result = NanNew<Object>();
 
-    js_result->Set(V8STR("charset"), V8STR(cs.csname ? cs.csname : ""));
-    js_result->Set(V8STR("collation"), V8STR(cs.name ? cs.name : ""));
-    js_result->Set(V8STR("dir"), V8STR(cs.dir ? cs.dir : ""));
-    js_result->Set(V8STR("min_length"), Integer::NewFromUnsigned(cs.mbminlen));
-    js_result->Set(V8STR("max_length"), Integer::NewFromUnsigned(cs.mbmaxlen));
-    js_result->Set(V8STR("number"), Integer::NewFromUnsigned(cs.number));
-    js_result->Set(V8STR("state"), Integer::NewFromUnsigned(cs.state));
-    js_result->Set(V8STR("comment"), V8STR(cs.comment ? cs.comment : ""));
+    js_result->Set(NanNew<String>("charset"), NanNew<String>(cs.csname ? cs.csname : ""));
+    js_result->Set(NanNew<String>("collation"), NanNew<String>(cs.name ? cs.name : ""));
+    js_result->Set(NanNew<String>("dir"), NanNew<String>(cs.dir ? cs.dir : ""));
+    js_result->Set(NanNew<String>("min_length"), NanNew(cs.mbminlen));
+    js_result->Set(NanNew<String>("max_length"), NanNew(cs.mbmaxlen));
+    js_result->Set(NanNew<String>("number"), NanNew(cs.number));
+    js_result->Set(NanNew<String>("state"), NanNew(cs.state));
+    js_result->Set(NanNew<String>("comment"), NanNew<String>(cs.comment ? cs.comment : ""));
 
     NanReturnValue(js_result);
 }
@@ -703,7 +703,7 @@ NAN_METHOD(MysqlConnection::GetCharsetNameSync) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    NanReturnValue(V8STR(mysql_character_set_name(conn->_conn)));
+    NanReturnValue(NanNew<String>(mysql_character_set_name(conn->_conn)));
 }
 
 /**
@@ -714,12 +714,12 @@ NAN_METHOD(MysqlConnection::GetCharsetNameSync) {
 NAN_METHOD(MysqlConnection::GetClientInfoSync) {
     NanScope();
 
-    Local<Object> js_result = Object::New();
+    Local<Object> js_result = NanNew<Object>();
 
-    js_result->Set(V8STR("client_info"),
-                   V8STR(mysql_get_client_info()));
-    js_result->Set(V8STR("client_version"),
-                   Integer::NewFromUnsigned(mysql_get_client_version()));
+    js_result->Set(NanNew<String>("client_info"),
+                   NanNew<String>(mysql_get_client_info()));
+    js_result->Set(NanNew<String>("client_version"),
+                   NanNew((unsigned int)mysql_get_client_version()));
 
     NanReturnValue(js_result);
 }
@@ -736,21 +736,20 @@ NAN_METHOD(MysqlConnection::GetInfoSync) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    Local<Object> js_result = Object::New();
+    Local<Object> js_result = NanNew<Object>();
 
-    js_result->Set(V8STR("client_info"),
-                   V8STR(mysql_get_client_info()));
-    js_result->Set(V8STR("client_version"),
-                   Integer::NewFromUnsigned(mysql_get_client_version()));
-    js_result->Set(V8STR("server_info"),
-                   V8STR(mysql_get_server_info(conn->_conn)));
-    js_result->Set(V8STR("server_version"),
-                   Integer::NewFromUnsigned(
-                       mysql_get_server_version(conn->_conn)));
-    js_result->Set(V8STR("host_info"),
-                   V8STR(mysql_get_host_info(conn->_conn)));
-    js_result->Set(V8STR("proto_info"),
-                   Integer::NewFromUnsigned(mysql_get_proto_info(conn->_conn)));
+    js_result->Set(NanNew<String>("client_info"),
+                   NanNew<String>(mysql_get_client_info()));
+    js_result->Set(NanNew<String>("client_version"),
+                   NanNew((unsigned int)mysql_get_client_version()));
+    js_result->Set(NanNew<String>("server_info"),
+                   NanNew<String>(mysql_get_server_info(conn->_conn)));
+    js_result->Set(NanNew<String>("server_version"),
+                   NanNew((unsigned int)mysql_get_server_version(conn->_conn)));
+    js_result->Set(NanNew<String>("host_info"),
+                   NanNew<String>(mysql_get_host_info(conn->_conn)));
+    js_result->Set(NanNew<String>("proto_info"),
+                   NanNew(mysql_get_proto_info(conn->_conn)));
 
     NanReturnValue(js_result);
 }
@@ -769,7 +768,7 @@ NAN_METHOD(MysqlConnection::GetInfoStringSync) {
 
     const char *info = mysql_info(conn->_conn);
 
-    NanReturnValue(V8STR(info ? info : ""));
+    NanReturnValue(NanNew<String>(info ? info : ""));
 }
 
 /**
@@ -788,19 +787,18 @@ NAN_METHOD(MysqlConnection::GetWarningsSync) {
     MYSQL_ROW row;
     int i = 0;
 
-    Local<Object> js_warning = Object::New();
-    Local<Array> js_result = Array::New();
+    Local<Object> js_warning = NanNew<Object>();
+    Local<Array> js_result = NanNew<Array>();
 
     if (mysql_warning_count(conn->_conn)) {
         if (mysql_real_query(conn->_conn, "SHOW WARNINGS", 13) == 0) {
             result = mysql_store_result(conn->_conn);
 
             while ((row = mysql_fetch_row(result))) {
-                js_warning->Set(V8STR("errno"), V8STR(row[1])->ToInteger());
+                js_warning->Set(NanNew<String>("errno"), NanNew<String>(row[1])->ToInteger());
+                js_warning->Set(NanNew<String>("reason"), NanNew<String>(row[2]));
 
-                js_warning->Set(V8STR("reason"), V8STR(row[2]));
-
-                js_result->Set(Integer::New(i), js_warning);
+                js_result->Set(NanNew(i), js_warning);
 
                 i++;
             }
@@ -829,10 +827,10 @@ NAN_METHOD(MysqlConnection::InitSync) {
     conn->_conn = mysql_init(NULL);
 
     if (!conn->_conn) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -850,12 +848,12 @@ NAN_METHOD(MysqlConnection::InitStatementSync) {
     MYSQL_STMT *my_statement = mysql_stmt_init(conn->_conn);
 
     if (!my_statement) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     Local<Object> local_js_result = MysqlStatement::NewInstance(my_statement);
     Persistent<Object> persistent_js_result;
-    NanAssignPersistent(Object, persistent_js_result, local_js_result);
+    NanAssignPersistent(persistent_js_result, local_js_result);
 
     NanReturnValue(persistent_js_result);
 }
@@ -881,7 +879,7 @@ NAN_METHOD(MysqlConnection::LastInsertIdSync) {
         insert_id = mysql_insert_id(conn->_conn);
     }
 
-    NanReturnValue(Integer::New(insert_id));
+    NanReturnValue(NanNew((unsigned int)insert_id));
 }
 
 /**
@@ -897,10 +895,10 @@ NAN_METHOD(MysqlConnection::MultiMoreResultsSync) {
     MYSQLCONN_MUSTBE_CONNECTED;
 
     if (mysql_more_results(conn->_conn)) {
-        NanReturnValue(True());
+        NanReturnValue(NanTrue());
     }
 
-    NanReturnValue(False());
+    NanReturnValue(NanFalse());
 }
 
 /**
@@ -920,10 +918,10 @@ NAN_METHOD(MysqlConnection::MultiNextResultSync) {
     }
 
     if (!mysql_next_result(conn->_conn)) {
-        NanReturnValue(True());
+        NanReturnValue(NanTrue());
     }
 
-    NanReturnValue(False());
+    NanReturnValue(NanFalse());
 }
 
 /**
@@ -945,11 +943,11 @@ NAN_METHOD(MysqlConnection::MultiRealQuerySync) {
     unsigned int query_len = static_cast<unsigned int>(query.length());
     if (mysql_real_query(conn->_conn, *query, query_len) != 0) {
         MYSQLCONN_DISABLE_MQ;
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
     MYSQLCONN_DISABLE_MQ;
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -966,10 +964,10 @@ NAN_METHOD(MysqlConnection::PingSync) {
     MYSQLCONN_MUSTBE_CONNECTED;
 
     if (mysql_ping(conn->_conn)) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /*!
@@ -1001,16 +999,18 @@ void MysqlConnection::EIO_After_Query(uv_work_t *req) {
         delete[] error_string;
     } else {
         argc = 2;
-        argv[0] = NanNewLocal(Null());
+        argv[0] = NanNull();
         if (query_req->have_result_set) {
             Local<Object> local_js_result = MysqlResult::NewInstance(query_req->conn->_conn, query_req->my_result, query_req->field_count);
             argv[1] = local_js_result;
         } else {
-            Local<Object> local_js_result = Object::New();
-            local_js_result->Set(V8STR("affectedRows"),
-                           Integer::New(query_req->affected_rows));
-            local_js_result->Set(V8STR("insertId"),
-                           Integer::New(query_req->insert_id));
+            Local<Object> local_js_result = NanNew<Object>();
+            local_js_result->Set(
+                           NanNew<String>("affectedRows"),
+                           NanNew((unsigned int)query_req->affected_rows));
+            local_js_result->Set(
+                           NanNew<String>("insertId"),
+                           NanNew((unsigned int)query_req->insert_id));
             argv[1] = local_js_result;
         }
     }
@@ -1336,16 +1336,16 @@ NAN_METHOD(MysqlConnection::QuerySync) {
     pthread_mutex_unlock(&conn->query_lock);
     if (r != 0) {
         // Query error
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     if (!my_result) {
         if (field_count == 0) {
             // No result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN
-            NanReturnValue(True());
+            NanReturnValue(NanTrue());
         } else {
             // Error
-            NanReturnValue(False());
+            NanReturnValue(NanFalse());
         }
     }
 
@@ -1367,10 +1367,10 @@ NAN_METHOD(MysqlConnection::RollbackSync) {
     MYSQLCONN_MUSTBE_CONNECTED;
 
     if (mysql_rollback(conn->_conn)) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -1407,10 +1407,10 @@ NAN_METHOD(MysqlConnection::RealConnectSync) {
                                args[6]->IsUint32() ? flags     : 0);
 
     if (!r) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -1437,10 +1437,10 @@ NAN_METHOD(MysqlConnection::RealQuerySync) {
     pthread_mutex_unlock(&conn->query_lock);
 
     if (r != 0) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -1459,10 +1459,10 @@ NAN_METHOD(MysqlConnection::SelectDbSync) {
     REQ_STR_ARG(0, dbname)
 
     if (mysql_select_db(conn->_conn, *dbname)) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -1481,10 +1481,10 @@ NAN_METHOD(MysqlConnection::SetCharsetSync) {
     REQ_STR_ARG(0, charset)
 
     if (mysql_set_character_set(conn->_conn, *charset)) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -1560,10 +1560,10 @@ NAN_METHOD(MysqlConnection::SetOptionSync) {
     }
 
     if (r) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -1619,7 +1619,7 @@ NAN_METHOD(MysqlConnection::SqlStateSync) {
 
     MYSQLCONN_MUSTBE_CONNECTED;
 
-    NanReturnValue(V8STR(mysql_sqlstate(conn->_conn)));
+    NanReturnValue(NanNew<String>(mysql_sqlstate(conn->_conn)));
 }
 
 /**
@@ -1636,7 +1636,7 @@ NAN_METHOD(MysqlConnection::StatSync) {
 
     const char *stat = mysql_stat(conn->_conn);
 
-    NanReturnValue(V8STR(stat ? stat : ""));
+    NanReturnValue(NanNew<String>(stat ? stat : ""));
 }
 
 /**
@@ -1651,18 +1651,18 @@ NAN_METHOD(MysqlConnection::StoreResultSync) {
 
     if (!mysql_field_count(conn->_conn)) {
         /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
-        NanReturnValue(True());
+        NanReturnValue(NanTrue());
     }
 
     MYSQL_RES *my_result = mysql_store_result(conn->_conn);
 
     if (!my_result) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     Local<Object> local_js_result = MysqlResult::NewInstance(conn->_conn, my_result, mysql_field_count(conn->_conn));
     Persistent<Object> persistent_js_result;
-    NanAssignPersistent(Object, persistent_js_result, local_js_result);
+    NanAssignPersistent(persistent_js_result, local_js_result);
 
     NanReturnValue(persistent_js_result);
 }
@@ -1681,7 +1681,7 @@ NAN_METHOD(MysqlConnection::ThreadIdSync) {
 
     uint64_t thread_id = mysql_thread_id(conn->_conn);
 
-    NanReturnValue(Integer::New(thread_id));
+    NanReturnValue(NanNew((unsigned int)thread_id));
 }
 
 /**
@@ -1693,9 +1693,9 @@ NAN_METHOD(MysqlConnection::ThreadSafeSync) {
     NanScope();
 
     if (mysql_thread_safe()) {
-        NanReturnValue(True());
+        NanReturnValue(NanTrue());
     } else {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 }
 
@@ -1711,18 +1711,18 @@ NAN_METHOD(MysqlConnection::UseResultSync) {
 
     if (!mysql_field_count(conn->_conn)) {
         /* no result set - not a SELECT, SHOW, DESCRIBE or EXPLAIN, */
-        NanReturnValue(True());
+        NanReturnValue(NanTrue());
     }
 
     MYSQL_RES *my_result = mysql_use_result(conn->_conn);
 
     if (!my_result) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     Local<Object> local_js_result = MysqlResult::NewInstance(conn->_conn, my_result, mysql_field_count(conn->_conn));
     Persistent<Object> persistent_js_result;
-    NanAssignPersistent(Object, persistent_js_result, local_js_result);
+    NanAssignPersistent(persistent_js_result, local_js_result);
 
     NanReturnValue(persistent_js_result);
 }
@@ -1741,7 +1741,7 @@ NAN_METHOD(MysqlConnection::WarningCountSync) {
 
     uint32_t warning_count = mysql_warning_count(conn->_conn);
 
-    NanReturnValue(Integer::NewFromUnsigned(warning_count));
+    NanReturnValue(NanNew(warning_count));
 }
 int MysqlConnection::CustomLocalInfileInit(void ** ptr, const char * filename, void * userdata) {
   *ptr = userdata;

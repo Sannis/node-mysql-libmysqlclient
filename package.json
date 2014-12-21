@@ -32,10 +32,11 @@
 
   "scripts" : { "test" : "make test", "doc" : "make doc" },
 
-  "dependencies" : { "nan" : "~0.8.0" },
+  "dependencies" : { "nan" : "~1.4.1" },
 
   "devDependencies" :
   { "nodeunit" : "~0.8.4"
+  , "difflet"  : "~0.2.6"
   , "nodelint" : "~0.6.2"
   , "async"    : "~0.2.10"
   , "ndoc"     : "~3.1.0"

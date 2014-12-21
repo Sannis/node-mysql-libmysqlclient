@@ -21,16 +21,16 @@ void MysqlStatement::Init(Handle<Object> target) {
     NanScope();
 
     // Constructor template
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-    NanAssignPersistent(FunctionTemplate, constructor_template, tpl);
-    tpl->SetClassName(NanSymbol("MysqlStatement"));
+    Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
+    NanAssignPersistent(constructor_template, tpl);
+    tpl->SetClassName(NanNew<String>("MysqlStatement"));
 
     // Instance template
     Local<ObjectTemplate> instance_template = tpl->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
     // Instance properties
-    instance_template->SetAccessor(V8STR("paramCount"), ParamCountGetter);
+    instance_template->SetAccessor(NanNew<String>("paramCount"), ParamCountGetter);
 
     // Prototype methods
     NODE_SET_PROTOTYPE_METHOD(tpl, "affectedRowsSync",   AffectedRowsSync);
@@ -63,21 +63,21 @@ void MysqlStatement::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(tpl, "setStringSize",      SqlStateSync);
 
     // Make it visible in JavaScript land
-    target->Set(NanSymbol("MysqlStatement"), tpl->GetFunction());
+    target->Set(NanNew<String>("MysqlStatement"), tpl->GetFunction());
 }
 
 Local<Object> MysqlStatement::NewInstance(MYSQL_STMT *my_statement) {
-    NanScope();
-
-    Local<FunctionTemplate> tpl = NanPersistentToLocal(constructor_template);
+    NanEscapableScope();
 
     const int argc = 1;
     Local<Value> argv[argc];
-    argv[0] = External::New(my_statement);
+    argv[0] = NanNew<External>(my_statement);
+
+    Local<FunctionTemplate> tpl = NanNew(constructor_template);
 
     Local<Object> instance = tpl->GetFunction()->NewInstance(argc, argv);
 
-    return scope.Close(instance);
+    return NanEscapeScope(instance);
 }
 
 MysqlStatement::MysqlStatement(MYSQL_STMT *my_stmt): ObjectWrap() {
@@ -126,7 +126,7 @@ NAN_GETTER(MysqlStatement::ParamCountGetter) {
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
 
-    NanReturnValue(Integer::New(stmt->param_count));
+    NanReturnValue(NanNew((unsigned int)stmt->param_count));
 }
 
 /**
@@ -145,10 +145,10 @@ NAN_METHOD(MysqlStatement::AffectedRowsSync) {
     my_ulonglong affected_rows = mysql_stmt_affected_rows(stmt->_stmt);
 
     if (affected_rows == ((my_ulonglong)-1)) {
-        NanReturnValue(Integer::New(-1));
+        NanReturnValue(NanNew(-1));
     }
 
-    NanReturnValue(Integer::New(affected_rows));
+    NanReturnValue(NanNew((unsigned int)affected_rows));
 }
 
 /**
@@ -176,11 +176,11 @@ NAN_METHOD(MysqlStatement::AttrGetSync) {
 
     switch (attr_key) {
         case STMT_ATTR_UPDATE_MAX_LENGTH:
-            NanReturnValue(Boolean::New(attr_value));
+            NanReturnValue(attr_value ? NanTrue() : NanFalse());
             break;
         case STMT_ATTR_CURSOR_TYPE:
         case STMT_ATTR_PREFETCH_ROWS:
-            NanReturnValue(Integer::NewFromUnsigned(attr_value));
+            NanReturnValue(NanNew((unsigned int)attr_value));
             break;
         default:
             return NanThrowError("This attribute isn't supported yet");
@@ -230,7 +230,7 @@ NAN_METHOD(MysqlStatement::AttrSetSync) {
         return NanThrowError("This attribute isn't supported by libmysqlclient");
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -342,12 +342,12 @@ NAN_METHOD(MysqlStatement::BindParamsSync) {
     }
 
     if (mysql_stmt_bind_param(stmt->_stmt, stmt->binds)) {
-      NanReturnValue(False());
+      NanReturnValue(NanFalse());
     }
 
     stmt->state = STMT_BINDED_PARAMS;
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /**
@@ -375,7 +375,7 @@ NAN_METHOD(MysqlStatement::BindResultSync) {
 
     meta_result = mysql_stmt_result_metadata(stmt->_stmt);
     if (meta_result == NULL) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     field_count = mysql_stmt_field_count(stmt->_stmt);
@@ -456,13 +456,13 @@ NAN_METHOD(MysqlStatement::BindResultSync) {
 
     if (mysql_stmt_bind_result(stmt->_stmt, bind)) {
         FreeMysqlBinds(bind, field_count, false);
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     stmt->result_binds = bind;
     stmt->state = STMT_BINDED_RESULT;
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 
@@ -479,13 +479,13 @@ NAN_METHOD(MysqlStatement::CloseSync) {
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
     if (mysql_stmt_close(stmt->_stmt)) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     stmt->state = STMT_CLOSED;
     stmt->_stmt = NULL;
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /*! todo: finish
@@ -524,7 +524,7 @@ NAN_METHOD(MysqlStatement::ErrnoSync) {
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
-    NanReturnValue(Integer::New(mysql_stmt_errno(stmt->_stmt)));
+    NanReturnValue(NanNew(mysql_stmt_errno(stmt->_stmt)));
 }
 
 /*! todo: finish
@@ -541,7 +541,7 @@ NAN_METHOD(MysqlStatement::ErrorSync) {
 
     const char *error = mysql_stmt_error(stmt->_stmt);
 
-    NanReturnValue(V8STR(error));
+    NanReturnValue(NanNew<String>(error));
 }
 
 /*! todo: finish
@@ -558,7 +558,7 @@ void MysqlStatement::EIO_After_Execute(uv_work_t *req) {
         argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
     } else {
         stmt->state = STMT_EXECUTED;
-        argv[0] = NanNewLocal(Null());
+        argv[0] = NanNull();
     }
 
     execute_req->nan_callback->Call(argc, argv);
@@ -620,11 +620,11 @@ NAN_METHOD(MysqlStatement::ExecuteSync) {
     MYSQLSTMT_MUSTBE_PREPARED;
 
     if (mysql_stmt_execute(stmt->_stmt)) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     stmt->state = STMT_EXECUTED;
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
@@ -646,12 +646,12 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
         argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
     } else if (fetchAll_req->empty_resultset) {
         argc = 2;
-        argv[0] = argv[1] = NanNewLocal(Null());
+        argv[0] = argv[1] = NanNull();
     } else {
         fields = fetchAll_req->meta->fields;
 
         row_count = mysql_stmt_num_rows(stmt->_stmt);
-        js_result = Array::New(row_count);
+        js_result = NanNew<Array>((unsigned int)row_count);
 
         while (row_count && !error) {
             error = mysql_stmt_fetch(stmt->_stmt);
@@ -665,24 +665,24 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
                 break;
             }
 
-            js_result_row = Object::New();
+            js_result_row = NanNew<Object>();
 
             while (j < fetchAll_req->field_count) {
                 ptr = stmt->result_binds[j].buffer;
 
                 Local<Value> js_field;
                 if (*(stmt->result_binds[j].is_null)) {
-                    js_field = NanNewLocal(Null());
+                    js_field = NanNull();
                 } else {
                     js_field = GetFieldValue(ptr, *(stmt->result_binds[j].length), fields[j]);
                 }
 
-                js_result_row->Set(V8STR(fields[j].name), js_field);
+                js_result_row->Set(NanNew<String>(fields[j].name), js_field);
                 j++;
             }
             j = 0;
 
-            js_result->Set(Integer::NewFromUnsigned(i), js_result_row);
+            js_result->Set(NanNew(i), js_result_row);
             i++;
         }
 
@@ -690,7 +690,7 @@ void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
             argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
         } else {
             argc = 2;
-            argv[0] = NanNewLocal(Null());
+            argv[0] = NanNull();
             argv[1] = js_result;
         }
     }
@@ -782,13 +782,13 @@ NAN_METHOD(MysqlStatement::FetchAllSync) {
     // Get meta data for binding buffers
     meta = mysql_stmt_result_metadata(stmt->_stmt);
     if (meta == NULL) {
-        NanReturnValue(Null());
+        NanReturnValue(NanNull());
     }
 
     fields = meta->fields;
     row_count = mysql_stmt_num_rows(stmt->_stmt);
 
-    Local<Array> js_result = Array::New(row_count);
+    Local<Array> js_result = NanNew<Array>(row_count);
     Local<Object> js_result_row;
 
     while (row_count && !error) {
@@ -803,24 +803,24 @@ NAN_METHOD(MysqlStatement::FetchAllSync) {
             break;
         }
 
-        js_result_row = Object::New();
+        js_result_row = NanNew<Object>();
 
         while (j < field_count) {
             ptr = stmt->result_binds[j].buffer;
 
             Local<Value> js_field;
             if (*(stmt->result_binds[j].is_null)) {
-                js_field = NanNewLocal(Null());
+                js_field = NanNull();
             } else {
                 js_field = GetFieldValue(ptr, *(stmt->result_binds[j].length), fields[j]);
             }
 
-            js_result_row->Set(V8STR(fields[j].name), js_field);
+            js_result_row->Set(NanNew<String>(fields[j].name), js_field);
             j++;
         }
         j = 0;
 
-        js_result->Set(Integer::NewFromUnsigned(i), js_result_row);
+        js_result->Set(NanNew(i), js_result_row);
         i++;
     }
 
@@ -852,26 +852,26 @@ void MysqlStatement::EIO_After_Fetch(uv_work_t* req) {
         argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
     } else if (fetch_req->empty_resultset) {
         argc = 2;
-        argv[0] = argv[1] = NanNewLocal(Null());
+        argv[0] = argv[1] = NanNull();
     } else {
         fields = fetch_req->meta->fields;
-        js_result_row = Object::New();
+        js_result_row = NanNew<Object>();
 
         while (i < fetch_req->field_count) {
             ptr = stmt->result_binds[i].buffer;
 
             Local<Value> js_field;
             if (*(stmt->result_binds[i].is_null)) {
-                js_field = NanNewLocal(Null());
+                js_field = NanNull();
             } else {
                 js_field = GetFieldValue(ptr, *(stmt->result_binds[i].length), fields[i]);
             }
 
-            js_result_row->Set(V8STR(fields[i].name), js_field);
+            js_result_row->Set(NanNew<String>(fields[i].name), js_field);
             i++;
         }
         argc = 2;
-        argv[0] = NanNewLocal(Null());
+        argv[0] = NanNull();
         argv[1] = js_result_row;
     }
 
@@ -978,13 +978,13 @@ NAN_METHOD(MysqlStatement::FetchSync) {
     // Get meta data for binding buffers
     meta = mysql_stmt_result_metadata(stmt->_stmt);
     if (meta == NULL) {
-        NanReturnValue(Null());
+        NanReturnValue(NanNull());
     }
 
     fields = meta->fields;
 
     if (!mysql_stmt_num_rows(stmt->_stmt)) {
-        NanReturnValue(Null());
+        NanReturnValue(NanNull());
     }
 
     error = mysql_stmt_fetch(stmt->_stmt);
@@ -997,21 +997,21 @@ NAN_METHOD(MysqlStatement::FetchSync) {
         FreeMysqlBinds(stmt->result_binds, field_count, false);
 
         error = 0;
-        js_result_row = NanNewLocal(Null());
+        js_result_row = NanNull();
     } else if (!error) {
-        js_result_row = Object::New();
+        js_result_row = NanNew<Object>();
 
         while (i < field_count) {
             ptr = stmt->result_binds[i].buffer;
 
             Local<Value> js_field;
             if (*(stmt->result_binds[i].is_null)) {
-                js_field = NanNewLocal(Null());
+                js_field = NanNull();
             } else {
                 js_field = GetFieldValue(ptr, *(stmt->result_binds[i].length), fields[i]);
             }
 
-            js_result_row->ToObject()->Set(V8STR(fields[i].name), js_field);
+            js_result_row->ToObject()->Set(NanNew<String>(fields[i].name), js_field);
             i++;
         }
     }
@@ -1039,7 +1039,7 @@ NAN_METHOD(MysqlStatement::FieldCountSync) {
 
     MYSQLSTMT_MUSTBE_PREPARED;
 
-    NanReturnValue(Integer::New(mysql_stmt_field_count(stmt->_stmt)));
+    NanReturnValue(NanNew(mysql_stmt_field_count(stmt->_stmt)));
 }
 
 /*! todo: finish
@@ -1054,7 +1054,7 @@ NAN_METHOD(MysqlStatement::FreeResultSync) {
 
     MYSQLSTMT_MUSTBE_EXECUTED;
 
-    NanReturnValue(!mysql_stmt_free_result(stmt->_stmt) ? True() : False());
+    NanReturnValue(!mysql_stmt_free_result(stmt->_stmt) ? NanTrue() : NanFalse());
 }
 
 /*! todo: finish
@@ -1144,46 +1144,47 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
         // handle as boolean
         if (length == 1) {
             DEBUG_PRINTF("TINYINT(1) %d", val);
-            return NanNewLocal(Boolean::New(val));
+            return val ? NanTrue() : NanFalse();
         // handle as integer
         } else {
             DEBUG_PRINTF("TINYINT(>1) %d", val);
-            return Integer::New(val);
+            return NanNew(val);
         }
     } else if (
     type == MYSQL_TYPE_SHORT ||                // SMALLINT
     type == MYSQL_TYPE_SHORT) {                // YEAR
         if (field.flags & UNSIGNED_FLAG) {
-            return Integer::NewFromUnsigned((uint32_t) *((unsigned short int *) ptr));
+            return NanNew((uint32_t) *((unsigned short int *) ptr));
         } else {
-            return Integer::New((int32_t) *((short int *) ptr));
+            return NanNew((int32_t) *((short int *) ptr));
         }
     } else if (
     type == MYSQL_TYPE_INT24 ||                // MEDIUMINT
     type == MYSQL_TYPE_LONG) {                 // INT
         if (field.flags & UNSIGNED_FLAG) {
-            return Integer::NewFromUnsigned((uint32_t) *((unsigned int *) ptr));
+            return NanNew((uint32_t) *((unsigned int *) ptr));
         } else {
-            return Integer::New((int32_t) *((int *) ptr));
+            return NanNew((int32_t) *((int *) ptr));
         }
     } else if (type == MYSQL_TYPE_LONGLONG) {  // BIGINT
-        return Number::New((double) *((long long int *) ptr));
+        return NanNew((double) *((long long int *) ptr));
     } else if (type == MYSQL_TYPE_FLOAT) {     // FLOAT
-        return Number::New(*((float *) ptr));
+        return NanNew(*((float *) ptr));
     } else if (type == MYSQL_TYPE_DOUBLE) {    // DOUBLE, REAL
-        return Number::New(*((double *) ptr));
+        return NanNew(*((double *) ptr));
     } else if (
-    type == MYSQL_TYPE_DECIMAL ||              // DECIMAL, NUMERIC
-    type == MYSQL_TYPE_NEWDECIMAL ||           // NEWDECIMAL
-    type == MYSQL_TYPE_STRING ||               // CHAR, BINARY
-    type == MYSQL_TYPE_VAR_STRING ||           // VARCHAR, VARBINARY
-    type == MYSQL_TYPE_TINY_BLOB ||            // TINYBLOB, TINYTEXT
-    type == MYSQL_TYPE_BLOB ||                 // BLOB, TEXT
-    type == MYSQL_TYPE_MEDIUM_BLOB ||          // MEDIUMBLOB, MEDIUMTEXT
-    type == MYSQL_TYPE_LONG_BLOB ||            // LONGBLOB, LONGTEXT
-    type == MYSQL_TYPE_BIT ||                  // BIT
-    type == MYSQL_TYPE_ENUM ||                 // ENUM
-    type == MYSQL_TYPE_GEOMETRY) {             // Spatial fields
+        type == MYSQL_TYPE_DECIMAL ||              // DECIMAL, NUMERIC
+        type == MYSQL_TYPE_NEWDECIMAL ||           // NEWDECIMAL
+        type == MYSQL_TYPE_STRING ||               // CHAR, BINARY
+        type == MYSQL_TYPE_VAR_STRING ||           // VARCHAR, VARBINARY
+        type == MYSQL_TYPE_TINY_BLOB ||            // TINYBLOB, TINYTEXT
+        type == MYSQL_TYPE_BLOB ||                 // BLOB, TEXT
+        type == MYSQL_TYPE_MEDIUM_BLOB ||          // MEDIUMBLOB, MEDIUMTEXT
+        type == MYSQL_TYPE_LONG_BLOB ||            // LONGBLOB, LONGTEXT
+        type == MYSQL_TYPE_BIT ||                  // BIT
+        type == MYSQL_TYPE_ENUM ||                 // ENUM
+        type == MYSQL_TYPE_GEOMETRY                // Spatial fields
+    ) {
         char *data = (char *)ptr;
 
         if (field.flags & BINARY_FLAG) {
@@ -1194,14 +1195,15 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
             return local_js_buffer;
         } else {
             DEBUG_PRINTF("String, length: %lu/%lu", length, field.length);
-            return V8STR2(data, length);
+            return NanNew<String>(data, length);
         }
     } else if (
-    type == MYSQL_TYPE_TIME ||                 // TIME
-    type == MYSQL_TYPE_DATE ||                 // DATE
-    type == MYSQL_TYPE_NEWDATE ||              // Newer const used in MySQL > 5.0
-    type == MYSQL_TYPE_DATETIME ||             // DATETIME
-    type == MYSQL_TYPE_TIMESTAMP) {            // TIMESTAMP
+        type == MYSQL_TYPE_TIME ||                 // TIME
+        type == MYSQL_TYPE_DATE ||                 // DATE
+        type == MYSQL_TYPE_NEWDATE ||              // Newer const used in MySQL > 5.0
+        type == MYSQL_TYPE_DATETIME ||             // DATETIME
+        type == MYSQL_TYPE_TIMESTAMP               // TIMESTAMP
+    ) {
         MYSQL_TIME ts = *((MYSQL_TIME *) ptr);
 
         DEBUG_PRINTF(
@@ -1217,14 +1219,14 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
             ts.hour, ts.minute, ts.second);
 
         // First step is to get a handle to the global object:
-        Local<Object> globalObj = Context::GetCurrent()->Global();
+        Local<Object> globalObj = NanGetCurrentContext()->Global();
 
         // Now we need to grab the Date constructor function:
-        Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(V8STR("Date")));
+        Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(NanNew<String>("Date")));
 
         // Great. We can use this constructor function to allocate new Dates:
         const int argc = 1;
-        Local<Value> argv[argc] = { V8STR(time_string) };
+        Local<Value> argv[argc] = { NanNew<String>(time_string) };
 
         // Now we have our constructor, and our constructor args. Let's create the Date:
         return dateConstructor->NewInstance(argc, argv);
@@ -1232,18 +1234,18 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
         // TODO(Sannis): Maybe memory leaks here
         char *pch, *last, *field_value = (char *) ptr;
         int k = 0;
-        Local<Array> js_field_array = Array::New();
+        Local<Array> js_field_array = NanNew<Array>();
 
         pch = strtok_r(field_value, ",", &last);
         while (pch != NULL) {
-            js_field_array->Set(Integer::New(k), V8STR(pch));
+            js_field_array->Set(NanNew(k), NanNew<String>(pch));
             pch = strtok_r(NULL, ",", &last);
             k++;
         }
 
         return js_field_array;
     } else {
-        return V8STR2((char *) ptr, length);
+        return NanNew<String>((char *) ptr, length);
     }
 }
 
@@ -1259,7 +1261,7 @@ NAN_METHOD(MysqlStatement::LastInsertIdSync) {
 
     MYSQLSTMT_MUSTBE_EXECUTED;
 
-    NanReturnValue(Integer::New(mysql_stmt_insert_id(stmt->_stmt)));
+    NanReturnValue(NanNew((unsigned int)mysql_stmt_insert_id(stmt->_stmt)));
 }
 
 /*! todo: finish
@@ -1274,7 +1276,7 @@ NAN_METHOD(MysqlStatement::NextResultSync) {
 
     MYSQLSTMT_MUSTBE_EXECUTED;
 
-    NanReturnValue(Integer::New(mysql_stmt_next_result(stmt->_stmt)));
+    NanReturnValue(NanNew(mysql_stmt_next_result(stmt->_stmt)));
 }
 
 /*! todo: finish
@@ -1289,7 +1291,7 @@ NAN_METHOD(MysqlStatement::NumRowsSync) {
 
     MYSQLSTMT_MUSTBE_STORED;  // TODO(Sannis): Or all result already fetched!
 
-    NanReturnValue(Integer::New(mysql_stmt_num_rows(stmt->_stmt)));
+    NanReturnValue(NanNew((unsigned int)mysql_stmt_num_rows(stmt->_stmt)));
 }
 
 /*! todo: finish
@@ -1312,7 +1314,7 @@ NAN_METHOD(MysqlStatement::PrepareSync) {
     unsigned long int query_len = args[0]->ToString()->Utf8Length();
 
     if (mysql_stmt_prepare(stmt->_stmt, *query, query_len)) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     if (stmt->binds) {
@@ -1330,7 +1332,7 @@ NAN_METHOD(MysqlStatement::PrepareSync) {
 
     stmt->state = STMT_PREPARED;
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /*! todo: finish
@@ -1346,11 +1348,11 @@ NAN_METHOD(MysqlStatement::ResetSync) {
     MYSQLSTMT_MUSTBE_PREPARED;
 
     if (mysql_stmt_reset(stmt->_stmt)) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     stmt->state = STMT_INITIALIZED;
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /*! todo: finish
@@ -1368,7 +1370,7 @@ NAN_METHOD(MysqlStatement::ResultMetadataSync) {
     MYSQL_RES *my_result = mysql_stmt_result_metadata(stmt->_stmt);
 
     if (!my_result) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     Local<Object> local_js_result = MysqlResult::NewInstance(stmt->_stmt->mysql, my_result, mysql_stmt_field_count(stmt->_stmt));
@@ -1395,10 +1397,10 @@ NAN_METHOD(MysqlStatement::SendLongDataSync) {
 
     if (mysql_stmt_send_long_data(stmt->_stmt,
                                   parameter_number, *data, data.length())) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
 
 /*! todo: finish
@@ -1413,7 +1415,7 @@ NAN_METHOD(MysqlStatement::SqlStateSync) {
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
-    NanReturnValue(V8STR(mysql_stmt_sqlstate(stmt->_stmt)));
+    NanReturnValue(NanNew<String>(mysql_stmt_sqlstate(stmt->_stmt)));
 }
 
 /*! todo: finish
@@ -1430,7 +1432,7 @@ void MysqlStatement::EIO_After_StoreResult(uv_work_t *req) {
         argv[0] = V8EXC(mysql_stmt_error(stmt->_stmt));
     } else {
         stmt->state = STMT_STORED_RESULT;
-        argv[0] = NanNewLocal(Null());
+        argv[0] = NanNull();
     }
 
     store_req->nan_callback->Call(argc, argv);
@@ -1488,10 +1490,10 @@ NAN_METHOD(MysqlStatement::StoreResultSync) {
     MYSQLSTMT_MUSTBE_EXECUTED;
 
     if (mysql_stmt_store_result(stmt->_stmt) != 0) {
-        NanReturnValue(False());
+        NanReturnValue(NanFalse());
     }
 
     stmt->state = STMT_STORED_RESULT;
 
-    NanReturnValue(True());
+    NanReturnValue(NanTrue());
 }
