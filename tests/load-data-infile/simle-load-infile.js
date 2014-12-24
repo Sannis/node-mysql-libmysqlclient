@@ -1,7 +1,7 @@
 var cfg = require('../config.js');
 var fs = require('fs');
-var createLoadInfileCapableConnection = function (test) {
-  var conn = new cfg.mysql_libmysqlclient.bindings.MysqlConnection();
+var createLoadInfileCapableConnection = function (clientClass) {
+  var conn = new clientClass();
   conn.initSync();
   conn.setOptionSync(cfg.mysql_libmysqlclient.MYSQL_OPT_LOCAL_INFILE);
   conn.realConnectSync(cfg.host, cfg.user, cfg.password, cfg.database);
@@ -49,7 +49,7 @@ var createQuery = function (fileName, fieldTerminator, rowTerminator) {
     " LINES TERMINATED BY '" + rowTerminator + "'";
 };
 var setUp = function (callback) {
-  this.conn = createLoadInfileCapableConnection();
+  this.conn = createLoadInfileCapableConnection(this.clientClass);
   this.conn.querySync("DROP TABLE IF EXISTS " + cfg.test_table);
   this.conn.querySync("CREATE TABLE " + cfg.test_table + " (field1 int, field2 text)");
   this.fileName = this.fileName  || 'nothing';
@@ -63,21 +63,21 @@ var tearDown =  function (callback) {
   callback();
 };
 
-var syncTest = function (fieldTerminator, rowTerminator, bufferMode, test) {
+var syncTest = function (fieldTerminator, rowTerminator, test) {
   test.expect(2);
-  if (!bufferMode) {
+  if (!this.bufferMode) {
     prepareDataFile(this.fileName, this.exampleData, fieldTerminator, rowTerminator);
   } else {
     this.exampleData = new Buffer(formatData(this.exampleData, fieldTerminator, rowTerminator));
   }
   test.ok(this.conn.querySync(
     createQuery(this.fileName, fieldTerminator, rowTerminator),
-    bufferMode ? this.exampleData : undefined
+    this.bufferMode ? this.exampleData : undefined
   ));
   testQueryResult(test, this.conn);
   test.done();
 };
-var asyncTest = function (fieldTerminator, rowTerminator, bufferMode, test) {
+var asyncTest = function (fieldTerminator, rowTerminator, test) {
   test.expect(2);
   var queryCallback =
     function (error) {
@@ -86,7 +86,7 @@ var asyncTest = function (fieldTerminator, rowTerminator, bufferMode, test) {
       test.done();
     }.bind(this),
     callArgs = [createQuery(this.fileName, fieldTerminator, rowTerminator)];
-  if (!bufferMode) {
+  if (!this.bufferMode) {
     prepareDataFile(this.fileName, this.exampleData, fieldTerminator, rowTerminator);
     callArgs.push(queryCallback);
   } else {
@@ -100,9 +100,30 @@ var asyncTest = function (fieldTerminator, rowTerminator, bufferMode, test) {
     test.done();
   }
 };
+/**
+ * Table with tests build as
+ * combination of format (CSV/TSV) and
+ * syncronous/asyncronous modes of work
+ */
+var formatModeCombinationsList = {
+    syncCSV: function (test) {
+      syncTest.call(this, ',',  '\n', test);
+    },
+    syncTSV: function (test) {
+      syncTest.call(this, '\t',  '\n', test);
+    },
+    asyncCSV: function (test) {
+      asyncTest.call(this, ',',  '\n', test);
+    },
+    asyncTSV: function (test) {
+      asyncTest.call(this, '\t',  '\n', test);
+    }
+};
+//enshure mysql server has enabled local_infile option,
+//and test has sence at all
 module.exports.checkServerOptions = function (test) {
   test.expect(1);
-  var conn = createLoadInfileCapableConnection(),
+  var conn = createLoadInfileCapableConnection(cfg.mysql_libmysqlclient.MysqlConnectionQueued);
     result = conn.querySync("SHOW VARIABLES LIKE 'local_infile'");
   result = result && result.fetchAllSync();
   result = result && result[0] && result[0].Value;
@@ -113,40 +134,69 @@ module.exports.checkServerOptions = function (test) {
   );
   test.done();
 };
-module.exports.realFileGroup = {
-  setUp: function (callback) {
-    this.fileName = '/tmp/load-infile-test.csv';
-    setUp.call(this, callback);
+//tests for c++ part
+module.exports.bindings = {
+  realFile: {
+    setUp: function (callback) {
+      this.clientClass = cfg.mysql_libmysqlclient.bindings.MysqlConnection;
+      this.fileName = '/tmp/load-infile-test.csv';
+      this.bufferMode = false;
+      setUp.call(this, callback);
+    },
+    tearDown: tearDown,
+    tests: formatModeCombinationsList
   },
-  tearDown: tearDown,
-  syncCSV: function (test) {
-    syncTest.call(this, ',',  '\n', false, test);
-  },
-  syncTSV: function (test) {
-    syncTest.call(this, '\t',  '\n', false, test);
-  },
-  asyncCSV: function (test) {
-    asyncTest.call(this, ',',  '\n', false, test);
-  },
-  asyncTSV: function (test) {
-    asyncTest.call(this, '\t',  '\n', false, test);
+  buffer: {
+    setUp: function (callback) {
+      this.clientClass = cfg.mysql_libmysqlclient.bindings.MysqlConnection;
+      this.bufferMode = true;
+      setUp.call(this, callback);
+    },
+    tearDown: tearDown,
+    tests: formatModeCombinationsList
   }
 };
-module.exports.bufferGroup =  {
-  setUp: function (callback) {
-    setUp.call(this, callback);
+//tests for queued client
+module.exports.queuedClient = {
+  realFile: {
+    setUp: function (callback) {
+      this.clientClass = cfg.mysql_libmysqlclient.MysqlConnectionQueued;
+      this.bufferMode = false;
+      this.fileName = '/tmp/load-infile-test.csv';
+      setUp.call(this, callback);
+    },
+    tearDown: tearDown,
+    tests: formatModeCombinationsList
   },
-  tearDown: tearDown,
-  syncCSV: function (test) {
-    syncTest.call(this, ',',  '\n', true, test);
+  buffer: {
+    setUp: function (callback) {
+      this.clientClass = cfg.mysql_libmysqlclient.MysqlConnectionQueued;
+      this.bufferMode = true;
+      setUp.call(this, callback);
+    },
+    tearDown: tearDown,
+    tests: formatModeCombinationsList
+  }
+};
+//tests for high-level client
+module.exports.highLevel= {
+  realFile: {
+    setUp: function (callback) {
+      this.clientClass = cfg.mysql_libmysqlclient.MysqlConnectionHighlevel;
+      this.bufferMode = false;
+      this.fileName = '/tmp/load-infile-test.csv';
+      setUp.call(this, callback);
+    },
+    tearDown: tearDown,
+    tests: formatModeCombinationsList
   },
-  syncTSV: function (test) {
-    syncTest.call(this, '\t',  '\n', true, test);
-  },
-  asyncCSV: function (test) {
-    asyncTest.call(this, ',',  '\n', true, test);
-  },
-  asyncTSV: function (test) {
-    asyncTest.call(this, '\t',  '\n', true, test);
+  buffer: {
+    setUp: function (callback) {
+      this.clientClass = cfg.mysql_libmysqlclient.MysqlConnectionHighlevel;
+      this.bufferMode = true;
+      setUp.call(this, callback);
+    },
+    tearDown: tearDown,
+    tests: formatModeCombinationsList
   }
 };
