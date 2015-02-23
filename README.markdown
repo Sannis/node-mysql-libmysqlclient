@@ -101,7 +101,3 @@ License
 
 Node-mysql-libmysqlclient itself is published under MIT license.
 See license text in [LICENSE](https://github.com/Sannis/node-mysql-libmysqlclient/blob/master/LICENSE) file.
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/Sannis/node-mysql-libmysqlclient/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
