@@ -17,7 +17,7 @@
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
-
+using namespace Nan ;
 /*!
  * Init V8 structures
  *
@@ -28,7 +28,7 @@
  * * MysqlStatement
  */
 void InitMysqlLibmysqlclient(Handle<Object> target) {
-    NanScope();
+    Nan::HandleScope scope;
 
     //// Populate classes constructors
     MysqlConnection::Init(target);

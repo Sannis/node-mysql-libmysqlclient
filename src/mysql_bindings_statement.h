@@ -16,24 +16,26 @@
 
 #include "./mysql_bindings.h"
 
+using namespace Nan;
+
 #define MYSQLSTMT_MUSTBE_INITIALIZED \
     if (stmt->state < STMT_INITIALIZED) { \
-        return NanThrowError("Statement not initialized"); \
+        return Nan::ThrowError("Statement not initialized"); \
     }
 
 #define MYSQLSTMT_MUSTBE_PREPARED \
     if (stmt->state < STMT_PREPARED) { \
-        return NanThrowError("Statement not prepared"); \
+        return Nan::ThrowError("Statement not prepared"); \
     }
 
 #define MYSQLSTMT_MUSTBE_EXECUTED \
     if (stmt->state < STMT_EXECUTED) { \
-        return NanThrowError("Statement not executed"); \
+        return Nan::ThrowError("Statement not executed"); \
     }
 
 #define MYSQLSTMT_MUSTBE_STORED \
     if (stmt->state < STMT_STORED_RESULT) { \
-        return NanThrowError("Statement result not stored"); \
+        return Nan::ThrowError("Statement result not stored"); \
     }
 
 /** section: Classes
@@ -43,7 +45,7 @@
  **/
 class MysqlStatement : public node::ObjectWrap {
   public:
-    static Persistent<FunctionTemplate> constructor_template;
+    static Nan::Persistent<FunctionTemplate> constructor_template;
 
     static void Init(Handle<Object> target);
 
@@ -102,7 +104,7 @@ class MysqlStatement : public node::ObjectWrap {
     struct execute_request {
         bool ok;
 
-        NanCallback *nan_callback;
+        Callback * nan_callback ;
         MysqlStatement* stmt;
     };
 
@@ -118,7 +120,7 @@ class MysqlStatement : public node::ObjectWrap {
         bool ok;
         bool empty_resultset;
 
-        NanCallback *nan_callback;
+        Callback * nan_callback;
         MysqlStatement* stmt;
 
         MYSQL_RES* meta;
@@ -142,7 +144,7 @@ class MysqlStatement : public node::ObjectWrap {
 
     static void FreeMysqlBinds(MYSQL_BIND *binds, unsigned long size, bool params);
 
-    static Local<Value> GetFieldValue(void* ptr, unsigned long& field_length, MYSQL_FIELD& field);
+    static Local<Value> GetFieldValue(void* ptr, unsigned long& length, MYSQL_FIELD& field);
 
     static NAN_METHOD(LastInsertIdSync);
 
@@ -163,7 +165,7 @@ class MysqlStatement : public node::ObjectWrap {
     struct store_result_request {
         bool ok;
 
-        NanCallback *nan_callback;
+        Callback * nan_callback;
         MysqlStatement* stmt;
     };
     static void EIO_After_StoreResult(uv_work_t* req);
