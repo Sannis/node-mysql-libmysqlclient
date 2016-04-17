@@ -30,5 +30,3 @@ before_script:
 install:
   - if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX=g++-4.8; fi
   - $CXX --version
-  - node --version
-  - npm --version
