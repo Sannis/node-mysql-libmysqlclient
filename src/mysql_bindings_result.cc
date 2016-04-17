@@ -109,9 +109,10 @@ char * MysqlResult::ToCString(v8::Local<Value> & value)
 Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length) {
     //Nan::HandleScope scope;
     v8::Isolate *isolate;
-    isolate = v8::Isolate::GetCurrent() ;
+    isolate = v8::Isolate::GetCurrent();
+
     Local<Value> js_field = Nan::Null();
-    MysqlResult * a = new MysqlResult;
+
     switch (field.type) {
         case MYSQL_TYPE_NULL:   // NULL-type field
             // Already null
@@ -239,7 +240,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
     // Proper MYSQL_TYPE_SET type handle, thanks for Mark Hechim
     // http://www.mirrorservice.org/sites/ftp.mysql.com/doc/refman/5.1/en/c-api-datatypes.html#c10485
     if (field_value && (field.flags & SET_FLAG)) {
-        char *pch, *last = 0x00 ;
+        char *pch, *last = 0x00;
         int i = 0;
         Local<Array> js_field_array = Array::New(isolate);
 
@@ -252,7 +253,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
 
         js_field = js_field_array;
     }
-    return js_field ;
+    return js_field;
 }
 
 MysqlResult::fetch_options MysqlResult::GetFetchOptions(Local<Object> options) {
