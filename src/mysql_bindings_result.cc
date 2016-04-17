@@ -14,55 +14,57 @@
 /*!
  * Init V8 structures for MysqlResult class
  */
-Persistent<FunctionTemplate> MysqlResult::constructor_template;
+
+using namespace Nan ;
+ 
+Nan::Persistent<FunctionTemplate> MysqlResult::constructor_template;
 
 void MysqlResult::Init(Handle<Object> target) {
-    NanScope();
-
-    // Constructor template
-    Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
-    NanAssignPersistent(constructor_template, tpl);
-    tpl->SetClassName(NanNew<String>("MysqlResult"));
-
-    // Instance template
-    Local<ObjectTemplate> instance_template = tpl->InstanceTemplate();
+    //Nan::HandleScope scope;
+	// Constructor template
+    v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
+    tpl->SetClassName(Nan::New<String>("MysqlResult").ToLocalChecked());
+	constructor_template.Reset(tpl) ; 
+        // Instance template
+    v8::Local<v8::ObjectTemplate> instance_template = tpl->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
     // Instance properties
-    instance_template->SetAccessor(NanNew<String>("fieldCount"), FieldCountGetter);
+    Nan::SetAccessor(instance_template,Nan::New<String>("fieldCount").ToLocalChecked(), FieldCountGetter);
 
     // Prototype methods
-    NODE_SET_PROTOTYPE_METHOD(tpl, "dataSeekSync",         DataSeekSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAll",             FetchAll);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchAllSync",         FetchAllSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchFieldSync",       FetchFieldSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchFieldDirectSync", FetchFieldDirectSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchFieldsSync",      FetchFieldsSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchLengthsSync",     FetchLengthsSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fetchRowSync",         FetchRowSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldSeekSync",        FieldSeekSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "fieldTellSync",        FieldTellSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "freeSync",             FreeSync);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "numRowsSync",          NumRowsSync);
+    Nan::SetPrototypeMethod(tpl, "dataSeekSync",         DataSeekSync);
+    Nan::SetPrototypeMethod(tpl, "fetchAll",             FetchAll);
+    Nan::SetPrototypeMethod(tpl, "fetchAllSync",         FetchAllSync);
+    Nan::SetPrototypeMethod(tpl, "fetchFieldSync",       FetchFieldSync);
+    Nan::SetPrototypeMethod(tpl, "fetchFieldDirectSync", FetchFieldDirectSync);
+    Nan::SetPrototypeMethod(tpl, "fetchFieldsSync",      FetchFieldsSync);
+    Nan::SetPrototypeMethod(tpl, "fetchLengthsSync",     FetchLengthsSync);
+    Nan::SetPrototypeMethod(tpl, "fetchRowSync",         FetchRowSync);
+    Nan::SetPrototypeMethod(tpl, "fieldSeekSync",        FieldSeekSync);
+    Nan::SetPrototypeMethod(tpl, "fieldTellSync",        FieldTellSync);
+    Nan::SetPrototypeMethod(tpl, "freeSync",             FreeSync);
+    Nan::SetPrototypeMethod(tpl, "numRowsSync",          NumRowsSync);
 
     // Make it visible in JavaScript land
-    target->Set(NanNew<String>("MysqlResult"), tpl->GetFunction());
+    target->Set(Nan::New<String>("MysqlResult").ToLocalChecked(), tpl->GetFunction());
 }
 
 Local<Object> MysqlResult::NewInstance(MYSQL *my_conn, MYSQL_RES *my_result, uint32_t field_count) {
-    NanEscapableScope();
-
+    //Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+    //Local<FunctionTemplate> tpl = NanPersistentToLocal(constructor_template);
+	v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(constructor_template);
     const int argc = 3;
     Local<Value> argv[argc];
-    argv[0] = NanNew<External>(my_conn);
-    argv[1] = NanNew<External>(my_result);
-    argv[2] = NanNew(field_count);
-
-    Local<FunctionTemplate> tpl = NanNew(constructor_template);
+    argv[0] = External::New(isolate,my_conn);
+    argv[1] = External::New(isolate,my_result);
+    argv[2] = Integer::NewFromUnsigned(isolate,field_count);
 
     Local<Object> instance = tpl->GetFunction()->NewInstance(argc, argv);
 
-    return NanEscapeScope(instance);
+    return instance ;
 }
 
 MysqlResult::MysqlResult(): ObjectWrap() {}
@@ -72,36 +74,46 @@ MysqlResult::~MysqlResult() {
 }
 
 void MysqlResult::AddFieldProperties(Local<Object> &js_field_obj, MYSQL_FIELD *field) {
-    js_field_obj->Set(NanNew<String>("name"),
-                      NanNew<String>(field->name ? field->name : ""));
-    js_field_obj->Set(NanNew<String>("orgname"),
-                      NanNew<String>(field->org_name ? field->org_name : ""));
-    js_field_obj->Set(NanNew<String>("table"),
-                      NanNew<String>(field->table ? field->table : ""));
-    js_field_obj->Set(NanNew<String>("orgtable"),
-                      NanNew<String>(field->org_table ? field->org_table : ""));
-    js_field_obj->Set(NanNew<String>("def"),
-                      NanNew<String>(field->def ? field->def : ""));
+	//Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+	
+    js_field_obj->Set(v8::String::NewFromUtf8(isolate,"name"),
+                      v8::String::NewFromUtf8(isolate,field->name ? field->name : ""));
+    js_field_obj->Set(v8::String::NewFromUtf8(isolate,"orgname"),
+                      v8::String::NewFromUtf8(isolate,field->org_name ? field->org_name : ""));
+    js_field_obj->Set(v8::String::NewFromUtf8(isolate,"table"),
+                      v8::String::NewFromUtf8(isolate,field->table ? field->table : ""));
+    js_field_obj->Set(v8::String::NewFromUtf8(isolate,"orgtable"),
+                      v8::String::NewFromUtf8(isolate,field->org_table ? field->org_table : ""));
+    js_field_obj->Set(v8::String::NewFromUtf8(isolate,"def"),
+                      v8::String::NewFromUtf8(isolate,field->def ? field->def : ""));
 
-    js_field_obj->Set(NanNew<String>("max_length"),
-                      NanNew((unsigned int)field->max_length));
-    js_field_obj->Set(NanNew<String>("length"),
-                      NanNew((unsigned int)field->length));
-    js_field_obj->Set(NanNew<String>("charsetnr"),
-                      NanNew(field->charsetnr));
-    js_field_obj->Set(NanNew<String>("flags"),
-                      NanNew(field->flags));
-    js_field_obj->Set(NanNew<String>("type"),
-                      NanNew(field->type));
-    js_field_obj->Set(NanNew<String>("decimals"),
-                      NanNew(field->decimals));
+    js_field_obj->Set(v8::String::NewFromUtf8(isolate,"max_length"),
+                      Integer::NewFromUnsigned(isolate,field->max_length));
+    js_field_obj->Set(v8::String::NewFromUtf8(isolate,"length"),
+                      Integer::NewFromUnsigned(isolate,field->length));
+    js_field_obj->Set(v8::String::NewFromUtf8(isolate,"charsetnr"),
+                      Integer::NewFromUnsigned(isolate,field->charsetnr));
+    js_field_obj->Set(v8::String::NewFromUtf8(isolate,"flags"),
+                      Integer::NewFromUnsigned(isolate,field->flags));
+    js_field_obj->Set(v8::String::NewFromUtf8(isolate,"type"),
+                      Integer::New(isolate,field->type));
+    js_field_obj->Set(v8::String::NewFromUtf8(isolate,"decimals"),
+                      Integer::NewFromUnsigned(isolate,field->decimals));
+}
+char * MysqlResult::ToCString(v8::Local<Value> & value) 
+{
+	v8::String::Utf8Value str(value->ToString()) ;
+	return *str ; 
 }
 
 Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length) {
-    NanEscapableScope();
-
-    Local<Value> js_field = NanNull();
-
+    //Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+    Local<Value> js_field = Nan::Null();
+	MysqlResult * a = new MysqlResult; 
     switch (field.type) {
         case MYSQL_TYPE_NULL:   // NULL-type field
             // Already null
@@ -112,27 +124,27 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
         case MYSQL_TYPE_INT24:  // MEDIUMINT field
         case MYSQL_TYPE_YEAR:   // YEAR field
             if (field_value) {
-              js_field = NanNew<String>(field_value)->ToInteger();
+              js_field = v8::String::NewFromUtf8(isolate,field_value)->ToInteger();
             }
             break;
         case MYSQL_TYPE_BIT:       // BIT field (MySQL 5.0.3 and up)
         case MYSQL_TYPE_LONGLONG:  // BIGINT field
             // Return BIGINT as string, see #110
             if (field_value) {
-              js_field = NanNew<String>(field_value);
+              js_field = v8::String::NewFromUtf8(isolate,field_value);
             }
             break;
         case MYSQL_TYPE_FLOAT:   // FLOAT field
         case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
             if (field_value) {
-              js_field = NanNew<String>(field_value)->ToNumber();
+              js_field = v8::String::NewFromUtf8(isolate,field_value)->ToNumber();
             }
             break;
         case MYSQL_TYPE_DECIMAL:     // DECIMAL or NUMERIC field
         case MYSQL_TYPE_NEWDECIMAL:  // Precision math DECIMAL or NUMERIC field
             // Return DECIMAL/NUMERIC as string, see #110
             if (field_value) {
-              js_field = NanNew<String>(field_value);
+              js_field = v8::String::NewFromUtf8(isolate,field_value);
             }
             break;
         case MYSQL_TYPE_TIME:  // TIME field
@@ -140,32 +152,40 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
               int hours = 0, minutes = 0, seconds = 0;
               sscanf(field_value, "%d:%d:%d", &hours, &minutes, &seconds);
               time_t result = hours*60*60 + minutes*60 + seconds;
-              js_field = NanNew<Date>(static_cast<double>(result)*1000);
+              js_field = Date::New(isolate,static_cast<double>(result)*1000);
             }
             break;
         case MYSQL_TYPE_TIMESTAMP:  // TIMESTAMP field
         case MYSQL_TYPE_DATETIME:   // DATETIME field
             if (field_value) {
-                Local<Object> globalObj = NanGetCurrentContext()->Global();
-
-                Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(NanNew<String>("Date")));
-
+                // First step is to get a handle to the global object:
+                Local<Object> globalObj = Nan::GetCurrentContext()->Global() ;
+                
+                // Now we need to grab the Date constructor function:
+                Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(v8::String::NewFromUtf8(isolate,"Date")));
+                
+                // Great. We can use this constructor function to allocate new Dates:
                 const int argc = 1;
-                Local<Value> argv[argc] = { String::Concat(NanNew<String>(field_value), NanNew<String>(" GMT")) };
-
+                Local<Value> argv[argc] = { String::Concat(v8::String::NewFromUtf8(isolate,field_value), v8::String::NewFromUtf8(isolate," GMT")) };
+                
+                // Now we have our constructor, and our constructor args. Let's create the Date:
                 js_field = dateConstructor->NewInstance(argc, argv);
             }
             break;
         case MYSQL_TYPE_DATE:     // DATE field
         case MYSQL_TYPE_NEWDATE:  // Newer const used in MySQL > 5.0
             if (field_value) {
-                Local<Object> globalObj = NanGetCurrentContext()->Global();
+                // First step is to get a handle to the global object:
+                Local<Object> globalObj = Nan::GetCurrentContext()->Global();
                 
-                Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(NanNew<String>("Date")));
+                // Now we need to grab the Date constructor function:
+                Local<Function> dateConstructor = Local<Function>::Cast(globalObj->Get(v8::String::NewFromUtf8(isolate,"Date")));
                 
+                // Great. We can use this constructor function to allocate new Dates:
                 const int argc = 1;
-                Local<Value> argv[argc] = { String::Concat(NanNew<String>(field_value), NanNew<String>(" GMT")) };
+                Local<Value> argv[argc] = { String::Concat(v8::String::NewFromUtf8(isolate,field_value), v8::String::NewFromUtf8(isolate," GMT")) };
                 
+                // Now we have our constructor, and our constructor args. Let's create the Date:
                 js_field = dateConstructor->NewInstance(argc, argv);
             }
             break;
@@ -177,19 +197,11 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
         case MYSQL_TYPE_VAR_STRING:
             if (field_value) {
                 if (field.flags & BINARY_FLAG) {
-                    Local<Object> slowBuffer = NanNewBufferHandle(field_length);
-                    memcpy(node::Buffer::Data(slowBuffer), field_value, field_length);
-
-                    Local<Object> globalObj = NanGetCurrentContext()->Global();
-
-                    Local<Function> bufferConstructor = Local<Function>::Cast(globalObj->Get(NanNew("Buffer")));
-
-                    const int argc = 3;
-                    Local<Value> argv[argc] = { slowBuffer, NanNew<Integer>(field_length), NanNew<Integer>(0) };
-
-                    js_field = bufferConstructor->NewInstance(argc, argv);
+                    js_field =  Nan::CopyBuffer(field_value, field_length).ToLocalChecked() ;  //; v8::Local::New(isolate,node::Buffer::New(isolate,field_value, field_length));
                 } else {
-                    js_field = NanNew<String>(field_value, field_length);
+					
+				    js_field = V8STR(field_value,isolate);
+                
                 }
             }
             break;
@@ -198,11 +210,11 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
             if (field_value) {
                 char *pch, *last;
                 int i = 0;
-                Local<Array> js_field_array = NanNew<Array>();
+                Local<Array> js_field_array = Array::New(isolate);
 
                 pch = strtok_r(field_value, ",", &last);
                 while (pch != NULL) {
-                    js_field_array->Set(NanNew(i), NanNew<String>(pch));
+                    js_field_array->Set(Integer::New(isolate,i), v8::String::NewFromUtf8(isolate,pch));
                     pch = strtok_r(NULL, ",", &last);
                     i++;
                 }
@@ -212,53 +224,55 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
             break;
         case MYSQL_TYPE_ENUM:  // ENUM field
             if (field_value) {
-                js_field = NanNew<String>(field_value);
+                js_field = v8::String::NewFromUtf8(isolate,field_value);
             }
             break;
         case MYSQL_TYPE_GEOMETRY:  // Spatial fields
             // See for information:
             // http://dev.mysql.com/doc/refman/5.1/en/spatial-extensions.html
             if (field_value) {
-                js_field = NanNew<String>(field_value);
+                js_field = v8::String::NewFromUtf8(isolate,field_value);
             }
             break;
         default:
             if (field_value) {
-                js_field = NanNew<String>(field_value);
+                js_field = v8::String::NewFromUtf8(isolate,field_value);
             }
     }
 
     // Proper MYSQL_TYPE_SET type handle, thanks for Mark Hechim
     // http://www.mirrorservice.org/sites/ftp.mysql.com/doc/refman/5.1/en/c-api-datatypes.html#c10485
     if (field_value && (field.flags & SET_FLAG)) {
-        char *pch, *last;
+        char *pch, *last = 0x00 ;
         int i = 0;
-        Local<Array> js_field_array = NanNew<Array>();
+        Local<Array> js_field_array = Array::New(isolate);
 
         pch = strtok_r(field_value, ",", &last);
         while (pch != NULL) {
-            js_field_array->Set(NanNew(i), NanNew<String>(pch));
+            js_field_array->Set(Integer::New(isolate,i), v8::String::NewFromUtf8(isolate,pch));
             pch = strtok_r(NULL, ",", &last);
             i++;
         }
 
         js_field = js_field_array;
     }
-
-    return NanEscapeScope(js_field);
+	 return js_field ;
 }
 
 MysqlResult::fetch_options MysqlResult::GetFetchOptions(Local<Object> options) {
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+	
     fetch_options fo = {false, false};
 
     // Inherit from options object
-    if (options->Has(NanNew<String>("asArray"))) {
+    if (options->Has(v8::String::NewFromUtf8(isolate,"asArray"))) {
         DEBUG_PRINTF("+asArray");
-        fo.results_as_array = options->Get(NanNew<String>("asArray"))->BooleanValue();
+        fo.results_as_array = options->Get(v8::String::NewFromUtf8(isolate,"asArray"))->BooleanValue();
     }
-    if (options->Has(NanNew<String>("nestTables"))) {
+    if (options->Has(v8::String::NewFromUtf8(isolate,"nestTables"))) {
         DEBUG_PRINTF("+nestTables");
-        fo.results_nest_tables = options->ToObject()->Get(NanNew<String>("nestTables"))->BooleanValue();
+        fo.results_nest_tables = options->ToObject()->Get(v8::String::NewFromUtf8(isolate,"nestTables"))->BooleanValue();
     }
 
     return fo;
@@ -277,7 +291,7 @@ void MysqlResult::Free() {
  * Creates new MysqlResult object
  **/
 NAN_METHOD(MysqlResult::New) {
-    NanScope();
+    Nan::HandleScope scope;
 
     REQ_EXT_ARG(0, js_connection);
     REQ_EXT_ARG(1, js_result);
@@ -287,9 +301,9 @@ NAN_METHOD(MysqlResult::New) {
     MYSQL_RES *result = static_cast<MYSQL_RES*>(js_result->Value());
 
     MysqlResult *my_res = new MysqlResult(connection, result, field_count);
-    my_res->Wrap(args.Holder());
+    my_res->Wrap(info.Holder());
 
-    NanReturnValue(args.Holder());
+    info.GetReturnValue().Set(info.Holder());
 }
 
 /** read-only
@@ -298,16 +312,17 @@ NAN_METHOD(MysqlResult::New) {
  * Get the number of fields in a result
  **/
 NAN_GETTER(MysqlResult::FieldCountGetter) {
-    NanScope();
-
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
+    Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
     if (res->field_count > 0) {
-        NanReturnValue(NanNew(res->field_count));
+        info.GetReturnValue().Set(Integer::NewFromUnsigned(isolate,res->field_count));
     } else {
-        NanReturnUndefined();
+        info.GetReturnValue().Set(Nan::Undefined());
     }
 }
 
@@ -318,33 +333,34 @@ NAN_GETTER(MysqlResult::FieldCountGetter) {
  * Adjusts the result pointer to an arbitrary row in the result
  **/
 NAN_METHOD(MysqlResult::DataSeekSync) {
-    NanScope();
+    Nan::HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
     REQ_UINT_ARG(0, offset)
 
     if (mysql_result_is_unbuffered(res->_res)) {
-        return NanThrowError("Function cannot be used with MYSQL_USE_RESULT");
+        return Nan::ThrowError("Function cannot be used with MYSQL_USE_RESULT");
     }
 
     if (offset >= mysql_num_rows(res->_res)) {
-        return NanThrowError("Invalid row offset");
+        return Nan::ThrowError("Invalid row offset");
     }
 
     mysql_data_seek(res->_res, offset);
 
-    NanReturnUndefined();
+    info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /*!
  * EIO wrapper functions for MysqlResult::FetchAll
  */
 void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
-    NanScope();
-
+    Nan::HandleScope scope;
+v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
 
     // We can't use const int argc here because argv is used
@@ -353,50 +369,46 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
     Local<Value> argv[3];
 
     if (!fetchAll_req->ok) {
-        argv[0] = V8EXC("Error on fetching fields");
+        argv[0] = V8EXC("Error on fetching fields",isolate);
     } else {
         MYSQL_FIELD *fields = fetchAll_req->fields;
         uint32_t num_fields = fetchAll_req->num_fields;
         MYSQL_ROW result_row;
         unsigned long *field_lengths;
         uint32_t i = 0, j = 0;
-        my_ulonglong row_count = 0;
 
         // Get rows
-        Local<Array> js_result;
+        Local<Array> js_result = Array::New(isolate);
         Local<Object> js_result_row;
         Local<Value> js_field;
-
-        row_count = mysql_num_rows(fetchAll_req->res->_res);
-        js_result = NanNew<Array>((unsigned int)row_count);
 
         i = 0;
         while ((result_row = mysql_fetch_row(fetchAll_req->res->_res))) {
             field_lengths = mysql_fetch_lengths(fetchAll_req->res->_res);
 
             if (fetchAll_req->fo.results_as_array) {
-              js_result_row = NanNew<Array>();
+              js_result_row = Array::New(isolate);
             } else {
-              js_result_row = NanNew<Object>();
+              js_result_row = Object::New(isolate);
             }
 
             for (j = 0; j < num_fields; j++) {
                 js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
 
                 if (fetchAll_req->fo.results_as_array) {
-                    js_result_row->Set(NanNew(j), js_field);
+                    js_result_row->Set(Integer::NewFromUnsigned(isolate,j), js_field);
                 } else if (fetchAll_req->fo.results_nest_tables) {
-                    if (!js_result_row->Has(NanNew<String>(fields[j].table))) {
-                        js_result_row->Set(NanNew<String>(fields[j].table), NanNew<Object>());
+                    if (!js_result_row->Has(v8::String::NewFromUtf8(isolate,fields[j].table))) {
+                        js_result_row->Set(v8::String::NewFromUtf8(isolate,fields[j].table), Object::New(isolate));
                     }
-                    js_result_row->Get(NanNew<String>(fields[j].table))->ToObject()
-                                 ->Set(NanNew<String>(fields[j].name), js_field);
+                    js_result_row->Get(v8::String::NewFromUtf8(isolate,fields[j].table))->ToObject()
+                                 ->Set(v8::String::NewFromUtf8(isolate,fields[j].name), js_field);
                 } else {
-                    js_result_row->Set(NanNew<String>(fields[j].name), js_field);
+                    js_result_row->Set(v8::String::NewFromUtf8(isolate,fields[j].name), js_field);
                 }
             }
 
-            js_result->Set(NanNew(i), js_result_row);
+            js_result->Set(Integer::NewFromUnsigned(isolate,i), js_result_row);
 
             i++;
         }
@@ -412,22 +424,22 @@ void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
                 my_errno, my_error
             );
 
-            argv[0] = V8EXC(error_string);
+            argv[0] = V8EXC(error_string,isolate);
             delete[] error_string;
         } else {
             // Get fields info
-            Local<Array> js_fields = NanNew<Array>();
+            Local<Array> js_fields = Array::New(isolate);
 
             for (i = 0; i < num_fields; i++) {
-                js_result_row = NanNew<Object>();
+                js_result_row = Object::New(isolate);
                 AddFieldProperties(js_result_row, &fields[i]);
 
-                js_fields->Set(NanNew(i), js_result_row);
+                js_fields->Set(Integer::NewFromUnsigned(isolate,i), js_result_row);
             }
 
             argv[1] = js_result;
             argv[2] = js_fields;
-            argv[0] = NanNull();
+            argv[0] = Nan::Null();
             argc = 3;
         }
     }
@@ -470,16 +482,17 @@ void MysqlResult::EIO_FetchAll(uv_work_t *req) {
  * Fetches all result rows as an array
  **/
 NAN_METHOD(MysqlResult::FetchAll) {
-    NanScope();
-
+    Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
     int arg_pos = 0;
     fetch_options fo = {false, false};
     bool throw_wrong_arguments_exception = false;
 
-    if (args.Length() > 0) {
-        if (args[0]->IsObject()) { // Simple Object or Function
-            if (!args[0]->IsFunction()) { // Simple Object - options hash
-                fo = MysqlResult::GetFetchOptions(args[0]->ToObject());
+    if (info.Length() > 0) {
+        if (info[0]->IsObject()) { // Simple Object or Function
+            if (!info[0]->IsFunction()) { // Simple Object - options hash
+                fo = MysqlResult::GetFetchOptions(info[0]->ToObject());
                 arg_pos++;
             }
         } else { // Not an options Object or a Function
@@ -495,27 +508,24 @@ NAN_METHOD(MysqlResult::FetchAll) {
     if (throw_wrong_arguments_exception) {
         int argc = 1;
         Local<Value> argv[1];
-        argv[0] = V8EXC("fetchAllSync can handle only (options) or none arguments");
-
-        NanCallback *nan_callback = new NanCallback(callback.As<Function>());
-        nan_callback->Call(argc, argv);
-        delete nan_callback;
-
-        NanReturnUndefined();
+        argv[0] = V8EXC("fetchAllSync can handle only (options) or none arguments",isolate);
+        //TODO(Sannis): Use NanCallback here
+        node::MakeCallback(isolate,Nan::GetCurrentContext()->Global(), callback, argc, argv);
+        info.GetReturnValue().Set(Nan::Undefined());
     }
 
     if (fo.results_as_array && fo.results_nest_tables) {
         // Cuz' this is not run-time error, just programmers mistake
-        return NanThrowError("You can't mix 'asArray' and 'nestTables' options");
+        return Nan::ThrowError("You can't mix 'asArray' and 'nestTables' options");
     }
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder()); // NOLINT
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder()); // NOLINT
 
     MYSQLRES_MUSTBE_VALID;
 
     fetchAll_request *fetchAll_req = new fetchAll_request;
 
-    fetchAll_req->nan_callback = new NanCallback(callback.As<Function>());
+    fetchAll_req->nan_callback = new Nan::Callback(callback.As<Function>());
 
     fetchAll_req->res = res;
     res->Ref();
@@ -526,7 +536,7 @@ NAN_METHOD(MysqlResult::FetchAll) {
     _req->data = fetchAll_req;
     uv_queue_work(uv_default_loop(), _req, EIO_FetchAll, (uv_after_work_cb)EIO_After_FetchAll);
 
-    NanReturnUndefined();
+    info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /**
@@ -536,23 +546,24 @@ NAN_METHOD(MysqlResult::FetchAll) {
  * Fetches all result rows as an array
  **/
 NAN_METHOD(MysqlResult::FetchAllSync) {
-    NanScope();
-
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
+	Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
     fetch_options fo = {false, false};
 
-    if (args.Length() > 0) {
-        if (!args[0]->IsObject()) {
-            return NanThrowError("fetchAllSync can handle only (options) or none arguments");
+    if (info.Length() > 0) {
+        if (!info[0]->IsObject()) {
+            return Nan::ThrowError("fetchAllSync can handle only (options) or none arguments");
         }
-        fo = MysqlResult::GetFetchOptions(args[0]->ToObject());
+        fo = MysqlResult::GetFetchOptions(info[0]->ToObject());
     }
 
     if (fo.results_as_array && fo.results_nest_tables) {
-        return NanThrowError("You can't mix 'asArray' and 'nestTables' options");
+        return Nan::ThrowError("You can't mix 'asArray' and 'nestTables' options");
     }
 
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
@@ -561,42 +572,49 @@ NAN_METHOD(MysqlResult::FetchAllSync) {
     unsigned long *field_lengths;
     uint32_t i = 0, j = 0;
 
-    Local<Array> js_result = NanNew<Array>();
+    Local<Array> js_result = Array::New(isolate);
     Local<Object> js_result_row;
-    Local<Value> js_field;
+    Local<Value> js_field ;
 
     i = 0;
     while ( (result_row = mysql_fetch_row(res->_res)) ) {
         field_lengths = mysql_fetch_lengths(res->_res);
 
         if (fo.results_as_array) {
-            js_result_row = NanNew<Array>();
+            js_result_row = Array::New(isolate);
         } else {
-            js_result_row = NanNew<Object>();
+            js_result_row = Object::New(isolate);
         }
 
-        for (j = 0; j < num_fields; j++) {
-            js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
-
-            if (fo.results_as_array) {
-                js_result_row->Set(NanNew(j), js_field);
-            } else if (fo.results_nest_tables) {
-                if (!js_result_row->Has(NanNew<String>(fields[j].table))) {
-                    js_result_row->Set(NanNew<String>(fields[j].table), NanNew<Object>());
+        for (j = 0; j < num_fields; j++) 
+        {
+			js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
+		    if (fo.results_as_array) 
+		    {
+	            js_result_row->Set(Integer::NewFromUnsigned(isolate,j), js_field);
+            } 
+            else if (fo.results_nest_tables) 
+            {
+				
+                if (!js_result_row->Has(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].table))) 
+                {
+	                js_result_row->Set(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].table), Object::New(isolate));
                 }
-                js_result_row->Get(NanNew<String>(fields[j].table))->ToObject()
-                             ->Set(NanNew<String>(fields[j].name), js_field);
-            } else {
-                js_result_row->Set(NanNew<String>(fields[j].name), js_field);
+    
+                js_result_row->Get(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].table))->ToObject()
+                             ->Set(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].name), js_field);
+            } 
+            else 
+            {	
+	            js_result_row->Set(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].name), js_field);
             }
         }
 
-        js_result->Set(NanNew(i), js_result_row);
+        js_result->Set(Integer::NewFromUnsigned(isolate,i), js_result_row);
 
         i++;
     }
-
-    NanReturnValue(js_result);
+	info.GetReturnValue().Set(js_result);
 }
 
 /**
@@ -605,9 +623,10 @@ NAN_METHOD(MysqlResult::FetchAllSync) {
  * Returns metadata of the next field in the result set
  **/
 NAN_METHOD(MysqlResult::FetchFieldSync) {
-    NanScope();
-
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
+    Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -618,13 +637,13 @@ NAN_METHOD(MysqlResult::FetchFieldSync) {
     field = mysql_fetch_field(res->_res);
 
     if (!field) {
-        NanReturnValue(NanFalse());
+        info.GetReturnValue().Set(False());
     }
 
-    js_result = NanNew<Object>();
+    js_result = Object::New(isolate);
     AddFieldProperties(js_result, field);
 
-    NanReturnValue(js_result);
+    info.GetReturnValue().Set(js_result);
 }
 
 /**
@@ -634,9 +653,10 @@ NAN_METHOD(MysqlResult::FetchFieldSync) {
  * Returns metadata of the arbitrary field in the result set
  **/
 NAN_METHOD(MysqlResult::FetchFieldDirectSync) { // NOLINT
-    NanScope();
-
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
+    Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -649,13 +669,13 @@ NAN_METHOD(MysqlResult::FetchFieldDirectSync) { // NOLINT
     field = mysql_fetch_field_direct(res->_res, field_num);
 
     if (!field) {
-        NanReturnValue(NanFalse());
+        info.GetReturnValue().Set(False());
     }
 
-    js_result = NanNew<Object>();
+    js_result = Object::New(isolate);
     AddFieldProperties(js_result, field);
 
-    NanReturnValue(js_result);
+    info.GetReturnValue().Set(js_result);
 }
 
 /**
@@ -664,9 +684,10 @@ NAN_METHOD(MysqlResult::FetchFieldDirectSync) { // NOLINT
  * Returns an array of objects representing the fields in a result set
  **/
 NAN_METHOD(MysqlResult::FetchFieldsSync) {
-    NanScope();
-
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
+    Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -674,19 +695,19 @@ NAN_METHOD(MysqlResult::FetchFieldsSync) {
     MYSQL_FIELD *field;
     uint32_t i = 0;
 
-    Local<Array> js_result = NanNew<Array>();
+    Local<Array> js_result = Array::New(isolate);
     Local<Object> js_result_obj;
 
     for (i = 0; i < num_fields; i++) {
         field = mysql_fetch_field_direct(res->_res, i);
 
-        js_result_obj = NanNew<Object>();
+        js_result_obj = Object::New(isolate);
         AddFieldProperties(js_result_obj, field);
 
-        js_result->Set(NanNew(i), js_result_obj);
+        js_result->Set(Integer::NewFromUnsigned(isolate,i), js_result_obj);
     }
 
-    NanReturnValue(js_result);
+    info.GetReturnValue().Set(js_result);
 }
 
 /**
@@ -695,9 +716,10 @@ NAN_METHOD(MysqlResult::FetchFieldsSync) {
  * Returns the lengths of the columns of the current row in the result set
  **/
 NAN_METHOD(MysqlResult::FetchLengthsSync) {
-    NanScope();
-
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
+    Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
@@ -705,18 +727,18 @@ NAN_METHOD(MysqlResult::FetchLengthsSync) {
     unsigned long int *lengths = mysql_fetch_lengths(res->_res); // NOLINT
     uint32_t i = 0;
 
-    Local<Array> js_result = NanNew<Array>();
+    Local<Array> js_result = Array::New(isolate);
 
     if (!lengths) {
-        NanReturnValue(NanFalse());
+        info.GetReturnValue().Set(False());
     }
 
     for (i = 0; i < num_fields; i++) {
-        js_result->Set(NanNew(i),
-                       NanNew((unsigned int)lengths[i]));
+        js_result->Set(Integer::NewFromUnsigned(isolate,i),
+                       Integer::NewFromUnsigned(isolate,lengths[i]));
     }
 
-    NanReturnValue(js_result);
+    info.GetReturnValue().Set(js_result);
 }
 
 /**
@@ -726,23 +748,24 @@ NAN_METHOD(MysqlResult::FetchLengthsSync) {
  * Fetch one row from result
  **/
 NAN_METHOD(MysqlResult::FetchRowSync) {
-    NanScope();
-
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
+    Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
     fetch_options fo = {false, false};
 
-    if (args.Length() > 0) {
-        if (!args[0]->IsObject()) {
-            return NanThrowError("fetchRowSync can handle only (options) or none arguments");
+    if (info.Length() > 0) {
+        if (!info[0]->IsObject()) {
+            return Nan::ThrowError("fetchRowSync can handle only (options) or none arguments");
         }
-        fo = MysqlResult::GetFetchOptions(args[0]->ToObject());
+        fo = MysqlResult::GetFetchOptions(info[0]->ToObject());
     }
 
     if (fo.results_as_array && fo.results_nest_tables) {
-        return NanThrowError("You can't mix 'asArray' and 'nestTables' options");
+        return Nan::ThrowError("You can't mix 'asArray' and 'nestTables' options");
     }
 
     MYSQL_FIELD *fields = mysql_fetch_fields(res->_res);
@@ -755,34 +778,34 @@ NAN_METHOD(MysqlResult::FetchRowSync) {
     MYSQL_ROW result_row = mysql_fetch_row(res->_res);
 
     if (!result_row) {
-        NanReturnValue(NanFalse());
+        info.GetReturnValue().Set(False());
     }
 
     unsigned long *field_lengths = mysql_fetch_lengths(res->_res);
 
     if (fo.results_as_array) {
-        js_result_row = NanNew<Array>();
+        js_result_row = Array::New(isolate);
     } else {
-        js_result_row = NanNew<Object>();
+        js_result_row = Object::New(isolate);
     }
 
     for (j = 0; j < num_fields; j++) {
         js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
 
         if (fo.results_as_array) {
-            js_result_row->Set(NanNew(j), js_field);
+            js_result_row->Set(Integer::NewFromUnsigned(isolate,j), js_field);
         } else if (fo.results_nest_tables) {
-            if (!js_result_row->Has(NanNew<String>(fields[j].table))) {
-                js_result_row->Set(NanNew<String>(fields[j].table), NanNew<Object>());
+            if (!js_result_row->Has(V8STR(fields[j].table,isolate))) {
+                js_result_row->Set(V8STR(fields[j].table,isolate), Object::New(isolate));
             }
-            js_result_row->Get(NanNew<String>(fields[j].table))->ToObject()
-                         ->Set(NanNew<String>(fields[j].name), js_field);
+            js_result_row->Get(V8STR(fields[j].table,isolate))->ToObject()
+                         ->Set(V8STR(fields[j].name,isolate), js_field);
         } else {
-            js_result_row->Set(NanNew<String>(fields[j].name), js_field);
+            js_result_row->Set(V8STR(fields[j].name,isolate), js_field);
         }
     }
 
-    NanReturnValue(js_result_row);
+    info.GetReturnValue().Set(js_result_row);
 }
 
 /**
@@ -792,21 +815,21 @@ NAN_METHOD(MysqlResult::FetchRowSync) {
  * Set result pointer to a specified field offset
  **/
 NAN_METHOD(MysqlResult::FieldSeekSync) {
-    NanScope();
+    Nan::HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
     REQ_UINT_ARG(0, field_num)
 
     if (field_num >= res->field_count) {
-        return NanThrowError("Invalid field offset");
+        return Nan::ThrowError("Invalid field offset");
     }
 
     mysql_field_seek(res->_res, field_num);
 
-    NanReturnUndefined();
+    info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /**
@@ -815,13 +838,14 @@ NAN_METHOD(MysqlResult::FieldSeekSync) {
  * Returns the position of the field cursor
  **/
 NAN_METHOD(MysqlResult::FieldTellSync) {
-    NanScope();
-
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
+    Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
-    NanReturnValue(NanNew(mysql_field_tell(res->_res)));
+    info.GetReturnValue().Set(Integer::NewFromUnsigned(isolate,mysql_field_tell(res->_res)));
 }
 
 /**
@@ -830,15 +854,15 @@ NAN_METHOD(MysqlResult::FieldTellSync) {
  * Frees the memory associated with a result
  **/
 NAN_METHOD(MysqlResult::FreeSync) {
-    NanScope();
+    Nan::HandleScope scope;
 
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
     res->Free();
 
-    NanReturnUndefined();
+    info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /**
@@ -847,15 +871,16 @@ NAN_METHOD(MysqlResult::FreeSync) {
  * Gets the number of rows in a result
  **/
 NAN_METHOD(MysqlResult::NumRowsSync) {
-    NanScope();
-
-    MysqlResult *res = OBJUNWRAP<MysqlResult>(args.Holder());
+    Nan::HandleScope scope;
+	v8::Isolate * isolate ;
+	isolate = v8::Isolate::GetCurrent() ;
+    MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
 
     if (mysql_result_is_unbuffered(res->_res)) {
-        return NanThrowError("Function cannot be used with MYSQL_USE_RESULT");
+        return Nan::ThrowError("Function cannot be used with MYSQL_USE_RESULT");
     }
 
-    NanReturnValue(NanNew((unsigned int)mysql_num_rows(res->_res)));
+    info.GetReturnValue().Set(Integer::New(isolate,mysql_num_rows(res->_res)));
 }

@@ -18,13 +18,13 @@
 #include <cstring>
 
 #include "./mysql_bindings.h"
-
+using namespace Nan ;
 #define mysql_result_is_unbuffered(r) \
 ((r)->handle && (r)->handle->status == MYSQL_STATUS_USE_RESULT)
 
 #define MYSQLRES_MUSTBE_VALID \
     if (!res->_res) { \
-        return NanThrowError("Result has been freed."); \
+        return Nan::ThrowError("Result has been freed."); \
     }
 
 /** section: Classes
@@ -34,7 +34,7 @@
  **/
 class MysqlResult : public node::ObjectWrap {
   public:
-    static Persistent<FunctionTemplate> constructor_template;
+    static Nan::Persistent<FunctionTemplate> constructor_template;
 
     static void Init(Handle<Object> target);
 
@@ -59,7 +59,7 @@ class MysqlResult : public node::ObjectWrap {
     uint32_t field_count;
 
     MysqlResult();
-
+	char * ToCString(v8::Local<Value> & value) ;
     explicit MysqlResult(MYSQL *my_connection, MYSQL_RES *my_result, uint32_t my_field_count):
         ObjectWrap(),
         _conn(my_connection),
@@ -83,7 +83,7 @@ class MysqlResult : public node::ObjectWrap {
     struct fetchAll_request {
         bool ok;
         
-        NanCallback *nan_callback;
+        Callback * nan_callback;
         MysqlResult *res;
 
         MYSQL_FIELD *fields;
