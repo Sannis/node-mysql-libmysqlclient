@@ -329,10 +329,9 @@ NAN_METHOD(MysqlStatement::BindParamsSync) {
             stmt->binds[i].buffer = date_data;
             stmt->binds[i].is_null = 0;
         } else {  // js_param->IsString() and other
-            // TODO(Sannis): Simplify this if possible
             str_data = strdup(**(new String::Utf8Value(js_param->ToString())));
             str_length = new unsigned long; // NOLINT
-            *str_length = js_param->ToString()->Length();
+            *str_length = strlen(str_data);
 
             stmt->binds[i].buffer_type = MYSQL_TYPE_STRING;
             stmt->binds[i].buffer =  str_data;
