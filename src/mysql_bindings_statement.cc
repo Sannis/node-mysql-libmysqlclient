@@ -23,14 +23,14 @@ void MysqlStatement::Init(Handle<Object> target) {
     // Constructor template
     v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
     tpl->SetClassName(Nan::New<String>("MysqlStatement").ToLocalChecked());
-	constructor_template.Reset(tpl) ; 
+    constructor_template.Reset(tpl) ; 
     // Instance template
     v8::Local<v8::ObjectTemplate> instance_template = tpl->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
     // Instance properties
    
-	Nan::SetAccessor(instance_template,Nan::New<String>("paramCount").ToLocalChecked(), ParamCountGetter);
+    Nan::SetAccessor(instance_template,Nan::New<String>("paramCount").ToLocalChecked(), ParamCountGetter);
 
     // Prototype methods
     Nan::SetPrototypeMethod(tpl, "affectedRowsSync",   AffectedRowsSync);
@@ -69,11 +69,11 @@ void MysqlStatement::Init(Handle<Object> target) {
 
 Local<Object> MysqlStatement::NewInstance(MYSQL_STMT *my_statement) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     //Local<FunctionTemplate> tpl = NanPersistentToLocal(constructor_template);
-	v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(constructor_template);
+    v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(constructor_template);
     const int argc = 1;
     Local<Value> argv[argc];
     argv[0] = External::New(isolate,my_statement);
@@ -123,8 +123,8 @@ NAN_METHOD(MysqlStatement::New) {
  **/
 NAN_GETTER(MysqlStatement::ParamCountGetter) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
 
@@ -141,8 +141,8 @@ NAN_GETTER(MysqlStatement::ParamCountGetter) {
  **/
 NAN_METHOD(MysqlStatement::AffectedRowsSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
 
@@ -165,8 +165,8 @@ NAN_METHOD(MysqlStatement::AffectedRowsSync) {
  **/
 NAN_METHOD(MysqlStatement::AttrGetSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
 
@@ -529,8 +529,8 @@ NAN_METHOD(MysqlStatement::DataSeekSync) {
  */
 NAN_METHOD(MysqlStatement::ErrnoSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
 
@@ -546,8 +546,8 @@ NAN_METHOD(MysqlStatement::ErrnoSync) {
  */
 NAN_METHOD(MysqlStatement::ErrorSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
 
@@ -564,9 +564,9 @@ NAN_METHOD(MysqlStatement::ErrorSync) {
 void MysqlStatement::EIO_After_Execute(uv_work_t *req) {
     struct execute_request* execute_req = (struct execute_request *) (req->data);
     MysqlStatement* stmt = execute_req->stmt;
-	Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    Nan::HandleScope scope;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     const int argc = 1;
     Local<Value> argv[argc];
 
@@ -645,8 +645,8 @@ NAN_METHOD(MysqlStatement::ExecuteSync) {
 
 void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     struct fetch_request* fetchAll_req = (struct fetch_request *) (req->data);
     MysqlStatement* stmt = fetchAll_req->stmt;
@@ -779,8 +779,8 @@ NAN_METHOD(MysqlStatement::FetchAll) {
  **/
 NAN_METHOD(MysqlStatement::FetchAllSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.This());
 
@@ -857,8 +857,8 @@ NAN_METHOD(MysqlStatement::FetchAllSync) {
 
 void MysqlStatement::EIO_After_Fetch(uv_work_t* req) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     struct fetch_request* fetch_req = (struct fetch_request *) (req->data);
     MysqlStatement* stmt = fetch_req->stmt;
@@ -979,8 +979,8 @@ NAN_METHOD(MysqlStatement::Fetch) {
  */
 NAN_METHOD(MysqlStatement::FetchSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
 
@@ -1058,8 +1058,8 @@ NAN_METHOD(MysqlStatement::FetchSync) {
  */
 NAN_METHOD(MysqlStatement::FieldCountSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
 
@@ -1164,9 +1164,9 @@ void MysqlStatement::FreeMysqlBinds(MYSQL_BIND *binds, unsigned long size, bool 
  * Helper for FetchAll(), FetchAllSync() methods. Converts raw data to JS type.
  */
 Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYSQL_FIELD& field) {
-	Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    Nan::HandleScope scope;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     unsigned int type = field.type;
     if (type == MYSQL_TYPE_TINY) {             // TINYINT
         int32_t val = *((signed char *) ptr);
@@ -1283,8 +1283,8 @@ Local<Value> MysqlStatement::GetFieldValue(void* ptr, unsigned long& length, MYS
  */
 NAN_METHOD(MysqlStatement::LastInsertIdSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
 
@@ -1300,8 +1300,8 @@ NAN_METHOD(MysqlStatement::LastInsertIdSync) {
  */
 NAN_METHOD(MysqlStatement::NextResultSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
 
@@ -1317,8 +1317,8 @@ NAN_METHOD(MysqlStatement::NextResultSync) {
  */
 NAN_METHOD(MysqlStatement::NumRowsSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
 
@@ -1443,8 +1443,8 @@ NAN_METHOD(MysqlStatement::SendLongDataSync) {
  */
 NAN_METHOD(MysqlStatement::SqlStateSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
 
@@ -1457,9 +1457,9 @@ NAN_METHOD(MysqlStatement::SqlStateSync) {
  * After function for StoreResult() method
  */
 void MysqlStatement::EIO_After_StoreResult(uv_work_t *req) {
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
-	
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
+    
     struct store_result_request* store_req = (struct store_result_request *) (req->data);
     MysqlStatement* stmt = store_req->stmt;
 
@@ -1494,7 +1494,7 @@ void MysqlStatement::EIO_StoreResult(uv_work_t *req) {
 
 NAN_METHOD(MysqlStatement::StoreResult) {
     Nan::HandleScope scope;
-	
+    
     REQ_FUN_ARG(0, callback);
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.This());
@@ -1522,7 +1522,7 @@ NAN_METHOD(MysqlStatement::StoreResult) {
  */
 NAN_METHOD(MysqlStatement::StoreResultSync) {
     Nan::HandleScope scope;
-	
+    
 
     MysqlStatement *stmt = OBJUNWRAP<MysqlStatement>(info.Holder());
 

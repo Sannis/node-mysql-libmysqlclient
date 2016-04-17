@@ -11,7 +11,7 @@
 #include "./mysql_bindings_connection.h"
 #include "./mysql_bindings_result.h"
 #include "./mysql_bindings_statement.h"
-using namespace Nan ;
+
 /*!
  * Init V8 structures for MysqlConnection class
  */
@@ -19,12 +19,12 @@ Nan::Persistent<FunctionTemplate> MysqlConnection::constructor_template;
 
 void MysqlConnection::Init(Handle<Object> target) {
     Nan::HandleScope scope;
-	// Constructor template
+    // Constructor template
     v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
     tpl->SetClassName(Nan::New<String>("MysqlConnection").ToLocalChecked());
-	
+
     constructor_template.Reset(tpl) ; 
-    
+
     //AssignPersistent(FunctionTemplate, constructor_template, tpl);
     //tpl->SetClassName(Nan::NanSymbol("MysqlConnection"));
 
@@ -232,11 +232,11 @@ NAN_METHOD(MysqlConnection::New) {
  **/
 NAN_GETTER(MysqlConnection::ConnectErrnoGetter) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
-	
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
+
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
-	
+
     info.GetReturnValue().Set(v8::Integer::NewFromUnsigned(isolate,conn->connect_errno));
 }
 
@@ -247,13 +247,13 @@ NAN_GETTER(MysqlConnection::ConnectErrnoGetter) {
  **/
 NAN_GETTER(MysqlConnection::ConnectErrorGetter) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
-	
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
+
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
-	if(conn->connect_error) 
-		info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate,conn->connect_error)) ; 
-	else info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate,"")) ; 
+    if(conn->connect_error) 
+        info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate,conn->connect_error)) ; 
+    else info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate,"")) ; 
     //info.GetReturnValue().Set(Nan::New<String>(conn->connect_error ? conn->connect_error : ""));
 }
 
@@ -264,8 +264,8 @@ NAN_GETTER(MysqlConnection::ConnectErrorGetter) {
  **/
 NAN_METHOD(MysqlConnection::AffectedRowsSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -366,8 +366,8 @@ NAN_METHOD(MysqlConnection::CommitSync) {
  */
 void MysqlConnection::EIO_After_Connect(uv_work_t *req) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     struct connect_request *conn_req = (struct connect_request *)(req->data);
 
     const int argc = 1;
@@ -430,8 +430,8 @@ void MysqlConnection::EIO_Connect(uv_work_t *req) {
  **/
 NAN_METHOD(MysqlConnection::Connect) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     REQ_FUN_ARG(info.Length() - 1, callback);
 
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
@@ -599,8 +599,8 @@ NAN_METHOD(MysqlConnection::DumpDebugInfoSync) {
  **/
 NAN_METHOD(MysqlConnection::ErrnoSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -615,8 +615,8 @@ NAN_METHOD(MysqlConnection::ErrnoSync) {
  **/
 NAN_METHOD(MysqlConnection::ErrorSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -635,8 +635,8 @@ NAN_METHOD(MysqlConnection::ErrorSync) {
  **/
 NAN_METHOD(MysqlConnection::EscapeSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -665,8 +665,8 @@ NAN_METHOD(MysqlConnection::EscapeSync) {
  **/
 NAN_METHOD(MysqlConnection::FieldCountSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -683,8 +683,8 @@ NAN_METHOD(MysqlConnection::FieldCountSync) {
  **/
 NAN_METHOD(MysqlConnection::GetCharsetSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -714,8 +714,8 @@ NAN_METHOD(MysqlConnection::GetCharsetSync) {
  **/
 NAN_METHOD(MysqlConnection::GetCharsetNameSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -730,8 +730,8 @@ NAN_METHOD(MysqlConnection::GetCharsetNameSync) {
  **/
 NAN_METHOD(MysqlConnection::GetClientInfoSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     Local<Object> js_result = v8::Object::New(isolate);
 
     js_result->Set(v8::String::NewFromUtf8(isolate,"client_info"),
@@ -749,8 +749,8 @@ NAN_METHOD(MysqlConnection::GetClientInfoSync) {
  **/
 NAN_METHOD(MysqlConnection::GetInfoSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -781,8 +781,8 @@ NAN_METHOD(MysqlConnection::GetInfoSync) {
  **/
 NAN_METHOD(MysqlConnection::GetInfoStringSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -799,8 +799,8 @@ NAN_METHOD(MysqlConnection::GetInfoStringSync) {
  **/
 NAN_METHOD(MysqlConnection::GetWarningsSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -873,12 +873,12 @@ NAN_METHOD(MysqlConnection::InitStatementSync) {
     if (!my_statement) {
         info.GetReturnValue().Set(False());
     }
-	
+    
     Local<Object> local_js_result = MysqlStatement::NewInstance(my_statement);
     Nan::Persistent<Object> persistent_js_result ;
     persistent_js_result.Reset(local_js_result);
     //NanAssignPersistent(Object, persistent_js_result, local_js_result);
-	v8::Local<v8::Object> ret = Nan::New(persistent_js_result) ;  
+    v8::Local<v8::Object> ret = Nan::New(persistent_js_result) ;  
     info.GetReturnValue().Set(ret);
 }
 
@@ -889,9 +889,9 @@ NAN_METHOD(MysqlConnection::InitStatementSync) {
  **/
 NAN_METHOD(MysqlConnection::LastInsertIdSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
-	
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
+    
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -1001,8 +1001,8 @@ NAN_METHOD(MysqlConnection::PingSync) {
  */
 void MysqlConnection::EIO_After_Query(uv_work_t *req) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     struct query_request *query_req = (struct query_request *)(req->data);
 
     // We can't use const int argc here because argv is used
@@ -1639,8 +1639,8 @@ NAN_METHOD(MysqlConnection::SetSslSync) {
  **/
 NAN_METHOD(MysqlConnection::SqlStateSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -1655,8 +1655,8 @@ NAN_METHOD(MysqlConnection::SqlStateSync) {
  **/
 NAN_METHOD(MysqlConnection::StatSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -1705,8 +1705,8 @@ NAN_METHOD(MysqlConnection::StoreResultSync) {
  **/
 NAN_METHOD(MysqlConnection::ThreadIdSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;
@@ -1753,7 +1753,7 @@ NAN_METHOD(MysqlConnection::UseResultSync) {
     }
 
     Local<Object> local_js_result = MysqlResult::NewInstance(conn->_conn, my_result, mysql_field_count(conn->_conn));
-	Nan::Persistent<Object> persistent_js_result;
+    Nan::Persistent<Object> persistent_js_result;
     persistent_js_result.Reset(local_js_result) ;  
     v8::Local<v8::Object> ret = Nan::New(persistent_js_result) ; 
     info.GetReturnValue().Set(ret);
@@ -1766,8 +1766,8 @@ NAN_METHOD(MysqlConnection::UseResultSync) {
  **/
 NAN_METHOD(MysqlConnection::WarningCountSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlConnection *conn = OBJUNWRAP<MysqlConnection>(info.Holder());
 
     MYSQLCONN_MUSTBE_CONNECTED;

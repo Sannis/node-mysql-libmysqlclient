@@ -14,18 +14,16 @@
 /*!
  * Init V8 structures for MysqlResult class
  */
-
-using namespace Nan ;
  
 Nan::Persistent<FunctionTemplate> MysqlResult::constructor_template;
 
 void MysqlResult::Init(Handle<Object> target) {
     //Nan::HandleScope scope;
-	// Constructor template
+    // Constructor template
     v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
     tpl->SetClassName(Nan::New<String>("MysqlResult").ToLocalChecked());
-	constructor_template.Reset(tpl) ; 
-        // Instance template
+    constructor_template.Reset(tpl) ;
+    // Instance template
     v8::Local<v8::ObjectTemplate> instance_template = tpl->InstanceTemplate();
     instance_template->SetInternalFieldCount(1);
 
@@ -52,10 +50,10 @@ void MysqlResult::Init(Handle<Object> target) {
 
 Local<Object> MysqlResult::NewInstance(MYSQL *my_conn, MYSQL_RES *my_result, uint32_t field_count) {
     //Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     //Local<FunctionTemplate> tpl = NanPersistentToLocal(constructor_template);
-	v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(constructor_template);
+    v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(constructor_template);
     const int argc = 3;
     Local<Value> argv[argc];
     argv[0] = External::New(isolate,my_conn);
@@ -74,10 +72,10 @@ MysqlResult::~MysqlResult() {
 }
 
 void MysqlResult::AddFieldProperties(Local<Object> &js_field_obj, MYSQL_FIELD *field) {
-	//Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
-	
+    //Nan::HandleScope scope;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
+
     js_field_obj->Set(v8::String::NewFromUtf8(isolate,"name"),
                       v8::String::NewFromUtf8(isolate,field->name ? field->name : ""));
     js_field_obj->Set(v8::String::NewFromUtf8(isolate,"orgname"),
@@ -104,16 +102,16 @@ void MysqlResult::AddFieldProperties(Local<Object> &js_field_obj, MYSQL_FIELD *f
 }
 char * MysqlResult::ToCString(v8::Local<Value> & value) 
 {
-	v8::String::Utf8Value str(value->ToString()) ;
-	return *str ; 
+    v8::String::Utf8Value str(value->ToString()) ;
+    return *str ;
 }
 
 Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, unsigned long field_length) {
     //Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     Local<Value> js_field = Nan::Null();
-	MysqlResult * a = new MysqlResult; 
+    MysqlResult * a = new MysqlResult;
     switch (field.type) {
         case MYSQL_TYPE_NULL:   // NULL-type field
             // Already null
@@ -199,9 +197,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
                 if (field.flags & BINARY_FLAG) {
                     js_field =  Nan::CopyBuffer(field_value, field_length).ToLocalChecked() ;  //; v8::Local::New(isolate,node::Buffer::New(isolate,field_value, field_length));
                 } else {
-					
-				    js_field = V8STR(field_value,isolate);
-                
+                    js_field = V8STR(field_value,isolate);
                 }
             }
             break;
@@ -256,13 +252,13 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
 
         js_field = js_field_array;
     }
-	 return js_field ;
+    return js_field ;
 }
 
 MysqlResult::fetch_options MysqlResult::GetFetchOptions(Local<Object> options) {
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
-	
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
+
     fetch_options fo = {false, false};
 
     // Inherit from options object
@@ -313,8 +309,8 @@ NAN_METHOD(MysqlResult::New) {
  **/
 NAN_GETTER(MysqlResult::FieldCountGetter) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
@@ -359,8 +355,8 @@ NAN_METHOD(MysqlResult::DataSeekSync) {
  */
 void MysqlResult::EIO_After_FetchAll(uv_work_t *req) {
     Nan::HandleScope scope;
-v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate * isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     struct fetchAll_request *fetchAll_req = (struct fetchAll_request *)(req->data);
 
     // We can't use const int argc here because argv is used
@@ -483,8 +479,8 @@ void MysqlResult::EIO_FetchAll(uv_work_t *req) {
  **/
 NAN_METHOD(MysqlResult::FetchAll) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     int arg_pos = 0;
     fetch_options fo = {false, false};
     bool throw_wrong_arguments_exception = false;
@@ -510,7 +506,7 @@ NAN_METHOD(MysqlResult::FetchAll) {
         Local<Value> argv[1];
         argv[0] = V8EXC("fetchAllSync can handle only (options) or none arguments",isolate);
         //TODO(Sannis): Use NanCallback here
-        node::MakeCallback(isolate,Nan::GetCurrentContext()->Global(), callback, argc, argv);
+        node::MakeCallback(isolate, Nan::GetCurrentContext()->Global(), callback, argc, argv);
         info.GetReturnValue().Set(Nan::Undefined());
     }
 
@@ -546,9 +542,9 @@ NAN_METHOD(MysqlResult::FetchAll) {
  * Fetches all result rows as an array
  **/
 NAN_METHOD(MysqlResult::FetchAllSync) {
-	Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    Nan::HandleScope scope;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
@@ -586,27 +582,19 @@ NAN_METHOD(MysqlResult::FetchAllSync) {
             js_result_row = Object::New(isolate);
         }
 
-        for (j = 0; j < num_fields; j++) 
-        {
-			js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
-		    if (fo.results_as_array) 
-		    {
-	            js_result_row->Set(Integer::NewFromUnsigned(isolate,j), js_field);
-            } 
-            else if (fo.results_nest_tables) 
-            {
-				
-                if (!js_result_row->Has(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].table))) 
-                {
-	                js_result_row->Set(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].table), Object::New(isolate));
+        for (j = 0; j < num_fields; j++) {
+            js_field = GetFieldValue(fields[j], result_row[j], field_lengths[j]);
+            if (fo.results_as_array)  {
+                js_result_row->Set(Integer::NewFromUnsigned(isolate,j), js_field);
+            } else if (fo.results_nest_tables) {
+                if (!js_result_row->Has(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].table))) {
+                    js_result_row->Set(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].table), Object::New(isolate));
                 }
     
                 js_result_row->Get(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].table))->ToObject()
                              ->Set(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].name), js_field);
-            } 
-            else 
-            {	
-	            js_result_row->Set(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].name), js_field);
+            } else {
+                js_result_row->Set(v8::String::NewFromOneByte(isolate,(unsigned char *)fields[j].name), js_field);
             }
         }
 
@@ -614,7 +602,7 @@ NAN_METHOD(MysqlResult::FetchAllSync) {
 
         i++;
     }
-	info.GetReturnValue().Set(js_result);
+    info.GetReturnValue().Set(js_result);
 }
 
 /**
@@ -624,8 +612,8 @@ NAN_METHOD(MysqlResult::FetchAllSync) {
  **/
 NAN_METHOD(MysqlResult::FetchFieldSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
@@ -654,8 +642,8 @@ NAN_METHOD(MysqlResult::FetchFieldSync) {
  **/
 NAN_METHOD(MysqlResult::FetchFieldDirectSync) { // NOLINT
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
@@ -685,8 +673,8 @@ NAN_METHOD(MysqlResult::FetchFieldDirectSync) { // NOLINT
  **/
 NAN_METHOD(MysqlResult::FetchFieldsSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
@@ -717,8 +705,8 @@ NAN_METHOD(MysqlResult::FetchFieldsSync) {
  **/
 NAN_METHOD(MysqlResult::FetchLengthsSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
@@ -749,8 +737,8 @@ NAN_METHOD(MysqlResult::FetchLengthsSync) {
  **/
 NAN_METHOD(MysqlResult::FetchRowSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
@@ -839,8 +827,8 @@ NAN_METHOD(MysqlResult::FieldSeekSync) {
  **/
 NAN_METHOD(MysqlResult::FieldTellSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;
@@ -872,8 +860,8 @@ NAN_METHOD(MysqlResult::FreeSync) {
  **/
 NAN_METHOD(MysqlResult::NumRowsSync) {
     Nan::HandleScope scope;
-	v8::Isolate * isolate ;
-	isolate = v8::Isolate::GetCurrent() ;
+    v8::Isolate *isolate;
+    isolate = v8::Isolate::GetCurrent() ;
     MysqlResult *res = OBJUNWRAP<MysqlResult>(info.Holder());
 
     MYSQLRES_MUSTBE_VALID;

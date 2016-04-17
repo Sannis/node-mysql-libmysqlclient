@@ -104,7 +104,7 @@ class MysqlStatement : public node::ObjectWrap {
     struct execute_request {
         bool ok;
 
-        Callback * nan_callback ;
+        Nan::Callback * nan_callback ;
         MysqlStatement* stmt;
     };
 
@@ -120,7 +120,7 @@ class MysqlStatement : public node::ObjectWrap {
         bool ok;
         bool empty_resultset;
 
-        Callback * nan_callback;
+        Nan::Callback * nan_callback;
         MysqlStatement* stmt;
 
         MYSQL_RES* meta;
@@ -165,7 +165,7 @@ class MysqlStatement : public node::ObjectWrap {
     struct store_result_request {
         bool ok;
 
-        Callback * nan_callback;
+        Nan::Callback * nan_callback;
         MysqlStatement* stmt;
     };
     static void EIO_After_StoreResult(uv_work_t* req);
@@ -176,4 +176,3 @@ class MysqlStatement : public node::ObjectWrap {
 };
 
 #endif  // SRC_MYSQL_BINDINGS_STATEMENT_H_
-

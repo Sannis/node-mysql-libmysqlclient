@@ -121,4 +121,3 @@ if (info.Length() > (I) \
 #endif
 
 #endif  // SRC_MYSQL_BINDINGS_H_
-

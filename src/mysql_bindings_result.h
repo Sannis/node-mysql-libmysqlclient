@@ -83,7 +83,7 @@ class MysqlResult : public node::ObjectWrap {
     struct fetchAll_request {
         bool ok;
         
-        Callback * nan_callback;
+        Nan::Callback * nan_callback;
         MysqlResult *res;
 
         MYSQL_FIELD *fields;
@@ -117,4 +117,3 @@ class MysqlResult : public node::ObjectWrap {
 };
 
 #endif  // SRC_MYSQL_BINDINGS_RESULT_H_
-

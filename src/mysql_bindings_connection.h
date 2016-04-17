@@ -20,7 +20,6 @@
 #include <cstring>
 
 #include "./mysql_bindings.h"
-using namespace Nan ;
 
 #define MYSQLCONN_DISABLE_MQ \
     if (conn->multi_query) { \
@@ -36,12 +35,12 @@ using namespace Nan ;
 
 #define MYSQLCONN_MUSTBE_CONNECTED \
     if (!conn->_conn || !conn->connected) { \
-        return ThrowError("Not connected"); \
+        return Nan::ThrowError("Not connected"); \
     }
 
 #define MYSQLCONN_MUSTBE_INITIALIZED \
     if (!conn->_conn) { \
-        return ThrowError("Not initialized"); \
+        return Nan::ThrowError("Not initialized"); \
     }
 
 /** section: Classes
@@ -112,7 +111,7 @@ class MysqlConnection : public node::ObjectWrap {
     struct connect_request {
         bool ok;
 
-        Callback * nan_callback;
+        Nan::Callback * nan_callback;
         MysqlConnection *conn;
 
         String::Utf8Value *hostname;
@@ -181,7 +180,7 @@ class MysqlConnection : public node::ObjectWrap {
         bool connection_closed;
         bool have_result_set;
 
-        Callback * nan_callback;
+        Nan::Callback * nan_callback;
         MysqlConnection *conn;
 
         char *query;
@@ -252,4 +251,3 @@ class MysqlConnection : public node::ObjectWrap {
 };
 
 #endif  // SRC_MYSQL_BINDINGS_CONNECTION_H_
-
