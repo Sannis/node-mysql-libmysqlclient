@@ -4,6 +4,14 @@ node_js:
   - "4"    # latest stable release
   - "5"    # latest development release
 
+# This version of node/NAN/v8 requires a C++11 compiler
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
+
 # This causes `Job is already running: mysql`
 #services:
 #  - mysql # start MySQL on startup
@@ -18,3 +26,9 @@ before_script:
   # Some extras for Travis-CI only
   - "mysql -uroot -e \"DELETE FROM mysql.user WHERE User = 'travis';\""
   - "mysql -uroot -e \"FLUSH PRIVILEGES;\""
+
+install:
+  - if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX=g++-4.8; fi
+  - $CXX --version
+  - node --version
+  - npm --version
