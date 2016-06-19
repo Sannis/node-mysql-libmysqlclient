@@ -1,8 +1,7 @@
 language: node_js
 node_js:
-  - "0.12" # legacy release
-  - "4"    # latest stable release
-  - "5"    # latest development release
+  - "4"    # LTS
+  - "6"    # Current
 
 # This version of node/NAN/v8 requires a C++11 compiler
 env:
