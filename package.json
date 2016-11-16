@@ -32,7 +32,7 @@
 
   "scripts" : { "test" : "make test", "doc" : "make doc" },
 
-  "dependencies" : { "nan" : "~2.2.1" },
+  "dependencies" : { "nan" : "~2.4.0" },
 
   "devDependencies" :
   { "nodeunit" : "~0.8.8"
