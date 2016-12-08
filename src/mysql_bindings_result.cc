@@ -300,7 +300,7 @@ NAN_METHOD(MysqlResult::New) {
     MysqlResult *my_res = new MysqlResult(connection, result, field_count);
     my_res->Wrap(info.Holder());
 
-    info.GetReturnValue().Set(info.Holder());
+    return info.GetReturnValue().Set(info.Holder());
 }
 
 /** read-only
@@ -317,9 +317,9 @@ NAN_GETTER(MysqlResult::FieldCountGetter) {
     MYSQLRES_MUSTBE_VALID;
 
     if (res->field_count > 0) {
-        info.GetReturnValue().Set(Integer::NewFromUnsigned(isolate,res->field_count));
+        return info.GetReturnValue().Set(Integer::NewFromUnsigned(isolate,res->field_count));
     } else {
-        info.GetReturnValue().Set(Nan::Undefined());
+        return info.GetReturnValue().Set(Nan::Undefined());
     }
 }
 
@@ -348,7 +348,7 @@ NAN_METHOD(MysqlResult::DataSeekSync) {
 
     mysql_data_seek(res->_res, offset);
 
-    info.GetReturnValue().Set(Nan::Undefined());
+    return info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /*!
@@ -508,7 +508,7 @@ NAN_METHOD(MysqlResult::FetchAll) {
         argv[0] = V8EXC("fetchAllSync can handle only (options) or none arguments",isolate);
         //TODO(Sannis): Use NanCallback here
         node::MakeCallback(isolate, Nan::GetCurrentContext()->Global(), callback, argc, argv);
-        info.GetReturnValue().Set(Nan::Undefined());
+        return info.GetReturnValue().Set(Nan::Undefined());
     }
 
     if (fo.results_as_array && fo.results_nest_tables) {
@@ -533,7 +533,7 @@ NAN_METHOD(MysqlResult::FetchAll) {
     _req->data = fetchAll_req;
     uv_queue_work(uv_default_loop(), _req, EIO_FetchAll, (uv_after_work_cb)EIO_After_FetchAll);
 
-    info.GetReturnValue().Set(Nan::Undefined());
+    return info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /**
@@ -603,7 +603,7 @@ NAN_METHOD(MysqlResult::FetchAllSync) {
 
         i++;
     }
-    info.GetReturnValue().Set(js_result);
+    return info.GetReturnValue().Set(js_result);
 }
 
 /**
@@ -626,13 +626,13 @@ NAN_METHOD(MysqlResult::FetchFieldSync) {
     field = mysql_fetch_field(res->_res);
 
     if (!field) {
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
     js_result = Object::New(isolate);
     AddFieldProperties(js_result, field);
 
-    info.GetReturnValue().Set(js_result);
+    return info.GetReturnValue().Set(js_result);
 }
 
 /**
@@ -658,13 +658,13 @@ NAN_METHOD(MysqlResult::FetchFieldDirectSync) { // NOLINT
     field = mysql_fetch_field_direct(res->_res, field_num);
 
     if (!field) {
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
     js_result = Object::New(isolate);
     AddFieldProperties(js_result, field);
 
-    info.GetReturnValue().Set(js_result);
+    return info.GetReturnValue().Set(js_result);
 }
 
 /**
@@ -696,7 +696,7 @@ NAN_METHOD(MysqlResult::FetchFieldsSync) {
         js_result->Set(Integer::NewFromUnsigned(isolate,i), js_result_obj);
     }
 
-    info.GetReturnValue().Set(js_result);
+    return info.GetReturnValue().Set(js_result);
 }
 
 /**
@@ -719,7 +719,7 @@ NAN_METHOD(MysqlResult::FetchLengthsSync) {
     Local<Array> js_result = Array::New(isolate);
 
     if (!lengths) {
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
     for (i = 0; i < num_fields; i++) {
@@ -727,7 +727,7 @@ NAN_METHOD(MysqlResult::FetchLengthsSync) {
                        Integer::NewFromUnsigned(isolate,lengths[i]));
     }
 
-    info.GetReturnValue().Set(js_result);
+    return info.GetReturnValue().Set(js_result);
 }
 
 /**
@@ -767,7 +767,7 @@ NAN_METHOD(MysqlResult::FetchRowSync) {
     MYSQL_ROW result_row = mysql_fetch_row(res->_res);
 
     if (!result_row) {
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
     unsigned long *field_lengths = mysql_fetch_lengths(res->_res);
@@ -794,7 +794,7 @@ NAN_METHOD(MysqlResult::FetchRowSync) {
         }
     }
 
-    info.GetReturnValue().Set(js_result_row);
+    return info.GetReturnValue().Set(js_result_row);
 }
 
 /**
@@ -818,7 +818,7 @@ NAN_METHOD(MysqlResult::FieldSeekSync) {
 
     mysql_field_seek(res->_res, field_num);
 
-    info.GetReturnValue().Set(Nan::Undefined());
+    return info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /**
@@ -834,7 +834,7 @@ NAN_METHOD(MysqlResult::FieldTellSync) {
 
     MYSQLRES_MUSTBE_VALID;
 
-    info.GetReturnValue().Set(Integer::NewFromUnsigned(isolate,mysql_field_tell(res->_res)));
+    return info.GetReturnValue().Set(Integer::NewFromUnsigned(isolate,mysql_field_tell(res->_res)));
 }
 
 /**
@@ -851,7 +851,7 @@ NAN_METHOD(MysqlResult::FreeSync) {
 
     res->Free();
 
-    info.GetReturnValue().Set(Nan::Undefined());
+    return info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /**
@@ -871,5 +871,5 @@ NAN_METHOD(MysqlResult::NumRowsSync) {
         return Nan::ThrowError("Function cannot be used with MYSQL_USE_RESULT");
     }
 
-    info.GetReturnValue().Set(Integer::New(isolate,mysql_num_rows(res->_res)));
+    return info.GetReturnValue().Set(Integer::New(isolate,mysql_num_rows(res->_res)));
 }
