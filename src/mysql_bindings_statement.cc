@@ -113,7 +113,7 @@ NAN_METHOD(MysqlStatement::New) {
     MysqlStatement *binding_stmt = new MysqlStatement(my_stmt);
     binding_stmt->Wrap(info.Holder());
 
-    info.GetReturnValue().Set(info.Holder());
+    return info.GetReturnValue().Set(info.Holder());
 }
 
 /** read-only
@@ -131,7 +131,7 @@ NAN_GETTER(MysqlStatement::ParamCountGetter) {
     MYSQLSTMT_MUSTBE_INITIALIZED;
     MYSQLSTMT_MUSTBE_PREPARED;
 
-    info.GetReturnValue().Set(Integer::New(isolate,stmt->param_count));
+    return info.GetReturnValue().Set(Integer::New(isolate,stmt->param_count));
 }
 
 /**
@@ -152,10 +152,10 @@ NAN_METHOD(MysqlStatement::AffectedRowsSync) {
     my_ulonglong affected_rows = mysql_stmt_affected_rows(stmt->_stmt);
 
     if (affected_rows == ((my_ulonglong)-1)) {
-        info.GetReturnValue().Set(Integer::New(isolate,-1));
+        return info.GetReturnValue().Set(Integer::New(isolate,-1));
     }
 
-    info.GetReturnValue().Set(Integer::New(isolate,affected_rows));
+    return info.GetReturnValue().Set(Integer::New(isolate,affected_rows));
 }
 
 /**
@@ -185,11 +185,11 @@ NAN_METHOD(MysqlStatement::AttrGetSync) {
 
     switch (attr_key) {
         case STMT_ATTR_UPDATE_MAX_LENGTH:
-            info.GetReturnValue().Set(Boolean::New(isolate,attr_value));
+            return info.GetReturnValue().Set(Boolean::New(isolate,attr_value));
             break;
         case STMT_ATTR_CURSOR_TYPE:
         case STMT_ATTR_PREFETCH_ROWS:
-            info.GetReturnValue().Set(Integer::NewFromUnsigned(isolate,attr_value));
+            return info.GetReturnValue().Set(Integer::NewFromUnsigned(isolate,attr_value));
             break;
         default:
             return Nan::ThrowError("This attribute isn't supported yet");
@@ -239,7 +239,7 @@ NAN_METHOD(MysqlStatement::AttrSetSync) {
         return Nan::ThrowError("This attribute isn't supported by libmysqlclient");
     }
 
-    info.GetReturnValue().Set(True());
+    return info.GetReturnValue().Set(True());
 }
 
 /**
@@ -351,12 +351,12 @@ NAN_METHOD(MysqlStatement::BindParamsSync) {
     }
 
     if (mysql_stmt_bind_param(stmt->_stmt, stmt->binds)) {
-      info.GetReturnValue().Set(False());
+      return info.GetReturnValue().Set(False());
     }
 
     stmt->state = STMT_BINDED_PARAMS;
 
-    info.GetReturnValue().Set(True());
+    return info.GetReturnValue().Set(True());
 }
 
 /**
@@ -384,7 +384,7 @@ NAN_METHOD(MysqlStatement::BindResultSync) {
 
     meta_result = mysql_stmt_result_metadata(stmt->_stmt);
     if (meta_result == NULL) {
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
     field_count = mysql_stmt_field_count(stmt->_stmt);
@@ -465,13 +465,13 @@ NAN_METHOD(MysqlStatement::BindResultSync) {
 
     if (mysql_stmt_bind_result(stmt->_stmt, bind)) {
         FreeMysqlBinds(bind, field_count, false);
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
     stmt->result_binds = bind;
     stmt->state = STMT_BINDED_RESULT;
 
-    info.GetReturnValue().Set(True());
+    return info.GetReturnValue().Set(True());
 }
 
 
@@ -488,13 +488,13 @@ NAN_METHOD(MysqlStatement::CloseSync) {
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
     if (mysql_stmt_close(stmt->_stmt)) {
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
     stmt->state = STMT_CLOSED;
     stmt->_stmt = NULL;
 
-    info.GetReturnValue().Set(True());
+    return info.GetReturnValue().Set(True());
 }
 
 /*! todo: finish
@@ -519,7 +519,7 @@ NAN_METHOD(MysqlStatement::DataSeekSync) {
     mysql_stmt_data_seek(stmt->_stmt, offset_uint);
 
     //return Nan::Undefined();
-    info.GetReturnValue().Set(Nan::Undefined());
+    return info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /*! todo: finish
@@ -536,7 +536,7 @@ NAN_METHOD(MysqlStatement::ErrnoSync) {
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
-    info.GetReturnValue().Set(Integer::New(isolate,mysql_stmt_errno(stmt->_stmt)));
+    return info.GetReturnValue().Set(Integer::New(isolate,mysql_stmt_errno(stmt->_stmt)));
 }
 
 /*! todo: finish
@@ -555,7 +555,7 @@ NAN_METHOD(MysqlStatement::ErrorSync) {
 
     const char *error = mysql_stmt_error(stmt->_stmt);
 
-    info.GetReturnValue().Set(V8STR(error,isolate));
+    return info.GetReturnValue().Set(V8STR(error,isolate));
 }
 
 /*! todo: finish
@@ -620,7 +620,7 @@ NAN_METHOD(MysqlStatement::Execute) {
     _req->data = execute_req;
     uv_queue_work(uv_default_loop(), _req, EIO_Execute, (uv_after_work_cb)EIO_After_Execute);
 
-    info.GetReturnValue().Set(Nan::Undefined());
+    return info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /*! todo: finish
@@ -636,11 +636,11 @@ NAN_METHOD(MysqlStatement::ExecuteSync) {
     MYSQLSTMT_MUSTBE_PREPARED;
 
     if (mysql_stmt_execute(stmt->_stmt)) {
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
     stmt->state = STMT_EXECUTED;
-    info.GetReturnValue().Set(True());
+    return info.GetReturnValue().Set(True());
 }
 
 void MysqlStatement::EIO_After_FetchAll(uv_work_t* req) {
@@ -769,7 +769,7 @@ NAN_METHOD(MysqlStatement::FetchAll) {
     _req->data = fetchAll_req;
     uv_queue_work(uv_default_loop(), _req, EIO_FetchAll, (uv_after_work_cb)EIO_After_FetchAll);
 
-   info.GetReturnValue().Set(Nan::Undefined());
+   return info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /*! todo: finish
@@ -802,7 +802,7 @@ NAN_METHOD(MysqlStatement::FetchAllSync) {
     // Get meta data for binding buffers
     meta = mysql_stmt_result_metadata(stmt->_stmt);
     if (meta == NULL) {
-        info.GetReturnValue().Set(Null());
+        return info.GetReturnValue().Set(Null());
     }
 
     fields = meta->fields;
@@ -851,7 +851,7 @@ NAN_METHOD(MysqlStatement::FetchAllSync) {
     if (error && error != MYSQL_NO_DATA) {
         return Nan::ThrowError(mysql_stmt_error(stmt->_stmt));
     } else {
-        info.GetReturnValue().Set(js_result);
+        return info.GetReturnValue().Set(js_result);
     }
 }
 
@@ -971,7 +971,7 @@ NAN_METHOD(MysqlStatement::Fetch) {
     _req->data = fetch_req;
     uv_queue_work(uv_default_loop(), _req, EIO_Fetch, (uv_after_work_cb)EIO_After_Fetch);
 
-   info.GetReturnValue().Set(Nan::Undefined());
+   return info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /*! todo: finish
@@ -1002,13 +1002,13 @@ NAN_METHOD(MysqlStatement::FetchSync) {
     // Get meta data for binding buffers
     meta = mysql_stmt_result_metadata(stmt->_stmt);
     if (meta == NULL) {
-        info.GetReturnValue().Set(Null());
+        return info.GetReturnValue().Set(Null());
     }
 
     fields = meta->fields;
 
     if (!mysql_stmt_num_rows(stmt->_stmt)) {
-        info.GetReturnValue().Set(Null());
+        return info.GetReturnValue().Set(Null());
     }
 
     error = mysql_stmt_fetch(stmt->_stmt);
@@ -1047,7 +1047,7 @@ NAN_METHOD(MysqlStatement::FetchSync) {
     if (error) {
         return Nan::ThrowError(mysql_stmt_error(stmt->_stmt));
     } else {
-        info.GetReturnValue().Set(js_result_row);
+        return info.GetReturnValue().Set(js_result_row);
     }
 }
 
@@ -1065,7 +1065,7 @@ NAN_METHOD(MysqlStatement::FieldCountSync) {
 
     MYSQLSTMT_MUSTBE_PREPARED;
 
-    info.GetReturnValue().Set(Integer::New(isolate,mysql_stmt_field_count(stmt->_stmt)));
+    return info.GetReturnValue().Set(Integer::New(isolate,mysql_stmt_field_count(stmt->_stmt)));
 }
 
 /*! todo: finish
@@ -1080,7 +1080,7 @@ NAN_METHOD(MysqlStatement::FreeResultSync) {
 
     MYSQLSTMT_MUSTBE_EXECUTED;
 
-    info.GetReturnValue().Set(!mysql_stmt_free_result(stmt->_stmt) ? True() : False());
+    return info.GetReturnValue().Set(!mysql_stmt_free_result(stmt->_stmt) ? True() : False());
 }
 
 /*! todo: finish
@@ -1290,7 +1290,7 @@ NAN_METHOD(MysqlStatement::LastInsertIdSync) {
 
     MYSQLSTMT_MUSTBE_EXECUTED;
 
-    info.GetReturnValue().Set(Integer::New(isolate,mysql_stmt_insert_id(stmt->_stmt)));
+    return info.GetReturnValue().Set(Integer::New(isolate,mysql_stmt_insert_id(stmt->_stmt)));
 }
 
 /*! todo: finish
@@ -1307,7 +1307,7 @@ NAN_METHOD(MysqlStatement::NextResultSync) {
 
     MYSQLSTMT_MUSTBE_EXECUTED;
 
-    info.GetReturnValue().Set(Integer::New(isolate,mysql_stmt_next_result(stmt->_stmt)));
+    return info.GetReturnValue().Set(Integer::New(isolate,mysql_stmt_next_result(stmt->_stmt)));
 }
 
 /*! todo: finish
@@ -1324,7 +1324,7 @@ NAN_METHOD(MysqlStatement::NumRowsSync) {
 
     MYSQLSTMT_MUSTBE_STORED;  // TODO(Sannis): Or all result already fetched!
 
-    info.GetReturnValue().Set(Integer::New(isolate,mysql_stmt_num_rows(stmt->_stmt)));
+    return info.GetReturnValue().Set(Integer::New(isolate,mysql_stmt_num_rows(stmt->_stmt)));
 }
 
 /*! todo: finish
@@ -1347,7 +1347,7 @@ NAN_METHOD(MysqlStatement::PrepareSync) {
     unsigned long int query_len = info[0]->ToString()->Utf8Length();
 
     if (mysql_stmt_prepare(stmt->_stmt, *query, query_len)) {
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
     if (stmt->binds) {
@@ -1365,7 +1365,7 @@ NAN_METHOD(MysqlStatement::PrepareSync) {
 
     stmt->state = STMT_PREPARED;
 
-    info.GetReturnValue().Set(True());
+    return info.GetReturnValue().Set(True());
 }
 
 /*! todo: finish
@@ -1381,11 +1381,11 @@ NAN_METHOD(MysqlStatement::ResetSync) {
     MYSQLSTMT_MUSTBE_PREPARED;
 
     if (mysql_stmt_reset(stmt->_stmt)) {
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
     stmt->state = STMT_INITIALIZED;
-    info.GetReturnValue().Set(True());
+    return info.GetReturnValue().Set(True());
 }
 
 /*! todo: finish
@@ -1403,12 +1403,12 @@ NAN_METHOD(MysqlStatement::ResultMetadataSync) {
     MYSQL_RES *my_result = mysql_stmt_result_metadata(stmt->_stmt);
 
     if (!my_result) {
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
     Local<Object> local_js_result = MysqlResult::NewInstance(stmt->_stmt->mysql, my_result, mysql_stmt_field_count(stmt->_stmt));
 
-    info.GetReturnValue().Set(local_js_result);
+    return info.GetReturnValue().Set(local_js_result);
 }
 
 /*! todo: finish
@@ -1430,10 +1430,10 @@ NAN_METHOD(MysqlStatement::SendLongDataSync) {
 
     if (mysql_stmt_send_long_data(stmt->_stmt,
                                   parameter_number, *data, data.length())) {
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
-    info.GetReturnValue().Set(True());
+    return info.GetReturnValue().Set(True());
 }
 
 /*! todo: finish
@@ -1450,7 +1450,7 @@ NAN_METHOD(MysqlStatement::SqlStateSync) {
 
     MYSQLSTMT_MUSTBE_INITIALIZED;
 
-    info.GetReturnValue().Set(V8STR(mysql_stmt_sqlstate(stmt->_stmt),isolate));
+    return info.GetReturnValue().Set(V8STR(mysql_stmt_sqlstate(stmt->_stmt),isolate));
 }
 
 /*! todo: finish
@@ -1512,7 +1512,7 @@ NAN_METHOD(MysqlStatement::StoreResult) {
     _req->data = store_req;
     uv_queue_work(uv_default_loop(), _req, EIO_StoreResult, (uv_after_work_cb)EIO_After_StoreResult);
 
-   info.GetReturnValue().Set(Nan::Undefined());
+   return info.GetReturnValue().Set(Nan::Undefined());
 }
 
 /*! todo: finish
@@ -1529,10 +1529,10 @@ NAN_METHOD(MysqlStatement::StoreResultSync) {
     MYSQLSTMT_MUSTBE_EXECUTED;
 
     if (mysql_stmt_store_result(stmt->_stmt) != 0) {
-        info.GetReturnValue().Set(False());
+        return info.GetReturnValue().Set(False());
     }
 
     stmt->state = STMT_STORED_RESULT;
 
-    info.GetReturnValue().Set(True());
+    return info.GetReturnValue().Set(True());
 }
