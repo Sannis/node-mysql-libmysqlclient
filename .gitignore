@@ -1,5 +1,6 @@
 # Needed for npm :-(
 .idea
+npm-debug.log
 
 *~
 build
