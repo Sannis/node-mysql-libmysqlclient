@@ -136,7 +136,7 @@ Local<Value> MysqlResult::GetFieldValue(MYSQL_FIELD field, char* field_value, un
         case MYSQL_TYPE_FLOAT:   // FLOAT field
         case MYSQL_TYPE_DOUBLE:  // DOUBLE or REAL field
             if (field_value) {
-              js_field = v8::String::NewFromUtf8(isolate,field_value)->ToNumber();
+              js_field = Nan::To<v8::Number>(v8::String::NewFromUtf8(isolate,field_value));
             }
             break;
         case MYSQL_TYPE_DECIMAL:     // DECIMAL or NUMERIC field

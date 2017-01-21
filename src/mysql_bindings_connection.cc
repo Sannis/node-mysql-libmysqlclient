@@ -443,12 +443,12 @@ NAN_METHOD(MysqlConnection::Connect) {
         argv[0] = V8EXC("Already initialized. "
                         "Use conn.realConnectSync() after conn.initSync()",isolate);
 
-        v8::TryCatch try_catch;
+        Nan::TryCatch try_catch;
 
         callback->Call(Nan::GetCurrentContext()->Global(), argc, argv);
 
         if (try_catch.HasCaught()) {
-            node::FatalException(isolate,try_catch);
+            try_catch.ReThrow();
         }
 
         return info.GetReturnValue().Set(Nan::Undefined());
